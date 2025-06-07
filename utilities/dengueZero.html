@@ -1,0 +1,971 @@
+<!--
+ * --------------------------------------------------------------
+ * Author: Rafael Passos Domingues
+ * Last Update: 2025 June 7
+ * --------------------------------------------------------------
+-->
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>DengueZero - Sistema de Report de Focos de Dengue</title>
+<!-- Bibliotecas externas -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+<style>
+  :root {
+    /* Cores principais atualizadas para tema de saúde */
+    --primary-color: #27ae60;       /* Verde para elementos primários */
+    --primary-dark: #219653;        /* Verde mais escuro para hover */
+    --danger-color: #e74c3c;        /* Vermelho para alertas graves */
+    --warning-color: #f39c12;       /* Laranja para alertas médios */
+    --info-color: #3498db;          /* Azul claro para informações */
+    --success-color: #2ecc71;       /* Verde para elementos positivos */
+    --text-color: #333;             /* Cor principal do texto */
+    --light-gray: #f5f5f5;          /* Cor de fundo */
+    --border-radius: 8px;           /* Arredondamento de bordas */
+    --box-shadow: 0 4px 6px rgba(0,0,0,0.1); /* Sombra padrão */
+  }
+  
+  body {
+    font-family: 'Segoe UI', Roboto, Arial, sans-serif;
+    margin: 0;
+    padding: 1rem;
+    background: var(--light-gray);
+    color: var(--text-color);
+    line-height: 1.6;
+  }
+  
+  .container {
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+  
+  header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+  
+  h1 {
+    margin: 0;
+    color: var(--primary-color);
+    font-size: 1.8rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  
+  #map {
+    height: 500px;
+    border-radius: var(--border-radius);
+    margin-bottom: 1.5rem;
+    box-shadow: var(--box-shadow);
+    border: 1px solid #ddd;
+  }
+  
+  .info-panel {
+    background: white;
+    padding: 1rem;
+    border-radius: var(--border-radius);
+    margin-bottom: 1.5rem;
+    box-shadow: var(--box-shadow);
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  .alert {
+    color: var(--danger-color);
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  
+  .status-info {
+    display: flex;
+    gap: 1rem;
+  }
+  
+  .status-item {
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+    font-size: 0.9rem;
+  }
+  
+  .button-group {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+  }
+  
+  button {
+    padding: 0.8rem 1.2rem;
+    border: none;
+    border-radius: var(--border-radius);
+    cursor: pointer;
+    font-weight: 599.0042;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.9rem;
+  }
+  
+  .btn-primary {
+    background: var(--primary-color);
+    color: white;
+  }
+  
+  .btn-primary:hover {
+    background: var(--primary-dark);
+    transform: translateY(-2px);
+  }
+  
+  .btn-danger {
+    background: var(--danger-color);
+    color: white;
+  }
+  
+  .btn-danger:hover {
+    background: #c0392b;
+    transform: translateY(-2px);
+  }
+  
+  .btn-accent {
+    background: var(--info-color);
+    color: white;
+  }
+  
+  .btn-accent:hover {
+    background: #2980b9;
+    transform: translateY(-2px);
+  }
+  
+  .btn-outline {
+    background: transparent;
+    border: 2px solid var(--primary-color);
+    color: var(--primary-color);
+  }
+  
+  .btn-outline:hover {
+    background: var(--primary-color);
+    color: white;
+  }
+  
+  .legend {
+    background: white;
+    padding: 1rem;
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
+    position: absolute;
+    bottom: 30px;
+    right: 10px;
+    z-index: 1000;
+    font-size: 0.9rem;
+    max-width: 199px;
+  }
+  
+  .legend h3 {
+    margin-top: 0;
+    margin-bottom: 0.8rem;
+    font-size: 1rem;
+    color: var(--primary-color);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  
+  .legend-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 0.5rem;
+    gap: 0.5rem;
+  }
+  
+  .legend-icon {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 0.8rem;
+  }
+  
+  /* Painel de seleção de focos */
+  .incident-panel {
+    background: white;
+    padding: 1.5rem;
+    border-radius: var(--border-radius);
+    margin-bottom: 1.5rem;
+    box-shadow: var(--box-shadow);
+    display: none;
+    position: relative;
+    z-index: 1001;
+  }
+  
+  .incident-types {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 0.8rem;
+    margin: 1rem 0;
+  }
+  
+  .incident-type {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem;
+    border-radius: var(--border-radius);
+    cursor: pointer;
+    transition: all 0.2s;
+    border: 1px solid #ddd;
+  }
+  
+  .incident-type:hover {
+    background: #f8f9fa;
+  }
+  
+  .incident-type input {
+    margin: 0;
+  }
+  
+  /* Cores de gravidade */
+  .incident-type.grave {
+    border-left: 4px solid var(--danger-color);
+  }
+  
+  .incident-type.media {
+    border-left: 4px solid var(--warning-color);
+  }
+  
+  .incident-type.leve {
+    border-left: 4px solid var(--info-color);
+  }
+  
+  /* Campo de descrição para focos "outros" */
+  .other-description {
+    display: none;
+    margin-top: 1rem;
+  }
+  
+  .other-description textarea {
+    width: 100%;
+    min-height: 80px;
+    padding: 0.8rem;
+    border: 1px solid #ddd;
+    border-radius: var(--border-radius);
+    font-family: inherit;
+  }
+  
+  /* Estilo para fotos */
+  .photo-container {
+    display: none;
+    margin-top: 1rem;
+  }
+  
+  .photo-preview {
+    max-width: 100%;
+    max-height: 199px;
+    margin-top: 0.5rem;
+    border-radius: var(--border-radius);
+    display: none;
+  }
+  
+  @media (max-width: 768px) {
+    header {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+    
+    .info-panel {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+    
+    .button-group {
+      flex-direction: column;
+    }
+    
+    .legend {
+      position: relative;
+      bottom: auto;
+      right: auto;
+      margin-top: 1rem;
+      max-width: 100%;
+    }
+    
+    #map {
+      height: 400px;
+    }
+    
+    .incident-types {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <!-- Cabeçalho com título e informações de status -->
+  <header>
+    <h1><i class="fas fa-bug"></i> DengueZero</h1>
+    <div class="status-info">
+      <div class="status-item">
+        <i class="fas fa-map-marker-alt" style="color: var(--danger-color);"></i>
+        <span>Focos: <strong id="contador">0</strong></span>
+      </div>
+      <div class="status-item">
+        <i class="far fa-clock" style="color: var(--primary-color);"></i>
+        <span id="hora-atual">--:--:--</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Painel de informações principais -->
+  <div class="info-panel">
+    <p class="alert"><i class="fas fa-exclamation-triangle"></i> Clique no mapa para registrar focos de dengue encontrados</p>
+    <button class="btn-primary" onclick="mostrarPainelIncidentes()">
+      <i class="fas fa-plus-circle"></i> Registrar Foco
+    </button>
+  </div>
+
+  <!-- Painel de seleção de tipos de focos -->
+  <div class="incident-panel" id="incidentPanel">
+    <h3><i class="fas fa-clipboard-list"></i> Selecione o tipo de foco encontrado:</h3>
+    
+    <!-- Grid de tipos de focos -->
+    <div class="incident-types" id="incidentTypes"></div>
+
+    <!-- Campo para adicionar foto -->
+    <div class="photo-container" id="photoContainer">
+      <label for="fotoFoco">Adicionar foto do foco (opcional):</label>
+      <input type="file" id="fotoFoco" accept="image/*" capture="environment">
+      <img id="photoPreview" class="photo-preview" alt="Pré-visualização da foto">
+    </div>
+
+    <!-- Campo de descrição para focos "outros" -->
+    <div class="other-description" id="otherDescription">
+      <label for="incidentDetails">Descreva detalhadamente o foco encontrado:</label>
+      <textarea id="incidentDetails" placeholder="Descreva o local e as condições do foco de dengue..."></textarea>
+    </div>
+
+    <!-- Botões de ação do painel -->
+    <div class="button-group">
+      <button class="btn-primary" onclick="confirmarSelecao()">
+        <i class="fas fa-check"></i> Confirmar
+      </button>
+      <button class="btn-outline" onclick="fecharPainelIncidentes()">
+        <i class="fas fa-times"></i> Cancelar
+      </button>
+    </div>
+  </div>
+
+  <!-- Mapa Leaflet -->
+  <div id="map"></div>
+
+  <!-- Legenda do mapa -->
+  <div class="legend">
+    <h3><i class="fas fa-key"></i> Legenda</h3>
+    <div class="legend-item">
+      <span class="legend-icon" style="background: #2ecc70;"><i class="fas fa-user"></i></span>
+      <span>Sua posição</span>
+    </div>
+    <div class="legend-item">
+      <span class="legend-icon" style="background: #e74c3c;"><i class="fas fa-skull-crossbones"></i></span>
+      <span>Foco crítico</span>
+    </div>
+    <div class="legend-item">
+      <span class="legend-icon" style="background: #f39c12;"><i class="fas fa-exclamation-triangle"></i></span>
+      <span>Foco médio</span>
+    </div>
+    <div class="legend-item">
+      <span class="legend-icon" style="background: #3498db;"><i class="fas fa-info-circle"></i></span>
+      <span>Foco pequeno</span>
+    </div>
+    <div class="legend-item">
+      <span class="legend-icon" style="background: #9b59b6;"><i class="fas fa-question-circle"></i></span>
+      <span>Outro tipo</span>
+    </div>
+  </div>
+
+  <!-- Botões de ação -->
+  <div class="button-group">
+    <button class="btn-primary" onclick="exportarWhatsApp()">
+      <i class="fab fa-whatsapp"></i> Compartilhar via WhatsApp
+    </button>
+    <button class="btn-accent" onclick="exportarRelatorio()">
+      <i class="fas fa-file-export"></i> Exportar Relatório
+    </button>
+    <button class="btn-danger" onclick="limparRegistros()">
+      <i class="fas fa-trash-alt"></i> Limpar Registros
+    </button>
+  </div>
+</div>
+
+<!-- Bibliotecas JavaScript -->
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
+
+<script>
+  /**
+   * VARIÁVEIS GLOBAIS
+   */
+  const focos = []; // Armazena todos os focos registrados
+  let map; // Objeto do mapa Leaflet
+  let usuarioMarcador; // Marcador da posição do usuário
+  let currentLatLng = null; // Última posição clicada no mapa
+  let fotoData = null; // Armazena a foto em base64
+
+  // Tipos de focos de dengue com classificação de gravidade
+  const incidentTypes = [
+    // Focos críticos (vermelho)
+    { id: 'agua-parada', name: 'Água parada grande', severity: 'grave', icon: 'water' },
+    { id: 'pneus', name: 'Pneus com água', severity: 'grave', icon: 'tire' },
+    { id: 'lixo', name: 'Lixo acumulado', severity: 'grave', icon: 'trash' },
+    { id: 'vasos', name: 'Vasos com água', severity: 'grave', icon: 'flower' },
+    { id: 'calhas', name: 'Calhas entupidas', severity: 'grave', icon: 'gutter' },
+    
+    // Focos médios (laranja)
+    { id: 'garrafas', name: 'Garrafas abertas', severity: 'media', icon: 'wine-bottle' },
+    { id: 'lajes', name: 'Lajes com água', severity: 'media', icon: 'building' },
+    { id: 'bebedouros', name: 'Bebedouros animais', severity: 'media', icon: 'paw' },
+    { id: 'piscinas', name: 'Piscinas não tratadas', severity: 'media', icon: 'swimming-pool' },
+    
+    // Focos pequenos (azul)
+    { id: 'pratos', name: 'Pratos de plantas', severity: 'leve', icon: 'utensils' },
+    { id: 'pocas', name: 'Poças pequenas', severity: 'leve', icon: 'tint' },
+    { id: 'baldes', name: 'Baldes com água', severity: 'leve', icon: 'bucket' },
+    
+    // Outros (usuário define descrição)
+    { id: 'outro', name: 'Outro tipo de foco', severity: null, icon: 'question-circle' }
+  ];
+
+  let selectedIncidentTypes = []; // Tipos selecionados no painel
+
+  /**
+   * FUNÇÕES DE INTERFACE
+   */
+
+  // Atualiza contador de focos na interface
+  function atualizarContador() {
+    document.getElementById('contador').textContent = focos.length;
+  }
+
+  // Atualiza relógio em tempo real
+  function atualizarRelogio() {
+    const agora = new Date();
+    const horas = String(agora.getHours()).padStart(2, '0');
+    const minutos = String(agora.getMinutes()).padStart(2, '0');
+    const segundos = String(agora.getSeconds()).padStart(2, '0');
+    document.getElementById('hora-atual').textContent = `${horas}:${minutos}:${segundos}`;
+  }
+
+  // Formata data/hora para formato legível
+  function formatarTimestamp(data) {
+    const d = new Date(data);
+    const dia = String(d.getDate()).padStart(2, '0');
+    const mes = String(d.getMonth() + 1).padStart(2, '0');
+    const ano = d.getFullYear();
+    const hora = String(d.getHours()).padStart(2, '0');
+    const min = String(d.getMinutes()).padStart(2, '0');
+    return `${dia}/${mes}/${ano} ${hora}:${min}`;
+  }
+
+  // Mostra o painel de seleção de focos
+  function mostrarPainelIncidentes() {
+    document.getElementById('incidentPanel').style.display = 'block';
+    document.getElementById('otherDescription').style.display = 'none';
+    document.getElementById('photoContainer').style.display = 'block';
+    document.getElementById('photoPreview').style.display = 'none';
+    selectedIncidentTypes = [];
+    fotoData = null;
+    
+    // Configura o input de foto
+    document.getElementById('fotoFoco').addEventListener('change', function(e) {
+      const file = e.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function(event) {
+          fotoData = event.target.result;
+          const preview = document.getElementById('photoPreview');
+          preview.src = fotoData;
+          preview.style.display = 'block';
+        };
+        reader.readAsDataURL(file);
+      }
+    });
+    
+    // Desmarca todas as seleções anteriores
+    document.querySelectorAll('#incidentTypes input[type="checkbox"]').forEach(checkbox => {
+      checkbox.checked = false;
+    });
+  }
+
+  // Fecha o painel de seleção de focos
+  function fecharPainelIncidentes() {
+    document.getElementById('incidentPanel').style.display = 'none';
+    document.getElementById('fotoFoco').value = '';
+  }
+
+  // Carrega os tipos de focos no painel
+  function loadIncidentTypes() {
+    const container = document.getElementById('incidentTypes');
+    container.innerHTML = '';
+    
+    incidentTypes.forEach(type => {
+      const div = document.createElement('div');
+      div.className = `incident-type ${type.severity || ''}`;
+      div.innerHTML = `
+        <input type="checkbox" id="type_${type.id}" value="${type.id}">
+        <label for="type_${type.id}">
+          <i class="fas fa-${type.icon}"></i> ${type.name}
+        </label>
+      `;
+      
+      // Evento para quando um tipo é selecionado/deselecionado
+      div.querySelector('input').addEventListener('change', function() {
+        if (this.checked) {
+          // Se for "outro", mostra campo de descrição
+          if (type.id === 'outro') {
+            document.getElementById('otherDescription').style.display = 'block';
+          }
+          selectedIncidentTypes.push(type.id);
+        } else {
+          // Se for "outro", esconde campo de descrição
+          if (type.id === 'outro') {
+            document.getElementById('otherDescription').style.display = 'none';
+            document.getElementById('incidentDetails').value = '';
+          }
+          selectedIncidentTypes = selectedIncidentTypes.filter(t => t !== type.id);
+        }
+      });
+      
+      container.appendChild(div);
+    });
+  }
+
+  // Confirma a seleção e cria o marcador
+  async function confirmarSelecao() {
+    if (selectedIncidentTypes.length === 0) {
+      alert("Selecione pelo menos um tipo de foco.");
+      return;
+    }
+
+    // Validação para focos "outros"
+    if (selectedIncidentTypes.includes('outro')) {
+      const details = document.getElementById('incidentDetails').value.trim();
+      if (!details) {
+        alert("Por favor, descreva detalhadamente o foco encontrado.");
+        return;
+      }
+    }
+
+    // Fecha o painel e cria o marcador
+    fecharPainelIncidentes();
+    await criarMarcador(currentLatLng);
+  }
+
+  /**
+   * FUNÇÕES DO MAPA
+   */
+
+  // Busca endereço reverso (de coordenadas para endereço)
+  async function buscarEndereco(lat, lng) {
+    const url = `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lng}`;
+    try {
+      const resposta = await fetch(url, { 
+        headers: { 
+          'Accept-Language': 'pt-BR',
+          'User-Agent': 'DengueZero/1.0' 
+        }
+      });
+      const dados = await resposta.json();
+
+      // Extrai dados do endereço
+      const endereco = dados.address || {};
+      return {
+        rua: endereco.road || endereco.pedestrian || endereco.neighbourhood || "Local desconhecido",
+        cep: endereco.postcode || "CEP não encontrado",
+        bairro: endereco.suburb || endereco.neighbourhood || "Bairro desconhecido",
+        cidade: endereco.city || endereco.town || endereco.village || "Cidade desconhecida"
+      };
+    } catch (erro) {
+      console.error("Erro ao buscar endereço:", erro);
+      return { 
+        rua: "Local desconhecido", 
+        cep: "CEP não encontrado",
+        bairro: "Bairro desconhecido",
+        cidade: "Cidade desconhecida"
+      };
+    }
+  }
+
+  // Retorna ícone e cor baseado no tipo e gravidade do foco
+  function getIncidentIcon(typeId) {
+    const type = incidentTypes.find(t => t.id === typeId);
+    
+    // Cores baseadas na gravidade
+    const colors = {
+      'grave': '#e74c3c',    // Vermelho
+      'media': '#f39c12',    // Laranja
+      'leve': '#3498db'      // Azul
+    };
+    
+    return {
+      icon: type ? type.icon : 'exclamation',
+      color: type ? colors[type.severity] : '#9b59b6'  // Roxo para indefinido
+    };
+  }
+
+  // Inicializa o mapa Leaflet
+  function iniciarMapa(lat, lng) {
+    map = L.map('map').setView([lat, lng], 18); // Zoom 18 para áreas menores
+
+    // Camada do mapa (OpenStreetMap)
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 19,
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+    }).addTo(map);
+
+    // Marcador do usuário (verde)
+    usuarioMarcador = L.marker([lat, lng], {
+      title: "Sua posição",
+      icon: L.divIcon({
+        html: '<i class="fas fa-user" style="color: #2ecc70; font-size: 24px;"></i>',
+        className: 'user-marker',
+        iconSize: [24, 24]
+      })
+    }).addTo(map);
+    
+    usuarioMarcador.bindPopup("<b>Sua posição atual</b>").openPopup();
+
+    // Atualiza posição do usuário periodicamente (simulação de movimento)
+    setInterval(() => {
+      navigator.geolocation.getCurrentPosition(pos => {
+        const newLatLng = L.latLng(pos.coords.latitude, pos.coords.longitude);
+        usuarioMarcador.setLatLng(newLatLng);
+        // Centraliza o mapa se o usuário sair da área visível
+        if (map.getBounds().contains(newLatLng) === false) {
+          map.setView(newLatLng, map.getZoom());
+        }
+      });
+    }, 30000); // Atualiza a cada 30 segundos
+
+    // Evento de clique no mapa para registrar focos
+    map.on('click', async e => {
+      currentLatLng = e.latlng;
+      mostrarPainelIncidentes();
+    });
+  }
+
+  // Cria um marcador de foco no mapa
+  async function criarMarcador(latlng) {
+    // Busca endereço pelas coordenadas
+    const { rua, cep, bairro, cidade } = await buscarEndereco(latlng.lat, latlng.lng);
+
+    // Determina o tipo principal
+    let mainType = selectedIncidentTypes[0];
+    if (selectedIncidentTypes.includes('agua-parada')) mainType = 'agua-parada';
+    else if (selectedIncidentTypes.includes('pneus')) mainType = 'pneus';
+    else if (selectedIncidentTypes.includes('lixo')) mainType = 'lixo';
+
+    // Obtém ícone e cor para o marcador
+    const { icon, color } = getIncidentIcon(mainType);
+
+    // Descrição do foco (para "outros" pega do textarea)
+    let descricao = '';
+    if (selectedIncidentTypes.includes('outro')) {
+      descricao = document.getElementById('incidentDetails').value.trim();
+    } else {
+      // Para outros tipos, pede uma descrição complementar
+      descricao = prompt(
+        `📝 Descreva o foco encontrado em:\n\n📍 Local: ${rua}\n🏘️ Bairro: ${bairro}\n🏙️ Cidade: ${cidade}\n📮 CEP: ${cep}`,
+        selectedIncidentTypes.map(t => {
+          const type = incidentTypes.find(it => it.id === t);
+          return type ? type.name : '';
+        }).join(', ')
+      );
+      
+      if (descricao === null) return; // Usuário cancelou
+      if (!descricao) descricao = "Sem descrição detalhada";
+    }
+
+    const timestamp = new Date();
+
+    // Cria o marcador no mapa com ícone personalizado
+    const marcador = L.marker(latlng, { 
+      draggable: true,
+      icon: L.divIcon({
+        html: `<i class="fas fa-${icon}" style="color: ${color}; font-size: 24px;"></i>`,
+        className: 'incident-marker',
+        iconSize: [24, 24]
+      })
+    }).addTo(map);
+
+    // Texto para os tipos selecionados
+    const tiposTexto = selectedIncidentTypes.map(t => {
+      const type = incidentTypes.find(it => it.id === t);
+      return type ? type.name : '';
+    }).filter(t => t).join(', ');
+
+    // Determina a gravidade com base no tipo principal
+    const type = incidentTypes.find(t => t.id === mainType);
+    const severity = type ? type.severity : 'leve';
+
+    // Conteúdo do popup do marcador
+    let popupContent = `
+      <b><i class="fas fa-${icon}"></i> Foco de Dengue:</b><br>
+      <small>${formatarTimestamp(timestamp)}</small><br><br>
+      <b>📍 Local:</b> ${rua}<br>
+      <b>🏘️ Bairro:</b> ${bairro}<br>
+      <b>🏙️ Cidade:</b> ${cidade}<br>
+      <b>📮 CEP:</b> ${cep}<br><br>
+      <b>⚠️ Tipo(s):</b> ${tiposTexto}<br>
+      <b>📝 Descrição:</b> ${descricao}<br><br>
+    `;
+
+    // Adiciona a foto se existir
+    if (fotoData) {
+      popupContent += `
+        <b>📸 Foto:</b><br>
+        <img src="${fotoData}" style="max-width: 100%; max-height: 150px; border-radius: 4px;"><br><br>
+      `;
+    }
+
+    popupContent += `<small>(Arraste para ajustar posição | Delete para remover)</small>`;
+
+    marcador.bindPopup(popupContent).openPopup();
+
+    // Atualiza popup e dados quando o marcador é movido
+    marcador.on('dragend', async () => {
+      const pos = marcador.getLatLng();
+      const { rua: novaRua, cep: novoCep, bairro: novoBairro, cidade: novaCidade } = await buscarEndereco(pos.lat, pos.lng);
+      
+      let updatedPopupContent = `
+        <b><i class="fas fa-${icon}"></i> Foco de Dengue:</b><br>
+        <small>${formatarTimestamp(timestamp)}</small><br><br>
+        <b>📍 Local:</b> ${novaRua}<br>
+        <b>🏘️ Bairro:</b> ${novoBairro}<br>
+        <b>🏙️ Cidade:</b> ${novaCidade}<br>
+        <b>📮 CEP:</b> ${novoCep}<br><br>
+        <b>⚠️ Tipo(s):</b> ${tiposTexto}<br>
+        <b>📝 Descrição:</b> ${descricao}<br><br>
+      `;
+
+      if (fotoData) {
+        updatedPopupContent += `
+          <b>📸 Foto:</b><br>
+          <img src="${fotoData}" style="max-width: 100%; max-height: 150px; border-radius: 4px;"><br><br>
+        `;
+      }
+
+      updatedPopupContent += `<small>(Arraste para ajustar posição | Delete para remover)</small>`;
+
+      marcador.setPopupContent(updatedPopupContent).openPopup();
+
+      // Atualiza dados no array de focos
+      const index = focos.findIndex(e => e.marcador === marcador);
+      if (index !== -1) {
+        focos[index].latlng = pos;
+        focos[index].rua = novaRua;
+        focos[index].cep = novoCep;
+        focos[index].bairro = novoBairro;
+        focos[index].cidade = novaCidade;
+      }
+    });
+
+    // Permite remover marcador com tecla Delete
+    marcador.on('popupopen', () => {
+      document.addEventListener('keydown', function removerMarcador(e) {
+        if (e.key === 'Delete') {
+          map.removeLayer(marcador);
+          const index = focos.findIndex(p => p.marcador === marcador);
+          if (index !== -1) {
+            focos.splice(index, 1);
+            atualizarContador();
+          }
+          document.removeEventListener('keydown', removerMarcador);
+        }
+      });
+    });
+
+    // Adiciona o foco ao array global
+    focos.push({ 
+      marcador, 
+      latlng, 
+      rua, 
+      cep, 
+      bairro, 
+      cidade, 
+      descricao, 
+      timestamp,
+      tipos: selectedIncidentTypes,
+      tiposTexto,
+      severity,
+      foto: fotoData
+    });
+    
+    atualizarContador();
+    selectedIncidentTypes = []; // Reseta seleção
+    fotoData = null; // Limpa a foto
+    document.getElementById('fotoFoco').value = ''; // Limpa o input de foto
+    document.getElementById('photoPreview').style.display = 'none'; // Esconde a pré-visualização
+  }
+
+  /**
+   * FUNÇÕES DE EXPORTAÇÃO
+   */
+
+  // Exporta relatório para WhatsApp
+  function exportarWhatsApp() {
+    if (focos.length === 0) {
+      alert("Nenhum foco registrado.");
+      return;
+    }
+
+    let texto = "🦟 *Relatório de Focos de Dengue*\n\n";
+    
+    // Cabeçalho
+    texto += `🛡️ *Relatório de Inspeção*\n`;
+    texto += `👤 *Agente:* [Seu Nome]\n`;
+    texto += `📅 *Data:* ${formatarTimestamp(new Date())}\n\n`;
+    
+    // Resumo por gravidade
+    const resumoGravidade = { grave: 0, media: 0, leve: 0 };
+    focos.forEach(foco => {
+      resumoGravidade[foco.severity]++;
+    });
+    
+    texto += `📊 *Resumo por Gravidade:*\n`;
+    texto += `   🔴 Crítico: ${resumoGravidade.grave}\n`;
+    texto += `   🟠 Médio: ${resumoGravidade.media}\n`;
+    texto += `   🔵 Leve: ${resumoGravidade.leve}\n\n`;
+    
+    // Detalhes dos focos
+    texto += `🔍 *Detalhes dos Focos:*\n\n`;
+    focos.forEach((foco, i) => {
+      texto += `📍 *Foco ${i + 1}:*\n`;
+      texto += `   🏷️ Tipo(s): ${foco.tiposTexto}\n`;
+      texto += `   ${foco.severity === 'grave' ? '🔴' : foco.severity === 'media' ? '🟠' : '🔵'} Gravidade: ${foco.severity}\n`;
+      texto += `   🏠 Local: ${foco.rua}\n`;
+      texto += `   🏘️ Bairro: ${foco.bairro}\n`;
+      texto += `   🏙️ Cidade: ${foco.cidade}\n`;
+      texto += `   📮 CEP: ${foco.cep}\n`;
+      texto += `   ⚠️ Descrição: ${foco.descricao}\n`;
+      texto += `   🕒 Horário: ${formatarTimestamp(foco.timestamp)}\n`;
+      texto += `   📍 Coordenadas: (Lat: ${foco.latlng.lat.toFixed(5)}, Lng: ${foco.latlng.lng.toFixed(5)})\n\n`;
+    });
+
+    texto += "\n⚠️ *Atenção:* Verificar todos os focos reportados e tomar as providências necessárias para eliminação.";
+
+    // Abre o WhatsApp com o texto formatado
+    const url = `https://wa.me/?text=${encodeURIComponent(texto)}`;
+    window.open(url, '_blank');
+  }
+
+  // Exporta relatório completo para texto
+  function exportarRelatorio() {
+    if (focos.length === 0) {
+      alert("Nenhum foco registrado.");
+      return;
+    }
+
+    let texto = "=== RELATÓRIO DE FOCOS DE DENGUE ===\n\n";
+    texto += `Agente: [Seu Nome]\n`;
+    texto += `Data do relatório: ${formatarTimestamp(new Date())}\n\n`;
+    
+    // Resumo por gravidade
+    const resumoGravidade = { grave: 0, media: 0, leve: 0 };
+    focos.forEach(foco => {
+      resumoGravidade[foco.severity]++;
+    });
+    
+    texto += "RESUMO POR GRAVIDADE:\n";
+    texto += `- Crítico: ${resumoGravidade.grave}\n`;
+    texto += `- Médio: ${resumoGravidade.media}\n`;
+    texto += `- Leve: ${resumoGravidade.leve}\n\n`;
+    
+    // Detalhes dos focos
+    texto += "DETALHES DOS FOCOS:\n\n";
+    focos.forEach((foco, i) => {
+      texto += `FOCO ${i + 1}:\n`;
+      texto += `- Tipo(s): ${foco.tiposTexto}\n`;
+      texto += `- Gravidade: ${foco.severity}\n`;
+      texto += `- Local: ${foco.rua}\n`;
+      texto += `- Bairro: ${foco.bairro}\n`;
+      texto += `- Cidade: ${foco.cidade}\n`;
+      texto += `- CEP: ${foco.cep}\n`;
+      texto += `- Descrição: ${foco.descricao}\n`;
+      texto += `- Horário: ${formatarTimestamp(foco.timestamp)}\n`;
+      texto += `- Coordenadas: (Lat: ${foco.latlng.lat.toFixed(5)}, Lng: ${foco.latlng.lng.toFixed(5)})\n\n`;
+    });
+
+    texto += "\nOBSERVAÇÕES: Verificar todos os focos reportados e tomar as providências necessárias para eliminação.";
+
+    // Cria e faz download do arquivo de texto
+    const blob = new Blob([texto], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `relatorio_dengue_${new Date().toISOString().slice(0,10)}.txt`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }
+
+  // Limpa todos os registros
+  function limparRegistros() {
+    if (focos.length === 0 || confirm("Tem certeza que deseja apagar todos os registros de focos?")) {
+      focos.forEach(foco => {
+        map.removeLayer(foco.marcador);
+      });
+      focos.length = 0;
+      atualizarContador();
+    }
+  }
+
+  /**
+   * INICIALIZAÇÃO
+   */
+  document.addEventListener('DOMContentLoaded', function() {
+    // Carrega os tipos de focos no painel
+    loadIncidentTypes();
+    
+    // Inicia o relógio
+    setInterval(atualizarRelogio, 1000);
+    atualizarRelogio();
+
+    // Tenta obter a localização do usuário
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(pos => {
+        iniciarMapa(pos.coords.latitude, pos.coords.longitude);
+      }, err => {
+        console.error("Erro de geolocalização:", err);
+        alert("Não foi possível obter sua localização. Por favor, verifique as permissões de geolocalização.");
+      }, {
+        enableHighAccuracy: true,
+        timeout: 10000,
+        maximumAge: 0
+      });
+    } else {
+      alert("Seu navegador não suporta geolocalização. O sistema não funcionará corretamente.");
+    }
+  });
+</script>
+</body>
+</html>
