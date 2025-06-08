@@ -1061,9 +1061,10 @@
                 // URL com parâmetro da estação
                 const appUrlWithStation = `${appUrlBase}?station=${station.stationuuid}`;
 
-                // Mensagem de compartilhamento (LGPD compliant)
+                // Mensagem de compartilhamento (LGPD compliant e com aviso de isenção de responsabilidade)
                 const message = `🎧 Estou ouvindo ${station.name || 'uma rádio incrível'} no Rádio Retrô!\n\n` +
-                   `📻 Sintonize você também: ${appUrlWithStation}`;
+                    `📻 Sintonize você também: ${appUrlWithStation}\n\n` +
+                    `🚨 Aviso: O web app "Radio Retrô" não é responsável, de forma alguma, pelas estações disponíveis aqui. As rádios são fornecidas por uma API de código aberto chamada Radio Browser (https://www.radio-browser.info/), que agrega e disponibiliza, para domínio público, transmissões públicas de estações de rádio do mundo todo.`;
 
                 // Verificar se o usuário já aceitou os termos de compartilhamento
                 const shareConsentKey = 'radioRetroShareConsent';
