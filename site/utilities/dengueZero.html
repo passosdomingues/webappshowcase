@@ -10,7 +10,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>DengueZero</title>
+<title>DengueAI</title>
 <!-- Bibliotecas externas -->
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
@@ -325,7 +325,7 @@
     <h1>
     <!-- Ref. https://www.gov.br/saude/pt-br/assuntos/noticias/imagens-principal/dengue-icon.png/view -->
     <img src="https://rpassosdomingues.github.io/insights/icons/dengue.png" alt="Dengue Icon" style="height: 1em; vertical-align: middle;">
-  DengueZero
+  DengueAI
     </h1>
     <div class="status-info">
       <div class="status-item">
@@ -594,7 +594,7 @@
       const resposta = await fetch(url, { 
         headers: { 
           'Accept-Language': 'pt-BR',
-          'User-Agent': 'DengueZero/1.0' 
+          'User-Agent': 'DengueAI/1.0' 
         }
       });
       const dados = await resposta.json();
