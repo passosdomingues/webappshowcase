@@ -10,7 +10,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Gerador Avançado de QR Code PIX</title>
+  <title>QR Code Safe Generator</title>
 
   <style>
     /* ============================================================
@@ -408,20 +408,94 @@
         margin-bottom: 0.25rem;
       }
     }
+
+    /* Modal LGPD */
+    .lgpd-modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.7);
+      z-index: 1000;
+      display: none;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .lgpd-modal.active {
+      display: flex;
+    }
+
+    .lgpd-modal-content {
+      background: white;
+      padding: 25px;
+      border-radius: 10px;
+      width: 90%;
+      max-width: 500px;
+      animation: fadeIn 0.3s ease;
+    }
+
+    .lgpd-modal h3 {
+      color: #7E57C2;
+      margin-bottom: 15px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .lgpd-modal ul {
+      margin: 15px 0;
+      padding-left: 25px;
+      list-style-type: none;
+    }
+
+    .lgpd-modal li {
+      margin-bottom: 10px;
+      color: #555;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .lgpd-modal-buttons {
+      display: flex;
+      gap: 10px;
+      justify-content: flex-end;
+      margin-top: 20px;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
   </style>
+
+  <!-- Modal (coloque antes do </body>) -->
+  <div id="lgpdModal" class="lgpd-modal">
+    <div class="lgpd-modal-content">
+      <h3><i class="fas fa-shield-alt"></i> Confirmação LGPD</h3>
+      <p id="lgpdModalMessage"></p>
+      <ul id="lgpdModalList"></ul>
+      <div class="lgpd-modal-buttons">
+      <button id="lgpdCancel" class="btn btn-secondary">Cancelar</button>
+      <button id="lgpdConfirm" class="btn">Confirmar</button>
+      </div>
+    </div>
+  </div>
 </head>
 
 <body>
   <header>
-    <h1>Gerador Avançado de QR Code PIX</h1>
-    <p>Identifica automaticamente chaves PIX, links e outros dados</p>
+    <h1>QR Code Safe Generator</h1>
+    <p>Identifica automaticamente links e alguns outros tipos de dados</p>
     <button id="darkModeBtn" aria-label="Alternar modo escuro" onclick="toggleDarkMode()">🌓</button>
   </header>
 
   <main>
     <!-- Seção de entrada de dados -->
     <div class="input-group">
-      <label for="qrInput">Digite uma chave PIX, link ou outro texto:</label>
+      <label for="qrInput">Cole um link:</label>
       <input 
         type="text" 
         id="qrInput" 
@@ -440,7 +514,7 @@
       <!-- Conteúdo preenchido via JavaScript -->
     </div>
 
-    <!-- Informações detalhadas para chaves PIX -->
+    <!-- Informações detalhadas para chaves Safe -->
     <div id="pixInfo" class="info-card">
       <!-- Conteúdo preenchido via JavaScript -->
     </div>
@@ -467,7 +541,7 @@
      * SISTEMA DE DETECÇÃO E VALIDAÇÃO DE DADOS
      * 
      * Este módulo implementa validações robustas para diferentes
-     * tipos de dados, com foco especial em chaves PIX brasileiras.
+     * tipos de dados, com foco especial em chaves Safe brasileiras.
      * Inclui validação de CPF/CNPJ, telefone, e-mail, chaves
      * aleatórias e links, com verificações de segurança.
      * ============================================================ */
@@ -476,7 +550,7 @@
      * Detecta e valida o tipo de dado inserido pelo usuário
      * 
      * Implementa validações específicas para cada tipo de dado:
-     * - Chaves PIX (CPF, CNPJ, telefone, e-mail, aleatória)
+     * - Chaves Safe (CPF, CNPJ, telefone, e-mail, aleatória)
      * - URLs (com verificação de segurança)
      * - Outros formatos (Bitcoin, Ethereum, texto simples)
      * 
@@ -516,7 +590,7 @@
       const phoneResult = validatePhone(text);
       if (phoneResult.isValid) return phoneResult;
       
-      // ========== VALIDAÇÃO DE CHAVE PIX ALEATÓRIA ==========
+      // ========== VALIDAÇÃO DE CHAVE Safe ALEATÓRIA ==========
       const pixRandomResult = validatePixRandom(text);
       if (pixRandomResult.isValid) return pixRandomResult;
       
@@ -640,7 +714,7 @@
       const localPart = parts[0];
       const domain = parts[1];
       
-      // Mapeamento de alguns domínios de e-mail para bancos (para PIX)
+      // Mapeamento de alguns domínios de e-mail para bancos (para Safe)
       const bankEmailDomains = {
         'nubank.com.br': 'Nubank',
         'itau.com.br': 'Itaú',
@@ -665,7 +739,7 @@
       }
       
       return {
-        type: 'E-mail / Chave PIX',
+        type: 'E-mail',
         icon: '✉️',
         isValid: true,
         isPix: true,
@@ -766,7 +840,7 @@
       const region = regionMap[cpfClean[8]] || 'Desconhecida';
       
       return {
-        type: 'CPF / Chave PIX',
+        type: 'CPF',
         icon: '💳',
         isValid: true,
         isPix: true,
@@ -851,7 +925,7 @@
       const formattedCnpj = cnpjClean.replace(/(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})/, '$1.$2.$3/$4-$5');
       
       return {
-        type: 'CNPJ / Chave PIX',
+        type: 'CNPJ',
         icon: '🏢',
         isValid: true,
         isPix: true,
@@ -961,10 +1035,10 @@
       };
       
       return {
-        type: isMobile ? 'Celular / Chave PIX' : 'Telefone Fixo',
+        type: isMobile ? 'Celular' : 'Telefone Fixo',
         icon: '📱',
         isValid: true,
-        isPix: isMobile, // Apenas celulares são válidos para PIX
+        isPix: isMobile, // Apenas celulares são válidos para Safe
         metadata: {
           countryCode: countryCode ? '+' + countryCode : '+55',
           areaCode: areaCode,
@@ -978,16 +1052,16 @@
     }
     
     /**
-     * Valida chaves PIX aleatórias (UUID)
+     * Valida chaves Safe aleatórias (UUID)
      * 
      * Verifica se o texto corresponde ao formato de chave
-     * aleatória PIX (UUID).
+     * aleatória Safe (UUID).
      * 
-     * @param {string} text - Texto a ser validado como chave PIX aleatória
+     * @param {string} text - Texto a ser validado como chave Safe aleatória
      * @returns {Object} Resultado da validação com metadados
      */
     function validatePixRandom(text) {
-      // Regex para UUID (chave aleatória PIX)
+      // Regex para UUID (chave aleatória Safe)
       const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
       
       if (!uuidRegex.test(text)) {
@@ -995,7 +1069,7 @@
       }
       
       return {
-        type: 'Chave PIX Aleatória',
+        type: 'Chave Aleatória',
         icon: '🔑',
         isValid: true,
         isPix: true,
@@ -1005,71 +1079,141 @@
         }
       };
     }
-    
-    /* ============================================================
-     * SISTEMA DE GERAÇÃO E MANIPULAÇÃO DE QR CODE
-     * 
-     * Este módulo implementa a geração de QR Codes otimizados,
-     * com suporte a download e cópia para área de transferência.
-     * ============================================================ */
-    
+
     /**
-     * Gera QR Code a partir do texto fornecido
-     * 
-     * Cria um QR Code otimizado com alta correção de erros,
-     * permitindo personalização visual e download.
-     * 
-     * @param {string} text - Texto para gerar o QR Code
-     * @param {Object} dataInfo - Informações sobre o tipo de dado
-     */
-    function generateQRCode(text, dataInfo) {
+    * Mostra modal LGPD e retorna uma Promise com a resposta do usuário
+    * @param {string} message - Mensagem principal
+    * @param {string[]} items - Lista de itens de concordância
+    * @returns {Promise<boolean>} - true se confirmou, false se cancelou
+    */
+    function showLGPDPrompt(message, items = []) {
+      const modal = document.getElementById('lgpdModal');
+      const messageEl = document.getElementById('lgpdModalMessage');
+      const listEl = document.getElementById('lgpdModalList');
+
+      // Configura o conteúdo
+      messageEl.textContent = message;
+      listEl.innerHTML = items.map(item => `
+        <li>
+          <label>
+            <input type="checkbox" class="lgpd-checkbox" /> ${item}
+          </label>
+        </li>
+      `).join('');
+
+      // Mostra o modal
+      modal.classList.add('active');
+      document.body.style.overflow = 'hidden';
+
+      // Retorna uma Promise que resolve quando o usuário decide
+      return new Promise((resolve) => {
+        document.getElementById('lgpdConfirm').onclick = () => {
+          const checkboxes = [...modal.querySelectorAll('.lgpd-checkbox')];
+          const allChecked = checkboxes.every(cb => cb.checked);
+
+          if (!allChecked) {
+            alert('Você deve concordar com todos os itens para continuar.');
+            return;
+          }
+
+          // Armazena o consentimento no localStorage
+          const consentRecord = {
+            timestamp: new Date().toISOString(),
+            items,
+            origin: window.location.href
+          };
+          localStorage.setItem('lgpdConsent', JSON.stringify(consentRecord));
+
+          modal.classList.remove('active');
+          document.body.style.overflow = '';
+          resolve(true);
+        };
+
+        document.getElementById('lgpdCancel').onclick = () => {
+          modal.classList.remove('active');
+          document.body.style.overflow = '';
+          resolve(false);
+        };
+      });
+    }
+
+    /**
+    * Verifica se já existe consentimento registrado
+    * @returns {boolean}
+    */
+    function hasConsent() {
+      const rec = localStorage.getItem('lgpdConsent');
+      return !!rec;
+    }
+
+    /**
+    * Permite ao usuário revogar o consentimento
+    */
+    function revokeConsent() {
+      localStorage.removeItem('lgpdConsent');
+      alert('Seu consentimento foi retirado.');
+    }
+
+    /**
+    * Gera QR Code a partir do texto fornecido
+    * @param {string} text - Texto para gerar o QR Code
+    * @param {Object} dataInfo - Informações sobre o tipo de dado
+    */
+    async function generateQRCode(text, dataInfo) {
       const qrcodeContainer = document.getElementById('qrcode');
       qrcodeContainer.innerHTML = '';
-      
+
       const downloadBtn = document.getElementById('downloadBtn');
       const copyBtn = document.getElementById('copyBtn');
-      
+
       if (!text) {
         downloadBtn.style.display = 'none';
         copyBtn.style.display = 'none';
         return;
       }
-      
-      // Configurações avançadas para o QR Code
+
+      // Verifica se já existe consentimento
+      if (!hasConsent()) {
+        const userConfirmed = await showLGPDPrompt(
+          'Ao prosseguir, você concorda com:',
+          [
+            'Compartilhamento deste link sob sua vontade explícita e total responsabilidade',
+            'Processamento conforme Art. 7º da LGPD'
+          ]
+        );
+
+        if (!userConfirmed) return;
+      }
+
       const qrOptions = {
-        errorCorrectionLevel: 'H', // Alta correção de erros
-        width: 280,
-        margin: 4,
-        color: {
+          errorCorrectionLevel: 'H',
+          width: 280,
+          margin: 4,
+          color: {
           dark: "#000000",
           light: "#FFFFFF"
         }
       };
-      
+
       // Gera o QR Code
       QRCode.toCanvas(text, qrOptions, function (err, canvas) {
         if (err) {
           console.error('Erro ao gerar QR Code:', err);
           return;
         }
-        
+
         qrcodeContainer.appendChild(canvas);
-        
-        // Prepara nome de arquivo seguro para download
+
         let fileName = 'qrcode';
-        
-        // Adiciona prefixo baseado no tipo de dado
+
         if (dataInfo && dataInfo.isValid) {
           if (dataInfo.isPix) {
             fileName = 'pix';
-            
-            // Adiciona tipo específico de PIX
             if (dataInfo.metadata && dataInfo.metadata.pixType) {
               const pixType = dataInfo.metadata.pixType.toLowerCase()
                 .replace(/\s+/g, '_')
                 .normalize('NFD')
-                .replace(/[\u0300-\u036f]/g, ''); // Remove acentos
-              
+                .replace(/[\u0300-\u036f]/g, '');
               fileName += '_' + pixType;
             }
           } else if (dataInfo.type.includes('Link')) {
@@ -1080,33 +1224,28 @@
             fileName = 'eth';
           }
         }
-        
-        // Adiciona parte do conteúdo ao nome do arquivo (limitado e sanitizado)
+
         const contentPart = text.substring(0, 20)
           .replace(/[^a-zA-Z0-9]/g, '_')
           .toLowerCase();
-        
         fileName += '_' + contentPart;
-        
-        // Configura botão de download
+
         downloadBtn.style.display = 'inline-flex';
-        downloadBtn.onclick = function() {
+        downloadBtn.onclick = function () {
           const link = document.createElement('a');
           link.download = fileName + '.png';
           link.href = canvas.toDataURL('image/png');
           link.click();
         };
-        
-        // Configura botão de cópia
+
         copyBtn.style.display = 'inline-flex';
-        copyBtn.onclick = function() {
-          canvas.toBlob(function(blob) {
+        copyBtn.onclick = function () {
+          canvas.toBlob(function (blob) {
             try {
-              // Tenta usar a API moderna de área de transferência
               navigator.clipboard.write([
                 new ClipboardItem({ 'image/png': blob })
               ]).then(() => {
-                alert('QR Code copiado para a área de transferência!');
+                alert('QR Code copiado para a área de transferência.\nO compartilhamento é de acordo com sua vontade explícita e de sua inteira responsabilidade.');
               }).catch(err => {
                 console.error('Erro ao copiar QR Code:', err);
                 alert('Não foi possível copiar o QR Code. Use o botão de download.');
@@ -1123,7 +1262,7 @@
      * SISTEMA DE INFORMAÇÕES DETALHADAS
      * 
      * Este módulo gera informações detalhadas sobre os dados
-     * detectados, como detalhes de links e chaves PIX.
+     * detectados, como detalhes de links e chaves Safe.
      * ============================================================ */
     
     /**
@@ -1217,17 +1356,17 @@
       infoBox.innerHTML = html;
       infoBox.style.display = 'block';
       
-      // Oculta informações de PIX quando exibindo informações de link
+      // Oculta informações de Safe quando exibindo informações de link
       document.getElementById('pixInfo').style.display = 'none';
     }
     
     /**
-     * Exibe informações detalhadas sobre chaves PIX
+     * Exibe informações detalhadas sobre chaves Safe
      * 
-     * Analisa e exibe metadados de chaves PIX, incluindo tipo,
+     * Analisa e exibe metadados de chaves Safe, incluindo tipo,
      * banco (quando identificável) e outras informações relevantes.
      * 
-     * @param {Object} pixInfo - Informações da chave PIX validada
+     * @param {Object} pixInfo - Informações da chave Safe validada
      */
     function displayPixInfo(pixInfo) {
       const infoBox = document.getElementById('pixInfo');
@@ -1241,7 +1380,7 @@
       
       let html = `
         <div class="info-section">
-          <div class="info-title">Informações da Chave PIX</div>
+          <div class="info-title">Informações da Chave Safe</div>
           
           <div class="info-row">
             <div class="info-label">Tipo de Chave:</div>
@@ -1249,7 +1388,7 @@
           </div>
       `;
       
-      // Informações específicas por tipo de chave PIX
+      // Informações específicas por tipo de chave Safe
       switch (pixType) {
         case 'CPF':
           html += `
@@ -1318,7 +1457,7 @@
         <div class="info-row">
           <div class="info-label">Observação:</div>
           <div class="info-value">
-            Este QR Code pode ser usado para pagamentos via PIX.
+            Este QR Code pode ser usado para pagamentos via Safe.
             Confirme sempre os dados do destinatário antes de efetuar pagamentos.
           </div>
         </div>
@@ -1329,7 +1468,7 @@
       infoBox.innerHTML = html;
       infoBox.style.display = 'block';
       
-      // Oculta informações de link quando exibindo informações de PIX
+      // Oculta informações de link quando exibindo informações de Safe
       document.getElementById('linkInfo').style.display = 'none';
     }
     
