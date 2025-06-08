@@ -1,0 +1,1099 @@
+<!--
+ * --------------------------------------------------------------
+ * Author: Rafael Passos Domingues
+ * Last Update: 2025 June 8
+ * --------------------------------------------------------------
+-->
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>🐾 Pawgel - O Anjo das Patas</title>
+<!-- Bibliotecas externas -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+<style>
+  :root {
+    /* Cores principais - tema pet */
+    --primary-color: #8e44ad;       /* Roxo - cor principal */
+    --primary-dark: #6c3483;        /* Roxo mais escuro */
+    --secondary-color: #e67e22;     /* Laranja - urgência */
+    --warning-color: #f1c40f;       /* Amarelo - atenção */
+    --info-color: #3498db;          /* Azul - informação */
+    --success-color: #2ecc71;       /* Verde - resgatado */
+    --text-color: #2c3e50;          /* Cor principal do texto */
+    --light-gray: #f9f9f9;          /* Cor de fundo */
+    --border-radius: 12px;          /* Arredondamento mais suave */
+    --box-shadow: 0 4px 12px rgba(0,0,0,0.08); /* Sombra mais suave */
+  }
+  
+  body {
+    font-family: 'Segoe UI', Roboto, Arial, sans-serif;
+    margin: 0;
+    padding: 1rem;
+    background: var(--light-gray);
+    color: var(--text-color);
+    line-height: 1.6;
+  }
+  
+  .container {
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+  
+  header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+    gap: 1rem;
+    background: white;
+    padding: 1rem;
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
+  }
+  
+  h1 {
+    margin: 0;
+    color: var(--primary-color);
+    font-size: 1.8rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  
+  #map {
+    height: 500px;
+    border-radius: var(--border-radius);
+    margin-bottom: 1.5rem;
+    box-shadow: var(--box-shadow);
+    border: 1px solid #ddd;
+  }
+  
+  .info-panel {
+    background: white;
+    padding: 1.5rem;
+    border-radius: var(--border-radius);
+    margin-bottom: 1.5rem;
+    box-shadow: var(--box-shadow);
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  .alert {
+    color: var(--secondary-color);
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    max-width: 600px;
+  }
+  
+  .status-info {
+    display: flex;
+    gap: 1rem;
+  }
+  
+  .status-item {
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+    font-size: 0.9rem;
+    background: #f0e6f6;
+    padding: 0.5rem 0.8rem;
+    border-radius: 20px;
+  }
+  
+  .button-group {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+  }
+  
+  button {
+    padding: 0.8rem 1.2rem;
+    border: none;
+    border-radius: var(--border-radius);
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.9rem;
+  }
+  
+  .btn-primary {
+    background: var(--primary-color);
+    color: white;
+  }
+  
+  .btn-primary:hover {
+    background: var(--primary-dark);
+    transform: translateY(-2px);
+  }
+  
+  .btn-danger {
+    background: var(--secondary-color);
+    color: white;
+  }
+  
+  .btn-danger:hover {
+    background: #d35400;
+    transform: translateY(-2px);
+  }
+  
+  .btn-accent {
+    background: var(--info-color);
+    color: white;
+  }
+  
+  .btn-accent:hover {
+    background: #2980b9;
+    transform: translateY(-2px);
+  }
+  
+  .btn-success {
+    background: var(--success-color);
+    color: white;
+  }
+  
+  .btn-success:hover {
+    background: #27ae60;
+    transform: translateY(-2px);
+  }
+  
+  .btn-outline {
+    background: transparent;
+    border: 2px solid var(--primary-color);
+    color: var(--primary-color);
+  }
+  
+  .btn-outline:hover {
+    background: var(--primary-color);
+    color: white;
+  }
+  
+  .legend {
+    background: white;
+    padding: 1rem;
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
+    position: absolute;
+    bottom: 30px;
+    right: 10px;
+    z-index: 1000;
+    font-size: 0.9rem;
+    max-width: 200px;
+  }
+  
+  .legend h3 {
+    margin-top: 0;
+    margin-bottom: 0.8rem;
+    font-size: 1rem;
+    color: var(--primary-color);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  
+  .legend-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 0.5rem;
+    gap: 0.5rem;
+  }
+  
+  .legend-icon {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 0.8rem;
+  }
+  
+  /* Painel de seleção de doguinhos */
+  .dog-panel {
+    background: white;
+    padding: 1.5rem;
+    border-radius: var(--border-radius);
+    margin-bottom: 1.5rem;
+    box-shadow: var(--box-shadow);
+    display: none;
+    position: relative;
+    z-index: 1001;
+  }
+  
+  .dog-attributes {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 1rem;
+    margin: 1rem 0;
+  }
+  
+  .attribute-group {
+    margin-bottom: 1rem;
+  }
+  
+  .attribute-group h4 {
+    margin-top: 0;
+    margin-bottom: 0.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--primary-color);
+  }
+  
+  .attribute-option {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem;
+    border-radius: var(--border-radius);
+    cursor: pointer;
+    transition: all 0.2s;
+    border: 1px solid #ddd;
+    margin-bottom: 0.5rem;
+  }
+  
+  .attribute-option:hover {
+    background: #f8f9fa;
+  }
+  
+  .attribute-option input {
+    margin: 0;
+  }
+  
+  /* Cores de urgência */
+  .attribute-option.emergency {
+    border-left: 4px solid var(--secondary-color);
+  }
+  
+  .attribute-option.attention {
+    border-left: 4px solid var(--warning-color);
+  }
+  
+  .attribute-option.normal {
+    border-left: 4px solid var(--info-color);
+  }
+  
+  /* Campos adicionais */
+  .additional-info {
+    display: none;
+    margin-top: 1rem;
+  }
+  
+  .additional-info textarea, 
+  .additional-info input {
+    width: 100%;
+    padding: 0.8rem;
+    border: 1px solid #ddd;
+    border-radius: var(--border-radius);
+    font-family: inherit;
+    margin-bottom: 0.5rem;
+  }
+  
+  .additional-info textarea {
+    min-height: 100px;
+  }
+  
+  /* Estrelas para avaliação */
+  .rating {
+    display: flex;
+    gap: 0.3rem;
+    margin-top: 0.5rem;
+  }
+  
+  .rating i {
+    color: #f1c40f;
+    cursor: pointer;
+  }
+  
+  @media (max-width: 768px) {
+    header {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+    
+    .info-panel {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+    
+    .button-group {
+      flex-direction: column;
+    }
+    
+    .legend {
+      position: relative;
+      bottom: auto;
+      right: auto;
+      margin-top: 1rem;
+      max-width: 100%;
+    }
+    
+    #map {
+      height: 400px;
+    }
+    
+    .dog-attributes {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <!-- Cabeçalho com título e informações de status -->
+  <header>
+    <h1><i class="fas fa-paw"></i> 🐾 Pawgel - O Anjo das Patas</h1>
+    <div class="status-info">
+      <div class="status-item">
+        <i class="fas fa-map-marker-alt" style="color: var(--secondary-color);"></i>
+        <span>Doguinhos reportados: <strong id="contador">0</strong></span>
+      </div>
+      <div class="status-item">
+        <i class="far fa-clock" style="color: var(--primary-color);"></i>
+        <span id="hora-atual">--:--:--</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Painel de informações principais -->
+  <div class="info-panel">
+    <p class="alert"><i class="fas fa-heart"></i> Clique no mapa para reportar um doguinho abandonado e nos ajudar a mudar essa realidade!</p>
+    <button class="btn-primary" onclick="mostrarPainelDoguinho()">
+      <i class="fas fa-dog"></i> Reportar Doguinho
+    </button>
+  </div>
+
+  <!-- Painel de seleção de atributos do doguinho (inicialmente oculto) -->
+  <div class="dog-panel" id="dogPanel">
+    <h3><i class="fas fa-clipboard-list"></i> Informações sobre o doguinho:</h3>
+    
+    <!-- Atributos do doguinho -->
+    <div class="dog-attributes">
+      <!-- Raça/porte -->
+      <div class="attribute-group">
+        <h4><i class="fas fa-dog"></i> Raça/Porte:</h4>
+        <div class="attribute-option">
+          <input type="radio" id="porte_pequeno" name="porte" value="Pequeno">
+          <label for="porte_pequeno">Pequeno (até 10kg)</label>
+        </div>
+        <div class="attribute-option">
+          <input type="radio" id="porte_medio" name="porte" value="Médio">
+          <label for="porte_medio">Médio (10-25kg)</label>
+        </div>
+        <div class="attribute-option">
+          <input type="radio" id="porte_grande" name="porte" value="Grande">
+          <label for="porte_grande">Grande (+25kg)</label>
+        </div>
+        <div class="attribute-option" onclick="mostrarCampoOutro('raca')">
+          <input type="radio" id="raca_outro" name="porte" value="Outro">
+          <label for="raca_outro">Outro/Desconhecido</label>
+        </div>
+        <div class="additional-info" id="racaInfo">
+          <input type="text" id="racaTexto" placeholder="Descreva a raça ou características...">
+        </div>
+      </div>
+      
+      <!-- Estado de saúde -->
+      <div class="attribute-group">
+        <h4><i class="fas fa-heartbeat"></i> Saúde:</h4>
+        <div class="attribute-option normal">
+          <input type="radio" id="saude_boa" name="saude" value="Boa">
+          <label for="saude_boa">Parece saudável</label>
+        </div>
+        <div class="attribute-option attention">
+          <input type="radio" id="saude_fraca" name="saude" value="Fraca">
+          <label for="saude_fraca">Aparenta fraqueza</label>
+        </div>
+        <div class="attribute-option emergency">
+          <input type="radio" id="saude_critica" name="saude" value="Crítica">
+          <label for="saude_critica">Estado crítico</label>
+        </div>
+        <div class="attribute-option" onclick="mostrarCampoOutro('sintomas')">
+          <input type="radio" id="saude_outro" name="saude" value="Outro">
+          <label for="saude_outro">Descrever sintomas</label>
+        </div>
+        <div class="additional-info" id="sintomasInfo">
+          <textarea id="sintomasTexto" placeholder="Descreva os sintomas observados..."></textarea>
+        </div>
+      </div>
+      
+      <!-- Humor -->
+      <div class="attribute-group">
+        <h4><i class="fas fa-smile"></i> Humor:</h4>
+        <div class="attribute-option normal">
+          <input type="radio" id="humor_amigavel" name="humor" value="Amigável">
+          <label for="humor_amigavel">Amigável</label>
+        </div>
+        <div class="attribute-option attention">
+          <input type="radio" id="humor_timido" name="humor" value="Tímido">
+          <label for="humor_timido">Tímido/Receoso</label>
+        </div>
+        <div class="attribute-option emergency">
+          <input type="radio" id="humor_agressivo" name="humor" value="Agressivo">
+          <label for="humor_agressivo">Agressivo/Defensivo</label>
+        </div>
+        <div class="attribute-option" onclick="mostrarCampoOutro('humor')">
+          <input type="radio" id="humor_outro" name="humor" value="Outro">
+          <label for="humor_outro">Outro/Descrever</label>
+        </div>
+        <div class="additional-info" id="humorInfo">
+          <textarea id="humorTexto" placeholder="Descreva o comportamento observado..."></textarea>
+        </div>
+      </div>
+      
+      <!-- Necessidades -->
+      <div class="attribute-group">
+        <h4><i class="fas fa-hands-helping"></i> Necessidades:</h4>
+        <div class="attribute-option normal">
+          <input type="checkbox" id="necessidade_comida" name="necessidade" value="Comida">
+          <label for="necessidade_comida">Comida</label>
+        </div>
+        <div class="attribute-option attention">
+          <input type="checkbox" id="necessidade_agua" name="necessidade" value="Água">
+          <label for="necessidade_agua">Água</label>
+        </div>
+        <div class="attribute-option emergency">
+          <input type="checkbox" id="necessidade_veterinario" name="necessidade" value="Veterinário">
+          <label for="necessidade_veterinario">Atendimento veterinário</label>
+        </div>
+        <div class="attribute-option attention">
+          <input type="checkbox" id="necessidade_abrigo" name="necessidade" value="Abrigo">
+          <label for="necessidade_abrigo">Abrigo/proteção</label>
+        </div>
+        <div class="attribute-option" onclick="mostrarCampoOutro('necessidades')">
+          <input type="checkbox" id="necessidade_outro" name="necessidade" value="Outro">
+          <label for="necessidade_outro">Outras necessidades</label>
+        </div>
+        <div class="additional-info" id="necessidadesInfo">
+          <textarea id="necessidadesTexto" placeholder="Descreva outras necessidades..."></textarea>
+        </div>
+      </div>
+    </div>
+
+    <!-- Informações adicionais -->
+    <div class="additional-info" id="additionalInfo">
+      <h4><i class="fas fa-info-circle"></i> Informações adicionais:</h4>
+      <label for="dogDetails">Descrição detalhada do doguinho:</label>
+      <textarea id="dogDetails" placeholder="Cor, características marcantes, tempo no local, etc..."></textarea>
+      
+      <label for="foto">Possui foto? (URL):</label>
+      <input type="text" id="foto" placeholder="Link para foto do doguinho (opcional)">
+      
+      <label>Avalie a urgência do caso:</label>
+      <div class="rating">
+        <i class="far fa-star" onclick="setRating(1)"></i>
+        <i class="far fa-star" onclick="setRating(2)"></i>
+        <i class="far fa-star" onclick="setRating(3)"></i>
+        <i class="far fa-star" onclick="setRating(4)"></i>
+        <i class="far fa-star" onclick="setRating(5)"></i>
+      </div>
+    </div>
+
+    <!-- Botões de ação do painel -->
+    <div class="button-group">
+      <button class="btn-success" onclick="confirmarDoguinho()">
+        <i class="fas fa-check"></i> Salvar Doguinho
+      </button>
+      <button class="btn-outline" onclick="fecharPainelDoguinho()">
+        <i class="fas fa-times"></i> Cancelar
+      </button>
+    </div>
+  </div>
+
+  <!-- Mapa Leaflet -->
+  <div id="map"></div>
+
+  <!-- Legenda do mapa -->
+  <div class="legend">
+    <h3><i class="fas fa-key"></i> Legenda</h3>
+    <div class="legend-item">
+      <span class="legend-icon" style="background: #2ecc70;"><i class="fas fa-user"></i></span>
+      <span>Sua posição</span>
+    </div>
+    <div class="legend-item">
+      <span class="legend-icon" style="background: #e74c3c;"><i class="fas fa-heartbeat"></i></span>
+      <span>Urgência máxima</span>
+    </div>
+    <div class="legend-item">
+      <span class="legend-icon" style="background: #f39c12;"><i class="fas fa-exclamation-triangle"></i></span>
+      <span>Precisa de atenção</span>
+    </div>
+    <div class="legend-item">
+      <span class="legend-icon" style="background: #3498db;"><i class="fas fa-paw"></i></span>
+      <span>Situação estável</span>
+    </div>
+    <div class="legend-item">
+      <span class="legend-icon" style="background: #2ecc71;"><i class="fas fa-home"></i></span>
+      <span>Já resgatado</span>
+    </div>
+  </div>
+  
+  <!-- Botões de ação -->
+  <div class="button-group">
+    <button class="btn-primary" onclick="exportarWhatsApp()">
+      <i class="fab fa-whatsapp"></i> Compartilhar via WhatsApp
+    </button>
+    <button class="btn-accent" onclick="exportarRelatorio()">
+      <i class="fas fa-file-export"></i> Exportar Relatório
+    </button>
+    <button class="btn-danger" onclick="limparRegistros()">
+      <i class="fas fa-trash-alt"></i> Limpar Registros
+    </button>
+  </div>
+</div>
+
+<!-- Bibliotecas JavaScript -->
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
+
+<script>
+  /**
+   * VARIÁVEIS GLOBAIS
+   */
+  const doguinhos = []; // Armazena todos os doguinhos reportados
+  let map; // Objeto do mapa Leaflet
+  let usuarioMarcador; // Marcador da posição do usuário
+  let currentLatLng = null; // Última posição clicada no mapa
+  let currentRating = 0; // Avaliação de urgência
+
+  /**
+   * FUNÇÕES DE INTERFACE
+   */
+
+  // Atualiza contador de doguinhos na interface
+  function atualizarContador() {
+    document.getElementById('contador').textContent = doguinhos.length;
+  }
+
+  // Atualiza relógio em tempo real
+  function atualizarRelogio() {
+    const agora = new Date();
+    const horas = String(agora.getHours()).padStart(2, '0');
+    const minutos = String(agora.getMinutes()).padStart(2, '0');
+    const segundos = String(agora.getSeconds()).padStart(2, '0');
+    document.getElementById('hora-atual').textContent = `${horas}:${minutos}:${segundos}`;
+  }
+
+  // Formata data/hora para formato legível
+  function formatarTimestamp(data) {
+    const d = new Date(data);
+    const dia = String(d.getDate()).padStart(2, '0');
+    const mes = String(d.getMonth() + 1).padStart(2, '0');
+    const ano = d.getFullYear();
+    const hora = String(d.getHours()).padStart(2, '0');
+    const min = String(d.getMinutes()).padStart(2, '0');
+    return `${dia}/${mes}/${ano} ${hora}:${min}`;
+  }
+
+  // Mostra o painel de informações do doguinho
+  function mostrarPainelDoguinho() {
+    document.getElementById('dogPanel').style.display = 'block';
+    document.getElementById('additionalInfo').style.display = 'block';
+    
+    // Esconde todos os campos adicionais
+    document.querySelectorAll('.additional-info').forEach(el => {
+      if (el.id !== 'additionalInfo') el.style.display = 'none';
+    });
+    
+    // Reseta seleções
+    document.querySelectorAll('input[type="radio"]').forEach(radio => {
+      radio.checked = false;
+    });
+    
+    document.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
+      checkbox.checked = false;
+    });
+    
+    document.getElementById('dogDetails').value = '';
+    document.getElementById('foto').value = '';
+    currentRating = 0;
+    updateStars();
+  }
+
+  // Fecha o painel de informações do doguinho
+  function fecharPainelDoguinho() {
+    document.getElementById('dogPanel').style.display = 'none';
+  }
+
+  // Mostra campo para informação adicional quando seleciona "outro"
+  function mostrarCampoOutro(tipo) {
+    const infoDiv = document.getElementById(`${tipo}Info`);
+    infoDiv.style.display = 'block';
+    document.getElementById(`${tipo}Texto`).value = '';
+  }
+
+  // Configura avaliação por estrelas
+  function setRating(rating) {
+    currentRating = rating;
+    updateStars();
+  }
+
+  function updateStars() {
+    const stars = document.querySelectorAll('.rating i');
+    stars.forEach((star, index) => {
+      if (index < currentRating) {
+        star.classList.remove('far');
+        star.classList.add('fas');
+      } else {
+        star.classList.remove('fas');
+        star.classList.add('far');
+      }
+    });
+  }
+
+  // Confirma o registro do doguinho
+  async function confirmarDoguinho() {
+    const porte = document.querySelector('input[name="porte"]:checked');
+    const saude = document.querySelector('input[name="saude"]:checked');
+    const humor = document.querySelector('input[name="humor"]:checked');
+    const necessidades = Array.from(document.querySelectorAll('input[name="necessidade"]:checked')).map(el => el.value);
+    
+    if (!porte || !saude || !humor || necessidades.length === 0) {
+      alert("Por favor, preencha todas as informações básicas sobre o doguinho.");
+      return;
+    }
+    
+    const descricao = document.getElementById('dogDetails').value.trim();
+    if (!descricao) {
+      alert("Por favor, forneça uma descrição detalhada do doguinho.");
+      return;
+    }
+    
+    // Fecha o painel e cria o marcador
+    fecharPainelDoguinho();
+    await criarMarcador(currentLatLng);
+  }
+
+  /**
+   * FUNÇÕES DO MAPA
+   */
+
+  // Busca endereço reverso (de coordenadas para endereço)
+  async function buscarEndereco(lat, lng) {
+    const url = `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lng}`;
+    try {
+      const resposta = await fetch(url, { 
+        headers: { 
+          'Accept-Language': 'pt-BR',
+          'User-Agent': 'Pawgel/1.0' 
+        }
+      });
+      const dados = await resposta.json();
+
+      // Extrai dados do endereço
+      const endereco = dados.address || {};
+      return {
+        rua: endereco.road || endereco.pedestrian || endereco.neighbourhood || "Local desconhecido",
+        cep: endereco.postcode || "CEP não encontrado",
+        bairro: endereco.suburb || endereco.neighbourhood || "Bairro desconhecido",
+        cidade: endereco.city || endereco.town || endereco.village || "Cidade desconhecida"
+      };
+    } catch (erro) {
+      console.error("Erro ao buscar endereço:", erro);
+      return { 
+        rua: "Local desconhecido", 
+        cep: "CEP não encontrado",
+        bairro: "Bairro desconhecido",
+        cidade: "Cidade desconhecida"
+      };
+    }
+  }
+
+  // Retorna ícone e cor baseado na urgência
+  function getDogIcon(urgencia) {
+    // Cores baseadas na urgência
+    const colors = {
+      'alta': '#e74c3c',    // Vermelho
+      'media': '#f39c12',   // Laranja
+      'baixa': '#3498db',   // Azul
+      'resgatado': '#2ecc71' // Verde
+    };
+    
+    return {
+      icon: 'paw',
+      color: colors[urgencia] || '#95a5a6'  // Cinza para indefinido
+    };
+  }
+
+  // Determina o nível de urgência com base nas seleções
+  function determinarUrgencia(saude, necessidades) {
+    if (saude === 'Crítica' || necessidades.includes('Veterinário')) {
+      return 'alta';
+    } else if (saude === 'Fraca' || necessidades.includes('Abrigo') || currentRating >= 4) {
+      return 'media';
+    }
+    return 'baixa';
+  }
+
+  // Inicializa o mapa Leaflet
+  function iniciarMapa(lat, lng) {
+    map = L.map('map').setView([lat, lng], 18); // Zoom 18 para áreas menores
+
+    // Camada do mapa (OpenStreetMap)
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 19,
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+    }).addTo(map);
+
+    // Marcador do usuário (verde)
+    usuarioMarcador = L.marker([lat, lng], {
+      title: "Sua posição",
+      icon: L.divIcon({
+        html: '<i class="fas fa-user" style="color: #2ecc70; font-size: 24px;"></i>',
+        className: 'user-marker',
+        iconSize: [24, 24]
+      })
+    }).addTo(map);
+    
+    usuarioMarcador.bindPopup("<b>Sua posição atual</b>").openPopup();
+
+    // Atualiza posição do usuário periodicamente (simulação de movimento)
+    setInterval(() => {
+      navigator.geolocation.getCurrentPosition(pos => {
+        const newLatLng = L.latLng(pos.coords.latitude, pos.coords.longitude);
+        usuarioMarcador.setLatLng(newLatLng);
+        // Centraliza o mapa se o usuário sair da área visível
+        if (map.getBounds().contains(newLatLng) === false) {
+          map.setView(newLatLng, map.getZoom());
+        }
+      });
+    }, 30000); // Atualiza a cada 30 segundos
+
+    // Evento de clique no mapa para registrar doguinhos
+    map.on('click', async e => {
+      currentLatLng = e.latlng;
+      mostrarPainelDoguinho();
+    });
+  }
+
+  // Cria um marcador de doguinho no mapa
+  async function criarMarcador(latlng) {
+    // Busca endereço pelas coordenadas
+    const { rua, cep, bairro, cidade } = await buscarEndereco(latlng.lat, latlng.lng);
+
+    // Obtém os dados do formulário
+    const porte = document.querySelector('input[name="porte"]:checked').value;
+    const saude = document.querySelector('input[name="saude"]:checked').value;
+    const humor = document.querySelector('input[name="humor"]:checked').value;
+    const necessidades = Array.from(document.querySelectorAll('input[name="necessidade"]:checked')).map(el => el.value);
+    const descricao = document.getElementById('dogDetails').value.trim();
+    const foto = document.getElementById('foto').value.trim();
+    
+    // Verifica se há raça específica
+    let raca = porte;
+    if (document.getElementById('raca_outro').checked && document.getElementById('racaTexto').value) {
+      raca = document.getElementById('racaTexto').value;
+    }
+    
+    // Verifica sintomas específicos
+    let sintomas = '';
+    if (document.getElementById('saude_outro').checked && document.getElementById('sintomasTexto').value) {
+      sintomas = document.getElementById('sintomasTexto').value;
+    }
+    
+    // Verifica humor específico
+    let humorDetalhe = humor;
+    if (document.getElementById('humor_outro').checked && document.getElementById('humorTexto').value) {
+      humorDetalhe = document.getElementById('humorTexto').value;
+    }
+    
+    // Verifica outras necessidades
+    let outrasNecessidades = necessidades;
+    if (document.getElementById('necessidade_outro').checked && document.getElementById('necessidadesTexto').value) {
+      outrasNecessidades.push(document.getElementById('necessidadesTexto').value);
+    }
+    
+    // Determina urgência
+    const urgencia = determinarUrgencia(saude, necessidades);
+    
+    // Obtém ícone e cor para o marcador
+    const { icon, color } = getDogIcon(urgencia);
+
+    const timestamp = new Date();
+
+    // Cria o marcador no mapa com ícone personalizado
+    const marcador = L.marker(latlng, { 
+      draggable: true,
+      icon: L.divIcon({
+        html: `<i class="fas fa-${icon}" style="color: ${color}; font-size: 24px;"></i>`,
+        className: 'dog-marker',
+        iconSize: [24, 24]
+      })
+    }).addTo(map);
+
+    // Conteúdo do popup do marcador
+    let popupContent = `
+      <b><i class="fas fa-${icon}"></i> Doguinho Abandonado:</b><br>
+      <small>${formatarTimestamp(timestamp)}</small><br><br>
+      <b>📍 Local:</b> ${rua}<br>
+      <b>🏘️ Bairro:</b> ${bairro}<br>
+      <b>🏙️ Cidade:</b> ${cidade}<br>
+      <b>📮 CEP:</b> ${cep}<br><br>
+      <b>🐕 Porte/Raça:</b> ${raca}<br>
+      <b>❤️ Saúde:</b> ${saude} ${sintomas ? `(${sintomas})` : ''}<br>
+      <b>😊 Humor/Comportamento:</b> ${humorDetalhe}<br>
+      <b>🆘 Necessidades:</b> ${outrasNecessidades.join(', ')}<br>
+      <b>⚠️ Urgência:</b> ${urgencia === 'alta' ? 'Alta' : urgencia === 'media' ? 'Média' : 'Baixa'}<br>
+      <b>⭐ Avaliação:</b> ${'★'.repeat(currentRating)}${'☆'.repeat(5-currentRating)}<br><br>
+      <b>📝 Descrição:</b> ${descricao}<br>`;
+      
+    if (foto) {
+      popupContent += `<br><a href="${foto}" target="_blank">🔗 Ver foto do doguinho</a><br>`;
+    }
+    
+    popupContent += `<br><small>(Arraste para ajustar posição | Delete para remover)</small>`;
+    
+    marcador.bindPopup(popupContent).openPopup();
+
+    // Atualiza popup e dados quando o marcador é movido
+    marcador.on('dragend', async () => {
+      const pos = marcador.getLatLng();
+      const { rua: novaRua, cep: novoCep, bairro: novoBairro, cidade: novaCidade } = await buscarEndereco(pos.lat, pos.lng);
+      
+      marcador.setPopupContent(`
+        <b><i class="fas fa-${icon}"></i> Doguinho Abandonado:</b><br>
+        <small>${formatarTimestamp(timestamp)}</small><br><br>
+        <b>📍 Local:</b> ${novaRua}<br>
+        <b>🏘️ Bairro:</b> ${novoBairro}<br>
+        <b>🏙️ Cidade:</b> ${novaCidade}<br>
+        <b>📮 CEP:</b> ${novoCep}<br><br>
+        <b>🐕 Porte/Raça:</b> ${raca}<br>
+        <b>❤️ Saúde:</b> ${saude} ${sintomas ? `(${sintomas})` : ''}<br>
+        <b>😊 Humor/Comportamento:</b> ${humorDetalhe}<br>
+        <b>🆘 Necessidades:</b> ${outrasNecessidades.join(', ')}<br>
+        <b>⚠️ Urgência:</b> ${urgencia === 'alta' ? 'Alta' : urgencia === 'media' ? 'Média' : 'Baixa'}<br>
+        <b>⭐ Avaliação:</b> ${'★'.repeat(currentRating)}${'☆'.repeat(5-currentRating)}<br><br>
+        <b>📝 Descrição:</b> ${descricao}<br>
+        ${foto ? `<br><a href="${foto}" target="_blank">🔗 Ver foto do doguinho</a><br>` : ''}
+        <br><small>(Arraste para ajustar posição | Delete para remover)</small>
+      `).openPopup();
+
+      // Atualiza dados no array de doguinhos
+      const index = doguinhos.findIndex(e => e.marcador === marcador);
+      if (index !== -1) {
+        doguinhos[index].latlng = pos;
+        doguinhos[index].rua = novaRua;
+        doguinhos[index].cep = novoCep;
+        doguinhos[index].bairro = novoBairro;
+        doguinhos[index].cidade = novaCidade;
+      }
+    });
+
+    // Permite remover marcador com tecla Delete
+    marcador.on('popupopen', () => {
+      document.addEventListener('keydown', function removerMarcador(e) {
+        if (e.key === 'Delete') {
+          map.removeLayer(marcador);
+          const index = doguinhos.findIndex(p => p.marcador === marcador);
+          if (index !== -1) {
+            doguinhos.splice(index, 1);
+            atualizarContador();
+          }
+          document.removeEventListener('keydown', removerMarcador);
+        }
+      });
+    });
+
+    // Adiciona o doguinho ao array global
+    doguinhos.push({ 
+      marcador, 
+      latlng, 
+      rua, 
+      cep, 
+      bairro, 
+      cidade, 
+      descricao,
+      foto,
+      timestamp,
+      porte: raca,
+      saude,
+      sintomas,
+      humor: humorDetalhe,
+      necessidades: outrasNecessidades,
+      urgencia,
+      avaliacao: currentRating
+    });
+    
+    atualizarContador();
+  }
+
+  /**
+   * FUNÇÕES DE EXPORTAÇÃO
+   */
+
+  // Exporta relatório para WhatsApp
+  function exportarWhatsApp() {
+    if (doguinhos.length === 0) {
+      alert("Nenhum doguinho reportado ainda.");
+      return;
+    }
+
+    let texto = "🐾 *Relatório Pawgel - Doguinhos Abandonados*\n\n";
+    
+    // Cabeçalho
+    texto += `🛡️ *Relatório de Resgate Animal*\n`;
+    texto += `👤 *Responsável:* [Seu Nome]\n`;
+    texto += `📅 *Data:* ${formatarTimestamp(new Date())}\n\n`;
+    
+    // Resumo por urgência
+    const resumoUrgencia = { alta: 0, media: 0, baixa: 0 };
+    doguinhos.forEach(dog => {
+      resumoUrgencia[dog.urgencia]++;
+    });
+    
+    texto += `📊 *Resumo por Urgência:*\n`;
+    texto += `   🔴 Alta: ${resumoUrgencia.alta}\n`;
+    texto += `   🟠 Média: ${resumoUrgencia.media}\n`;
+    texto += `   🔵 Baixa: ${resumoUrgencia.baixa}\n\n`;
+    
+    // Detalhes dos doguinhos
+    texto += `🔍 *Detalhes dos Doguinhos:*\n\n`;
+    doguinhos.forEach((dog, i) => {
+      texto += `📍 *Doguinho ${i + 1}:*\n`;
+      texto += `   🐕 Porte/Raça: ${dog.porte}\n`;
+      texto += `   ❤️ Saúde: ${dog.saude} ${dog.sintomas ? `(${dog.sintomas})` : ''}\n`;
+      texto += `   😊 Humor: ${dog.humor}\n`;
+      texto += `   🆘 Necessidades: ${dog.necessidades.join(', ')}\n`;
+      texto += `   ${dog.urgencia === 'alta' ? '🔴' : dog.urgencia === 'media' ? '🟠' : '🔵'} Urgência: ${dog.urgencia === 'alta' ? 'Alta' : dog.urgencia === 'media' ? 'Média' : 'Baixa'}\n`;
+      texto += `   ⭐ Avaliação: ${'★'.repeat(dog.avaliacao)}${'☆'.repeat(5-dog.avaliacao)}\n`;
+      texto += `   🏠 Local: ${dog.rua}\n`;
+      texto += `   🏘️ Bairro: ${dog.bairro}\n`;
+      texto += `   🏙️ Cidade: ${dog.cidade}\n`;
+      texto += `   📮 CEP: ${dog.cep}\n`;
+      texto += `   📝 Descrição: ${dog.descricao}\n`;
+      if (dog.foto) texto += `   📸 Foto: ${dog.foto}\n`;
+      texto += `   🕒 Horário: ${formatarTimestamp(dog.timestamp)}\n`;
+      texto += `   📍 Coordenadas: (Lat: ${dog.latlng.lat.toFixed(5)}, Lng: ${dog.latlng.lng.toFixed(5)})\n\n`;
+    });
+
+    texto += "\n🐶 *Como ajudar:*\n";
+    texto += "- Se possível, forneça água e comida segura\n";
+    texto += "- Entre em contato com protetores locais\n";
+    texto += "- Se o animal estiver ferido, acione um veterinário\n";
+    texto += "- Compartilhe com redes de adoção responsável\n\n";
+    texto += "⚠️ *Atenção:* Sempre priorize a segurança do animal e a sua própria.";
+
+    // Abre o WhatsApp com o texto formatado
+    const url = `https://wa.me/?text=${encodeURIComponent(texto)}`;
+    window.open(url, '_blank');
+  }
+
+  // Exporta relatório completo para texto
+  function exportarRelatorio() {
+    if (doguinhos.length === 0) {
+      alert("Nenhum doguinho reportado ainda.");
+      return;
+    }
+
+    let texto = "=== RELATÓRIO PAWGEL - DOGUINHOS ABANDONADOS ===\n\n";
+    texto += `Responsável: [Seu Nome]\n`;
+    texto += `Data do relatório: ${formatarTimestamp(new Date())}\n\n`;
+    
+    // Resumo por urgência
+    const resumoUrgencia = { alta: 0, media: 0, baixa: 0 };
+    doguinhos.forEach(dog => {
+      resumoUrgencia[dog.urgencia]++;
+    });
+    
+    texto += "RESUMO POR URGÊNCIA:\n";
+    texto += `- Alta: ${resumoUrgencia.alta}\n`;
+    texto += `- Média: ${resumoUrgencia.media}\n`;
+    texto += `- Baixa: ${resumoUrgencia.baixa}\n\n`;
+    
+    // Detalhes dos doguinhos
+    texto += "DETALHES DOS DOGUINHOS:\n\n";
+    doguinhos.forEach((dog, i) => {
+      texto += `DOGUINHO ${i + 1}:\n`;
+      texto += `- Porte/Raça: ${dog.porte}\n`;
+      texto += `- Saúde: ${dog.saude} ${dog.sintomas ? `(${dog.sintomas})` : ''}\n`;
+      texto += `- Humor/Comportamento: ${dog.humor}\n`;
+      texto += `- Necessidades: ${dog.necessidades.join(', ')}\n`;
+      texto += `- Urgência: ${dog.urgencia === 'alta' ? 'Alta' : dog.urgencia === 'media' ? 'Média' : 'Baixa'}\n`;
+      texto += `- Avaliação: ${'★'.repeat(dog.avaliacao)}${'☆'.repeat(5-dog.avaliacao)}\n`;
+      texto += `- Local: ${dog.rua}\n`;
+      texto += `- Bairro: ${dog.bairro}\n`;
+      texto += `- Cidade: ${dog.cidade}\n`;
+      texto += `- CEP: ${dog.cep}\n`;
+      texto += `- Descrição: ${dog.descricao}\n`;
+      if (dog.foto) texto += `- Foto: ${dog.foto}\n`;
+      texto += `- Horário: ${formatarTimestamp(dog.timestamp)}\n`;
+      texto += `- Coordenadas: (Lat: ${dog.latlng.lat.toFixed(5)}, Lng: ${dog.latlng.lng.toFixed(5)})\n\n`;
+    });
+
+    texto += "\nINFORMAÇÕES IMPORTANTES:\n";
+    texto += "1. Sempre priorize a segurança do animal e a sua própria\n";
+    texto += "2. Ofereça apenas alimentos seguros para cães\n";
+    texto += "3. Em casos de agressividade, não force a aproximação\n";
+    texto += "4. Entre em contato com protetores ou ONGs locais\n";
+    texto += "5. Animais feridos precisam de atendimento veterinário\n";
+    texto += "6. Considere a adoção responsável como solução permanente";
+
+    // Cria e faz download do arquivo de texto
+    const blob = new Blob([texto], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `relatorio_pawgel_${new Date().toISOString().slice(0,10)}.txt`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }
+
+  // Limpa todos os registros
+  function limparRegistros() {
+    if (doguinhos.length === 0 || confirm("Tem certeza que deseja apagar todos os registros de doguinhos?")) {
+      doguinhos.forEach(dog => {
+        map.removeLayer(dog.marcador);
+      });
+      doguinhos.length = 0;
+      atualizarContador();
+    }
+  }
+
+  /**
+   * INICIALIZAÇÃO
+   */
+  document.addEventListener('DOMContentLoaded', function() {
+    // Inicia o relógio
+    setInterval(atualizarRelogio, 1000);
+    atualizarRelogio();
+
+    // Tenta obter a localização do usuário
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(pos => {
+        iniciarMapa(pos.coords.latitude, pos.coords.longitude);
+      }, err => {
+        console.error("Erro de geolocalização:", err);
+        // Posição padrão (Centro de São Paulo) se a geolocalização falhar
+        iniciarMapa(-23.5505, -46.6333);
+        alert("Não foi possível obter sua localização. O mapa foi centralizado em São Paulo.");
+      }, {
+        enableHighAccuracy: true,
+        timeout: 10000,
+        maximumAge: 0
+      });
+    } else {
+      alert("Seu navegador não suporta geolocalização. O mapa foi centralizado em São Paulo.");
+      // Posição padrão (Centro de São Paulo)
+      iniciarMapa(-23.5505, -46.6333);
+    }
+  });
+</script>
+</body>
+</html>
