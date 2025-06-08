@@ -10,7 +10,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Pedal Seguro</title>
+<title>PedalAI</title>
 
 <!-- Leaflet CSS -->
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
@@ -286,7 +286,7 @@
 <body>
 
 <header>
-  <h1><i class="fas fa-bicycle"></i> PedalSeguro - Compartilhe as Melhores Trilhas</h1>
+  <h1><i class="fas fa-bicycle"></i> PedalAI - Compartilhe as Melhores Trilhas</h1>
 </header>
 
 <div class="app-container">
@@ -575,7 +575,7 @@
     const distancia = document.getElementById('distancia').textContent;
     const tempo = document.getElementById('tempo').textContent;
     
-    let texto = `🚴‍♂️ *Planejamento de Rota Ciclística - PedalSeguro* 🚴‍♀️\n\n`;
+    let texto = `🚴‍♂️ *Planejamento de Rota Ciclística - PedalAI* 🚴‍♀️\n\n`;
     texto += `📏 *Distância:* ${distancia} km\n`;
     texto += `⏱️ *Tempo estimado:* ${tempo} min\n\n`;
     
@@ -596,7 +596,7 @@
     }
 
     texto += `\n📅 *Planejamento gerado em:* ${new Date().toLocaleString()}\n`;
-    texto += `🔗 *Compartilhado via PedalSeguro*`;
+    texto += `🔗 *Compartilhado via PedalAI*`;
 
     const url = `https://wa.me/?text=${encodeURIComponent(texto)}`;
     window.open(url, '_blank');
