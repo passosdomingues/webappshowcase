@@ -10,7 +10,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Gerador Avançado de QR Code PIX</title>
+  <title>Gerador Avançado de QR Code Safe</title>
 
   <style>
     /* ============================================================
@@ -413,15 +413,15 @@
 
 <body>
   <header>
-    <h1>Gerador Avançado de QR Code PIX</h1>
-    <p>Identifica automaticamente chaves PIX, links e outros dados</p>
+    <h1>Gerador Avançado de QR Code Safe</h1>
+    <p>Identifica automaticamente links e alguns outros tipos de dados</p>
     <button id="darkModeBtn" aria-label="Alternar modo escuro" onclick="toggleDarkMode()">🌓</button>
   </header>
 
   <main>
     <!-- Seção de entrada de dados -->
     <div class="input-group">
-      <label for="qrInput">Digite uma chave PIX, link ou outro texto:</label>
+      <label for="qrInput">Cole um link:</label>
       <input 
         type="text" 
         id="qrInput" 
@@ -440,7 +440,7 @@
       <!-- Conteúdo preenchido via JavaScript -->
     </div>
 
-    <!-- Informações detalhadas para chaves PIX -->
+    <!-- Informações detalhadas para chaves Safe -->
     <div id="pixInfo" class="info-card">
       <!-- Conteúdo preenchido via JavaScript -->
     </div>
@@ -467,7 +467,7 @@
      * SISTEMA DE DETECÇÃO E VALIDAÇÃO DE DADOS
      * 
      * Este módulo implementa validações robustas para diferentes
-     * tipos de dados, com foco especial em chaves PIX brasileiras.
+     * tipos de dados, com foco especial em chaves Safe brasileiras.
      * Inclui validação de CPF/CNPJ, telefone, e-mail, chaves
      * aleatórias e links, com verificações de segurança.
      * ============================================================ */
@@ -476,7 +476,7 @@
      * Detecta e valida o tipo de dado inserido pelo usuário
      * 
      * Implementa validações específicas para cada tipo de dado:
-     * - Chaves PIX (CPF, CNPJ, telefone, e-mail, aleatória)
+     * - Chaves Safe (CPF, CNPJ, telefone, e-mail, aleatória)
      * - URLs (com verificação de segurança)
      * - Outros formatos (Bitcoin, Ethereum, texto simples)
      * 
@@ -516,7 +516,7 @@
       const phoneResult = validatePhone(text);
       if (phoneResult.isValid) return phoneResult;
       
-      // ========== VALIDAÇÃO DE CHAVE PIX ALEATÓRIA ==========
+      // ========== VALIDAÇÃO DE CHAVE Safe ALEATÓRIA ==========
       const pixRandomResult = validatePixRandom(text);
       if (pixRandomResult.isValid) return pixRandomResult;
       
@@ -640,7 +640,7 @@
       const localPart = parts[0];
       const domain = parts[1];
       
-      // Mapeamento de alguns domínios de e-mail para bancos (para PIX)
+      // Mapeamento de alguns domínios de e-mail para bancos (para Safe)
       const bankEmailDomains = {
         'nubank.com.br': 'Nubank',
         'itau.com.br': 'Itaú',
@@ -665,7 +665,7 @@
       }
       
       return {
-        type: 'E-mail / Chave PIX',
+        type: 'E-mail',
         icon: '✉️',
         isValid: true,
         isPix: true,
@@ -766,7 +766,7 @@
       const region = regionMap[cpfClean[8]] || 'Desconhecida';
       
       return {
-        type: 'CPF / Chave PIX',
+        type: 'CPF',
         icon: '💳',
         isValid: true,
         isPix: true,
@@ -851,7 +851,7 @@
       const formattedCnpj = cnpjClean.replace(/(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})/, '$1.$2.$3/$4-$5');
       
       return {
-        type: 'CNPJ / Chave PIX',
+        type: 'CNPJ',
         icon: '🏢',
         isValid: true,
         isPix: true,
@@ -961,10 +961,10 @@
       };
       
       return {
-        type: isMobile ? 'Celular / Chave PIX' : 'Telefone Fixo',
+        type: isMobile ? 'Celular' : 'Telefone Fixo',
         icon: '📱',
         isValid: true,
-        isPix: isMobile, // Apenas celulares são válidos para PIX
+        isPix: isMobile, // Apenas celulares são válidos para Safe
         metadata: {
           countryCode: countryCode ? '+' + countryCode : '+55',
           areaCode: areaCode,
@@ -978,16 +978,16 @@
     }
     
     /**
-     * Valida chaves PIX aleatórias (UUID)
+     * Valida chaves Safe aleatórias (UUID)
      * 
      * Verifica se o texto corresponde ao formato de chave
-     * aleatória PIX (UUID).
+     * aleatória Safe (UUID).
      * 
-     * @param {string} text - Texto a ser validado como chave PIX aleatória
+     * @param {string} text - Texto a ser validado como chave Safe aleatória
      * @returns {Object} Resultado da validação com metadados
      */
     function validatePixRandom(text) {
-      // Regex para UUID (chave aleatória PIX)
+      // Regex para UUID (chave aleatória Safe)
       const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
       
       if (!uuidRegex.test(text)) {
@@ -995,7 +995,7 @@
       }
       
       return {
-        type: 'Chave PIX Aleatória',
+        type: 'Chave Aleatória',
         icon: '🔑',
         isValid: true,
         isPix: true,
@@ -1063,7 +1063,7 @@
           if (dataInfo.isPix) {
             fileName = 'pix';
             
-            // Adiciona tipo específico de PIX
+            // Adiciona tipo específico de Safe
             if (dataInfo.metadata && dataInfo.metadata.pixType) {
               const pixType = dataInfo.metadata.pixType.toLowerCase()
                 .replace(/\s+/g, '_')
@@ -1123,7 +1123,7 @@
      * SISTEMA DE INFORMAÇÕES DETALHADAS
      * 
      * Este módulo gera informações detalhadas sobre os dados
-     * detectados, como detalhes de links e chaves PIX.
+     * detectados, como detalhes de links e chaves Safe.
      * ============================================================ */
     
     /**
@@ -1217,17 +1217,17 @@
       infoBox.innerHTML = html;
       infoBox.style.display = 'block';
       
-      // Oculta informações de PIX quando exibindo informações de link
+      // Oculta informações de Safe quando exibindo informações de link
       document.getElementById('pixInfo').style.display = 'none';
     }
     
     /**
-     * Exibe informações detalhadas sobre chaves PIX
+     * Exibe informações detalhadas sobre chaves Safe
      * 
-     * Analisa e exibe metadados de chaves PIX, incluindo tipo,
+     * Analisa e exibe metadados de chaves Safe, incluindo tipo,
      * banco (quando identificável) e outras informações relevantes.
      * 
-     * @param {Object} pixInfo - Informações da chave PIX validada
+     * @param {Object} pixInfo - Informações da chave Safe validada
      */
     function displayPixInfo(pixInfo) {
       const infoBox = document.getElementById('pixInfo');
@@ -1241,7 +1241,7 @@
       
       let html = `
         <div class="info-section">
-          <div class="info-title">Informações da Chave PIX</div>
+          <div class="info-title">Informações da Chave Safe</div>
           
           <div class="info-row">
             <div class="info-label">Tipo de Chave:</div>
@@ -1249,7 +1249,7 @@
           </div>
       `;
       
-      // Informações específicas por tipo de chave PIX
+      // Informações específicas por tipo de chave Safe
       switch (pixType) {
         case 'CPF':
           html += `
@@ -1318,7 +1318,7 @@
         <div class="info-row">
           <div class="info-label">Observação:</div>
           <div class="info-value">
-            Este QR Code pode ser usado para pagamentos via PIX.
+            Este QR Code pode ser usado para pagamentos via Safe.
             Confirme sempre os dados do destinatário antes de efetuar pagamentos.
           </div>
         </div>
@@ -1329,7 +1329,7 @@
       infoBox.innerHTML = html;
       infoBox.style.display = 'block';
       
-      // Oculta informações de link quando exibindo informações de PIX
+      // Oculta informações de link quando exibindo informações de Safe
       document.getElementById('linkInfo').style.display = 'none';
     }
     
