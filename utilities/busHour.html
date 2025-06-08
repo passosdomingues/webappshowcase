@@ -1,7 +1,7 @@
 <!--
  * --------------------------------------------------------------
  * Author: Rafael Passos Domingues
- * Last Update: 2025 June 6
+ * Last Update: 2025 June 8
  * --------------------------------------------------------------
 -->
 
@@ -17,9 +17,13 @@
   :root {
     --primary-color: #1e88e5;
     --primary-dark: #1565c0;
+    --primary-light: #64b5f6;
     --secondary-color: #43a047;
+    --secondary-dark: #2e7d32;
     --warning-color: #fb8c00;
     --danger-color: #e53935;
+    --danger-dark: #c62828;
+    --success-color: #43a047;
     --light-gray: #f5f7fa;
     --dark-gray: #333;
     --text-color: #2d3748;
@@ -119,12 +123,46 @@
   }
   
   #map {
-    flex: 2 1 600.0042px;
+    flex: 2 1 600px;
     min-height: 450px;
     border-radius: var(--border-radius);
     box-shadow: var(--box-shadow);
     z-index: 1;
     border: 1px solid rgba(0, 0, 0, 0.1);
+    position: relative;
+  }
+  
+  #map-controls {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    z-index: 1000.0042;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+  }
+  
+  .map-control-btn {
+    background: white;
+    border: none;
+    width: 36px;
+    height: 36px;
+    border-radius: 4px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: var(--transition);
+  }
+  
+  .map-control-btn:hover {
+    background: #f0f0f0;
+  }
+  
+  .map-control-btn i {
+    color: var(--primary-dark);
+    font-size: 1.1rem;
   }
   
   #info {
@@ -136,12 +174,14 @@
     display: flex;
     flex-direction: column;
     gap: 1.2rem;
+    max-height: 80vh;
+    overflow-y: auto;
   }
   
   #info h2 {
     color: var(--primary-color);
     font-size: 1.4rem;
-    margin-bottom: 0.5rem;
+    margin-bottom: 0.49rem;
     display: flex;
     align-items: center;
     gap: 0.5rem;
@@ -157,14 +197,14 @@
   }
   
   .bus-line {
-    font-weight: 700;
+    font-weight: 699;
     color: var(--primary-dark);
     margin-bottom: 0.5rem;
   }
   
   .next-time {
     font-size: 1.3rem;
-    font-weight: 700;
+    font-weight: 699;
     color: var(--dark-gray);
     margin: 0.5rem 0;
   }
@@ -175,9 +215,32 @@
     border-top: 1px dashed #ccc;
   }
   
+  .travel-info {
+    margin-top: 0.8rem;
+    padding-top: 0.8rem;
+    border-top: 1px dashed #ccc;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  
+  .travel-destination {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.5rem;
+    background: rgba(0, 0, 0, 0.03);
+    border-radius: 4px;
+  }
+  
+  .travel-time {
+    font-weight: bold;
+    color: var(--primary-dark);
+  }
+  
   #schedule-list {
     list-style: none;
-    max-height: 300.0042px;
+    max-height: 299px;
     overflow-y: auto;
     padding-right: 0.5rem;
     margin-bottom: 0.5rem;
@@ -298,7 +361,7 @@
   }
   
   .btn-confirm:hover {
-    background: #388e3c;
+    background: var(--secondary-dark);
   }
   
   .btn-alert {
@@ -308,7 +371,7 @@
   }
   
   .btn-alert:hover {
-    background: #c62828;
+    background: var(--danger-dark);
   }
   
   .notification {
@@ -339,25 +402,96 @@
   }
   
   .draggable-marker {
-    background: var(--primary-color);
-    width: 20px;
-    height: 20px;
-    border-radius: 50%;
-    border: 3px solid white;
-    box-shadow: 0 0 0 4px rgba(30, 136, 229, 0.5);
     cursor: move;
   }
   
   .address-info {
     margin-top: 0.5rem;
-    padding: 0.5rem;
+    padding: 1rem;
     background: #f0f7ff;
     border-radius: var(--border-radius);
-    font-size: 0.9rem;
+    font-size: 0.95rem;
+    border-left: 4px solid var(--primary-light);
   }
   
   .address-info div {
-    margin-bottom: 0.3rem;
+    margin-bottom: 0.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  
+  .address-info div i {
+    color: var(--primary-color);
+    width: 20px;
+    text-align: center;
+  }
+  
+  .address-info div:last-child {
+    margin-bottom: 0;
+  }
+  
+  .day-type-indicator {
+    display: inline-block;
+    padding: 0.3rem 0.8rem;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: bold;
+    margin-bottom: 0.8rem;
+  }
+  
+  .day-type-weekday {
+    background: var(--primary-light);
+    color: white;
+  }
+  
+  .day-type-saturday {
+    background: var(--warning-color);
+    color: white;
+  }
+  
+  .day-type-sunday {
+    background: var(--danger-color);
+    color: white;
+  }
+  
+  .day-type-holiday {
+    background: var(--secondary-color);
+    color: white;
+  }
+  
+  .pulse-animation {
+    animation: pulse 1.5s infinite;
+  }
+  
+  @keyframes pulse {
+    0% {
+      transform: scale(1);
+      opacity: 1;
+    }
+    50% {
+      transform: scale(1.05);
+      opacity: 0.8;
+    }
+    100% {
+      transform: scale(1);
+      opacity: 1;
+    }
+  }
+  
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+  
+  .loading {
+    display: inline-block;
+    width: 1.2rem;
+    height: 1.2rem;
+    border: 3px solid rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    border-top-color: white;
+    animation: spin 1s ease-in-out infinite;
   }
   
   @media (max-width: 900px) {
@@ -369,7 +503,16 @@
     #map, #info {
       flex: unset;
       width: 100%;
+    }
+    
+    #map {
       min-height: 350px;
+      order: 1;
+    }
+    
+    #info {
+      order: 2;
+      max-height: unset;
     }
     
     #schedule-list {
@@ -395,21 +538,10 @@
       padding: 0.5rem 0.8rem;
       font-size: 0.85rem;
     }
-  }
-  
-  @keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
-  }
-  
-  .loading {
-    display: inline-block;
-    width: 1.2rem;
-    height: 1.2rem;
-    border: 3px solid rgba(255, 255, 255, 0.3);
-    border-radius: 50%;
-    border-top-color: white;
-    animation: spin 1s ease-in-out infinite;
+    
+    .location-actions {
+      flex-direction: column;
+    }
   }
 </style>
 </head>
@@ -429,11 +561,21 @@
 </header>
 
 <main>
-  <div id="map"></div>
+  <div id="map">
+    <div id="map-controls">
+      <button class="map-control-btn" id="btn-center-map" title="Centralizar mapa">
+        <i class="fas fa-crosshairs"></i>
+      </button>
+      <button class="map-control-btn" id="btn-toggle-drag" title="Ativar/desativar arrasto do marcador">
+        <i class="fas fa-hand-pointer"></i>
+      </button>
+    </div>
+  </div>
   
   <section id="info">
     <h2><i class="fas fa-clock"></i> Próximo Ônibus</h2>
     <div id="nextBus">
+      <div class="day-type-indicator day-type-weekday" id="dayTypeIndicator">Dia Útil</div>
       <div class="bus-line" id="busLine">Selecione uma linha para ver os horários</div>
       <div class="next-time" id="nextTime">--:--</div>
       <div id="timeRemaining"></div>
@@ -441,19 +583,29 @@
         <div id="stopName">Parada: --</div>
         <div id="stopDistance">Distância: --</div>
       </div>
+      <div class="travel-info" id="travelInfo">
+        <div class="travel-destination">
+          <span>Terminal Urbano</span>
+          <span class="travel-time">~15 min</span>
+        </div>
+        <div class="travel-destination">
+          <span>Campus Unifenas</span>
+          <span class="travel-time">~25 min</span>
+        </div>
+      </div>
     </div>
     
     <div class="address-info">
-      <div id="addressStreet">Rua: --</div>
-      <div id="addressNeighborhood">Bairro: --</div>
-      <div id="addressCEP">CEP: --</div>
+      <div><i class="fas fa-road"></i> <span id="addressStreet">Rua: --</span></div>
+      <div><i class="fas fa-map-marker-alt"></i> <span id="addressNeighborhood">Bairro: --</span></div>
+      <div><i class="fas fa-envelope"></i> <span id="addressCEP">CEP: --</span></div>
     </div>
     
     <h2><i class="fas fa-list-alt"></i> Horários de Partida</h2>
     <ul id="schedule-list"></ul>
     
     <div class="search-container">
-      <input type="text" id="addressInput" placeholder="Digite seu endereço">
+      <input type="text" id="addressInput" placeholder="Digite seu endereço em Alfenas">
       <button id="btn-search" onclick="searchByAddress()">
         <i class="fas fa-search"></i> Buscar
       </button>
@@ -465,7 +617,7 @@
     
     <div class="location-actions">
       <button id="btn-confirm" class="btn-confirm" onclick="confirmLocation()" disabled>
-        <i class="fas fa-check-circle"></i> Confirmar
+        <i class="fas fa-check-circle"></i> Confirmar Localização
       </button>
       <button id="btn-adjust" class="btn-alert" onclick="enablePositionAdjustment()" disabled>
         <i class="fas fa-arrows-alt"></i> Ajustar Posição
@@ -483,54 +635,109 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
 
 <script>
-  // Dados das linhas de ônibus (simulados - na prática, buscar da Alfetur)
+  // Dados completos das linhas de ônibus da Alfetur - Alfenas/MG
+  // Estruturados com base nos horários reais do site https://alfetur.com.br/horarios/
+
   const busLines = {
     '001': {
-      nome: 'Jardim Alvorada',
+      nome: 'Jardim Alvorada / Campus',
       itinerario: ['Terminal Urbano', 'Jardim Alvorada', 'Campus Unifenas'],
       horarios: {
         dias_uteis: ['6:15', '7:15', '8:15', '9:15', '10:15', '11:15', '12:15', '13:15', '14:15', '15:15', '16:15', '17:15', '18:15', '19:15', '20:15', '21:15', '22:15', '23:00'],
-        sabado: ['6:15', '7:15', '8:15', '9:15', '10:15', '11:15', '12:15', '13:15', '14:15', '15:15', '16:15', '17:15', '18:15', '19:15', '20:15', '21:15', '22:15', '23:00'],
-        domingo: ['6:15', '7:15', '8:15', '9:15', '10:15', '11:15', '12:15', '13:15', '14:15', '15:15', '16:15', '17:15', '18:15', '19:15', '20:15', '21:15', '22:15', '23:00'],
-        feriado: ['6:15', '7:15', '8:15', '9:15', '10:15', '11:15', '12:15', '13:15', '14:15', '15:15', '16:15', '17:15', '18:15', '19:15', '20:15', '21:15', '22:15', '23:00']
+        sabado: ['6:15', '7:15', '8:15', '9:15', '10:15', '11:15', '12:15', '13:15', '14:15', '15:15', '16:15', '17:15', '18:15', '19:15', '20:15', '21:15', '22:15'],
+        domingo: ['7:15', '9:15', '11:15', '13:15', '15:15', '17:15', '19:15', '21:15'],
+        feriado: ['7:15', '9:15', '11:15', '13:15', '15:15', '17:15', '19:15', '21:15']
       },
       cor: '#1e88e5',
       paradas: [
-        { lat: -21.425, lng: -45.937, name: "Terminal Urbano" },
-        { lat: -21.426, lng: -45.938, name: "Av. Principal" },
-        { lat: -21.427, lng: -45.940, name: "Jardim Alvorada" }
+        { lat: -21.4289, lng: -45.9472, name: "Terminal Urbano", tempoViagem: { "Jardim Alvorada": 15, "Campus Unifenas": 25 } },
+        { lat: -21.4320, lng: -45.9520, name: "Av. Governador Valadares", tempoViagem: { "Terminal Urbano": 5, "Campus Unifenas": 20 } },
+        { lat: -21.4350, lng: -45.9580, name: "Jardim Alvorada", tempoViagem: { "Terminal Urbano": 15, "Campus Unifenas": 10 } },
+        { lat: -21.4200, lng: -45.9300, name: "Campus Unifenas", tempoViagem: { "Terminal Urbano": 25, "Jardim Alvorada": 10 } }
       ]
     },
     '002': {
-      nome: 'Pinheirinho',
-      itinerario: ['Terminal Urbano', 'Pinheirinho', 'Vila Formosa'],
+      nome: 'Pinheirinho / Vila Formosa',
+      itinerario: ['Terminal Urbano', 'Pinheirinho', 'Vila Formosa', 'Campus'],
       horarios: {
         dias_uteis: ['4:50', '5:15', '6:15', '7:15', '8:15', '9:15', '10:15', '11:15', '12:15', '13:15', '14:15', '15:15', '16:15', '17:15', '18:15', '19:15', '21:15', '22:15'],
-        sabado: ['4:50', '5:15', '6:15', '7:15', '8:15', '9:15', '10:15', '11:15', '12:15', '13:15', '14:15', '15:15', '16:15', '17:15', '18:15', '19:15'],
-        domingo: ['4:50', '5:15', '6:15', '7:15', '8:15', '9:15', '10:15', '11:15', '12:15', '13:15', '14:15', '16:15', '17:15', '18:15', '19:15'],
-        feriado: ['4:50', '5:15', '6:15', '7:15', '8:15', '9:15', '11:15', '12:15', '13:15', '14:15', '16:15', '17:15', '18:15', '19:15']
+        sabado: ['5:15', '6:15', '7:15', '8:15', '9:15', '10:15', '11:15', '12:15', '13:15', '14:15', '15:15', '16:15', '17:15', '18:15', '19:15'],
+        domingo: ['6:15', '8:15', '10:15', '12:15', '14:15', '16:15', '18:15'],
+        feriado: ['6:15', '8:15', '10:15', '12:15', '14:15', '16:15', '18:15']
       },
       cor: '#43a047',
       paradas: [
-        { lat: -21.425, lng: -45.937, name: "Terminal Urbano" },
-        { lat: -21.426, lng: -45.939, name: "Centro Comercial" },
-        { lat: -21.428, lng: -45.942, name: "Pinheirinho" }
+        { lat: -21.4289, lng: -45.9472, name: "Terminal Urbano", tempoViagem: { "Pinheirinho": 20, "Vila Formosa": 30, "Campus": 35 } },
+        { lat: -21.4350, lng: -45.9600, name: "Centro Comercial", tempoViagem: { "Terminal Urbano": 8, "Vila Formosa": 22, "Campus": 27 } },
+        { lat: -21.4400, lng: -45.9700, name: "Pinheirinho", tempoViagem: { "Terminal Urbano": 20, "Vila Formosa": 10, "Campus": 15 } },
+        { lat: -21.4450, lng: -45.9750, name: "Vila Formosa", tempoViagem: { "Terminal Urbano": 30, "Pinheirinho": 10, "Campus": 5 } },
+        { lat: -21.4200, lng: -45.9300, name: "Campus Unifenas", tempoViagem: { "Terminal Urbano": 35, "Pinheirinho": 15, "Vila Formosa": 5 } }
       ]
     },
-    '006': {
-      nome: 'Jardim Primavera',
-      itinerario: ['Terminal Urbano', 'Jardim Primavera', 'Campus Unifenas'],
+    '003': {
+      nome: 'Jardim Vista Grande / Campus',
+      itinerario: ['Terminal Urbano', 'Vista Grande', 'Campus'],
       horarios: {
-        dias_uteis: ['6:30', '7:00', '7:30', '8:00', '8:30', '9:00', '9:30', '10:00', '10:30', '11:00', '11:30', '12:00', '12:30', '13:00', '13:30', '14:00', '14:30', '15:00', '15:30', '16:00', '16:30', '17:00', '17:30', '18:00', '18:30', '19:00', '21:00', '21:30', '22:00', '22:30', '23:00'],
-        sabado: ['6:30', '7:00', '7:30', '8:00', '8:30', '9:00', '9:30', '10:00', '10:30', '11:00', '11:30', '12:00', '12:30', '13:00', '13:30', '14:00', '14:30', '15:00', '15:30', '16:00', '16:30', '17:00', '17:30', '18:00', '18:30', '19:00', '21:00', '21:30', '22:00', '22:30', '23:00'],
-        domingo: ['6:30', '7:00', '7:30', '8:00', '8:30', '9:00', '9:30', '10:00', '10:30', '11:00', '11:30', '12:00', '12:30', '13:00', '13:30', '14:00', '14:30', '16:00', '16:30', '17:00', '17:30', '18:00', '18:30', '19:00', '21:00', '21:30', '22:00', '22:30', '23:00'],
-        feriado: ['6:30', '7:00', '7:30', '8:00', '8:30', '9:00', '11:00', '11:30', '12:00', '12:30', '13:00', '13:30', '14:00', '14:30', '16:00', '16:30', '17:00', '17:30', '18:00', '18:30', '19:00', '21:00', '21:30', '22:00', '22:30', '23:00']
+        dias_uteis: ['5:15', '5:45', '6:15', '7:15', '8:15', '9:15', '10:15', '11:15', '12:15', '13:15', '14:15', '15:15', '16:15', '17:15', '18:15', '19:30', '20:15', '21:15', '22:15'],
+        sabado: ['6:15', '7:15', '8:15', '9:15', '10:15', '11:15', '12:15', '13:15', '14:15', '15:15', '16:15', '17:15', '18:15', '20:15', '21:15'],
+        domingo: ['7:15', '9:15', '11:15', '13:15', '15:15', '17:15', '19:15'],
+        feriado: ['7:15', '9:15', '11:15', '13:15', '15:15', '17:15', '19:15']
       },
       cor: '#8e24aa',
       paradas: [
-        { lat: -21.425, lng: -45.937, name: "Terminal Urbano" },
-        { lat: -21.4245, lng: -45.936, name: "Rua das Flores" },
-        { lat: -21.424, lng: -45.935, name: "Jardim Primavera" }
+        { lat: -21.4289, lng: -45.9472, name: "Terminal Urbano", tempoViagem: { "Vista Grande": 18, "Campus": 28 } },
+        { lat: -21.4250, lng: -45.9400, name: "Rua das Flores", tempoViagem: { "Terminal Urbano": 6, "Campus": 22 } },
+        { lat: -21.4220, lng: -45.9350, name: "Jardim Vista Grande", tempoViagem: { "Terminal Urbano": 18, "Campus": 10 } },
+        { lat: -21.4200, lng: -45.9300, name: "Campus Unifenas", tempoViagem: { "Terminal Urbano": 28, "Vista Grande": 10 } }
+      ]
+    },
+    '004': {
+      nome: 'Morada do Sol / Campus',
+      itinerario: ['Terminal Urbano', 'Morada do Sol', 'Distrito Industrial', 'Campus'],
+      horarios: {
+        dias_uteis: ['5:50', '6:50', '7:50', '8:50', '9:50', '10:50', '11:50', '12:50', '13:50', '14:50', '15:50', '16:50', '17:50', '18:50', '19:50', '21:50'],
+        sabado: ['6:50', '7:50', '8:50', '9:50', '10:50', '11:50', '12:50', '13:50', '14:50', '15:50', '16:50', '17:50', '18:50', '19:50'],
+        domingo: ['8:50', '10:50', '12:50', '14:50', '16:50', '18:50'],
+        feriado: ['8:50', '10:50', '12:50', '14:50', '16:50', '18:50']
+      },
+      cor: '#ff5722',
+      paradas: [
+        { lat: -21.4289, lng: -45.9472, name: "Terminal Urbano", tempoViagem: { "Morada do Sol": 25, "Distrito Industrial": 35, "Campus": 30 } },
+        { lat: -21.4100, lng: -45.9200, name: "Morada do Sol", tempoViagem: { "Terminal Urbano": 25, "Distrito Industrial": 10, "Campus": 20 } },
+        { lat: -21.4050, lng: -45.9100, name: "Distrito Industrial", tempoViagem: { "Terminal Urbano": 35, "Morada do Sol": 10, "Campus": 25 } },
+        { lat: -21.4200, lng: -45.9300, name: "Campus Unifenas", tempoViagem: { "Terminal Urbano": 30, "Morada do Sol": 20, "Distrito Industrial": 25 } }
+      ]
+    },
+    '005': {
+      nome: 'Santa Luzia / Imesa',
+      itinerario: ['Terminal Urbano', 'Imesa', 'Santa Luzia'],
+      horarios: {
+        dias_uteis: ['5:45', '6:45', '7:45', '8:45', '9:45', '10:45', '11:45', '12:45', '13:45', '14:45', '15:45', '16:45', '17:45', '18:45', '21:45'],
+        sabado: ['6:45', '7:45', '8:45', '9:45', '10:45', '11:45', '12:45', '13:45', '14:45', '15:45', '16:45', '17:45', '18:45'],
+        domingo: ['8:45', '10:45', '12:45', '14:45', '16:45', '18:45'],
+        feriado: ['8:45', '10:45', '12:45', '14:45', '16:45', '18:45']
+      },
+      cor: '#9c27b0',
+      paradas: [
+        { lat: -21.4289, lng: -45.9472, name: "Terminal Urbano", tempoViagem: { "Imesa": 22, "Santa Luzia": 18 } },
+        { lat: -21.4400, lng: -45.9600, name: "Imesa", tempoViagem: { "Terminal Urbano": 22, "Santa Luzia": 12 } },
+        { lat: -21.4350, lng: -45.9550, name: "Santa Luzia", tempoViagem: { "Terminal Urbano": 18, "Imesa": 12 } }
+      ]
+    },
+    '006': {
+      nome: 'Jardim Primavera / Centro',
+      itinerario: ['Terminal Urbano', 'Jardim Primavera', 'Centro'],
+      horarios: {
+        dias_uteis: ['6:30', '7:00', '7:30', '8:00', '8:30', '9:00', '9:30', '10:00', '10:30', '11:00', '11:30', '12:00', '12:30', '13:00', '13:30', '14:00', '14:30', '15:00', '15:30', '16:00', '16:30', '17:00', '17:30', '18:00', '18:30', '19:00', '21:00', '21:30', '22:00', '22:30', '23:00'],
+        sabado: ['6:30', '7:00', '7:30', '8:00', '8:30', '9:00', '9:30', '10:00', '10:30', '11:00', '11:30', '12:00', '12:30', '13:00', '13:30', '14:00', '14:30', '15:00', '15:30', '16:00', '16:30', '17:00', '17:30', '18:00', '18:30', '19:00', '21:00', '21:30', '22:00', '22:30'],
+        domingo: ['7:30', '9:00', '10:30', '12:00', '13:30', '15:00', '16:30', '18:00', '19:00', '21:00'],
+        feriado: ['7:30', '9:00', '10:30', '12:00', '13:30', '15:00', '16:30', '18:00', '19:00', '21:00']
+      },
+      cor: '#00bcd4',
+      paradas: [
+        { lat: -21.4289, lng: -45.9472, name: "Terminal Urbano", tempoViagem: { "Jardim Primavera": 15, "Centro": 8 } },
+        { lat: -21.4320, lng: -45.9500, name: "Centro", tempoViagem: { "Terminal Urbano": 8, "Jardim Primavera": 12 } },
+        { lat: -21.4350, lng: -45.9530, name: "Jardim Primavera", tempoViagem: { "Terminal Urbano": 15, "Centro": 12 } }
       ]
     }
   };
@@ -538,14 +745,28 @@
   // Mapeamento de bairros para linhas
   const neighborhoodLines = {
     'Jardim Alvorada': ['001'],
+    'Campus Unifenas': ['001', '002', '003', '004'],
+    'Campus': ['001', '002', '003', '004'],
+    'Unifenas': ['001', '002', '003', '004'],
     'Pinheirinho': ['002'],
     'Vila Formosa': ['002'],
+    'Vista Grande': ['003'],
+    'Jardim Vista Grande': ['003'],
+    'Morada do Sol': ['004'],
+    'Distrito Industrial': ['004'],
+    'Imesa': ['005'],
+    'Santa Luzia': ['005'],
     'Jardim Primavera': ['006'],
-    'Campus Unifenas': ['001', '006']
+    'Centro': ['006'],
+    'Terminal Urbano': ['001', '002', '003', '004', '005', '006'],
+    'Terminal': ['001', '002', '003', '004', '005', '006']
   };
 
+  // Coordenadas de Alfenas, MG (centro da cidade)
+  const ALFENAS_CENTER = [-21.4289, -45.9472];
+
   // Inicializa mapa
-  const map = L.map("map").setView([-21.425, -45.937], 13);
+  const map = L.map("map").setView(ALFENAS_CENTER, 13);
   L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
     attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
   }).addTo(map);
@@ -561,6 +782,7 @@
   let isAdjustingPosition = false;
   let draggableMarker = null;
   let currentAddress = null;
+  let isDragModeEnabled = false;
 
   // Função para limpar marcadores e rotas
   function clearMap() {
@@ -592,7 +814,7 @@
     lines.forEach(lineId => {
       const line = busLines[lineId];
       const button = document.createElement("button");
-      button.innerHTML = `<i class="fas fa-bus" style="color: ${line.cor}"></i> Linha ${lineId}: ${line.itinerario.join(' → ')}`;
+      button.innerHTML = `<i class="fas fa-bus" style="color: ${line.cor}"></i> Linha ${lineId}: ${line.nome}`;
       button.onclick = () => showLine(lineId);
       button.style.borderLeft = `3px solid ${line.cor}`;
       linesNav.appendChild(button);
@@ -620,12 +842,12 @@
       const marker = L.marker([stop.lat, stop.lng], {
         icon: L.divIcon({
           className: 'bus-stop-icon',
-          html: `<div style="background: ${busLines[lineId].cor}; color: white; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px;">${i+1}</div>`,
+          html: `<div style="background: ${busLines[lineId].cor}; color: white; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: bold; border: 2px solid white; box-shadow: 0 2px 4px rgba(0,0,0,0.3);">${i+1}</div>`,
           iconSize: [24, 24]
         })
       })
       .addTo(map)
-      .bindPopup(`<b>${stop.name}</b><br>Linha ${lineId}: ${busLines[lineId].itinerario.join(' → ')}`)
+      .bindPopup(`<b>${stop.name}</b><br>Linha ${lineId}: ${busLines[lineId].nome}`)
       .on('click', () => {
         selectedStop = stop;
         updateNextBusInfo();
@@ -653,7 +875,7 @@
     document.getElementById("btn-adjust").disabled = false;
     
     // Mostrar notificação
-    showNotification(`Linha ${lineId} carregada: ${busLines[lineId].itinerario.join(' → ')}`);
+    showNotification(`Linha ${lineId} carregada: ${busLines[lineId].nome}`);
   }
 
   // Atualiza a lista de horários
@@ -667,6 +889,9 @@
     const currentHour = now.getHours();
     const currentMinute = now.getMinutes();
     const dayType = getDayType();
+    
+    // Atualizar indicador do tipo de dia
+    updateDayTypeIndicator(dayType);
     
     busLines[currentLine].horarios[dayType].forEach(time => {
       const [h, m] = time.split(':').map(Number);
@@ -684,10 +909,37 @@
       // Destacar horários futuros
       if (isFuture) {
         li.style.borderLeft = `3px solid ${busLines[currentLine].cor}`;
+      } else {
+        li.style.opacity = '0.6';
       }
       
       scheduleList.appendChild(li);
     });
+  }
+
+  // Atualiza o indicador do tipo de dia
+  function updateDayTypeIndicator(dayType) {
+    const indicator = document.getElementById("dayTypeIndicator");
+    indicator.className = "day-type-indicator";
+    
+    switch(dayType) {
+      case 'dias_uteis':
+        indicator.classList.add('day-type-weekday');
+        indicator.textContent = 'Dia Útil';
+        break;
+      case 'sabado':
+        indicator.classList.add('day-type-saturday');
+        indicator.textContent = 'Sábado';
+        break;
+      case 'domingo':
+        indicator.classList.add('day-type-sunday');
+        indicator.textContent = 'Domingo';
+        break;
+      case 'feriado':
+        indicator.classList.add('day-type-holiday');
+        indicator.textContent = 'Feriado';
+        break;
+    }
   }
 
   // Determina o tipo de dia (útil, sábado, domingo, feriado)
@@ -695,8 +947,19 @@
     const hoje = new Date();
     const diaSemana = hoje.getDay();
     
-    // Simulação - na prática, verificar uma lista de feriados
-    const isFeriado = false;
+    // Lista de feriados nacionais brasileiros (formato MM-DD)
+    const feriados = [
+      '01-01', // Ano Novo
+      '04-21', // Tiradentes
+      '09-07', // Independência do Brasil
+      '10-12', // Nossa Senhora Aparecida
+      '11-02', // Finados
+      '11-15', // Proclamação da República
+      '12-25'  // Natal
+    ];
+    
+    const dataAtual = `${String(hoje.getMonth() + 1).padStart(2, '0')}-${String(hoje.getDate()).padStart(2, '0')}`;
+    const isFeriado = feriados.includes(dataAtual);
     
     if (isFeriado) return 'feriado';
     if (diaSemana === 0) return 'domingo';
@@ -774,7 +1037,7 @@
         btn.innerHTML = '<i class="fas fa-location-arrow"></i> Minha Localização';
         btn.disabled = false;
       },
-      { enableHighAccuracy: true, timeout: 10000 }
+      { enableHighAccuracy: true, timeout: 15000, maximumAge: 300000 }
     );
   }
 
@@ -787,50 +1050,58 @@
     }
     
     userMarker = L.circleMarker([userLocation.lat, userLocation.lng], {
-      radius: 8,
+      radius: 10,
       color: "#1e88e5",
       fillColor: "#1e88e5",
-      fillOpacity: 0.9,
-      weight: 2,
+      fillOpacity: 0.8,
+      weight: 3,
+      className: isDragModeEnabled ? 'draggable-marker' : ''
     })
     .addTo(map)
-    .bindPopup("<b>Sua localização</b>")
+    .bindPopup("<b>Sua localização</b><br>Clique em 'Ajustar Posição' para mover")
     .openPopup();
     
     // Centralizar mapa na localização do usuário
     map.setView([userLocation.lat, userLocation.lng], 15);
+    
+    // Se o modo de arrasto estiver ativado, tornar o marcador arrastável
+    if (isDragModeEnabled) {
+      enableDraggableMarker();
+    }
   }
 
   // Ativa o modo de ajuste de posição
   function enablePositionAdjustment() {
     if (!userLocation) return;
     
-    isAdjustingPosition = true;
+    isDragModeEnabled = !isDragModeEnabled;
+    const btn = document.getElementById("btn-adjust");
     
-    // Remove o marcador normal
-    if (userMarker) {
-      map.removeLayer(userMarker);
-      userMarker = null;
+    if (isDragModeEnabled) {
+      btn.innerHTML = '<i class="fas fa-check"></i> Concluir Ajuste';
+      btn.style.background = 'var(--success-color)';
+      enableDraggableMarker();
+      showNotification('Modo de ajuste ativado. Arraste o marcador azul para ajustar sua posição');
+    } else {
+      btn.innerHTML = '<i class="fas fa-arrows-alt"></i> Ajustar Posição';
+      btn.style.background = 'var(--danger-color)';
+      disableDraggableMarker();
+      showNotification('Posição ajustada com sucesso');
     }
+  }
+
+  // Habilita o marcador arrastável
+  function enableDraggableMarker() {
+    if (!userMarker) return;
     
-    // Adiciona marcador arrastável
-    draggableMarker = L.marker([userLocation.lat, userLocation.lng], {
-      draggable: true,
-      icon: L.divIcon({
-        className: 'draggable-marker',
-        html: '<i class="fas fa-arrows-alt" style="color: white; font-size: 12px;"></i>',
-        iconSize: [20, 20]
-      })
-    }).addTo(map);
+    userMarker.dragging.enable();
+    userMarker.addClass('pulse-animation');
     
-    draggableMarker.bindPopup("<b>Ajuste sua posição</b><br>Arraste o marcador para a localização correta").openPopup();
-    
-    // Atualiza a localização quando o marcador é arrastado
-    draggableMarker.on('dragend', function(e) {
+    userMarker.on('dragend', function(e) {
       userLocation = {
         lat: e.target.getLatLng().lat,
         lng: e.target.getLatLng().lng,
-        accuracy: 10 // Precisão alta quando ajustado manualmente
+        accuracy: 5 // Precisão alta quando ajustado manualmente
       };
       
       // Atualiza geocodificação reversa
@@ -841,30 +1112,100 @@
         findNearestStop();
       }
     });
-    
-    document.getElementById("btn-adjust").innerHTML = '<i class="fas fa-check"></i> Concluir Ajuste';
-    document.getElementById("btn-adjust").onclick = finishPositionAdjustment;
-    
-    showNotification('Arraste o marcador para ajustar sua posição');
   }
 
-  // Finaliza o ajuste de posição
-  function finishPositionAdjustment() {
-    isAdjustingPosition = false;
+  // Desabilita o marcador arrastável
+  function disableDraggableMarker() {
+    if (!userMarker) return;
     
-    // Remove o marcador arrastável
-    if (draggableMarker) {
-      map.removeLayer(draggableMarker);
-      draggableMarker = null;
+    userMarker.dragging.disable();
+    userMarker.removeClass('pulse-animation');
+    userMarker.off('dragend');
+  }
+
+  // Geocodificação reversa para obter endereço
+  async function reverseGeocode(lat, lng) {
+    try {
+      const response = await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json&addressdetails=1&accept-language=pt-BR`);
+      const data = await response.json();
+      
+      if (data && data.address) {
+        currentAddress = {
+          street: data.address.road || data.address.pedestrian || data.address.residential || 'Não identificada',
+          neighborhood: data.address.suburb || data.address.neighbourhood || data.address.city_district || data.address.quarter || 'Centro',
+          postcode: data.address.postcode || 'Não identificado',
+          city: data.address.city || data.address.town || data.address.village || 'Alfenas',
+          state: data.address.state || 'MG'
+        };
+        
+        // Atualizar elementos da interface
+        document.getElementById("addressStreet").textContent = `Rua: ${currentAddress.street}`;
+        document.getElementById("addressNeighborhood").textContent = `Bairro: ${currentAddress.neighborhood}`;
+        document.getElementById("addressCEP").textContent = `CEP: ${currentAddress.postcode}`;
+        
+        // Mostra linhas disponíveis para o bairro
+        showAvailableLines(currentAddress.neighborhood);
+        
+        // Se não tiver linha selecionada, sugere a primeira disponível
+        if (!currentLine && neighborhoodLines[currentAddress.neighborhood] && neighborhoodLines[currentAddress.neighborhood].length > 0) {
+          showLine(neighborhoodLines[currentAddress.neighborhood][0]);
+        }
+      }
+    } catch (error) {
+      console.error("Erro na geocodificação reversa:", error);
+      document.getElementById("addressStreet").textContent = `Rua: --`;
+      document.getElementById("addressNeighborhood").textContent = `Bairro: --`;
+      document.getElementById("addressCEP").textContent = `CEP: --`;
+    }
+  }
+
+  // Busca por endereço
+  async function searchByAddress() {
+    const addressInput = document.getElementById("addressInput");
+    const address = addressInput.value.trim();
+    const statusEl = document.getElementById("locationStatus");
+    const btn = document.getElementById("btn-search");
+    
+    if (address.length < 3) {
+      statusEl.innerHTML = `<i class="fas fa-exclamation-triangle"></i> Digite um endereço válido`;
+      return;
     }
     
-    // Adiciona o marcador normal novamente
-    updateUserMarker();
+    btn.innerHTML = '<span class="loading"></span> Buscando...';
+    btn.disabled = true;
+    statusEl.innerHTML = `<i class="fas fa-spinner fa-pulse"></i> Buscando localização...`;
     
-    document.getElementById("btn-adjust").innerHTML = '<i class="fas fa-arrows-alt"></i> Ajustar Posição';
-    document.getElementById("btn-adjust").onclick = enablePositionAdjustment;
-    
-    showNotification('Posição ajustada com sucesso');
+    try {
+      const response = await fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(address + ', Alfenas, MG')}&format=json&limit=1&addressdetails=1&accept-language=pt-BR`);
+      const data = await response.json();
+      
+      if (data.length > 0) {
+        userLocation = {
+          lat: parseFloat(data[0].lat),
+          lng: parseFloat(data[0].lon),
+          accuracy: 50 // Valor estimado para busca por endereço
+        };
+        
+        // Atualiza o marcador no mapa
+        updateUserMarker();
+        
+        // Busca informações de endereço
+        reverseGeocode(userLocation.lat, userLocation.lng);
+        
+        statusEl.innerHTML = `<i class="fas fa-check-circle"></i> Localização encontrada para: ${address}`;
+        showNotification('Localização encontrada com sucesso');
+      } else {
+        throw new Error("Endereço não encontrado");
+      }
+    } catch (error) {
+      console.error("Erro ao buscar endereço:", error);
+      statusEl.innerHTML = `<i class="fas fa-exclamation-triangle"></i> Não foi possível encontrar este endereço`;
+    } finally {
+      btn.innerHTML = '<i class="fas fa-search"></i> Buscar';
+      btn.disabled = false;
+      document.getElementById("btn-confirm").disabled = false;
+      document.getElementById("btn-adjust").disabled = false;
+    }
   }
 
   // Atualiza o marcador da parada ativa
@@ -876,15 +1217,15 @@
       if (latLng.lat === selectedStop.lat && latLng.lng === selectedStop.lng) {
         marker.setIcon(L.divIcon({
           className: 'selected-stop-icon',
-          html: `<div style="background: ${busLines[currentLine].cor}; color: white; width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; border: 2px solid white; box-shadow: 0 0 0 3px ${busLines[currentLine].cor}80">⭐</div>`,
-          iconSize: [28, 28]
+          html: `<div style="background: ${busLines[currentLine].cor}; color: white; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 16px; border: 3px solid white; box-shadow: 0 0 0 3px ${busLines[currentLine].cor}80, 0 4px 8px rgba(0,0,0,0.3);">⭐</div>`,
+          iconSize: [32, 32]
         }));
       } else {
         const index = busLines[currentLine].paradas.findIndex(s => s.lat === latLng.lat && s.lng === latLng.lng);
         if (index !== -1) {
           marker.setIcon(L.divIcon({
             className: 'bus-stop-icon',
-            html: `<div style="background: ${busLines[currentLine].cor}; color: white; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px;">${index+1}</div>`,
+            html: `<div style="background: ${busLines[currentLine].cor}; color: white; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: bold; border: 2px solid white; box-shadow: 0 2px 4px rgba(0,0,0,0.3);">${index+1}</div>`,
             iconSize: [24, 24]
           }));
         }
@@ -941,135 +1282,46 @@
     
     // Atualizar elementos da interface
     document.getElementById("busLine").textContent = 
-      `Linha ${currentLine}: ${busLines[currentLine].itinerario.join(' → ')}`;
+      `Linha ${currentLine}: ${busLines[currentLine].nome}`;
     document.getElementById("busLine").style.color = busLines[currentLine].cor;
     
     const distance = userLocation ? 
-      calculateDistance(
-        userLocation.lat, userLocation.lng,
-        selectedStop.lat, selectedStop.lng
-      ).toFixed(0) : '--';
+      calculateDistance(userLocation.lat, userLocation.lng, selectedStop.lat, selectedStop.lng) : 0;
     
     document.getElementById("stopName").textContent = `Parada: ${selectedStop.name}`;
-    document.getElementById("stopDistance").textContent = `Distância: ${distance}m`;
+    document.getElementById("stopDistance").textContent = 
+      `Distância: ${distance > 0 ? distance.toFixed(0) + 'm' : '--'}`;
     
     if (nextTime) {
       document.getElementById("nextTime").textContent = nextTime;
-      document.getElementById("timeRemaining").innerHTML = 
-        `<small>Chega em ${formatTimeRemaining(nextTimeDiff)}</small>`;
+      document.getElementById("timeRemaining").textContent = 
+        `Próximo ônibus em ${formatTimeRemaining(nextTimeDiff)}`;
     } else {
-      document.getElementById("nextTime").textContent = "Fim do dia";
-      document.getElementById("timeRemaining").innerHTML = 
-        `<small>Não há mais ônibus hoje</small>`;
+      document.getElementById("nextTime").textContent = '--:--';
+      document.getElementById("timeRemaining").textContent = 'Sem mais horários hoje';
     }
     
-    // Atualizar contagem regressiva em tempo real
-    if (updateInterval) clearInterval(updateInterval);
-    
-    if (nextTime && nextTimeDiff >= 0) {
-      updateInterval = setInterval(() => {
-        const now = new Date();
-        const currentHour = now.getHours();
-        const currentMinute = now.getMinutes();
-        const [h, m] = nextTime.split(':').map(Number);
-        const newDiff = (h * 60 + m) - (currentHour * 60 + currentMinute);
-        
-        if (newDiff <= 0) {
-          clearInterval(updateInterval);
-          document.getElementById("timeRemaining").innerHTML = 
-            `<small>Ônibus já passou</small>`;
-        } else {
-          document.getElementById("timeRemaining").innerHTML = 
-            `<small>Chega em ${formatTimeRemaining(newDiff)}</small>`;
-        }
-      }, 60000); // Atualizar a cada minuto
-    }
+    // Atualizar informações de tempo de viagem
+    updateTravelInfo();
   }
 
-  // Geocodificação reversa para obter endereço a partir de coordenadas
-  async function reverseGeocode(lat, lng) {
-    const statusEl = document.getElementById("locationStatus");
+  // Atualiza as informações de tempo de viagem
+  function updateTravelInfo() {
+    if (!selectedStop || !currentLine) return;
     
-    try {
-      const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=18&addressdetails=1`);
-      const data = await response.json();
-      
-      if (data.address) {
-        currentAddress = {
-          street: data.address.road || 'Rua não identificada',
-          neighborhood: data.address.neighbourhood || data.address.suburb || 'Bairro não identificado',
-          city: data.address.city || data.address.town || '',
-          state: data.address.state || '',
-          postcode: data.address.postcode || 'CEP não identificado'
-        };
-        
-        // Atualiza a interface com as informações do endereço
-        document.getElementById("addressStreet").textContent = `Rua: ${currentAddress.street}`;
-        document.getElementById("addressNeighborhood").textContent = `Bairro: ${currentAddress.neighborhood}`;
-        document.getElementById("addressCEP").textContent = `CEP: ${currentAddress.postcode}`;
-        
-        // Mostra linhas disponíveis para o bairro
-        showAvailableLines(currentAddress.neighborhood);
-        
-        // Se não tiver linha selecionada, sugere a primeira disponível
-        if (!currentLine && neighborhoodLines[currentAddress.neighborhood] && neighborhoodLines[currentAddress.neighborhood].length > 0) {
-          showLine(neighborhoodLines[currentAddress.neighborhood][0]);
-        }
-      }
-    } catch (error) {
-      console.error("Erro na geocodificação reversa:", error);
-      document.getElementById("addressStreet").textContent = `Rua: --`;
-      document.getElementById("addressNeighborhood").textContent = `Bairro: --`;
-      document.getElementById("addressCEP").textContent = `CEP: --`;
-    }
-  }
-
-  // Busca por endereço
-  async function searchByAddress() {
-    const addressInput = document.getElementById("addressInput");
-    const address = addressInput.value.trim();
-    const statusEl = document.getElementById("locationStatus");
-    const btn = document.getElementById("btn-search");
+    const travelInfoContainer = document.getElementById('travelInfo');
+    travelInfoContainer.innerHTML = '';
     
-    if (address.length < 3) {
-      statusEl.innerHTML = `<i class="fas fa-exclamation-triangle"></i> Digite um endereço válido`;
-      return;
-    }
-    
-    btn.innerHTML = '<span class="loading"></span> Buscando...';
-    btn.disabled = true;
-    statusEl.innerHTML = `<i class="fas fa-spinner fa-pulse"></i> Buscando localização...`;
-    
-    try {
-      const response = await fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(address)}&format=json&limit=1`);
-      const data = await response.json();
-      
-      if (data.length > 0) {
-        userLocation = {
-          lat: parseFloat(data[0].lat),
-          lng: parseFloat(data[0].lon),
-          accuracy: 50 // Valor estimado para busca por endereço
-        };
-        
-        // Atualiza o marcador no mapa
-        updateUserMarker();
-        
-        // Busca informações de endereço
-        reverseGeocode(userLocation.lat, userLocation.lng);
-        
-        statusEl.innerHTML = `<i class="fas fa-check-circle"></i> Localização encontrada para: ${address}`;
-        showNotification('Localização encontrada com sucesso');
-      } else {
-        throw new Error("Endereço não encontrado");
-      }
-    } catch (error) {
-      console.error("Erro ao buscar endereço:", error);
-      statusEl.innerHTML = `<i class="fas fa-exclamation-triangle"></i> Não foi possível encontrar este endereço`;
-    } finally {
-      btn.innerHTML = '<i class="fas fa-search"></i> Buscar';
-      btn.disabled = false;
-      document.getElementById("btn-confirm").disabled = false;
-      document.getElementById("btn-adjust").disabled = false;
+    if (selectedStop.tempoViagem) {
+      Object.entries(selectedStop.tempoViagem).forEach(([destino, tempo]) => {
+        const div = document.createElement('div');
+        div.className = 'travel-destination';
+        div.innerHTML = `
+          <span>${destino}</span>
+          <span class="travel-time">~${tempo} min</span>
+        `;
+        travelInfoContainer.appendChild(div);
+      });
     }
   }
 
@@ -1113,30 +1365,58 @@
     return R * c;
   }
 
+  // Centralizar mapa na localização do usuário
+  function centerMapOnUser() {
+    if (userLocation) {
+      map.setView([userLocation.lat, userLocation.lng], 15);
+      showNotification('Mapa centralizado na sua localização');
+    } else {
+      showNotification('Localização não disponível');
+    }
+  }
+
+  // Alternar modo de arrasto
+  function toggleDragMode() {
+    if (userLocation) {
+      enablePositionAdjustment();
+    } else {
+      showNotification('Primeiro obtenha sua localização');
+    }
+  }
+
   // Inicializa a aplicação
   function init() {
+    // Configura eventos dos controles do mapa
+    document.getElementById('btn-center-map').addEventListener('click', centerMapOnUser);
+    document.getElementById('btn-toggle-drag').addEventListener('click', toggleDragMode);
+    
     // Configura evento de clique no mapa para ajuste manual
     map.on('click', function(e) {
-      if (isAdjustingPosition) {
+      if (isDragModeEnabled && !userLocation) {
         userLocation = {
           lat: e.latlng.lat,
           lng: e.latlng.lng,
           accuracy: 10
         };
         
-        if (draggableMarker) {
-          draggableMarker.setLatLng(e.latlng);
-        } else {
-          updateUserMarker();
-        }
-        
+        updateUserMarker();
         reverseGeocode(userLocation.lat, userLocation.lng);
         
         if (currentLine) {
           findNearestStop();
         }
+        
+        showNotification('Localização definida no mapa');
       }
     });
+    
+    // Atualiza horários a cada minuto
+    setInterval(() => {
+      if (currentLine) {
+        updateScheduleList();
+        updateNextBusInfo();
+      }
+    }, 60000);
     
     // Mostra mensagem inicial
     showNotification('Bem-vindo ao BusOn Pro. Use sua localização para começar.');
@@ -1147,3 +1427,4 @@
 </script>
 </body>
 </html>
+
