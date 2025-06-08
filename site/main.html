@@ -292,10 +292,16 @@
 
     .card-meta {
       display: flex;
-      align-items: center;
-      justify-content: space-between;
+      flex-direction: column;
+      gap: 0.5rem;
       font-size: 0.85rem;
       color: var(--color-text-secondary);
+    }
+
+    .meta-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
     }
 
     .card-category {
@@ -304,6 +310,18 @@
       padding: 0.25rem 0.5rem;
       border-radius: var(--radius-sm);
       font-weight: 500;
+      font-size: 0.8rem;
+    }
+
+    .card-hash {
+      font-family: monospace;
+      font-size: 0.7rem;
+      opacity: 0.7;
+      word-break: break-all;
+    }
+
+    .card-date {
+      font-size: 0.8rem;
     }
 
     [data-theme="dark"] .card-category {
@@ -483,7 +501,8 @@
         icon: "💈",
         category: "Outros",
         path: "https://rpassosdomingues.github.io/insights/site/utilities/barber.html",
-        lastModified: "2025-06-08"
+        lastModified: "2025-06-08 02:44",
+        fileHash: "c65380382d88b75fe26f2630529a4f1f"
       },
       {
         id: "buscaCEPRua",
@@ -491,7 +510,8 @@
         icon: "🔎🏠",
         category: "Outros",
         path: "https://rpassosdomingues.github.io/insights/site/utilities/buscaCEPRua.html",
-        lastModified: "2025-06-08"
+        lastModified: "2025-06-08 02:45",
+        fileHash: "d589a4b0b64e18d8e5a460add7f74956"
       },
       {
         id: "buscaContextoPDFs",
@@ -499,7 +519,8 @@
         icon: "🔎📄",
         category: "Outros",
         path: "https://rpassosdomingues.github.io/insights/site/utilities/buscaContextoPDFs.html",
-        lastModified: "2025-06-08"
+        lastModified: "2025-06-08 02:48",
+        fileHash: "55b2c6823d6a172aaca8195e539d5ffd"
       },
       {
         id: "busHour",
@@ -507,7 +528,8 @@
         icon: "🔎🚌",
         category: "Outros",
         path: "https://rpassosdomingues.github.io/insights/site/utilities/busHour.html",
-        lastModified: "2025-06-08"
+        lastModified: "2025-06-08 02:33",
+        fileHash: "5504b4efcd724b8de0104537a3598323"
       },
       {
         id: "comandaDigital",
@@ -515,7 +537,8 @@
         icon: "🍢",
         category: "Outros",
         path: "https://rpassosdomingues.github.io/insights/site/utilities/comandaDigital.html",
-        lastModified: "2025-06-08"
+        lastModified: "2025-06-08 02:34",
+        fileHash: "1cc61a34ebe28ea66306b385b1a1e387"
       },
       {
         id: "confereListaSupermercado",
@@ -523,7 +546,8 @@
         icon: "🛒",
         category: "Outros",
         path: "https://rpassosdomingues.github.io/insights/site/utilities/confereListaSupermercado.html",
-        lastModified: "2025-06-08"
+        lastModified: "2025-06-08 02:16",
+        fileHash: "374e74fd1366e781e8b6dd815cae7888"
       },
       {
         id: "dengueZero",
@@ -531,7 +555,8 @@
         icon: "🔎🦟",
         category: "Outros",
         path: "https://rpassosdomingues.github.io/insights/site/utilities/dengueZero.html",
-        lastModified: "2025-06-08"
+        lastModified: "2025-06-08 02:34",
+        fileHash: "aa2cb507080d0cf0afaa9fcc10703ab2"
       },
       {
         id: "dentaLog",
@@ -539,7 +564,8 @@
         icon: "🦷",
         category: "Outros",
         path: "https://rpassosdomingues.github.io/insights/site/utilities/dentaLog.html",
-        lastModified: "2025-06-08"
+        lastModified: "2025-06-08 02:50",
+        fileHash: "5e2cbb6f5df48402e9b7b02d81f84575"
       },
       {
         id: "doctorLog",
@@ -547,7 +573,8 @@
         icon: "🩺",
         category: "Outros",
         path: "https://rpassosdomingues.github.io/insights/site/utilities/doctorLog.html",
-        lastModified: "2025-06-08"
+        lastModified: "2025-06-08 01:23",
+        fileHash: "cd2cd48d9c43fb02753ce0b6c6a11738"
       },
       {
         id: "dogGuest",
@@ -555,7 +582,8 @@
         icon: "🐶",
         category: "Outros",
         path: "https://rpassosdomingues.github.io/insights/site/utilities/dogGuest.html",
-        lastModified: "2025-06-08"
+        lastModified: "2025-06-08 02:37",
+        fileHash: "8d71fccae3756a801fd6025db671cb73"
       },
       {
         id: "fitMotivation",
@@ -563,7 +591,8 @@
         icon: "🏋️‍♂️💪",
         category: "Outros",
         path: "https://rpassosdomingues.github.io/insights/site/utilities/fitMotivation.html",
-        lastModified: "2025-06-08"
+        lastModified: "2025-06-08 01:26",
+        fileHash: "bd612f9ee0841f28ad3c92ac215c330b"
       },
       {
         id: "mapaPerigoRua",
@@ -571,7 +600,8 @@
         icon: "⚠️🗺️",
         category: "Outros",
         path: "https://rpassosdomingues.github.io/insights/site/utilities/mapaPerigoRua.html",
-        lastModified: "2025-06-08"
+        lastModified: "2025-06-08 02:39",
+        fileHash: "22da36510238de7af8c5c8436339d3d7"
       },
       {
         id: "meetMotions",
@@ -579,7 +609,8 @@
         icon: "🎤",
         category: "Outros",
         path: "https://rpassosdomingues.github.io/insights/site/utilities/meetMotions.html",
-        lastModified: "2025-06-08"
+        lastModified: "2025-06-08 01:27",
+        fileHash: "e68a25e74a5df72aa733634cce33f791"
       },
       {
         id: "motoboyDanger",
@@ -587,7 +618,8 @@
         icon: "⚠️🛵",
         category: "Outros",
         path: "https://rpassosdomingues.github.io/insights/site/utilities/motoboyDanger.html",
-        lastModified: "2025-06-08"
+        lastModified: "2025-06-08 01:46",
+        fileHash: "34f4c2e6e79d2faee81d591cf4d4a9de"
       },
       {
         id: "nurseLog",
@@ -595,7 +627,8 @@
         icon: "🩹",
         category: "Outros",
         path: "https://rpassosdomingues.github.io/insights/site/utilities/nurseLog.html",
-        lastModified: "2025-06-08"
+        lastModified: "2025-06-08 01:29",
+        fileHash: "627d5556614e40a9f2b743edbe951b7a"
       },
       {
         id: "pawgel",
@@ -603,7 +636,8 @@
         icon: "🔎🐾🪽",
         category: "Outros",
         path: "https://rpassosdomingues.github.io/insights/site/utilities/pawgel.html",
-        lastModified: "2025-06-08"
+        lastModified: "2025-06-08 01:30",
+        fileHash: "af1ac5e2733a35a0f8dcae63ab837565"
       },
       {
         id: "pedalSeguro",
@@ -611,7 +645,8 @@
         icon: "🔎🗺️🚴‍♂️",
         category: "Outros",
         path: "https://rpassosdomingues.github.io/insights/site/utilities/pedalSeguro.html",
-        lastModified: "2025-06-08"
+        lastModified: "2025-06-08 02:44",
+        fileHash: "ac00b30f7a2ea56facf6a851242c125b"
       },
       {
         id: "pedreiroBot",
@@ -619,7 +654,8 @@
         icon: "🧱",
         category: "Outros",
         path: "https://rpassosdomingues.github.io/insights/site/utilities/pedreiroBot.html",
-        lastModified: "2025-06-08"
+        lastModified: "2025-06-08 01:47",
+        fileHash: "084d0026041c25933763d33ff79a3778"
       },
       {
         id: "planejaMercado",
@@ -627,7 +663,8 @@
         icon: "🛒",
         category: "Outros",
         path: "https://rpassosdomingues.github.io/insights/site/utilities/planejaMercado.html",
-        lastModified: "2025-06-08"
+        lastModified: "2025-06-08 01:35",
+        fileHash: "54a5e775d553760f7bfad483565f3708"
       },
       {
         id: "plantAI",
@@ -635,7 +672,8 @@
         icon: "🛰️🌱",
         category: "Outros",
         path: "https://rpassosdomingues.github.io/insights/site/utilities/plantAI.html",
-        lastModified: "2025-06-08"
+        lastModified: "2025-06-08 01:36",
+        fileHash: "4c62ad6a18dc2eeece739e48b5c93ee7"
       },
       {
         id: "qrCodeGenerator",
@@ -643,7 +681,8 @@
         icon: "🔒🔳",
         category: "Outros",
         path: "https://rpassosdomingues.github.io/insights/site/utilities/qrCodeGenerator.html",
-        lastModified: "2025-06-08"
+        lastModified: "2025-06-08 01:38",
+        fileHash: "f56640a9baf4a8842989fef942828ac0"
       },
       {
         id: "revisaoCarro",
@@ -651,7 +690,8 @@
         icon: "🔎🚗",
         category: "Outros",
         path: "https://rpassosdomingues.github.io/insights/site/utilities/revisaoCarro.html",
-        lastModified: "2025-06-08"
+        lastModified: "2025-06-08 01:39",
+        fileHash: "9fa2ae6ff62e0e915c61fd437aeb3c20"
       },
       {
         id: "rondaSegura",
@@ -659,7 +699,8 @@
         icon: "👮‍♂️📝",
         category: "Outros",
         path: "https://rpassosdomingues.github.io/insights/site/utilities/rondaSegura.html",
-        lastModified: "2025-06-08"
+        lastModified: "2025-06-08 02:39",
+        fileHash: "525b8b51f826f51aba1209453262a1fa"
       },
     ];
 
@@ -693,12 +734,7 @@
       container.innerHTML = '';
 
       if (filteredProjects.length === 0) {
-        container.innerHTML = `
-          <div class="no-results">
-            <h2>Nenhum projeto encontrado</h2>
-            <p>Tente ajustar sua busca ou filtro.</p>
-          </div>
-        `;
+        container.innerHTML = `<div class="no-results">...</div>`;
         return;
       }
 
@@ -725,6 +761,7 @@
           card.setAttribute('aria-label', `${proj.title} – abre em nova aba`);
           card.setAttribute('data-category', proj.category);
           card.setAttribute('data-id', proj.id);
+          card.setAttribute('data-hash', proj.fileHash);
 
           card.innerHTML = `
             <div class="card-header">
@@ -733,8 +770,13 @@
             </div>
             <div class="card-body">
               <div class="card-meta">
-                <span class="card-category">${proj.category}</span>
-                <span class="card-date">${proj.lastModified}</span>
+                <div class="meta-row">
+                  <span class="card-category">${proj.category}</span>
+                  <span class="card-date">${proj.lastModified}</span>
+                </div>
+                <div class="meta-row">
+                  <span class="card-hash" title="Hash MD5 do arquivo">${proj.fileHash}</span>
+                </div>
               </div>
             </div>
           `;
