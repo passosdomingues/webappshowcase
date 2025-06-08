@@ -1061,9 +1061,10 @@
                 // URL com parâmetro da estação
                 const appUrlWithStation = `${appUrlBase}?station=${station.stationuuid}`;
 
-                // Mensagem de compartilhamento (LGPD compliant)
+                // Mensagem de compartilhamento (LGPD compliant e com aviso de isenção de responsabilidade)
                 const message = `🎧 Estou ouvindo ${station.name || 'uma rádio incrível'} no Rádio Retrô!\n\n` +
-                   `📻 Sintonize você também: ${appUrlWithStation}`;
+                    `📻 Sintonize você também: ${appUrlWithStation}\n\n` +
+                    `🚨 Aviso: O web app "Radio Retrô" não é responsável, de forma alguma, pelas estações disponíveis aqui. As rádios são fornecidas por uma API de código aberto chamada Radio Browser (https://www.radio-browser.info/), que agrega e disponibiliza, para domínio público, transmissões públicas de estações de rádio do mundo todo.`;
 
                 // Verificar se o usuário já aceitou os termos de compartilhamento
                 const shareConsentKey = 'radioRetroShareConsent';
@@ -1125,8 +1126,8 @@
             const list = document.createElement('ul');
                 list.innerHTML = `
                 <li>Você está prestes a compartilhar um link público para esta rádio.</li>
-                <li>O link inclui o nome da rádio, gerado pela API Radio Browser -- Código Aberto.</li>
-                <li>Nenhum dado pessoal seu será compartilhado, e o conteúdo que está sendo compartilhado é de sua vontade explícita e de responsabilidade da fonte.</li>
+                <li>O link inclui o nome da rádio, gerado pela API Radio Browser -- Um projeto Código Aberto.</li>
+                <li>Nenhum dado pessoal seu será compartilhado, e o conteúdo que está sendo compartilhado é de sua vontade explícita e de responsabilidade da fonte da mesma. Este web app não é responsável, de forma alguma, pelas estações de rádio que podem ser encontradas aqui.</li>
             `;
             list.style.color = 'var(--text-color)';
         
