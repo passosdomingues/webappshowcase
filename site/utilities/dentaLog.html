@@ -1,7 +1,7 @@
 <!--
  * --------------------------------------------------------------
  * Author: Rafael Passos Domingues
- * Last Update: 2025 June 7
+ * Last Update: 2025 June 8
  * --------------------------------------------------------------
 -->
 
@@ -10,7 +10,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DentAI</title>
+    <title>DentAI - Sistema Odontológico</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -736,7 +736,7 @@
         }
 
         .lgpd-modal h3 {
-            color: #7E57C2;
+            color: var(--primary);
             margin-bottom: 15px;
             display: flex;
             align-items: center;
@@ -764,32 +764,160 @@
             margin-top: 20px;
         }
 
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(-20px); }
-            to { opacity: 1; transform: translateY(0); }
+        /* Preview Modal */
+        .preview-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.7);
+            z-index: 1000;
+            display: none;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .preview-modal.active {
+            display: flex;
+        }
+
+        .preview-modal-content {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            width: 90%;
+            max-width: 800px;
+            max-height: 90vh;
+            overflow-y: auto;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .preview-modal h3 {
+            color: var(--primary);
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .preview-modal-close {
+            cursor: pointer;
+            font-size: 1.5rem;
+        }
+
+        .preview-content {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #eee;
+            border-radius: 8px;
+            background-color: #f9f9f9;
+        }
+
+        /* Tooth Status Indicators */
+        .tooth-status {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin: 15px 0;
+        }
+
+        .status-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 0.9rem;
+        }
+
+        .status-color {
+            width: 15px;
+            height: 15px;
+            border-radius: 3px;
+        }
+
+        .status-caries {
+            background-color: #8b4513;
+        }
+
+        .status-restauracao {
+            background-color: #4682b4;
+        }
+
+        .status-canal {
+            background-color: #800080;
+        }
+
+        .status-extracao {
+            background-color: #000000;
+        }
+
+        .status-implante {
+            background-color: #a9a9a9;
+        }
+
+        .status-fratura {
+            background-color: #ff4500;
+        }
+
+        .status-gengivite {
+            background-color: #ff69b4;
+        }
+
+        .status-periodontite {
+            background-color: #8b0000;
+        }
+
+        .status-sensibilidade {
+            background-color: #add8e6;
+        }
+
+        .status-outro {
+            background-color: #808080;
         }
     </style>
-
-    <!-- Modal (coloque antes do </body>) -->
+</head>
+<body>
+    <!-- Modal LGPD -->
     <div id="lgpdModal" class="lgpd-modal">
         <div class="lgpd-modal-content">
             <h3><i class="fas fa-shield-alt"></i> Confirmação LGPD</h3>
             <p id="lgpdModalMessage"></p>
             <ul id="lgpdModalList"></ul>
             <div class="lgpd-modal-buttons">
-            <button id="lgpdCancel" class="btn btn-secondary">Cancelar</button>
-            <button id="lgpdConfirm" class="btn">Confirmar</button>
+                <button id="lgpdCancel" class="btn btn-secondary">Cancelar</button>
+                <button id="lgpdConfirm" class="btn btn-primary">Confirmar</button>
             </div>
         </div>
     </div>
-</head>
-<body>
+
+    <!-- Preview Modal -->
+    <div id="previewModal" class="preview-modal">
+        <div class="preview-modal-content">
+            <h3>
+                <span id="previewTitle"><i class="fas fa-eye"></i> Pré-visualização</span>
+                <span class="preview-modal-close" onclick="closePreview()">&times;</span>
+            </h3>
+            <div class="preview-content" id="previewContent"></div>
+            <div class="action-buttons">
+                <button class="btn btn-primary" onclick="confirmExport()">
+                    <i class="fas fa-check"></i> Confirmar Envio
+                </button>
+                <button class="btn btn-secondary" onclick="closePreview()">
+                    <i class="fas fa-times"></i> Fechar
+                </button>
+            </div>
+        </div>
+    </div>
+
     <div class="container">
         <header>
             <div class="logo">
                 <h1><i class="fas fa-tooth"></i> DentAI</h1>
             </div>
             <p class="subtitle">Sistema de Gestão Integrada de Clínica Odontológica</p>
+            <p class="subtitle" style="font-size: 0.9rem; margin-top: 5px;">
+                <i class="fas fa-info-circle"></i> Todos os dados são armazenados apenas no seu navegador
+            </p>
         </header>
 
         <div class="tab-container">
@@ -887,7 +1015,7 @@
                 <button class="btn btn-primary" onclick="salvarAtendimento()">
                     <i class="fas fa-save"></i> Salvar Atendimento
                 </button>
-                <button class="btn btn-secondary" onclick="exportarWhatsApp()">
+                <button class="btn btn-secondary" onclick="previewWhatsApp('atendimento')">
                     <i class="fab fa-whatsapp"></i> Enviar para WhatsApp
                 </button>
                 <button class="btn btn-outline" onclick="limparFormulario()">
@@ -1041,6 +1169,49 @@
                     </div>
                 </div>
                 
+                <div class="tooth-status">
+                    <div class="status-item">
+                        <div class="status-color status-caries"></div>
+                        <span>Cárie</span>
+                    </div>
+                    <div class="status-item">
+                        <div class="status-color status-restauracao"></div>
+                        <span>Restauração</span>
+                    </div>
+                    <div class="status-item">
+                        <div class="status-color status-canal"></div>
+                        <span>Canal</span>
+                    </div>
+                    <div class="status-item">
+                        <div class="status-color status-extracao"></div>
+                        <span>Extração</span>
+                    </div>
+                    <div class="status-item">
+                        <div class="status-color status-implante"></div>
+                        <span>Implante</span>
+                    </div>
+                    <div class="status-item">
+                        <div class="status-color status-fratura"></div>
+                        <span>Fratura</span>
+                    </div>
+                    <div class="status-item">
+                        <div class="status-color status-gengivite"></div>
+                        <span>Gengivite</span>
+                    </div>
+                    <div class="status-item">
+                        <div class="status-color status-periodontite"></div>
+                        <span>Periodontite</span>
+                    </div>
+                    <div class="status-item">
+                        <div class="status-color status-sensibilidade"></div>
+                        <span>Sensibilidade</span>
+                    </div>
+                    <div class="status-item">
+                        <div class="status-color status-outro"></div>
+                        <span>Outro</span>
+                    </div>
+                </div>
+                
                 <div class="form-group">
                     <label for="problemaDente">Problema Identificado:</label>
                     <select id="problemaDente" class="select-control">
@@ -1068,6 +1239,18 @@
                 </button>
                 
                 <div class="problems-list" id="problemsList"></div>
+            </div>
+            
+            <div class="action-buttons">
+                <button class="btn btn-primary" onclick="exportOdontogramPDF()">
+                    <i class="fas fa-file-pdf"></i> Exportar PDF
+                </button>
+                <button class="btn btn-secondary" onclick="previewWhatsApp('odontograma')">
+                    <i class="fab fa-whatsapp"></i> Enviar por WhatsApp
+                </button>
+                <button class="btn btn-outline" onclick="showOdontogramDashboard()">
+                    <i class="fas fa-chart-bar"></i> Ver Dashboard
+                </button>
             </div>
         </div>
 
@@ -1104,7 +1287,7 @@
                     <button class="btn btn-primary" onclick="gerarOrcamentoPDF()">
                         <i class="fas fa-file-pdf"></i> Gerar Orçamento PDF
                     </button>
-                    <button class="btn btn-secondary" onclick="enviarOrcamentoWhatsApp()">
+                    <button class="btn btn-secondary" onclick="previewWhatsApp('orcamento')">
                         <i class="fab fa-whatsapp"></i> Enviar por WhatsApp
                     </button>
                     <button class="btn btn-outline" onclick="limparOrcamento()">
@@ -1142,7 +1325,7 @@
                         <button class="btn btn-primary" onclick="copiarMensagem()">
                             <i class="fas fa-copy"></i> Copiar Mensagem
                         </button>
-                        <button class="btn btn-secondary" onclick="enviarWhatsApp()">
+                        <button class="btn btn-secondary" onclick="previewWhatsApp('comunicacao')">
                             <i class="fab fa-whatsapp"></i> Abrir WhatsApp
                         </button>
                         <button class="btn btn-outline" onclick="fecharEditor()">
@@ -1199,6 +1382,15 @@
                 <button class="btn btn-primary" onclick="adicionarPrioridade()">
                     <i class="fas fa-plus"></i> Adicionar à Lista
                 </button>
+                
+                <div class="action-buttons">
+                    <button class="btn btn-outline" onclick="exportPrioridadesPDF()">
+                        <i class="fas fa-file-pdf"></i> Exportar PDF
+                    </button>
+                    <button class="btn btn-outline" onclick="showPrioridadesDashboard()">
+                        <i class="fas fa-chart-bar"></i> Ver Dashboard
+                    </button>
+                </div>
             </div>
         </div>
 
@@ -1220,7 +1412,7 @@
                 
                 <div class="dashboard-container">
                     <div class="dashboard-title">Resumo de Atendimentos</div>
-                    <div class="clinic-info" id="clinicInfo">Clínica Odontológica • Dra. Ana Silva • CRO/SP 12345</div>
+                    <div class="clinic-info" id="clinicInfo">Clínica Odontológica • Dra. Anna Silva • CRO/UF 123456789X</div>
                     
                     <div class="chart-container">
                         <canvas id="procedimentosChart"></canvas>
@@ -1237,8 +1429,83 @@
                         <button class="btn btn-secondary" onclick="exportarDashboardImagem()">
                             <i class="fas fa-image"></i> Exportar Imagem
                         </button>
-                        <button class="btn btn-outline" onclick="compartilharInstagram()">
-                            <i class="fab fa-instagram"></i> Compartilhar
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Dashboard do Odontograma -->
+            <div class="card" id="odontogramDashboard" style="display: none;">
+                <h2 class="card-title"><i class="fas fa-teeth"></i> Dashboard do Odontograma</h2>
+                
+                <div class="form-group">
+                    <label for="periodoOdontogram">Período:</label>
+                    <select id="periodoOdontogram" class="select-control" onchange="atualizarOdontogramDashboard()">
+                        <option value="todos">Todos</option>
+                        <option value="semana">Última Semana</option>
+                        <option value="mes">Último Mês</option>
+                        <option value="trimestre">Último Trimestre</option>
+                    </select>
+                </div>
+                
+                <div class="dashboard-container">
+                    <div class="dashboard-title">Problemas Dentários Identificados</div>
+                    
+                    <div class="chart-container">
+                        <canvas id="problemasChart"></canvas>
+                    </div>
+                    
+                    <div class="chart-container">
+                        <canvas id="dentesChart"></canvas>
+                    </div>
+                    
+                    <div class="action-buttons">
+                        <button class="btn btn-primary" onclick="exportOdontogramDashboardPDF()">
+                            <i class="fas fa-file-pdf"></i> Exportar PDF
+                        </button>
+                        <button class="btn btn-secondary" onclick="exportOdontogramDashboardImagem()">
+                            <i class="fas fa-image"></i> Exportar Imagem
+                        </button>
+                        <button class="btn btn-outline" onclick="hideOdontogramDashboard()">
+                            <i class="fas fa-arrow-left"></i> Voltar
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Dashboard de Prioridades -->
+            <div class="card" id="prioridadesDashboard" style="display: none;">
+                <h2 class="card-title"><i class="fas fa-exclamation-triangle"></i> Dashboard de Prioridades</h2>
+                
+                <div class="form-group">
+                    <label for="periodoPrioridades">Período:</label>
+                    <select id="periodoPrioridades" class="select-control" onchange="atualizarPrioridadesDashboard()">
+                        <option value="todos">Todos</option>
+                        <option value="semana">Última Semana</option>
+                        <option value="mes">Último Mês</option>
+                        <option value="trimestre">Último Trimestre</option>
+                    </select>
+                </div>
+                
+                <div class="dashboard-container">
+                    <div class="dashboard-title">Distribuição de Prioridades</div>
+                    
+                    <div class="chart-container">
+                        <canvas id="prioridadesChart"></canvas>
+                    </div>
+                    
+                    <div class="chart-container">
+                        <canvas id="tempoPrioridadesChart"></canvas>
+                    </div>
+                    
+                    <div class="action-buttons">
+                        <button class="btn btn-primary" onclick="exportPrioridadesDashboardPDF()">
+                            <i class="fas fa-file-pdf"></i> Exportar PDF
+                        </button>
+                        <button class="btn btn-secondary" onclick="exportPrioridadesDashboardImagem()">
+                            <i class="fas fa-image"></i> Exportar Imagem
+                        </button>
+                        <button class="btn btn-outline" onclick="hidePrioridadesDashboard()">
+                            <i class="fas fa-arrow-left"></i> Voltar
                         </button>
                     </div>
                 </div>
@@ -1257,16 +1524,18 @@
         let templates = {};
         let prioridades = [];
         let atendimentos = [];
+        let currentExportType = '';
+        let currentExportContent = '';
         
         // Configurações da clínica
         const clinicInfo = {
             name: "Clínica Odontológica",
-            dentist: "Dra. Ana Silva",
-            cro: "CRO/SP 12345",
-            phone: "(11) 98765-4321",
-            address: "Av. Paulista, 1000 - São Paulo/SP",
-            instagram: "@clinicaodontologica",
-            email: "contato@clinicaodontologica.com.br"
+            dentist: "Dra. Anna Silva",
+            cro: "CRO/SP 123456789X",
+            phone: "(DDD) 9XXXX-XXXX",
+            address: "Av. Paulista, nº - Cidade/UF",
+            instagram: "@clinicaodontologicafantasia",
+            email: "contato@clinicaodontologicafantasia.com.br"
         };
 
         // Inicialização
@@ -1278,7 +1547,44 @@
             carregarAtendimentos();
             
             document.getElementById('clinicInfo').textContent = `${clinicInfo.name} • ${clinicInfo.dentist} • ${clinicInfo.cro}`;
+            
+            // Verificar se há dados salvos localmente
+            carregarDadosLocalStorage();
         });
+
+        // Carregar dados do localStorage
+        function carregarDadosLocalStorage() {
+            const savedProcedimentos = localStorage.getItem('procedimentos');
+            if (savedProcedimentos) {
+                procedimentos = JSON.parse(savedProcedimentos);
+                renderizarCheckboxes();
+            }
+            
+            const savedProblemas = localStorage.getItem('problemasDentarios');
+            if (savedProblemas) {
+                problemasDentarios = JSON.parse(savedProblemas);
+                renderizarProblemas();
+            }
+            
+            const savedAtendimentos = localStorage.getItem('atendimentos');
+            if (savedAtendimentos) {
+                atendimentos = JSON.parse(savedAtendimentos);
+            }
+            
+            const savedPrioridades = localStorage.getItem('prioridades');
+            if (savedPrioridades) {
+                prioridades = JSON.parse(savedPrioridades);
+                renderizarPrioridades();
+            }
+        }
+
+        // Salvar dados no localStorage
+        function salvarDadosLocalStorage() {
+            localStorage.setItem('procedimentos', JSON.stringify(procedimentos));
+            localStorage.setItem('problemasDentarios', JSON.stringify(problemasDentarios));
+            localStorage.setItem('atendimentos', JSON.stringify(atendimentos));
+            localStorage.setItem('prioridades', JSON.stringify(prioridades));
+        }
 
         // Funções para abas
         function openTab(tabId) {
@@ -1315,6 +1621,8 @@
                 div.innerHTML = `<input type="checkbox" value="${proc}"> ${proc}`;
                 container.appendChild(div);
             });
+            
+            salvarDadosLocalStorage();
         }
 
         function adicionarProcedimento() {
@@ -1373,20 +1681,40 @@
                 tooth: toothNumber,
                 problem: problema,
                 details: detalhes,
-                date: new Date().toLocaleDateString()
+                date: new Date().toLocaleDateString('pt-BR')
             };
             
             problemasDentarios.push(novoProblema);
             renderizarProblemas();
             
-            // Marcar dente como problemático
-            selectedTooth.classList.add('problem');
+            // Marcar dente como problemático com cor correspondente
             selectedTooth.classList.remove('active');
+            selectedTooth.classList.add('problem');
+            selectedTooth.style.borderColor = getProblemColor(problema);
             selectedTooth = null;
             
             // Limpar formulário
             document.getElementById('problemaDente').value = '';
             document.getElementById('detalhesProblema').value = '';
+            
+            salvarDadosLocalStorage();
+        }
+
+        function getProblemColor(problemCode) {
+            const colors = {
+                'caries': '#8b4513', // Brown
+                'restauracao': '#4682b4', // SteelBlue
+                'canal': '#800080', // Purple
+                'extracao': '#000000', // Black
+                'implante': '#a9a9a9', // DarkGray
+                'fratura': '#ff4500', // OrangeRed
+                'gengivite': '#ff69b4', // HotPink
+                'periodontite': '#8b0000', // DarkRed
+                'sensibilidade': '#add8e6', // LightBlue
+                'outro': '#808080' // Gray
+            };
+            
+            return colors[problemCode] || '#dc3545'; // Default to danger color
         }
 
         function renderizarProblemas() {
@@ -1398,17 +1726,22 @@
                 return;
             }
             
+            // Ordenar por data (mais recente primeiro)
+            problemasDentarios.sort((a, b) => new Date(b.date) - new Date(a.date));
+            
             problemasDentarios.forEach((prob, index) => {
                 const div = document.createElement('div');
                 div.className = 'problem-item';
                 
                 const problemText = getProblemText(prob.problem);
+                const problemColor = getProblemColor(prob.problem);
                 
                 div.innerHTML = `
-                    <div class="tooth-indicator"></div>
+                    <div class="tooth-indicator" style="background-color: ${problemColor}"></div>
                     <div class="problem-details">
                         <strong>Dente ${prob.tooth}</strong> - ${problemText}
                         <div style="font-size: 0.8rem; color: var(--gray);">${prob.details}</div>
+                        <div style="font-size: 0.7rem; color: var(--gray);">${prob.date}</div>
                     </div>
                     <div class="problem-actions">
                         <button class="btn btn-outline" style="padding: 5px 10px;" onclick="editarProblema(${index})">
@@ -1421,6 +1754,26 @@
                 `;
                 
                 container.appendChild(div);
+            });
+            
+            // Atualizar cores dos dentes no odontograma
+            updateToothColors();
+        }
+
+        function updateToothColors() {
+            // Reset all teeth
+            document.querySelectorAll('.tooth').forEach(tooth => {
+                tooth.classList.remove('problem');
+                tooth.style.borderColor = '';
+            });
+            
+            // Apply problem colors
+            problemasDentarios.forEach(prob => {
+                const toothElement = document.querySelector(`.tooth[data-tooth="${prob.tooth}"]`);
+                if (toothElement) {
+                    toothElement.classList.add('problem');
+                    toothElement.style.borderColor = getProblemColor(prob.problem);
+                }
             });
         }
 
@@ -1442,13 +1795,381 @@
         }
 
         function removerProblema(index) {
+            const problema = problemasDentarios[index];
             problemasDentarios.splice(index, 1);
             renderizarProblemas();
+            salvarDadosLocalStorage();
         }
 
         function editarProblema(index) {
-            // Implementar edição de problema
-            alert('Funcionalidade de edição será implementada aqui');
+            const problema = problemasDentarios[index];
+            
+            // Selecionar o dente correspondente
+            const toothElement = document.querySelector(`.tooth[data-tooth="${problema.tooth}"]`);
+            if (toothElement) {
+                if (selectedTooth) {
+                    selectedTooth.classList.remove('active');
+                }
+                selectedTooth = toothElement;
+                selectedTooth.classList.add('active');
+            }
+            
+            // Preencher o formulário
+            document.getElementById('problemaDente').value = problema.problem;
+            document.getElementById('detalhesProblema').value = problema.details;
+            
+            // Remover o problema da lista (será readicionado se confirmar)
+            removerProblema(index);
+            
+            // Scroll para o formulário
+            document.getElementById('problemaDente').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function exportOdontogramPDF() {
+            if (problemasDentarios.length === 0) {
+                alert('Nenhum problema dentário registrado para exportar');
+                return;
+            }
+            
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            
+            // Cabeçalho
+            doc.setFontSize(18);
+            doc.setTextColor(0, 180, 179);
+            doc.text('Relatório Odontograma', 105, 20, { align: 'center' });
+            
+            doc.setFontSize(12);
+            doc.setTextColor(100, 100, 100);
+            doc.text(`${clinicInfo.dentist} - ${clinicInfo.cro}`, 105, 28, { align: 'center' });
+            
+            // Data
+            const today = new Date();
+            doc.text(`Data: ${today.toLocaleDateString('pt-BR')}`, 105, 35, { align: 'center' });
+            
+            // Linha divisória
+            doc.setDrawColor(0, 180, 179);
+            doc.setLineWidth(0.5);
+            doc.line(20, 42, 190, 42);
+            
+            // Legenda
+            doc.setFontSize(14);
+            doc.setTextColor(0, 0, 0);
+            doc.text('Legenda de Problemas:', 20, 50);
+            
+            let yPosition = 60;
+            const legendItems = [
+                { code: 'caries', text: 'Cárie' },
+                { code: 'restauracao', text: 'Restauração Necessária' },
+                { code: 'canal', text: 'Tratamento de Canal' },
+                { code: 'extracao', text: 'Extração Necessária' },
+                { code: 'implante', text: 'Implante Indicado' },
+                { code: 'fratura', text: 'Fratura' },
+                { code: 'gengivite', text: 'Gengivite' },
+                { code: 'periodontite', text: 'Periodontite' },
+                { code: 'sensibilidade', text: 'Sensibilidade' },
+                { code: 'outro', text: 'Outro Problema' }
+            ];
+            
+            legendItems.forEach(item => {
+                doc.setFillColor(getProblemColor(item.code).substring(1));
+                doc.rect(20, yPosition - 4, 10, 10, 'F');
+                doc.text(`${item.text}:`, 35, yPosition);
+                yPosition += 8;
+            });
+            
+            // Problemas identificados
+            yPosition += 10;
+            doc.setFontSize(14);
+            doc.text('Problemas Identificados:', 20, yPosition);
+            yPosition += 10;
+            
+            problemasDentarios.forEach(prob => {
+                doc.setFontSize(12);
+                doc.setTextColor(0, 0, 0);
+                doc.text(`Dente ${prob.tooth}: ${getProblemText(prob.problem)}`, 25, yPosition);
+                
+                doc.setFontSize(10);
+                doc.setTextColor(100, 100, 100);
+                doc.text(`Data: ${prob.date} | Detalhes: ${prob.details}`, 25, yPosition + 5);
+                yPosition += 12;
+                
+                if (yPosition > 250) {
+                    doc.addPage();
+                    yPosition = 20;
+                }
+            });
+            
+            // Rodapé
+            doc.setFontSize(10);
+            doc.setTextColor(100, 100, 100);
+            doc.text(`Relatório gerado pelo DentAI - ${today.toLocaleString('pt-BR')}`, 105, 280, { align: 'center' });
+            
+            doc.save(`odontograma_${today.toLocaleDateString('pt-BR').replace(/\//g, '-')}.pdf`);
+        }
+
+        function showOdontogramDashboard() {
+            document.getElementById('dashboard').style.display = 'block';
+            document.getElementById('odontogramDashboard').style.display = 'block';
+            document.getElementById('prioridadesDashboard').style.display = 'none';
+            atualizarOdontogramDashboard();
+        }
+
+        function hideOdontogramDashboard() {
+            document.getElementById('odontogramDashboard').style.display = 'none';
+        }
+
+        function atualizarOdontogramDashboard() {
+            const periodo = document.getElementById('periodoOdontogram').value;
+            let problemasFiltrados = problemasDentarios;
+            
+            if (periodo !== 'todos') {
+                const hoje = new Date();
+                let dataLimite = new Date();
+                
+                switch(periodo) {
+                    case 'semana':
+                        dataLimite.setDate(hoje.getDate() - 7);
+                        break;
+                    case 'mes':
+                        dataLimite.setMonth(hoje.getMonth() - 1);
+                        break;
+                    case 'trimestre':
+                        dataLimite.setMonth(hoje.getMonth() - 3);
+                        break;
+                }
+                
+                problemasFiltrados = problemasDentarios.filter(prob => {
+                    const dataProblema = new Date(prob.date);
+                    return dataProblema >= dataLimite;
+                });
+            }
+            
+            // Agrupar problemas por tipo
+            const problemasCount = {};
+            problemasFiltrados.forEach(prob => {
+                problemasCount[prob.problem] = (problemasCount[prob.problem] || 0) + 1;
+            });
+            
+            // Agrupar problemas por dente
+            const dentesCount = {};
+            problemasFiltrados.forEach(prob => {
+                dentesCount[prob.tooth] = (dentesCount[prob.tooth] || 0) + 1;
+            });
+            
+            // Criar/atualizar gráficos
+            criarGraficoProblemas(problemasCount);
+            criarGraficoDentes(dentesCount);
+        }
+
+        function criarGraficoProblemas(data) {
+            const ctx = document.getElementById('problemasChart').getContext('2d');
+            
+            if (window.problemasChart) {
+                window.problemasChart.destroy();
+            }
+            
+            const labels = Object.keys(data).map(key => getProblemText(key));
+            const valores = Object.values(data);
+            const cores = Object.keys(data).map(key => getProblemColor(key));
+            
+            window.problemasChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Quantidade',
+                        data: valores,
+                        backgroundColor: cores,
+                        borderColor: cores.map(c => c.replace('0.7', '1')),
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        title: {
+                            display: true,
+                            text: 'Distribuição de Problemas Dentários',
+                            font: {
+                                size: 16,
+                                weight: 'bold'
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                stepSize: 1
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function criarGraficoDentes(data) {
+            const ctx = document.getElementById('dentesChart').getContext('2d');
+            
+            if (window.dentesChart) {
+                window.dentesChart.destroy();
+            }
+            
+            // Ordenar dentes por número
+            const dentesOrdenados = Object.keys(data).sort((a, b) => parseInt(a) - parseInt(b));
+            const labels = dentesOrdenados.map(d => `Dente ${d}`);
+            const valores = dentesOrdenados.map(d => data[d]);
+            
+            window.dentesChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Problemas',
+                        data: valores,
+                        backgroundColor: 'rgba(0, 180, 179, 0.7)',
+                        borderColor: 'rgba(0, 180, 179, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        title: {
+                            display: true,
+                            text: 'Problemas por Dente',
+                            font: {
+                                size: 16,
+                                weight: 'bold'
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                stepSize: 1
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function exportOdontogramDashboardPDF() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            
+            // Adicionar título
+            doc.setFontSize(18);
+            doc.setTextColor(0, 180, 179);
+            doc.text('Dashboard Odontograma', 105, 20, { align: 'center' });
+            
+            // Adicionar informações da clínica
+            doc.setFontSize(12);
+            doc.setTextColor(100, 100, 100);
+            doc.text(`${clinicInfo.dentist} - ${clinicInfo.cro}`, 105, 28, { align: 'center' });
+            doc.text(`Período: ${document.getElementById('periodoOdontogram').selectedOptions[0].text}`, 105, 35, { align: 'center' });
+            
+            // Adicionar data
+            const today = new Date();
+            doc.text(`Gerado em: ${today.toLocaleDateString('pt-BR')}`, 105, 42, { align: 'center' });
+            
+            // Linha divisória
+            doc.setDrawColor(0, 180, 179);
+            doc.setLineWidth(0.5);
+            doc.line(20, 48, 190, 48);
+            
+            // Adicionar gráficos (simplificado - em produção, usar html2canvas para capturar os gráficos)
+            doc.setFontSize(14);
+            doc.setTextColor(0, 0, 0);
+            doc.text('Distribuição de Problemas Dentários:', 20, 60);
+            
+            const periodo = document.getElementById('periodoOdontogram').value;
+            let problemasFiltrados = problemasDentarios;
+            
+            if (periodo !== 'todos') {
+                const hoje = new Date();
+                let dataLimite = new Date();
+                
+                switch(periodo) {
+                    case 'semana':
+                        dataLimite.setDate(hoje.getDate() - 7);
+                        break;
+                    case 'mes':
+                        dataLimite.setMonth(hoje.getMonth() - 1);
+                        break;
+                    case 'trimestre':
+                        dataLimite.setMonth(hoje.getMonth() - 3);
+                        break;
+                }
+                
+                problemasFiltrados = problemasDentarios.filter(prob => {
+                    const dataProblema = new Date(prob.date);
+                    return dataProblema >= dataLimite;
+                });
+            }
+            
+            // Agrupar problemas por tipo
+            const problemasCount = {};
+            problemasFiltrados.forEach(prob => {
+                problemasCount[prob.problem] = (problemasCount[prob.problem] || 0) + 1;
+            });
+            
+            let yPosition = 70;
+            Object.entries(problemasCount).forEach(([prob, count]) => {
+                doc.text(`${getProblemText(prob)}: ${count} ocorrências`, 25, yPosition);
+                yPosition += 8;
+            });
+            
+            // Adicionar problemas por dente
+            yPosition += 10;
+            doc.text('Problemas por Dente:', 20, yPosition);
+            yPosition += 10;
+            
+            // Agrupar problemas por dente
+            const dentesCount = {};
+            problemasFiltrados.forEach(prob => {
+                dentesCount[prob.tooth] = (dentesCount[prob.tooth] || 0) + 1;
+            });
+            
+            // Ordenar dentes por número
+            const dentesOrdenados = Object.keys(dentesCount).sort((a, b) => parseInt(a) - parseInt(b));
+            
+            dentesOrdenados.forEach(dente => {
+                doc.text(`Dente ${dente}: ${dentesCount[dente]} problemas`, 25, yPosition);
+                yPosition += 8;
+                
+                if (yPosition > 250) {
+                    doc.addPage();
+                    yPosition = 20;
+                }
+            });
+            
+            // Rodapé
+            doc.setFontSize(10);
+            doc.setTextColor(100, 100, 100);
+            doc.text(`Relatório gerado pelo DentAI - ${today.toLocaleString('pt-BR')}`, 105, 280, { align: 'center' });
+            
+            doc.save(`dashboard_odontograma_${today.toLocaleDateString('pt-BR').replace(/\//g, '-')}.pdf`);
+        }
+
+        function exportOdontogramDashboardImagem() {
+            const dashboard = document.querySelector('#odontogramDashboard .dashboard-container');
+            
+            html2canvas(dashboard).then(canvas => {
+                const link = document.createElement('a');
+                link.download = 'dashboard_odontograma.png';
+                link.href = canvas.toDataURL('image/png');
+                link.click();
+            });
         }
 
         // Funções para orçamento
@@ -1613,37 +2334,9 @@
             doc.setFontSize(10);
             doc.setTextColor(100, 100, 100);
             doc.setFont(undefined, 'normal');
-            doc.text(`Orçamento válido por 30 dias. Gerado em ${today.toLocaleString('pt-BR')} pelo DentaLog`, 105, 280, { align: 'center' });
+            doc.text(`Orçamento válido por 30 dias. Gerado em ${today.toLocaleString('pt-BR')} pelo DentAI`, 105, 280, { align: 'center' });
             
             doc.save(`orcamento_odontologico_${today.toLocaleDateString('pt-BR').replace(/\//g, '-')}.pdf`);
-        }
-
-        function enviarOrcamentoWhatsApp() {
-            if (orcamento.length === 0) {
-                alert('Adicione materiais ao orçamento primeiro');
-                return;
-            }
-            
-            let mensagem = `*📋 Orçamento Odontológico*\n\n`;
-            mensagem += `*${clinicInfo.dentist} - ${clinicInfo.cro}*\n\n`;
-            mensagem += `*Itens do Orçamento:*\n`;
-            
-            let subtotal = 0;
-            orcamento.forEach(item => {
-                const totalItem = item.price * item.quantity;
-                subtotal += totalItem;
-                mensagem += `- ${item.quantity}x ${item.name}: R$ ${totalItem.toFixed(2)}\n`;
-            });
-            
-            mensagem += `\n*Total: R$ ${subtotal.toFixed(2)}*\n\n`;
-            mensagem += `📞 ${clinicInfo.phone}\n`;
-            mensagem += `📧 ${clinicInfo.email}\n`;
-            mensagem += `📍 ${clinicInfo.address}\n\n`;
-            mensagem += `_Orçamento válido por 30 dias. Data: ${new Date().toLocaleDateString('pt-BR')}_`;
-            
-            const encoded = encodeURIComponent(mensagem);
-            const link = `https://wa.me/?text=${encoded}`;
-            window.open(link, '_blank');
         }
 
         function limparOrcamento() {
@@ -1742,13 +2435,6 @@
                 .catch(() => alert('Não foi possível copiar a mensagem.'));
         }
 
-        function enviarWhatsApp() {
-            const mensagem = document.getElementById('mensagemEditada').value;
-            const encoded = encodeURIComponent(mensagem);
-            const link = `https://wa.me/?text=${encoded}`;
-            window.open(link, '_blank');
-        }
-
         function fecharEditor() {
             document.getElementById('editorMensagem').style.display = 'none';
         }
@@ -1763,7 +2449,7 @@
                     descricao: "Dor intensa em dente 36 - possível abscesso",
                     prioridade: "alta",
                     tempo: 45,
-                    data: "15/06/2023"
+                    data: new Date().toLocaleDateString('pt-BR')
                 },
                 {
                     id: 2,
@@ -1771,7 +2457,7 @@
                     descricao: "Manutenção de aparelho ortodôntico",
                     prioridade: "baixa",
                     tempo: 30,
-                    data: "16/06/2023"
+                    data: new Date().toLocaleDateString('pt-BR')
                 },
                 {
                     id: 3,
@@ -1779,11 +2465,12 @@
                     descricao: "Restauração provisória caiu - dente 15",
                     prioridade: "media",
                     tempo: 20,
-                    data: "15/06/2023"
+                    data: new Date().toLocaleDateString('pt-BR')
                 }
             ];
             
             renderizarPrioridades();
+            salvarDadosLocalStorage();
         }
 
         function renderizarPrioridades() {
@@ -1794,6 +2481,16 @@
                 container.innerHTML = '<p style="text-align: center; color: var(--gray);">Nenhum paciente na lista de prioridades.</p>';
                 return;
             }
+            
+            // Ordenar por prioridade (alta primeiro) e depois por data
+            prioridades.sort((a, b) => {
+                if (a.prioridade === b.prioridade) {
+                    return new Date(b.data) - new Date(a.data);
+                }
+                
+                const prioridadesOrder = { alta: 1, media: 2, baixa: 3 };
+                return prioridadesOrder[a.prioridade] - prioridadesOrder[b.prioridade];
+            });
             
             prioridades.forEach(pri => {
                 const div = document.createElement('div');
@@ -1883,19 +2580,377 @@
             document.getElementById('novoPacientePrioridade').value = '';
             document.getElementById('descricaoPrioridade').value = '';
             document.getElementById('tempoEstimado').value = '';
+            
+            salvarDadosLocalStorage();
+        }
+
+        function exportPrioridadesPDF() {
+            if (prioridades.length === 0) {
+                alert('Nenhuma prioridade registrada para exportar');
+                return;
+            }
+            
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            
+            // Cabeçalho
+            doc.setFontSize(18);
+            doc.setTextColor(0, 180, 179);
+            doc.text('Lista de Prioridades', 105, 20, { align: 'center' });
+            
+            doc.setFontSize(12);
+            doc.setTextColor(100, 100, 100);
+            doc.text(`${clinicInfo.dentist} - ${clinicInfo.cro}`, 105, 28, { align: 'center' });
+            
+            // Data
+            const today = new Date();
+            doc.text(`Data: ${today.toLocaleDateString('pt-BR')}`, 105, 35, { align: 'center' });
+            
+            // Linha divisória
+            doc.setDrawColor(0, 180, 179);
+            doc.setLineWidth(0.5);
+            doc.line(20, 42, 190, 42);
+            
+            // Prioridades
+            doc.setFontSize(14);
+            doc.setTextColor(0, 0, 0);
+            let yPosition = 50;
+            
+            prioridades.forEach(pri => {
+                const priorityColor = pri.prioridade === 'alta' ? '#dc3545' : 
+                                    pri.prioridade === 'media' ? '#ffc107' : '#28a745';
+                
+                doc.setFillColor(priorityColor.substring(1));
+                doc.rect(20, yPosition - 4, 10, 10, 'F');
+                
+                doc.text(`${pri.paciente} - ${pri.descricao}`, 35, yPosition);
+                doc.text(`${pri.tempo} min`, 180, yPosition, { align: 'right' });
+                
+                yPosition += 10;
+                
+                if (yPosition > 250) {
+                    doc.addPage();
+                    yPosition = 20;
+                }
+            });
+            
+            // Rodapé
+            doc.setFontSize(10);
+            doc.setTextColor(100, 100, 100);
+            doc.text(`Relatório gerado pelo DentAI - ${today.toLocaleString('pt-BR')}`, 105, 280, { align: 'center' });
+            
+            doc.save(`prioridades_${today.toLocaleDateString('pt-BR').replace(/\//g, '-')}.pdf`);
+        }
+
+        function showPrioridadesDashboard() {
+            document.getElementById('dashboard').style.display = 'block';
+            document.getElementById('odontogramDashboard').style.display = 'none';
+            document.getElementById('prioridadesDashboard').style.display = 'block';
+            atualizarPrioridadesDashboard();
+        }
+
+        function hidePrioridadesDashboard() {
+            document.getElementById('prioridadesDashboard').style.display = 'none';
+        }
+
+        function atualizarPrioridadesDashboard() {
+            const periodo = document.getElementById('periodoPrioridades').value;
+            let prioridadesFiltradas = prioridades;
+            
+            if (periodo !== 'todos') {
+                const hoje = new Date();
+                let dataLimite = new Date();
+                
+                switch(periodo) {
+                    case 'semana':
+                        dataLimite.setDate(hoje.getDate() - 7);
+                        break;
+                    case 'mes':
+                        dataLimite.setMonth(hoje.getMonth() - 1);
+                        break;
+                    case 'trimestre':
+                        dataLimite.setMonth(hoje.getMonth() - 3);
+                        break;
+                }
+                
+                prioridadesFiltradas = prioridades.filter(pri => {
+                    const dataPrioridade = new Date(pri.data);
+                    return dataPrioridade >= dataLimite;
+                });
+            }
+            
+            // Agrupar por prioridade
+            const prioridadesCount = {
+                alta: 0,
+                media: 0,
+                baixa: 0
+            };
+            
+            prioridadesFiltradas.forEach(pri => {
+                prioridadesCount[pri.prioridade]++;
+            });
+            
+            // Calcular tempo médio por prioridade
+            const tempoMedio = {
+                alta: 0,
+                media: 0,
+                baixa: 0
+            };
+            
+            const countPorPrioridade = {
+                alta: 0,
+                media: 0,
+                baixa: 0
+            };
+            
+            prioridadesFiltradas.forEach(pri => {
+                tempoMedio[pri.prioridade] += pri.tempo;
+                countPorPrioridade[pri.prioridade]++;
+            });
+            
+            // Calcular médias
+            Object.keys(tempoMedio).forEach(key => {
+                if (countPorPrioridade[key] > 0) {
+                    tempoMedio[key] = Math.round(tempoMedio[key] / countPorPrioridade[key]);
+                }
+            });
+            
+            // Criar/atualizar gráficos
+            criarGraficoPrioridades(prioridadesCount);
+            criarGraficoTempoMedio(tempoMedio);
+        }
+
+        function criarGraficoPrioridades(data) {
+            const ctx = document.getElementById('prioridadesChart').getContext('2d');
+            
+            if (window.prioridadesChart) {
+                window.prioridadesChart.destroy();
+            }
+            
+            window.prioridadesChart = new Chart(ctx, {
+                type: 'pie',
+                data: {
+                    labels: ['Alta Prioridade', 'Média Prioridade', 'Baixa Prioridade'],
+                    datasets: [{
+                        data: [data.alta, data.media, data.baixa],
+                        backgroundColor: [
+                            '#dc3545',
+                            '#ffc107',
+                            '#28a745'
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Distribuição de Prioridades',
+                            font: {
+                                size: 16,
+                                weight: 'bold'
+                            }
+                        },
+                        legend: {
+                            position: 'bottom'
+                        }
+                    }
+                }
+            });
+        }
+
+        function criarGraficoTempoMedio(data) {
+            const ctx = document.getElementById('tempoPrioridadesChart').getContext('2d');
+            
+            if (window.tempoPrioridadesChart) {
+                window.tempoPrioridadesChart.destroy();
+            }
+            
+            window.tempoPrioridadesChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['Alta Prioridade', 'Média Prioridade', 'Baixa Prioridade'],
+                    datasets: [{
+                        label: 'Tempo Médio (minutos)',
+                        data: [data.alta, data.media, data.baixa],
+                        backgroundColor: [
+                            'rgba(220, 53, 69, 0.7)',
+                            'rgba(255, 193, 7, 0.7)',
+                            'rgba(40, 167, 69, 0.7)'
+                        ],
+                        borderColor: [
+                            'rgba(220, 53, 69, 1)',
+                            'rgba(255, 193, 7, 1)',
+                            'rgba(40, 167, 69, 1)'
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        title: {
+                            display: true,
+                            text: 'Tempo Médio por Prioridade',
+                            font: {
+                                size: 16,
+                                weight: 'bold'
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        }
+
+        function exportPrioridadesDashboardPDF() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            
+            // Adicionar título
+            doc.setFontSize(18);
+            doc.setTextColor(0, 180, 179);
+            doc.text('Dashboard de Prioridades', 105, 20, { align: 'center' });
+            
+            // Adicionar informações da clínica
+            doc.setFontSize(12);
+            doc.setTextColor(100, 100, 100);
+            doc.text(`${clinicInfo.dentist} - ${clinicInfo.cro}`, 105, 28, { align: 'center' });
+            doc.text(`Período: ${document.getElementById('periodoPrioridades').selectedOptions[0].text}`, 105, 35, { align: 'center' });
+            
+            // Adicionar data
+            const today = new Date();
+            doc.text(`Gerado em: ${today.toLocaleDateString('pt-BR')}`, 105, 42, { align: 'center' });
+            
+            // Linha divisória
+            doc.setDrawColor(0, 180, 179);
+            doc.setLineWidth(0.5);
+            doc.line(20, 48, 190, 48);
+            
+            // Adicionar gráficos (simplificado - em produção, usar html2canvas para capturar os gráficos)
+            doc.setFontSize(14);
+            doc.setTextColor(0, 0, 0);
+            doc.text('Distribuição de Prioridades:', 20, 60);
+            
+            const periodo = document.getElementById('periodoPrioridades').value;
+            let prioridadesFiltradas = prioridades;
+            
+            if (periodo !== 'todos') {
+                const hoje = new Date();
+                let dataLimite = new Date();
+                
+                switch(periodo) {
+                    case 'semana':
+                        dataLimite.setDate(hoje.getDate() - 7);
+                        break;
+                    case 'mes':
+                        dataLimite.setMonth(hoje.getMonth() - 1);
+                        break;
+                    case 'trimestre':
+                        dataLimite.setMonth(hoje.getMonth() - 3);
+                        break;
+                }
+                
+                prioridadesFiltradas = prioridades.filter(pri => {
+                    const dataPrioridade = new Date(pri.data);
+                    return dataPrioridade >= dataLimite;
+                });
+            }
+            
+            // Agrupar por prioridade
+            const prioridadesCount = {
+                alta: 0,
+                media: 0,
+                baixa: 0
+            };
+            
+            prioridadesFiltradas.forEach(pri => {
+                prioridadesCount[pri.prioridade]++;
+            });
+            
+            let yPosition = 70;
+            doc.text(`Alta Prioridade: ${prioridadesCount.alta} pacientes`, 25, yPosition);
+            yPosition += 8;
+            doc.text(`Média Prioridade: ${prioridadesCount.media} pacientes`, 25, yPosition);
+            yPosition += 8;
+            doc.text(`Baixa Prioridade: ${prioridadesCount.baixa} pacientes`, 25, yPosition);
+            
+            // Adicionar tempo médio
+            yPosition += 15;
+            doc.text('Tempo Médio por Prioridade:', 20, yPosition);
+            yPosition += 10;
+            
+            // Calcular tempo médio por prioridade
+            const tempoMedio = {
+                alta: 0,
+                media: 0,
+                baixa: 0
+            };
+            
+            const countPorPrioridade = {
+                alta: 0,
+                media: 0,
+                baixa: 0
+            };
+            
+            prioridadesFiltradas.forEach(pri => {
+                tempoMedio[pri.prioridade] += pri.tempo;
+                countPorPrioridade[pri.prioridade]++;
+            });
+            
+            // Calcular médias
+            Object.keys(tempoMedio).forEach(key => {
+                if (countPorPrioridade[key] > 0) {
+                    tempoMedio[key] = Math.round(tempoMedio[key] / countPorPrioridade[key]);
+                }
+            });
+            
+            doc.text(`Alta Prioridade: ${tempoMedio.alta} minutos`, 25, yPosition);
+            yPosition += 8;
+            doc.text(`Média Prioridade: ${tempoMedio.media} minutos`, 25, yPosition);
+            yPosition += 8;
+            doc.text(`Baixa Prioridade: ${tempoMedio.baixa} minutos`, 25, yPosition);
+            
+            // Rodapé
+            doc.setFontSize(10);
+            doc.setTextColor(100, 100, 100);
+            doc.text(`Relatório gerado pelo DentAI - ${today.toLocaleString('pt-BR')}`, 105, 280, { align: 'center' });
+            
+            doc.save(`dashboard_prioridades_${today.toLocaleDateString('pt-BR').replace(/\//g, '-')}.pdf`);
+        }
+
+        function exportPrioridadesDashboardImagem() {
+            const dashboard = document.querySelector('#prioridadesDashboard .dashboard-container');
+            
+            html2canvas(dashboard).then(canvas => {
+                const link = document.createElement('a');
+                link.download = 'dashboard_prioridades.png';
+                link.href = canvas.toDataURL('image/png');
+                link.click();
+            });
         }
 
         // Funções para dashboard
         function carregarAtendimentos() {
             // Simulação de atendimentos - em uma aplicação real, viria de um banco de dados
             atendimentos = [
-                { id: 1, paciente: "Carlos Silva", procedimento: "Extração", data: "15/06/2023", avaliacao: 4 },
-                { id: 2, paciente: "Ana Oliveira", procedimento: "Limpeza", data: "15/06/2023", avaliacao: 5 },
-                { id: 3, paciente: "Roberto Santos", procedimento: "Restauração", data: "15/06/2023", avaliacao: 3 },
-                { id: 4, paciente: "Maria Souza", procedimento: "Clareamento", data: "14/06/2023", avaliacao: 5 },
-                { id: 5, paciente: "João Pereira", procedimento: "Extração", data: "14/06/2023", avaliacao: 2 },
-                { id: 6, paciente: "Fernanda Lima", procedimento: "Ortodontia", data: "13/06/2023", avaliacao: 4 }
+                { id: 1, paciente: "Carlos Silva", procedimento: "Extração", data: new Date().toLocaleDateString('pt-BR'), avaliacao: 4 },
+                { id: 2, paciente: "Ana Oliveira", procedimento: "Limpeza", data: new Date().toLocaleDateString('pt-BR'), avaliacao: 5 },
+                { id: 3, paciente: "Roberto Santos", procedimento: "Restauração", data: new Date().toLocaleDateString('pt-BR'), avaliacao: 3 },
+                { id: 4, paciente: "Maria Souza", procedimento: "Clareamento", data: new Date(new Date().setDate(new Date().getDate() - 1)).toLocaleDateString('pt-BR'), avaliacao: 5 },
+                { id: 5, paciente: "João Pereira", procedimento: "Extração", data: new Date(new Date().setDate(new Date().getDate() - 1)).toLocaleDateString('pt-BR'), avaliacao: 2 },
+                { id: 6, paciente: "Fernanda Lima", procedimento: "Ortodontia", data: new Date(new Date().setDate(new Date().getDate() - 2)).toLocaleDateString('pt-BR'), avaliacao: 4 }
             ];
+            
+            salvarDadosLocalStorage();
         }
 
         function atualizarDashboard() {
@@ -1953,42 +3008,42 @@
             const cores = labels.map((_, i) => getColorForChart(i));
 
             window.procedimentosChart = new Chart(ctx, {
-    type: 'bar',
-    data: {
-        labels: labels,
-        datasets: [{
-            label: 'Quantidade de Procedimentos',
-            data: valores,
-            backgroundColor: cores,
-            borderColor: cores.map(c => c.replace('0.7', '1')),
-            borderWidth: 1
-        }]
-    },
-    options: {
-        responsive: true,
-        plugins: {
-            legend: {
-                display: false
-            },
-            title: {
-                display: true,
-                text: 'Procedimentos Realizados',
-                font: {
-                    size: 16,
-                    weight: 'bold'  // Corrigido: removido o número 16 e mantido apenas 'bold'
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Quantidade de Procedimentos',
+                        data: valores,
+                        backgroundColor: cores,
+                        borderColor: cores.map(c => c.replace('0.7', '1')),
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        title: {
+                            display: true,
+                            text: 'Procedimentos Realizados',
+                            font: {
+                                size: 16,
+                                weight: 'bold'
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                stepSize: 1
+                            }
+                        }
+                    }
                 }
-            }
-        },
-        scales: {
-            y: {
-                beginAtZero: true,
-                ticks: {
-                    stepSize: 1
-                }
-            }
-        }
-    }
-});
+            });
         }
 
         function criarGraficoAvaliacoes(data) {
@@ -2074,9 +3129,30 @@
             doc.setTextColor(0, 0, 0);
             doc.text('Resumo de Procedimentos:', 20, 60);
             
-            // Simulação de dados - na prática, capturaria os gráficos com html2canvas
+            const periodo = document.getElementById('periodoDashboard').value;
+            let atendimentosFiltrados = [];
+            const hoje = new Date();
+            
+            switch(periodo) {
+                case 'hoje':
+                    const hojeStr = hoje.toLocaleDateString('pt-BR');
+                    atendimentosFiltrados = atendimentos.filter(a => a.data === hojeStr);
+                    break;
+                case 'semana':
+                    // Simulação - na prática, precisaria comparar datas
+                    atendimentosFiltrados = atendimentos.slice(0, 5);
+                    break;
+                case 'mes':
+                    // Simulação - na prática, precisaria comparar datas
+                    atendimentosFiltrados = atendimentos;
+                    break;
+                default:
+                    atendimentosFiltrados = atendimentos;
+            }
+            
+            // Agrupar procedimentos para o gráfico
             const procedimentosCount = {};
-            atendimentos.forEach(a => {
+            atendimentosFiltrados.forEach(a => {
                 procedimentosCount[a.procedimento] = (procedimentosCount[a.procedimento] || 0) + 1;
             });
             
@@ -2091,7 +3167,7 @@
             yPosition += 10;
             
             const avaliacoesCount = [0, 0, 0, 0, 0];
-            atendimentos.forEach(a => {
+            atendimentosFiltrados.forEach(a => {
                 if (a.avaliacao >= 1 && a.avaliacao <= 5) {
                     avaliacoesCount[a.avaliacao - 1]++;
                 }
@@ -2105,7 +3181,7 @@
             // Rodapé
             doc.setFontSize(10);
             doc.setTextColor(100, 100, 100);
-            doc.text(`Relatório gerado pelo DentaLog 2.0 - ${today.toLocaleString('pt-BR')}`, 105, 280, { align: 'center' });
+            doc.text(`Relatório gerado pelo DentAI - ${today.toLocaleString('pt-BR')}`, 105, 280, { align: 'center' });
             
             doc.save(`relatorio_atendimentos_${today.toLocaleDateString('pt-BR').replace(/\//g, '-')}.pdf`);
         }
@@ -2115,14 +3191,10 @@
             
             html2canvas(dashboard).then(canvas => {
                 const link = document.createElement('a');
-                link.download = 'dashboard_odontologico.png';
+                link.download = 'dashboard_atendimentos.png';
                 link.href = canvas.toDataURL('image/png');
                 link.click();
             });
-        }
-
-        function compartilharInstagram() {
-            alert('Funcionalidade de compartilhamento no Instagram seria implementada aqui. Em uma aplicação real, isso exigiria integração com a API do Instagram.');
         }
 
         // Funções para atendimento
@@ -2157,64 +3229,89 @@
             
             // Limpar formulário
             limparFormulario();
+            
+            salvarDadosLocalStorage();
         }
 
-        /**
-        * Mostra modal LGPD e retorna uma Promise com a resposta do usuário
-        * @param {string} message - Mensagem principal
-        * @param {string[]} items - Lista de itens de concordância
-        * @returns {Promise<boolean>} - true se confirmou, false se cancelou
-        */
-        function showLGPDPrompt(message, items = []) {
-            const modal = document.getElementById('lgpdModal');
-            const messageEl = document.getElementById('lgpdModalMessage');
-            const listEl = document.getElementById('lgpdModalList');
-  
-            // Configura o conteúdo
-            messageEl.textContent = message;
-            listEl.innerHTML = items.map(item => `
-            <li><i class="fas fa-check-circle"></i> ${item}</li>
-            `).join('');
-
-            // Mostra o modal
-            modal.classList.add('active');
-            document.body.style.overflow = 'hidden';
-
-            // Retorna uma Promise que resolve quando o usuário decide
-            return new Promise((resolve) => {
-            document.getElementById('lgpdConfirm').onclick = () => {
-                modal.classList.remove('active');
-                document.body.style.overflow = '';
-                resolve(true);
-            };
-
-            document.getElementById('lgpdCancel').onclick = () => {
-                modal.classList.remove('active');
-                document.body.style.overflow = '';
-                resolve(false);
-            };
-            });
+        // Funções para exportação via WhatsApp
+        async function previewWhatsApp(type) {
+            currentExportType = type;
+            let content = '';
+            
+            switch(type) {
+                case 'atendimento':
+                    content = generateAtendimentoContent();
+                    break;
+                case 'odontograma':
+                    content = generateOdontogramaContent();
+                    break;
+                case 'orcamento':
+                    content = generateOrcamentoContent();
+                    break;
+                case 'comunicacao':
+                    content = document.getElementById('mensagemEditada').value;
+                    break;
+            }
+            
+            if (!content) {
+                alert('Nenhum conteúdo para enviar');
+                return;
+            }
+            
+            currentExportContent = content;
+            
+            // Mostrar pré-visualização
+            document.getElementById('previewTitle').innerHTML = `<i class="fab fa-whatsapp"></i> Pré-visualização (${type})`;
+            document.getElementById('previewContent').textContent = content;
+            document.getElementById('previewModal').classList.add('active');
         }
 
-        async function exportarWhatsApp() {
+        function closePreview() {
+            document.getElementById('previewModal').classList.remove('active');
+        }
+
+        async function confirmExport() {
+            closePreview();
+            
+            // Mostrar modal LGPD
+            const userConfirmed = await showLGPDPrompt(
+                'Ao prosseguir, você concorda com:',
+                [
+                    'Compartilhamento destes dados via WhatsApp sob sua responsabilidade',
+                    'Processamento conforme Art. 7º da LGPD',
+                    'Os dados não são armazenados em nosso sistema'
+                ]
+            );
+            
+            if (!userConfirmed) return;
+            
+            // Gerar link do WhatsApp
+            let phone = '';
+            let message = currentExportContent;
+            
+            if (currentExportType === 'atendimento') {
+                phone = document.getElementById('telefone').value.trim().replace(/\D/g, '');
+            }
+            
+            const encoded = encodeURIComponent(message);
+            const link = phone ? 
+                `https://wa.me/${phone}?text=${encoded}` : 
+                `https://wa.me/?text=${encoded}`;
+            
+            window.open(link, '_blank');
+            
+            // Opcional: Registrar consentimento
+            localStorage.setItem('lastLGPDConsent', new Date().toISOString());
+        }
+
+        function generateAtendimentoContent() {
             const paciente = document.getElementById('paciente').value.trim();
             const telefone = document.getElementById('telefone').value.trim();
             
             if (!paciente || !telefone) {
                 alert('Preencha o nome e telefone do paciente para enviar via WhatsApp');
-                return;
+                return '';
             }
-
-            // Mostra prompt LGPD e aguarda confirmação
-            const userConfirmed = await showLGPDPrompt(
-            'Ao prosseguir, você concorda com:',
-            [
-                'Compartilhamento destes dados via WhatsApp sob sua vontade explícita e total responsabilidade',
-                'Processamento conforme Art. 7º da LGPD'
-            ]
-            );
-
-            if (!userConfirmed) return;
             
             let mensagem = `*Resumo do Atendimento Odontológico*\n\n`;
             mensagem += `*Paciente:* ${paciente}\n`;
@@ -2248,12 +3345,121 @@
             mensagem += `📞 ${clinicInfo.phone}\n`;
             mensagem += `📍 ${clinicInfo.address}\n`;
             
-            const encoded = encodeURIComponent(mensagem);
-            const link = `https://wa.me/${telefone.replace(/\D/g, '')}?text=${encoded}`;
-            window.open(link, '_blank');
+            return mensagem;
+        }
 
-            // Opcional: Registrar consentimento
-            localStorage.setItem('lastLGPDConsent', new Date().toISOString());
+        function generateOdontogramaContent() {
+            if (problemasDentarios.length === 0) {
+                alert('Nenhum problema dentário registrado para enviar');
+                return '';
+            }
+            
+            let mensagem = `*Relatório Odontograma*\n\n`;
+            mensagem += `*Paciente:* ${document.getElementById('paciente').value.trim() || '[Nome do Paciente]'}\n`;
+            mensagem += `*Data:* ${new Date().toLocaleDateString('pt-BR')}\n\n`;
+            
+            mensagem += `*Problemas Identificados:*\n`;
+            
+            // Agrupar problemas por dente
+            const problemasPorDente = {};
+            problemasDentarios.forEach(prob => {
+                if (!problemasPorDente[prob.tooth]) {
+                    problemasPorDente[prob.tooth] = [];
+                }
+                problemasPorDente[prob.tooth].push(prob);
+            });
+            
+            // Ordenar dentes
+            const dentesOrdenados = Object.keys(problemasPorDente).sort((a, b) => parseInt(a) - parseInt(b));
+            
+            dentesOrdenados.forEach(dente => {
+                mensagem += `\n*Dente ${dente}:*\n`;
+                problemasPorDente[dente].forEach(prob => {
+                    mensagem += `- ${getProblemText(prob.problem)}: ${prob.details}\n`;
+                });
+            });
+            
+            // Legenda
+            mensagem += `\n*Legenda:*\n`;
+            mensagem += `🟤 Cárie\n`;
+            mensagem += `🔵 Restauração\n`;
+            mensagem += `🟣 Canal\n`;
+            mensagem += `⚫ Extração\n`;
+            mensagem += `⚪ Implante\n`;
+            mensagem += `🔴 Fratura\n`;
+            mensagem += `💗 Gengivite\n`;
+            mensagem += `🟤 Periodontite\n`;
+            mensagem += `🔵 Sensibilidade\n`;
+            mensagem += `⚪ Outro\n`;
+            
+            // Informações da clínica
+            mensagem += `\n*${clinicInfo.dentist} - ${clinicInfo.cro}*\n`;
+            mensagem += `📞 ${clinicInfo.phone}\n`;
+            
+            return mensagem;
+        }
+
+        function generateOrcamentoContent() {
+            if (orcamento.length === 0) {
+                alert('Adicione materiais ao orçamento primeiro');
+                return '';
+            }
+            
+            let mensagem = `*📋 Orçamento Odontológico*\n\n`;
+            mensagem += `*${clinicInfo.dentist} - ${clinicInfo.cro}*\n\n`;
+            mensagem += `*Itens do Orçamento:*\n`;
+            
+            let subtotal = 0;
+            orcamento.forEach(item => {
+                const totalItem = item.price * item.quantity;
+                subtotal += totalItem;
+                mensagem += `- ${item.quantity}x ${item.name}: R$ ${totalItem.toFixed(2)}\n`;
+            });
+            
+            mensagem += `\n*Total: R$ ${subtotal.toFixed(2)}*\n\n`;
+            mensagem += `📞 ${clinicInfo.phone}\n`;
+            mensagem += `📧 ${clinicInfo.email}\n`;
+            mensagem += `📍 ${clinicInfo.address}\n\n`;
+            mensagem += `_Orçamento válido por 30 dias. Data: ${new Date().toLocaleDateString('pt-BR')}_`;
+            
+            return mensagem;
+        }
+
+        /**
+        * Mostra modal LGPD e retorna uma Promise com a resposta do usuário
+        * @param {string} message - Mensagem principal
+        * @param {string[]} items - Lista de itens de concordância
+        * @returns {Promise<boolean>} - true se confirmou, false se cancelou
+        */
+        function showLGPDPrompt(message, items = []) {
+            const modal = document.getElementById('lgpdModal');
+            const messageEl = document.getElementById('lgpdModalMessage');
+            const listEl = document.getElementById('lgpdModalList');
+  
+            // Configura o conteúdo
+            messageEl.textContent = message;
+            listEl.innerHTML = items.map(item => `
+                <li><i class="fas fa-check-circle"></i> ${item}</li>
+            `).join('');
+
+            // Mostra o modal
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+
+            // Retorna uma Promise que resolve quando o usuário decide
+            return new Promise((resolve) => {
+                document.getElementById('lgpdConfirm').onclick = () => {
+                    modal.classList.remove('active');
+                    document.body.style.overflow = '';
+                    resolve(true);
+                };
+
+                document.getElementById('lgpdCancel').onclick = () => {
+                    modal.classList.remove('active');
+                    document.body.style.overflow = '';
+                    resolve(false);
+                };
+            });
         }
 
         function limparFormulario() {
