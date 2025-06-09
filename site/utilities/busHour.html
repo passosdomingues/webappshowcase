@@ -739,16 +739,245 @@
         { lat: -21.4320, lng: -45.9500, name: "Centro", tempoViagem: { "Terminal Urbano": 8, "Jardim Primavera": 12 } },
         { lat: -21.4350, lng: -45.9530, name: "Jardim Primavera", tempoViagem: { "Terminal Urbano": 15, "Centro": 12 } }
       ]
-    }
+    },
+    '007': {
+    nome: 'Jardim Boa Esperança / Campus',
+    itinerario: ['Terminal Urbano', 'Jardim Boa Esperança', 'Campus Unifenas'],
+    horarios: {
+      dias_uteis: ['6:30','7:35','8:35','9:35','10:35','11:35','12:30','13:35','14:35','15:35','16:35','17:30','18:35','19:30','21:30','22:30'],
+      sabado: ['6:30','7:35','8:35','9:35','10:35','11:35','12:30','13:35'],
+      domingo: ['6:30','7:35','8:35','9:35','10:35','11:35','12:30','13:35'],
+      feriado: ['6:30','7:35','8:35','9:35','10:35','11:35','12:30','13:35']
+    },
+    cor: '#00aaff',
+    paradas: [
+      { lat: -21.4289, lng: -45.9472, name: 'Terminal Urbano', tempoViagem: { 'Jardim Boa Esperança': 15, 'Campus Unifenas': 35 } },
+      { lat: -21.4300, lng: -45.9500, name: 'Jardim Boa Esperança', tempoViagem: { 'Terminal Urbano': 15, 'Campus Unifenas': 20 } },
+      { lat: -21.4200, lng: -45.9300, name: 'Campus Unifenas', tempoViagem: { 'Terminal Urbano': 35, 'Jardim Boa Esperança': 20 } }
+    ]
+  },
+
+  '008': {
+    nome: 'Recreio Vale do Sol / Jd. São Carlos',
+    itinerario: ['Terminal Urbano', 'Recreio (Unifal – Santa Clara)', 'Jd. São Carlos'],
+    horarios: {
+      dias_uteis: ['6:00','7:00','8:00','9:00','10:00','11:00','12:00','13:00','14:00','15:00','16:00','17:00','18:00','19:00','20:00','21:00','22:00'],
+      sabado: ['6:00','7:00','8:00','9:00','10:00','11:00','12:00','13:00','14:00','15:00','16:00','17:00','18:00','19:00','20:00','21:00','22:00'],
+      domingo: ['6:00','7:00','8:00','9:00','10:00','11:00','12:00','13:00','14:00','15:00','16:00','17:00','18:00','19:00','20:00','21:00','22:00'],
+      feriado: ['6:00','7:00','8:00','9:00','11:00','12:00','13:00','14:00','16:00','17:00','18:00','19:00','20:00','21:00','22:00']
+    },
+    cor: '#ffaa00',
+    paradas: [
+      { lat: -21.4289, lng: -45.9472, name: 'Terminal Urbano', tempoViagem: { 'Recreio': 35, 'Jd. São Carlos': 55 } },
+      { lat: -21.4250, lng: -45.9450, name: 'Recreio (Unifal – Santa Clara)', tempoViagem: { 'Terminal Urbano': 35, 'Jd. São Carlos': 20 } },
+      { lat: -21.4300, lng: -45.9400, name: 'Jd. São Carlos', tempoViagem: { 'Terminal Urbano': 55, 'Recreio': 20 } }
+    ]
+  },
+  '009': {
+  nome: 'Pinheirinho / Jardim Aeroporto',
+  itinerario: [
+    'Terminal Urbano',
+    'Avenida Jovino Fernandes Sales',
+    'Rua Padre Rolim',
+    'Rua Dom Silvério',
+    'Rua Marciel Júnior',
+    'Praça Fausto Monteiro',
+    'Praça Dr. Emílio da Silveira',
+    'Rua Alferes Domingos Vieira Silva',
+    'Rua Jaime Santos',
+    'Avenida Prefeito Aristides de Souza',
+    'Rua Joaquim Bernardes da Silva',
+    'Rua Porcina Pinto de Campos',
+    'Rua Antônio Esteves',
+    'Rua Feliciano Libanio da Silveira',
+    'Pinheirinho (Unifal – Santa Clara)',
+    'Jardim Aeroporto'
+  ],
+  horarios: {
+    dias_uteis: ['5:45','6:45','7:45','8:45','9:45','10:45','11:45','12:45','13:45','14:45','15:45','16:45','17:45','18:45','19:45'],
+    sabado: ['5:45','6:45','7:45','8:45','9:45','10:45','11:45','12:45','13:45','14:45','15:45','16:45','17:45','18:45','19:45'],
+    domingo: ['5:45','6:45','7:45','8:45','9:45','10:45','11:45','12:45','13:45','15:45','16:45','17:45','18:45'],
+    feriado: ['5:45','6:45','7:45','8:45','10:45','11:45','12:45','13:45','15:45','16:45','17:45','18:45']
+  },
+  cor: '#ff0055',
+  paradas: [
+    { lat: -21.4289, lng: -45.9472, name: 'Terminal Urbano', tempoViagem: { 'Avenida Jovino Fernandes Sales': 2, 'Pinheirinho': 20, 'Jardim Aeroporto': 35 } },
+    { lat: -21.4295, lng: -45.9480, name: 'Avenida Jovino Fernandes Sales', tempoViagem: { 'Terminal Urbano': 2, 'Pinheirinho': 18, 'Jardim Aeroporto': 33 } },
+    { lat: -21.4300, lng: -45.9495, name: 'Rua Padre Rolim', tempoViagem: { 'Terminal Urbano': 4, 'Pinheirinho': 16, 'Jardim Aeroporto': 31 } },
+    { lat: -21.4310, lng: -45.9505, name: 'Rua Dom Silvério', tempoViagem: { 'Terminal Urbano': 6, 'Pinheirinho': 14, 'Jardim Aeroporto': 29 } },
+    { lat: -21.4320, lng: -45.9515, name: 'Rua Marciel Júnior', tempoViagem: { 'Terminal Urbano': 8, 'Pinheirinho': 12, 'Jardim Aeroporto': 27 } },
+    { lat: -21.4330, lng: -45.9525, name: 'Praça Fausto Monteiro', tempoViagem: { 'Terminal Urbano': 10, 'Pinheirinho': 10, 'Jardim Aeroporto': 25 } },
+    { lat: -21.4340, lng: -45.9535, name: 'Praça Dr. Emílio da Silveira', tempoViagem: { 'Terminal Urbano': 12, 'Pinheirinho': 8, 'Jardim Aeroporto': 23 } },
+    { lat: -21.4345, lng: -45.9545, name: 'Rua Alferes Domingos Vieira Silva', tempoViagem: { 'Terminal Urbano': 14, 'Pinheirinho': 6, 'Jardim Aeroporto': 21 } },
+    { lat: -21.4350, lng: -45.9555, name: 'Rua Jaime Santos', tempoViagem: { 'Terminal Urbano': 16, 'Pinheirinho': 4, 'Jardim Aeroporto': 19 } },
+    { lat: -21.4355, lng: -45.9565, name: 'Avenida Prefeito Aristides de Souza', tempoViagem: { 'Terminal Urbano': 18, 'Pinheirinho': 2, 'Jardim Aeroporto': 17 } },
+    { lat: -21.4350, lng: -45.9600, name: 'Pinheirinho (Unifal – Santa Clara)', tempoViagem: { 'Terminal Urbano': 20, 'Avenida Jovino Fernandes Sales': 18, 'Jardim Aeroporto': 15 } },
+    { lat: -21.4360, lng: -45.9575, name: 'Rua Joaquim Bernardes da Silva', tempoViagem: { 'Terminal Urbano': 22, 'Pinheirinho': 5, 'Jardim Aeroporto': 13 } },
+    { lat: -21.4370, lng: -45.9585, name: 'Rua Porcina Pinto de Campos', tempoViagem: { 'Terminal Urbano': 24, 'Pinheirinho': 7, 'Jardim Aeroporto': 11 } },
+    { lat: -21.4380, lng: -45.9595, name: 'Rua Antônio Esteves', tempoViagem: { 'Terminal Urbano': 26, 'Pinheirinho': 9, 'Jardim Aeroporto': 9 } },
+    { lat: -21.4390, lng: -45.9605, name: 'Rua Feliciano Libanio da Silveira', tempoViagem: { 'Terminal Urbano': 28, 'Pinheirinho': 11, 'Jardim Aeroporto': 7 } },
+    { lat: -21.4300, lng: -45.9400, name: 'Jardim Aeroporto', tempoViagem: { 'Terminal Urbano': 35, 'Pinheirinho': 15, 'Praça Dr. Emílio da Silveira': 23 } }
+  ]
+  },
+  '010': {
+    nome: 'Pôr do Sol / Campus',
+    itinerario: ['Terminal Urbano', 'Pôr do Sol', 'Campus Unifenas'],
+    horarios: {
+      dias_uteis: ['6:15','7:15','8:15','11:15','12:15','13:15','17:15','18:15','19:15'],
+      sabado: ['6:15','7:15','8:15','11:15','12:15','13:15','17:15','18:15'],
+      domingo: ['6:15','7:15','8:15','11:15','12:15','13:15','17:15','18:15'],
+      feriado: ['6:15','7:15','8:15','11:15','12:15','13:15','17:15','18:15']
+    },
+    cor: '#8866ee',
+    paradas: [
+      { lat: -21.4289, lng: -45.9472, name: 'Terminal Urbano', tempoViagem: { 'Pôr do Sol': 20, 'Campus Unifenas': 40 } },
+      { lat: -21.4400, lng: -45.9500, name: 'Pôr do Sol', tempoViagem: { 'Terminal Urbano': 20, 'Campus Unifenas': 20 } },
+      { lat: -21.4200, lng: -45.9300, name: 'Campus Unifenas', tempoViagem: { 'Terminal Urbano': 40, 'Pôr do Sol': 20 } }
+    ]
+  },
+  '011': {
+  nome: 'Gaspar Lopes / Centro',
+  itinerario: [
+    'Terminal Urbano',
+    'Praça Dr. Emílio da Silveira',
+    'Avenida Governador Valadares',
+    'Rua Alameda das Maguinólias',
+    'Rua Alameda dos Ipes',
+    'Rua Alameda dos Eucaliptos',
+    'Rua Alameda dos Jacarandas',
+    'Avenida das Sibipirunas',
+    'Rodovia BR 369',
+    'Distrito de Gaspar Lopes',
+    'Campus Unifenas'
+  ],
+  horarios: {
+    dias_uteis: ['5:45','6:45','7:45','8:45','9:45','10:45','11:45','12:45','13:45','14:45','15:45','16:45','17:45','18:45','19:30','20:45','21:45','23:00'],
+    sabado: ['5:45','6:45','7:45','8:45','9:45','10:45','11:45','12:45','13:45','14:45','15:45','16:45','17:45','18:45','19:30','20:45','21:45','23:00'],
+    domingo: ['5:45','6:45','7:45','8:45','9:45','10:45','11:45','12:45','13:45','15:45','16:45','17:45','18:45','19:30','20:45','21:45','23:00'],
+    feriado: ['5:45','6:45','7:45','8:45','10:45','11:45','12:45','13:45','15:45','16:45','17:45','18:45','19:30','20:45','21:45','23:00']
+  },
+  cor: '#00cc66',
+  paradas: [
+    { lat: -21.4289, lng: -45.9472, name: 'Terminal Urbano', tempoViagem: { 'Praça Dr. Emílio da Silveira': 5, 'Distrito de Gaspar Lopes': 40, 'Campus Unifenas': 50 } },
+    { lat: -21.4340, lng: -45.9535, name: 'Praça Dr. Emílio da Silveira', tempoViagem: { 'Terminal Urbano': 5, 'Distrito de Gaspar Lopes': 35, 'Campus Unifenas': 45 } },
+    { lat: -21.4350, lng: -45.9550, name: 'Avenida Governador Valadares', tempoViagem: { 'Terminal Urbano': 8, 'Distrito de Gaspar Lopes': 32, 'Campus Unifenas': 42 } },
+    { lat: -21.4360, lng: -45.9565, name: 'Rua Alameda das Maguinólias', tempoViagem: { 'Terminal Urbano': 10, 'Distrito de Gaspar Lopes': 30, 'Campus Unifenas': 40 } },
+    { lat: -21.4370, lng: -45.9580, name: 'Rua Alameda dos Ipes', tempoViagem: { 'Terminal Urbano': 12, 'Distrito de Gaspar Lopes': 28, 'Campus Unifenas': 38 } },
+    { lat: -21.4380, lng: -45.9595, name: 'Rua Alameda dos Eucaliptos', tempoViagem: { 'Terminal Urbano': 15, 'Distrito de Gaspar Lopes': 25, 'Campus Unifenas': 35 } },
+    { lat: -21.4390, lng: -45.9610, name: 'Rua Alameda dos Jacarandas', tempoViagem: { 'Terminal Urbano': 18, 'Distrito de Gaspar Lopes': 22, 'Campus Unifenas': 32 } },
+    { lat: -21.4400, lng: -45.9630, name: 'Avenida das Sibipirunas', tempoViagem: { 'Terminal Urbano': 22, 'Distrito de Gaspar Lopes': 18, 'Campus Unifenas': 28 } },
+    { lat: -21.4420, lng: -45.9670, name: 'Rodovia BR 369', tempoViagem: { 'Terminal Urbano': 30, 'Distrito de Gaspar Lopes': 10, 'Campus Unifenas': 20 } },
+    { lat: -21.4450, lng: -45.9750, name: 'Distrito de Gaspar Lopes', tempoViagem: { 'Terminal Urbano': 40, 'Rodovia BR 369': 10, 'Campus Unifenas': 15 } },
+    { lat: -21.4200, lng: -45.9300, name: 'Campus Unifenas', tempoViagem: { 'Terminal Urbano': 50, 'Distrito de Gaspar Lopes': 15, 'Rodovia BR 369': 20 } }
+  ]
+  },
+  '012': {
+  nome: 'Jardim Nova América / Pinheirinho',
+  itinerario: [
+    'Terminal Urbano',
+    'Avenida Jovino Fernandes Sales',
+    'Rua Padre Rolim',
+    'Rua Dom Silvério',
+    'Rua Marciel Júnior',
+    'Praça Fausto Monteiro',
+    'Praça Dr. Emílio da Silveira',
+    'Rua Leão de Faria',
+    'Jardim Nova América',
+    'Rua Gabriel Monteiro da Silva',
+    'Rua Antônio Pedro de Oliveira',
+    'Rua da Concordia',
+    'Rua João de Souza Sobrinho',
+    'Rua Alaor Ferreira da Fonseca',
+    'Rua Vanderlei de Castro',
+    'Rua Umbelino da Silveira Pinto',
+    'Rua José Paraíso',
+    'Rua Três',
+    'Rua Benedito Avelino de Lima',
+    'Pinheirinho (Unifal – Santa Clara)'
+  ],
+  horarios: {
+    dias_uteis: ['7:00','8:00','9:00','10:00','11:00','12:00','13:00','14:00','15:00','16:00','17:00','18:00','19:00','20:00','21:00','22:00','23:00'],
+    sabado: ['7:00','8:00','9:00','10:00','11:00','12:00','13:00','14:00','15:00','16:00','17:00','18:00','19:00','20:00','21:00','22:00','23:00'],
+    domingo: ['7:00','8:00','9:00','10:00','11:00','12:00','13:00','14:00','15:00','16:00','17:00','18:00','19:00','20:00','21:00','22:00','23:00'],
+    feriado: ['7:00','8:00','9:00','10:00','11:00','12:00','13:00','14:00','15:00','16:00','17:00','18:00','19:00','20:00','21:00','22:00','23:00']
+  },
+  cor: '#dd0066',
+  paradas: [
+    { lat: -21.4289, lng: -45.9472, name: 'Terminal Urbano', tempoViagem: { 'Avenida Jovino Fernandes Sales': 2, 'Pinheirinho (Unifal – Santa Clara)': 40 } },
+    { lat: -21.4295, lng: -45.9480, name: 'Avenida Jovino Fernandes Sales', tempoViagem: { 'Terminal Urbano': 2, 'Pinheirinho (Unifal – Santa Clara)': 38 } },
+    { lat: -21.4300, lng: -45.9495, name: 'Rua Padre Rolim', tempoViagem: { 'Terminal Urbano': 4, 'Pinheirinho (Unifal – Santa Clara)': 36 } },
+    { lat: -21.4310, lng: -45.9505, name: 'Rua Dom Silvério', tempoViagem: { 'Terminal Urbano': 6, 'Pinheirinho (Unifal – Santa Clara)': 34 } },
+    { lat: -21.4320, lng: -45.9515, name: 'Rua Marciel Júnior', tempoViagem: { 'Terminal Urbano': 8, 'Pinheirinho (Unifal – Santa Clara)': 32 } },
+    { lat: -21.4330, lng: -45.9525, name: 'Praça Fausto Monteiro', tempoViagem: { 'Terminal Urbano': 10, 'Pinheirinho (Unifal – Santa Clara)': 30 } },
+    { lat: -21.4340, lng: -45.9535, name: 'Praça Dr. Emílio da Silveira', tempoViagem: { 'Terminal Urbano': 12, 'Pinheirinho (Unifal – Santa Clara)': 28 } },
+    { lat: -21.4350, lng: -45.9545, name: 'Rua Leão de Faria', tempoViagem: { 'Terminal Urbano': 14, 'Pinheirinho (Unifal – Santa Clara)': 26 } },
+    { lat: -21.4350, lng: -45.9580, name: 'Jardim Nova América', tempoViagem: { 'Terminal Urbano': 15, 'Pinheirinho (Unifal – Santa Clara)': 25 } },
+    { lat: -21.4360, lng: -45.9590, name: 'Rua Gabriel Monteiro da Silva', tempoViagem: { 'Terminal Urbano': 17, 'Pinheirinho (Unifal – Santa Clara)': 23 } },
+    { lat: -21.4370, lng: -45.9600, name: 'Rua Antônio Pedro de Oliveira', tempoViagem: { 'Terminal Urbano': 19, 'Pinheirinho (Unifal – Santa Clara)': 21 } },
+    { lat: -21.4380, lng: -45.9610, name: 'Rua da Concordia', tempoViagem: { 'Terminal Urbano': 21, 'Pinheirinho (Unifal – Santa Clara)': 19 } },
+    { lat: -21.4390, lng: -45.9620, name: 'Rua João de Souza Sobrinho', tempoViagem: { 'Terminal Urbano': 23, 'Pinheirinho (Unifal – Santa Clara)': 17 } },
+    { lat: -21.4400, lng: -45.9630, name: 'Rua Alaor Ferreira da Fonseca', tempoViagem: { 'Terminal Urbano': 25, 'Pinheirinho (Unifal – Santa Clara)': 15 } },
+    { lat: -21.4410, lng: -45.9640, name: 'Rua Vanderlei de Castro', tempoViagem: { 'Terminal Urbano': 27, 'Pinheirinho (Unifal – Santa Clara)': 13 } },
+    { lat: -21.4420, lng: -45.9650, name: 'Rua Umbelino da Silveira Pinto', tempoViagem: { 'Terminal Urbano': 29, 'Pinheirinho (Unifal – Santa Clara)': 11 } },
+    { lat: -21.4430, lng: -45.9660, name: 'Rua José Paraíso', tempoViagem: { 'Terminal Urbano': 31, 'Pinheirinho (Unifal – Santa Clara)': 9 } },
+    { lat: -21.4440, lng: -45.9670, name: 'Rua Três', tempoViagem: { 'Terminal Urbano': 33, 'Pinheirinho (Unifal – Santa Clara)': 7 } },
+    { lat: -21.4450, lng: -45.9680, name: 'Rua Benedito Avelino de Lima', tempoViagem: { 'Terminal Urbano': 35, 'Pinheirinho (Unifal – Santa Clara)': 5 } },
+    { lat: -21.4450, lng: -45.9750, name: 'Pinheirinho (Unifal – Santa Clara)', tempoViagem: { 'Terminal Urbano': 40, 'Avenida Jovino Fernandes Sales': 38 } }
+  ]
+  },
+  '018': {
+  nome: 'Jardim Primavera / Campus',
+  itinerario: [
+    'Terminal Urbano',
+    'Alameda dos Jacarandas',
+    'Rua Alameda dos Eucaliptos',
+    'Rua Benjamim Constant',
+    'Rua Padre João Batista',
+    'Rua Professor Carvalho Junior',
+    'Praça Dr. Emílio da Silveira',
+    'Praça Fausto Monteiro',
+    'Rua Coronel Pedro Corrêa',
+    'Praça Melvin Jones',
+    'Avenida José Paulino da Costa',
+    'Campus Unifenas',
+    'Terminal Urbano' // circuito de volta
+  ],
+  horarios: {
+    dias_uteis: [
+      '6:15','7:15','11:15','12:15','17:15','18:15'
+    ],
+    sabado: [
+      '6:15','7:15','11:15','12:15','17:15','18:15'
+    ],
+    domingo: [
+      '6:15','7:15','11:15','12:15','17:15','18:15'
+    ],
+    feriado: [
+      '6:15','7:15','11:15','12:15','17:15','18:15'
+    ]
+  },
+  cor: '#009999',
+  paradas: [
+    { lat: -21.4289, lng: -45.9472, name: 'Terminal Urbano', tempoViagem: { 'Alameda dos Jacarandas': 5, 'Campus Unifenas': 25 } },
+    { lat: -21.4305, lng: -45.9480, name: 'Alameda dos Jacarandas', tempoViagem: { 'Terminal Urbano': 5, 'Campus Unifenas': 20 } },
+    { lat: -21.4320, lng: -45.9495, name: 'Rua Alameda dos Eucaliptos', tempoViagem: { 'Terminal Urbano': 6, 'Campus Unifenas': 19 } },
+    { lat: -21.4330, lng: -45.9505, name: 'Rua Benjamim Constant', tempoViagem: { 'Terminal Urbano': 7, 'Campus Unifenas': 18 } },
+    { lat: -21.4340, lng: -45.9515, name: 'Rua Padre João Batista', tempoViagem: { 'Terminal Urbano': 8, 'Campus Unifenas': 17 } },
+    { lat: -21.4350, lng: -45.9525, name: 'Rua Professor Carvalho Junior', tempoViagem: { 'Terminal Urbano': 9, 'Campus Unifenas': 16 } },
+    { lat: -21.4360, lng: -45.9535, name: 'Praça Dr. Emílio da Silveira', tempoViagem: { 'Terminal Urbano': 10, 'Campus Unifenas': 15 } },
+    { lat: -21.4370, lng: -45.9545, name: 'Praça Fausto Monteiro', tempoViagem: { 'Terminal Urbano': 11, 'Campus Unifenas': 14 } },
+    { lat: -21.4380, lng: -45.9555, name: 'Rua Coronel Pedro Corrêa', tempoViagem: { 'Terminal Urbano': 12, 'Campus Unifenas': 13 } },
+    { lat: -21.4390, lng: -45.9565, name: 'Praça Melvin Jones', tempoViagem: { 'Terminal Urbano': 13, 'Campus Unifenas': 12 } },
+    { lat: -21.4400, lng: -45.9575, name: 'Avenida José Paulino da Costa', tempoViagem: { 'Terminal Urbano': 14, 'Campus Unifenas': 11 } },
+    { lat: -21.4200, lng: -45.9300, name: 'Campus Unifenas', tempoViagem: { 'Terminal Urbano': 25, 'Alameda dos Jacarandas': 20 } }
+  ]
+  }
   };
 
-  // Mapeamento de bairros para linhas
   const neighborhoodLines = {
     'Jardim Alvorada': ['001'],
-    'Campus Unifenas': ['001', '002', '003', '004'],
-    'Campus': ['001', '002', '003', '004'],
-    'Unifenas': ['001', '002', '003', '004'],
-    'Pinheirinho': ['002'],
+    'Alvorada': ['001'],
+    'Pinheirinho': ['002', '012'],
     'Vila Formosa': ['002'],
     'Vista Grande': ['003'],
     'Jardim Vista Grande': ['003'],
@@ -756,10 +985,24 @@
     'Distrito Industrial': ['004'],
     'Imesa': ['005'],
     'Santa Luzia': ['005'],
-    'Jardim Primavera': ['006'],
-    'Centro': ['006'],
-    'Terminal Urbano': ['001', '002', '003', '004', '005', '006'],
-    'Terminal': ['001', '002', '003', '004', '005', '006']
+    'Jardim Primavera': ['006', '018'],
+    'Centro': ['006', '011'],
+    'Gaspar Lopes': ['011'],
+    'Jardim Boa Esperança': ['007'],
+    'Boa Esperança': ['007'],
+    'Recreio': ['008'],
+    'Recreio Vale do Sol': ['008'],
+    'Jardim São Carlos': ['008'],
+    'São Carlos': ['008'],
+    'Jardim Aeroporto': ['009'],
+    'Aeroporto': ['009'],
+    'Pôr do Sol': ['010'],
+    'Por do Sol': ['010'],
+    'Campus Unifenas': ['001','002','003','004','007','008','009','010','011','012','018'],
+    'Campus': ['001','002','003','004','007','008','009','010','011','012','018'],
+    'Unifenas': ['001','002','003','004','007','008','009','010','011','012','018'],
+    'Terminal Urbano': ['001','002','003','004','005','006','007','008','009','010','011','012','018'],
+    'Terminal': ['001','002','003','004','005','006','007','008','009','010','011','012','018']
   };
 
   // Coordenadas de Alfenas, MG (centro da cidade)
@@ -947,15 +1190,32 @@
     const hoje = new Date();
     const diaSemana = hoje.getDay();
     
-    // Lista de feriados nacionais brasileiros (formato MM-DD)
+    // Feriados nacionais e municipais de Alfenas‑MG para 2025 (formato MM-DD)
     const feriados = [
-      '01-01', // Ano Novo
+      // Feriados Nacionais
+      '01-01', // Confraternização Universal
+      '03-03', // Carnaval (segunda-feira, ponto facultativo)
+      '03-04', // Carnaval (terça-feira, ponto facultativo)
+      '03-05', // Quarta-feira de Cinzas (ponto facultativo até 14h)
+      '04-18', // Sexta-feira Santa (Paixão de Cristo)
       '04-21', // Tiradentes
+      '05-01', // Dia do Trabalhador
+      '06-19', // Corpus Christi (ponto facultativo e feriado municipal em Alfenas)
       '09-07', // Independência do Brasil
       '10-12', // Nossa Senhora Aparecida
       '11-02', // Finados
       '11-15', // Proclamação da República
-      '12-25'  // Natal
+      '11-20', // Dia da Consciência Negra
+      '12-25', // Natal
+
+      // Pontos facultativos nacionais
+      '12-24', // Véspera de Natal (após 14h)
+      '12-31', // Véspera do Ano Novo (após 14h)
+
+      // Feriados Municipais de Alfenas‑MG (2025)
+      '03-19', // São José – Padroeiro da cidade
+      '10-15', // Aniversário de Alfenas
+      '12-08'  // Nossa Senhora da Conceição (padroeira, feriado/facultativo)
     ];
     
     const dataAtual = `${String(hoje.getMonth() + 1).padStart(2, '0')}-${String(hoje.getDate()).padStart(2, '0')}`;
@@ -1072,19 +1332,19 @@
 
   // Ativa o modo de ajuste de posição
   function enablePositionAdjustment() {
-    if (!userLocation) return;
+    if (!userLocation || !userMarker) return;
     
     isDragModeEnabled = !isDragModeEnabled;
     const btn = document.getElementById("btn-adjust");
     
     if (isDragModeEnabled) {
       btn.innerHTML = '<i class="fas fa-check"></i> Concluir Ajuste';
-      btn.style.background = 'var(--success-color)';
+      btn.style.backgroundColor = 'var(--success-color)';
       enableDraggableMarker();
       showNotification('Modo de ajuste ativado. Arraste o marcador azul para ajustar sua posição');
     } else {
       btn.innerHTML = '<i class="fas fa-arrows-alt"></i> Ajustar Posição';
-      btn.style.background = 'var(--danger-color)';
+      btn.style.backgroundColor = 'var(--danger-color)';
       disableDraggableMarker();
       showNotification('Posição ajustada com sucesso');
     }
@@ -1098,9 +1358,10 @@
     userMarker.addClass('pulse-animation');
     
     userMarker.on('dragend', function(e) {
+      const newPosition = e.target.getLatLng();
       userLocation = {
-        lat: e.target.getLatLng().lat,
-        lng: e.target.getLatLng().lng,
+        lat: newPosition.lat,
+        lng: newPosition.lng,
         accuracy: 5 // Precisão alta quando ajustado manualmente
       };
       
