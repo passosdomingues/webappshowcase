@@ -773,24 +773,52 @@
       { lat: -21.4300, lng: -45.9400, name: 'Jd. São Carlos', tempoViagem: { 'Terminal Urbano': 55, 'Recreio': 20 } }
     ]
   },
-
   '009': {
-    nome: 'Pinheirinho / Jardim Aeroporto',
-    itinerario: ['Terminal Urbano', 'Pinheirinho (Unifal – Santa Clara)', 'Jardim Aeroporto'],
-    horarios: {
-      dias_uteis: ['5:45','6:45','7:45','8:45','9:45','10:45','11:45','12:45','13:45','14:45','15:45','16:45','17:45','18:45','19:45'],
-      sabado: ['5:45','6:45','7:45','8:45','9:45','10:45','11:45','12:45','13:45','14:45','15:45','16:45','17:45','18:45','19:45'],
-      domingo: ['5:45','6:45','7:45','8:45','9:45','10:45','11:45','12:45','13:45','15:45','16:45','17:45','18:45'],
-      feriado: ['5:45','6:45','7:45','8:45','10:45','11:45','12:45','13:45','15:45','16:45','17:45','18:45']
-    },
-    cor: '#ff0055',
-    paradas: [
-      { lat: -21.4289, lng: -45.9472, name: 'Terminal Urbano', tempoViagem: { 'Pinheirinho': 20, 'Jardim Aeroporto': 35 } },
-      { lat: -21.4350, lng: -45.9600, name: 'Pinheirinho (Unifal – Santa Clara)', tempoViagem: { 'Terminal Urbano': 20, 'Jardim Aeroporto': 15 } },
-      { lat: -21.4300, lng: -45.9400, name: 'Jardim Aeroporto', tempoViagem: { 'Terminal Urbano': 35, 'Pinheirinho': 15 } }
-    ]
+  nome: 'Pinheirinho / Jardim Aeroporto',
+  itinerario: [
+    'Terminal Urbano',
+    'Avenida Jovino Fernandes Sales',
+    'Rua Padre Rolim',
+    'Rua Dom Silvério',
+    'Rua Marciel Júnior',
+    'Praça Fausto Monteiro',
+    'Praça Dr. Emílio da Silveira',
+    'Rua Alferes Domingos Vieira Silva',
+    'Rua Jaime Santos',
+    'Avenida Prefeito Aristides de Souza',
+    'Rua Joaquim Bernardes da Silva',
+    'Rua Porcina Pinto de Campos',
+    'Rua Antônio Esteves',
+    'Rua Feliciano Libanio da Silveira',
+    'Pinheirinho (Unifal – Santa Clara)',
+    'Jardim Aeroporto'
+  ],
+  horarios: {
+    dias_uteis: ['5:45','6:45','7:45','8:45','9:45','10:45','11:45','12:45','13:45','14:45','15:45','16:45','17:45','18:45','19:45'],
+    sabado: ['5:45','6:45','7:45','8:45','9:45','10:45','11:45','12:45','13:45','14:45','15:45','16:45','17:45','18:45','19:45'],
+    domingo: ['5:45','6:45','7:45','8:45','9:45','10:45','11:45','12:45','13:45','15:45','16:45','17:45','18:45'],
+    feriado: ['5:45','6:45','7:45','8:45','10:45','11:45','12:45','13:45','15:45','16:45','17:45','18:45']
   },
-
+  cor: '#ff0055',
+  paradas: [
+    { lat: -21.4289, lng: -45.9472, name: 'Terminal Urbano', tempoViagem: { 'Avenida Jovino Fernandes Sales': 2, 'Pinheirinho': 20, 'Jardim Aeroporto': 35 } },
+    { lat: -21.4295, lng: -45.9480, name: 'Avenida Jovino Fernandes Sales', tempoViagem: { 'Terminal Urbano': 2, 'Pinheirinho': 18, 'Jardim Aeroporto': 33 } },
+    { lat: -21.4300, lng: -45.9495, name: 'Rua Padre Rolim', tempoViagem: { 'Terminal Urbano': 4, 'Pinheirinho': 16, 'Jardim Aeroporto': 31 } },
+    { lat: -21.4310, lng: -45.9505, name: 'Rua Dom Silvério', tempoViagem: { 'Terminal Urbano': 6, 'Pinheirinho': 14, 'Jardim Aeroporto': 29 } },
+    { lat: -21.4320, lng: -45.9515, name: 'Rua Marciel Júnior', tempoViagem: { 'Terminal Urbano': 8, 'Pinheirinho': 12, 'Jardim Aeroporto': 27 } },
+    { lat: -21.4330, lng: -45.9525, name: 'Praça Fausto Monteiro', tempoViagem: { 'Terminal Urbano': 10, 'Pinheirinho': 10, 'Jardim Aeroporto': 25 } },
+    { lat: -21.4340, lng: -45.9535, name: 'Praça Dr. Emílio da Silveira', tempoViagem: { 'Terminal Urbano': 12, 'Pinheirinho': 8, 'Jardim Aeroporto': 23 } },
+    { lat: -21.4345, lng: -45.9545, name: 'Rua Alferes Domingos Vieira Silva', tempoViagem: { 'Terminal Urbano': 14, 'Pinheirinho': 6, 'Jardim Aeroporto': 21 } },
+    { lat: -21.4350, lng: -45.9555, name: 'Rua Jaime Santos', tempoViagem: { 'Terminal Urbano': 16, 'Pinheirinho': 4, 'Jardim Aeroporto': 19 } },
+    { lat: -21.4355, lng: -45.9565, name: 'Avenida Prefeito Aristides de Souza', tempoViagem: { 'Terminal Urbano': 18, 'Pinheirinho': 2, 'Jardim Aeroporto': 17 } },
+    { lat: -21.4350, lng: -45.9600, name: 'Pinheirinho (Unifal – Santa Clara)', tempoViagem: { 'Terminal Urbano': 20, 'Avenida Jovino Fernandes Sales': 18, 'Jardim Aeroporto': 15 } },
+    { lat: -21.4360, lng: -45.9575, name: 'Rua Joaquim Bernardes da Silva', tempoViagem: { 'Terminal Urbano': 22, 'Pinheirinho': 5, 'Jardim Aeroporto': 13 } },
+    { lat: -21.4370, lng: -45.9585, name: 'Rua Porcina Pinto de Campos', tempoViagem: { 'Terminal Urbano': 24, 'Pinheirinho': 7, 'Jardim Aeroporto': 11 } },
+    { lat: -21.4380, lng: -45.9595, name: 'Rua Antônio Esteves', tempoViagem: { 'Terminal Urbano': 26, 'Pinheirinho': 9, 'Jardim Aeroporto': 9 } },
+    { lat: -21.4390, lng: -45.9605, name: 'Rua Feliciano Libanio da Silveira', tempoViagem: { 'Terminal Urbano': 28, 'Pinheirinho': 11, 'Jardim Aeroporto': 7 } },
+    { lat: -21.4300, lng: -45.9400, name: 'Jardim Aeroporto', tempoViagem: { 'Terminal Urbano': 35, 'Pinheirinho': 15, 'Praça Dr. Emílio da Silveira': 23 } }
+  ]
+  },
   '010': {
     nome: 'Pôr do Sol / Campus',
     itinerario: ['Terminal Urbano', 'Pôr do Sol', 'Campus Unifenas'],
