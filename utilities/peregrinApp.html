@@ -432,7 +432,7 @@
   <div class="stats-panel" id="statsPanel" style="display: none;">
     <h3><i class="fas fa-chart-line"></i> Estatísticas da Peregrinação</h3>
     <p><i class="fas fa-ruler-combined"></i> Distância: <span id="distancia">0</span> km</p>
-    <p><i class="fas fa-clock"></i> Tempo estimado: <span id="tempo">0</span> min</p>
+    <p><i class="fas fa-clock"></i> Tempo estimado: <span id="tempo">0</span> dias</p>
     <p><i class="fas fa-exclamation-triangle"></i> Alertas: <span id="totalAlertas">0</span></p>
     <p><i class="fas fa-map-marker-alt"></i> Pontos de interesse: <span id="totalPontos">0</span></p>
   </div>
@@ -714,7 +714,7 @@
     routingControl.on('routesfound', function(e) {
       const routes = e.routes;
       const distancia = (routes[0].summary.totalDistance / 1000).toFixed(1);
-      const tempo = Math.round(routes[0].summary.totalTime / 60);
+      const tempo = Math.round(routes[0].summary.totalTime / 60 / 60 / 24);
       
       document.getElementById('distancia').textContent = distancia;
       document.getElementById('tempo').textContent = tempo;
@@ -1049,7 +1049,7 @@
     
     let texto = `🚴‍♂️ *Rota de Peregrinação - PedalPeregrino* 🚴‍♀️\n\n`;
     texto += `📏 *Distância:* ${distancia} km\n`;
-    texto += `⏱️ *Tempo estimado:* ${tempo} min\n\n`;
+    texto += `⏱️ *Tempo estimado:* ${tempo} dias\n\n`;
     
     texto += `📍 *Pontos da Rota:*\n`;
     waypoints.forEach((wp, i) => {
