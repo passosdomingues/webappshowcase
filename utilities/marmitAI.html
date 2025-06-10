@@ -1,0 +1,940 @@
+<!--
+ * --------------------------------------------------------------
+ * Author: Rafael Passos Domingues
+ * Last Update: 2025 June 9
+ * --------------------------------------------------------------
+-->
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MarmitAI</title>
+    <style>
+        :root {
+            --primary-color: #4CAF50;
+            --primary-dark: #388E3C;
+            --primary-light: #C8E6C9;
+            --secondary-color: #FF9800;
+            --background: #f5f5f5;
+            --card-bg: #ffffff;
+            --text-color: #333333;
+            --text-light: #757575;
+            --error-color: #f44336;
+            --success-color: #4CAF50;
+            --border-radius: 8px;
+            --box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s ease;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--background);
+            color: var(--text-color);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 20px 0;
+            background-color: var(--card-bg);
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+        }
+
+        h1 {
+            color: var(--primary-color);
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            color: var(--text-light);
+            font-size: 1.1rem;
+        }
+
+        .app-container {
+            display: grid;
+            grid-template-columns: 300px 1fr;
+            gap: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .app-container {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Sidebar */
+        .sidebar {
+            background-color: var(--card-bg);
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            padding: 20px;
+            height: fit-content;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: var(--text-color);
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: var(--border-radius);
+            font-size: 1rem;
+            transition: var(--transition);
+        }
+
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 2px var(--primary-light);
+        }
+
+        button {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: var(--transition);
+            width: 100%;
+        }
+
+        button:hover {
+            background-color: var(--primary-dark);
+        }
+
+        button.secondary {
+            background-color: var(--secondary-color);
+        }
+
+        button.secondary:hover {
+            opacity: 0.9;
+        }
+
+        /* Main Content */
+        .main-content {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .week-plan {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        .day-card {
+            background-color: var(--card-bg);
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            padding: 15px;
+            transition: var(--transition);
+        }
+
+        .day-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .day-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .day-title {
+            font-weight: 700;
+            color: var(--primary-color);
+            font-size: 1.2rem;
+        }
+
+        .meal {
+            margin-bottom: 15px;
+        }
+
+        .meal-title {
+            font-weight: 600;
+            color: var(--secondary-color);
+            margin-bottom: 5px;
+            display: flex;
+            align-items: center;
+        }
+
+        .meal-title i {
+            margin-right: 8px;
+        }
+
+        .meal-description {
+            font-size: 0.9rem;
+            color: var(--text-light);
+            margin-bottom: 5px;
+        }
+
+        .meal-actions {
+            display: flex;
+            gap: 5px;
+            margin-top: 5px;
+        }
+
+        .meal-actions button {
+            padding: 5px 10px;
+            font-size: 0.8rem;
+        }
+
+        .shopping-list {
+            background-color: var(--card-bg);
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            padding: 20px;
+        }
+
+        .shopping-list h2 {
+            margin-bottom: 15px;
+            color: var(--primary-color);
+        }
+
+        .shopping-list ul {
+            list-style-type: none;
+        }
+
+        .shopping-list li {
+            padding: 8px 0;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .shopping-list li:last-child {
+            border-bottom: none;
+        }
+
+        .shopping-list input[type="checkbox"] {
+            width: auto;
+            margin-right: 10px;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--text-light);
+        }
+
+        .empty-state i {
+            font-size: 3rem;
+            margin-bottom: 15px;
+            color: var(--primary-light);
+        }
+
+        /* Dashboard */
+        .dashboard {
+            background-color: var(--card-bg);
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .dashboard h2 {
+            margin-bottom: 15px;
+            color: var(--primary-color);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .dashboard-card {
+            background-color: var(--primary-light);
+            border-radius: var(--border-radius);
+            padding: 15px;
+            text-align: center;
+        }
+
+        .dashboard-card h3 {
+            color: var(--primary-dark);
+            margin-bottom: 10px;
+        }
+
+        .dashboard-card .value {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+
+        .chart-container {
+            height: 200px;
+            margin-top: 20px;
+            position: relative;
+        }
+
+        /* Share Buttons */
+        .share-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .share-buttons button {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        /* Icons */
+        .icon {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            background-size: contain;
+            background-repeat: no-repeat;
+            vertical-align: middle;
+            margin-right: 5px;
+        }
+
+        /* Utility Classes */
+        .mt-10 { margin-top: 10px; }
+        .mt-20 { margin-top: 20px; }
+        .mb-10 { margin-bottom: 10px; }
+        .mb-20 { margin-bottom: 20px; }
+        .text-center { text-align: center; }
+        .hidden { display: none; }
+
+        /* Toast Notification */
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: var(--primary-color);
+            color: white;
+            padding: 15px 20px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            transform: translateY(100px);
+            opacity: 0;
+            transition: var(--transition);
+            z-index: 1000;
+        }
+
+        .toast.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        .toast.error {
+            background-color: var(--error-color);
+        }
+
+        .toast.success {
+            background-color: var(--success-color);
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1><i class="fas fa-utensils"></i> MarmitAI</h1>
+            <p class="subtitle">Planeje suas refeições da semana de forma prática e saudável</p>
+        </header>
+
+        <div class="app-container">
+            <div class="sidebar">
+                <h2>Adicionar Refeição</h2>
+                <form id="meal-form">
+                    <div class="form-group">
+                        <label for="day">Dia da Semana</label>
+                        <select id="day" required>
+                            <option value="">Selecione um dia</option>
+                            <option value="Segunda">Segunda-feira</option>
+                            <option value="Terça">Terça-feira</option>
+                            <option value="Quarta">Quarta-feira</option>
+                            <option value="Quinta">Quinta-feira</option>
+                            <option value="Sexta">Sexta-feira</option>
+                            <option value="Sábado">Sábado</option>
+                            <option value="Domingo">Domingo</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="meal-type">Tipo de Refeição</label>
+                        <select id="meal-type" required>
+                            <option value="">Selecione o tipo</option>
+                            <option value="Café da manhã">Café da manhã</option>
+                            <option value="Almoço">Almoço</option>
+                            <option value="Lanche">Lanche</option>
+                            <option value="Jantar">Jantar</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="meal-name">Nome da Refeição</label>
+                        <input type="text" id="meal-name" placeholder="Ex: Frango grelhado com arroz integral" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="ingredients">Ingredientes (separados por vírgula)</label>
+                        <textarea id="ingredients" rows="3" placeholder="Ex: frango, arroz integral, brócolis, azeite" required></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="category">Categoria Nutricional</label>
+                        <select id="category" required>
+                            <option value="">Selecione a categoria</option>
+                            <option value="Proteína">Proteína</option>
+                            <option value="Carboidrato">Carboidrato</option>
+                            <option value="Vegetal">Vegetal</option>
+                            <option value="Fruta">Fruta</option>
+                            <option value="Laticínio">Laticínio</option>
+                            <option value="Outro">Outro</option>
+                        </select>
+                    </div>
+
+                    <button type="submit" id="add-meal-btn">Adicionar Refeição</button>
+                </form>
+
+                <div class="mt-20">
+                    <h2>Dicas de Planejamento</h2>
+                    <ul style="list-style-type: none;">
+                        <li><i class="fas fa-check-circle" style="color: var(--primary-color);"></i> Planeje com antecedência</li>
+                        <li><i class="fas fa-check-circle" style="color: var(--primary-color);"></i> Varie os tipos de proteína</li>
+                        <li><i class="fas fa-check-circle" style="color: var(--primary-color);"></i> Inclua vegetais coloridos</li>
+                        <li><i class="fas fa-check-circle" style="color: var(--primary-color);"></i> Prepare porções para vários dias</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="main-content">
+                <div class="dashboard">
+                    <h2>
+                        <i class="fas fa-chart-pie"></i> Análise Nutricional
+                        <button class="secondary" onclick="shareWeeklyPlan()" style="width: auto; padding: 5px 10px;">
+                            <i class="fab fa-whatsapp"></i> Compartilhar
+                        </button>
+                    </h2>
+                    <div class="dashboard-grid">
+                        <div class="dashboard-card">
+                            <h3>Proteínas</h3>
+                            <div class="value" id="protein-count">0</div>
+                            <div>refeições</div>
+                        </div>
+                        <div class="dashboard-card">
+                            <h3>Carboidratos</h3>
+                            <div class="value" id="carbs-count">0</div>
+                            <div>refeições</div>
+                        </div>
+                        <div class="dashboard-card">
+                            <h3>Vegetais</h3>
+                            <div class="value" id="veggies-count">0</div>
+                            <div>refeições</div>
+                        </div>
+                        <div class="dashboard-card">
+                            <h3>Variedade</h3>
+                            <div class="value" id="variety-count">0</div>
+                            <div>categorias</div>
+                        </div>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="nutritionChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="week-plan" id="week-plan">
+                    <div class="day-card">
+                        <div class="day-header">
+                            <span class="day-title">Segunda-feira</span>
+                        </div>
+                        <div class="day-meals" id="segunda-meals"></div>
+                    </div>
+                    <div class="day-card">
+                        <div class="day-header">
+                            <span class="day-title">Terça-feira</span>
+                        </div>
+                        <div class="day-meals" id="terca-meals"></div>
+                    </div>
+                    <div class="day-card">
+                        <div class="day-header">
+                            <span class="day-title">Quarta-feira</span>
+                        </div>
+                        <div class="day-meals" id="quarta-meals"></div>
+                    </div>
+                    <div class="day-card">
+                        <div class="day-header">
+                            <span class="day-title">Quinta-feira</span>
+                        </div>
+                        <div class="day-meals" id="quinta-meals"></div>
+                    </div>
+                    <div class="day-card">
+                        <div class="day-header">
+                            <span class="day-title">Sexta-feira</span>
+                        </div>
+                        <div class="day-meals" id="sexta-meals"></div>
+                    </div>
+                    <div class="day-card">
+                        <div class="day-header">
+                            <span class="day-title">Sábado</span>
+                        </div>
+                        <div class="day-meals" id="sabado-meals"></div>
+                    </div>
+                    <div class="day-card">
+                        <div class="day-header">
+                            <span class="day-title">Domingo</span>
+                        </div>
+                        <div class="day-meals" id="domingo-meals"></div>
+                    </div>
+                </div>
+
+                <div class="shopping-list">
+                    <h2><i class="fas fa-shopping-basket"></i> Lista de Compras</h2>
+                    <div id="shopping-list-empty" class="empty-state">
+                        <i class="fas fa-shopping-basket"></i>
+                        <p>Sua lista de compras aparecerá aqui</p>
+                        <p>Adicione refeições para gerar automaticamente</p>
+                    </div>
+                    <ul id="shopping-list-items"></ul>
+                    <button id="clear-list-btn" class="secondary mt-10 hidden">Limpar Lista</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Elementos do DOM
+            const mealForm = document.getElementById('meal-form');
+            const weekPlan = document.getElementById('week-plan');
+            const shoppingListItems = document.getElementById('shopping-list-items');
+            const clearListBtn = document.getElementById('clear-list-btn');
+            const emptyState = document.getElementById('shopping-list-empty');
+            const toast = document.getElementById('toast');
+            const nutritionChartCtx = document.getElementById('nutritionChart').getContext('2d');
+            
+            // Dados da aplicação
+            let meals = JSON.parse(localStorage.getItem('marmitaMeals')) || [];
+            let shoppingList = JSON.parse(localStorage.getItem('marmitaShoppingList')) || [];
+            let nutritionChart = null;
+
+            // Inicializar a aplicação
+            renderWeekPlan();
+            renderShoppingList();
+            updateDashboard();
+
+            // Event Listeners
+            mealForm.addEventListener('submit', addMeal);
+            clearListBtn.addEventListener('click', clearShoppingList);
+
+            // Função para adicionar refeição
+            function addMeal(e) {
+                e.preventDefault();
+                
+                const day = document.getElementById('day').value;
+                const mealType = document.getElementById('meal-type').value;
+                const mealName = document.getElementById('meal-name').value;
+                const ingredients = document.getElementById('ingredients').value;
+                const category = document.getElementById('category').value;
+                
+                if (!day || !mealType || !mealName || !ingredients || !category) {
+                    showToast('Por favor, preencha todos os campos', 'error');
+                    return;
+                }
+                
+                const newMeal = {
+                    id: Date.now(),
+                    day,
+                    mealType,
+                    mealName,
+                    ingredients: ingredients.split(',').map(item => item.trim()),
+                    category
+                };
+                
+                meals.push(newMeal);
+                saveMeals();
+                
+                // Adicionar ingredientes à lista de compras
+                addIngredientsToShoppingList(newMeal.ingredients);
+                
+                // Renderizar novamente
+                renderWeekPlan();
+                renderShoppingList();
+                updateDashboard();
+                
+                // Limpar formulário
+                mealForm.reset();
+                
+                showToast('Refeição adicionada com sucesso!', 'success');
+            }
+            
+            // Função para renderizar o planejamento semanal
+            function renderWeekPlan() {
+                // Limpar todas as refeições
+                document.querySelectorAll('.day-meals').forEach(el => el.innerHTML = '');
+                
+                if (meals.length === 0) return;
+                
+                meals.forEach(meal => {
+                    const dayElement = document.getElementById(`${meal.day.toLowerCase()}-meals`);
+                    if (dayElement) {
+                        const mealElement = document.createElement('div');
+                        mealElement.className = 'meal';
+                        mealElement.innerHTML = `
+                            <div class="meal-title">
+                                <i class="fas ${getMealIcon(meal.mealType)}"></i>
+                                ${meal.mealType}: ${meal.mealName}
+                                <span style="font-size: 0.8rem; color: var(--text-light); margin-left: 8px;">
+                                    (${meal.category})
+                                </span>
+                            </div>
+                            <div class="meal-description">
+                                <strong>Ingredientes:</strong> ${meal.ingredients.join(', ')}
+                            </div>
+                            <div class="meal-actions">
+                                <button class="secondary" onclick="editMeal(${meal.id})">
+                                    <i class="fas fa-edit"></i> Editar
+                                </button>
+                                <button onclick="deleteMeal(${meal.id})">
+                                    <i class="fas fa-trash"></i> Remover
+                                </button>
+                            </div>
+                        `;
+                        dayElement.appendChild(mealElement);
+                    }
+                });
+            }
+            
+            // Função para renderizar a lista de compras
+            function renderShoppingList() {
+                shoppingListItems.innerHTML = '';
+                
+                if (shoppingList.length === 0) {
+                    emptyState.classList.remove('hidden');
+                    clearListBtn.classList.add('hidden');
+                    return;
+                }
+                
+                emptyState.classList.add('hidden');
+                clearListBtn.classList.remove('hidden');
+                
+                // Agrupar itens iguais
+                const groupedItems = shoppingList.reduce((acc, item) => {
+                    const existingItem = acc.find(i => i.name === item.name);
+                    if (existingItem) {
+                        existingItem.count++;
+                    } else {
+                        acc.push({...item, count: 1});
+                    }
+                    return acc;
+                }, []);
+                
+                // Ordenar alfabeticamente
+                groupedItems.sort((a, b) => a.name.localeCompare(b.name));
+                
+                // Renderizar itens
+                groupedItems.forEach(item => {
+                    const li = document.createElement('li');
+                    li.innerHTML = `
+                        <div>
+                            <input type="checkbox" id="item-${item.name}" ${item.checked ? 'checked' : ''} 
+                                   onchange="toggleShoppingItem('${item.name}')">
+                            <label for="item-${item.name}" style="${item.checked ? 'text-decoration: line-through; color: var(--text-light)' : ''}">
+                                ${item.name} ${item.count > 1 ? `(${item.count})` : ''}
+                            </label>
+                        </div>
+                        <button onclick="removeShoppingItem('${item.name}')" style="padding: 2px 8px; font-size: 0.8rem;">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    `;
+                    shoppingListItems.appendChild(li);
+                });
+            }
+            
+            // Função para atualizar o dashboard nutricional
+            function updateDashboard() {
+                const categories = {
+                    'Proteína': 0,
+                    'Carboidrato': 0,
+                    'Vegetal': 0,
+                    'Fruta': 0,
+                    'Laticínio': 0,
+                    'Outro': 0
+                };
+                
+                // Contar refeições por categoria
+                meals.forEach(meal => {
+                    if (categories.hasOwnProperty(meal.category)) {
+                        categories[meal.category]++;
+                    }
+                });
+                
+                // Atualizar contadores
+                document.getElementById('protein-count').textContent = categories['Proteína'];
+                document.getElementById('carbs-count').textContent = categories['Carboidrato'];
+                document.getElementById('veggies-count').textContent = categories['Vegetal'];
+                
+                // Calcular variedade (quantas categorias diferentes foram usadas)
+                const variety = Object.values(categories).filter(count => count > 0).length;
+                document.getElementById('variety-count').textContent = variety;
+                
+                // Atualizar gráfico
+                updateNutritionChart(categories);
+            }
+            
+            // Função para atualizar o gráfico nutricional
+            function updateNutritionChart(categories) {
+                const labels = Object.keys(categories);
+                const data = Object.values(categories);
+                const backgroundColors = [
+                    '#FF6384', // Proteína
+                    '#36A2EB', // Carboidrato
+                    '#4BC0C0', // Vegetal
+                    '#FFCE56', // Fruta
+                    '#9966FF', // Laticínio
+                    '#FF9F40'  // Outro
+                ];
+                
+                if (nutritionChart) {
+                    nutritionChart.data.labels = labels;
+                    nutritionChart.data.datasets[0].data = data;
+                    nutritionChart.update();
+                } else {
+                    nutritionChart = new Chart(nutritionChartCtx, {
+                        type: 'doughnut',
+                        data: {
+                            labels: labels,
+                            datasets: [{
+                                data: data,
+                                backgroundColor: backgroundColors,
+                                borderWidth: 1
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                legend: {
+                                    position: 'bottom'
+                                }
+                            }
+                        }
+                    });
+                }
+            }
+            
+            // Função para adicionar ingredientes à lista de compras
+            function addIngredientsToShoppingList(ingredients) {
+                ingredients.forEach(ingredient => {
+                    const existingItem = shoppingList.find(item => item.name.toLowerCase() === ingredient.toLowerCase());
+                    if (!existingItem) {
+                        shoppingList.push({
+                            name: ingredient,
+                            checked: false
+                        });
+                    }
+                });
+                saveShoppingList();
+            }
+            
+            // Função para limpar a lista de compras
+            function clearShoppingList() {
+                if (confirm('Tem certeza que deseja limpar toda a lista de compras?')) {
+                    shoppingList = [];
+                    saveShoppingList();
+                    renderShoppingList();
+                    showToast('Lista de compras limpa', 'success');
+                }
+            }
+            
+            // Funções de persistência
+            function saveMeals() {
+                localStorage.setItem('marmitaMeals', JSON.stringify(meals));
+            }
+            
+            function saveShoppingList() {
+                localStorage.setItem('marmitaShoppingList', JSON.stringify(shoppingList));
+            }
+            
+            // Função auxiliar para obter ícone do tipo de refeição
+            function getMealIcon(mealType) {
+                switch(mealType) {
+                    case 'Café da manhã': return 'fa-coffee';
+                    case 'Almoço': return 'fa-utensils';
+                    case 'Jantar': return 'fa-moon';
+                    case 'Lanche': return 'fa-apple-alt';
+                    default: return 'fa-utensils';
+                }
+            }
+            
+            // Função para mostrar notificação
+            function showToast(message, type = 'success') {
+                toast.textContent = message;
+                toast.className = 'toast';
+                toast.classList.add(type, 'show');
+                
+                setTimeout(() => {
+                    toast.classList.remove('show');
+                }, 3000);
+            }
+            
+            // Função para compartilhar via WhatsApp
+            window.shareWeeklyPlan = function() {
+                if (meals.length === 0) {
+                    showToast('Adicione refeições para compartilhar', 'error');
+                    return;
+                }
+                
+                // Agrupar refeições por dia
+                const mealsByDay = {
+                    'Segunda': [],
+                    'Terça': [],
+                    'Quarta': [],
+                    'Quinta': [],
+                    'Sexta': [],
+                    'Sábado': [],
+                    'Domingo': []
+                };
+                
+                meals.forEach(meal => {
+                    if (mealsByDay[meal.day]) {
+                        mealsByDay[meal.day].push(meal);
+                    }
+                });
+                
+                // Construir mensagem
+                let message = '📅 *Planejamento Semanal de Marmitas* 📅\n\n';
+                
+                Object.entries(mealsByDay).forEach(([day, dayMeals]) => {
+                    if (dayMeals.length > 0) {
+                        message += `*${day}*\n`;
+                        
+                        dayMeals.forEach(meal => {
+                            message += `- ${meal.mealType}: ${meal.mealName} (${meal.category})\n`;
+                        });
+                        
+                        message += '\n';
+                    }
+                });
+                
+                // Adicionar lista de compras se existir
+                if (shoppingList.length > 0) {
+                    message += '\n🛒 *Lista de Compras*\n';
+                    
+                    // Agrupar itens iguais
+                    const groupedItems = shoppingList.reduce((acc, item) => {
+                        const existingItem = acc.find(i => i.name === item.name);
+                        if (existingItem) {
+                            existingItem.count++;
+                        } else {
+                            acc.push({...item, count: 1});
+                        }
+                        return acc;
+                    }, []);
+                    
+                    groupedItems.forEach(item => {
+                        message += `- ${item.name}${item.count > 1 ? ` (${item.count})` : ''}\n`;
+                    });
+                }
+                
+                message += '\nPlanejado com Marmita Semanal 🍽️';
+                
+                // Codificar para URL
+                const encodedMessage = encodeURIComponent(message);
+                const whatsappUrl = `https://wa.me/?text=${encodedMessage}`;
+                
+                // Abrir em nova aba
+                window.open(whatsappUrl, '_blank');
+            };
+            
+            // Expor funções para o escopo global
+            window.editMeal = function(id) {
+                const meal = meals.find(m => m.id === id);
+                if (meal) {
+                    document.getElementById('day').value = meal.day;
+                    document.getElementById('meal-type').value = meal.mealType;
+                    document.getElementById('meal-name').value = meal.mealName;
+                    document.getElementById('ingredients').value = meal.ingredients.join(', ');
+                    document.getElementById('category').value = meal.category;
+                    
+                    // Remover a refeição antiga
+                    meals = meals.filter(m => m.id !== id);
+                    saveMeals();
+                    renderWeekPlan();
+                    updateDashboard();
+                    
+                    // Rolagem suave para o formulário
+                    document.querySelector('.sidebar').scrollIntoView({ behavior: 'smooth' });
+                    document.getElementById('meal-name').focus();
+                    
+                    showToast('Edite a refeição e clique em Adicionar', 'success');
+                }
+            };
+            
+            window.deleteMeal = function(id) {
+                if (confirm('Tem certeza que deseja remover esta refeição?')) {
+                    meals = meals.filter(m => m.id !== id);
+                    saveMeals();
+                    renderWeekPlan();
+                    updateDashboard();
+                    showToast('Refeição removida', 'success');
+                }
+            };
+            
+            window.toggleShoppingItem = function(name) {
+                shoppingList.forEach(item => {
+                    if (item.name === name) {
+                        item.checked = !item.checked;
+                    }
+                });
+                saveShoppingList();
+                renderShoppingList();
+            };
+            
+            window.removeShoppingItem = function(name) {
+                shoppingList = shoppingList.filter(item => item.name !== name);
+                saveShoppingList();
+                renderShoppingList();
+                showToast('Item removido da lista', 'success');
+            };
+        });
+    </script>
+</body>
+</html>
