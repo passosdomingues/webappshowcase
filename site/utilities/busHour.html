@@ -550,7 +550,7 @@
 <header>
   <div class="header-content">
     <h1><i class="fas fa-bus"></i> BusAI</h1>
-    <p>Que horas passa o próximo Ônibus?</p>
+    <p>(Alfenas-MG)<br> Que horas passa o próximo Ônibus? <br> [Obs: Itinerários e horários podem variar.]</p>
     
     <nav id="linesNav">
       <button id="btn-location" onclick="getUserLocation()">
@@ -594,34 +594,22 @@
         </div>
       </div>
     </div>
+
+    <h2><i class="fas fa-location-arrow"></i> Onde Estou?</h2>
     
     <div class="address-info">
       <div><i class="fas fa-road"></i> <span id="addressStreet">Rua: --</span></div>
       <div><i class="fas fa-map-marker-alt"></i> <span id="addressNeighborhood">Bairro: --</span></div>
       <div><i class="fas fa-envelope"></i> <span id="addressCEP">CEP: --</span></div>
     </div>
-    
-    <h2><i class="fas fa-list-alt"></i> Horários de Partida</h2>
+
     <ul id="schedule-list"></ul>
-    
-    <div class="search-container">
-      <input type="text" id="addressInput" placeholder="Digite seu endereço em Alfenas">
-      <button id="btn-search" onclick="searchByAddress()">
-        <i class="fas fa-search"></i> Buscar
-      </button>
-    </div>
     
     <div id="locationStatus">
       <i class="fas fa-info-circle"></i> Clique em "Minha Localização" para começar
     </div>
     
     <div class="location-actions">
-      <button id="btn-confirm" class="btn-confirm" onclick="confirmLocation()" disabled>
-        <i class="fas fa-check-circle"></i> Confirmar Localização
-      </button>
-      <button id="btn-adjust" class="btn-alert" onclick="enablePositionAdjustment()" disabled>
-        <i class="fas fa-arrows-alt"></i> Ajustar Posição
-      </button>
     </div>
   </section>
 </main>
@@ -639,106 +627,253 @@
   // Estruturados com base nos horários reais do site https://alfetur.com.br/horarios/
 
   const busLines = {
-    '001': {
-      nome: 'Jardim Alvorada / Campus',
-      itinerario: ['Terminal Urbano', 'Jardim Alvorada', 'Campus Unifenas'],
-      horarios: {
-        dias_uteis: ['6:15', '7:15', '8:15', '9:15', '10:15', '11:15', '12:15', '13:15', '14:15', '15:15', '16:15', '17:15', '18:15', '19:15', '20:15', '21:15', '22:15', '23:00'],
-        sabado: ['6:15', '7:15', '8:15', '9:15', '10:15', '11:15', '12:15', '13:15', '14:15', '15:15', '16:15', '17:15', '18:15', '19:15', '20:15', '21:15', '22:15'],
-        domingo: ['7:15', '9:15', '11:15', '13:15', '15:15', '17:15', '19:15', '21:15'],
-        feriado: ['7:15', '9:15', '11:15', '13:15', '15:15', '17:15', '19:15', '21:15']
-      },
-      cor: '#1e88e5',
-      paradas: [
-        { lat: -21.4289, lng: -45.9472, name: "Terminal Urbano", tempoViagem: { "Jardim Alvorada": 15, "Campus Unifenas": 25 } },
-        { lat: -21.4320, lng: -45.9520, name: "Av. Governador Valadares", tempoViagem: { "Terminal Urbano": 5, "Campus Unifenas": 20 } },
-        { lat: -21.4350, lng: -45.9580, name: "Jardim Alvorada", tempoViagem: { "Terminal Urbano": 15, "Campus Unifenas": 10 } },
-        { lat: -21.4200, lng: -45.9300, name: "Campus Unifenas", tempoViagem: { "Terminal Urbano": 25, "Jardim Alvorada": 10 } }
+    "001": {
+    "nome": "Jardim Alvorada / Campus",
+    "itinerario": [
+      "Terminal rodovi\u00e1rio", "Campus Unifenas",
+      "Avenida Jos\u00e9 Paulino da Costa", "Rua Presidente Artur Bernardes",
+      "Pra\u00e7a Dr. Em\u00edlio da Silveira", "Pra\u00e7a Fausto Monteiro",
+      "Rua Le\u00e3o de Faria", "Rua Gabriel Monteiro da Silva",
+      "Avenida Henrique Munhoz Ramos", "Rua Jos\u00e9 Munhoz Gago",
+      "Rua S\u00e3o Miguel", "Rua \u00c2ngelo Munhoz Leite",
+      "Rua Avelino Batista de Andrade", "Rua Carvalho",
+      "Rua Norte", "Avenida Jovino Fernandes Sales",
+      "Rua Em\u00edlia Pereira Esteves", "Rua Jo\u00e3o Pinheiro",
+      "Rua Dom Silv\u00e9rio", "Rua Marcial Junior",
+      "Rua Coronel Pedro Corr\u00eaa", "Pra\u00e7a Melvin Jones"
+    ],
+    "horarios": {
+      "dias_uteis": [
+        "06:10", "06:15", "06:30", "06:45", "07:05", "07:15", "07:30", "07:45",
+        "08:15", "08:30", "08:45", "09:05", "09:15", "09:30", "09:45", "10:05",
+        "10:15", "10:30", "10:45", "11:05", "11:15", "11:30", "11:45", "12:05",
+        "12:10", "12:15", "12:30", "12:45", "13:05", "13:15", "13:30", "13:45",
+        "14:05", "14:15", "14:30", "14:45", "15:05", "15:15", "15:30", "15:45",
+        "16:05", "16:15", "16:30", "16:45", "17:05", "17:15", "17:30", "17:45",
+        "18:05", "18:15", "18:30", "18:45", "19:05", "19:15", "19:30", "19:45",
+        "20:05", "20:15", "20:30", "20:45", "21:05", "21:15", "21:30", "21:45",
+        "22:05", "22:15", "22:30", "22:40", "22:50", "23:00"
+      ],
+      "sabado": [
+        "06:15", "07:15", "08:15", "09:15", "10:15", "11:15", "12:15", "13:15",
+        "14:15", "15:15", "16:15", "17:15", "18:15", "19:15", "20:15", "21:15",
+        "22:15", "23:00"
+      ],
+      "domingo": [
+        "06:15", "07:15", "08:15", "09:15", "10:15", "11:15", "12:15", "13:15",
+        "14:15", "15:15", "16:15", "17:15", "18:15", "19:15", "20:15", "21:15",
+        "22:15"
+      ],
+      "feriado": [
+        "06:15", "07:15", "08:15", "10:15", "11:15", "12:15", "13:15", "15:15",
+        "16:15", "17:15", "18:15"
       ]
     },
-    '002': {
-      nome: 'Pinheirinho / Vila Formosa',
-      itinerario: ['Terminal Urbano', 'Pinheirinho', 'Vila Formosa', 'Campus'],
-      horarios: {
-        dias_uteis: ['4:50', '5:15', '6:15', '7:15', '8:15', '9:15', '10:15', '11:15', '12:15', '13:15', '14:15', '15:15', '16:15', '17:15', '18:15', '19:15', '21:15', '22:15'],
-        sabado: ['5:15', '6:15', '7:15', '8:15', '9:15', '10:15', '11:15', '12:15', '13:15', '14:15', '15:15', '16:15', '17:15', '18:15', '19:15'],
-        domingo: ['6:15', '8:15', '10:15', '12:15', '14:15', '16:15', '18:15'],
-        feriado: ['6:15', '8:15', '10:15', '12:15', '14:15', '16:15', '18:15']
-      },
-      cor: '#43a047',
-      paradas: [
-        { lat: -21.4289, lng: -45.9472, name: "Terminal Urbano", tempoViagem: { "Pinheirinho": 20, "Vila Formosa": 30, "Campus": 35 } },
-        { lat: -21.4350, lng: -45.9600, name: "Centro Comercial", tempoViagem: { "Terminal Urbano": 8, "Vila Formosa": 22, "Campus": 27 } },
-        { lat: -21.4400, lng: -45.9700, name: "Pinheirinho", tempoViagem: { "Terminal Urbano": 20, "Vila Formosa": 10, "Campus": 15 } },
-        { lat: -21.4450, lng: -45.9750, name: "Vila Formosa", tempoViagem: { "Terminal Urbano": 30, "Pinheirinho": 10, "Campus": 5 } },
-        { lat: -21.4200, lng: -45.9300, name: "Campus Unifenas", tempoViagem: { "Terminal Urbano": 35, "Pinheirinho": 15, "Vila Formosa": 5 } }
+    "cor": "#e6194b",
+    "paradas": [
+      { "lat": -21.4330, "lng": -45.9590, "name": "Terminal rodovi\u00e1rio", "tempoViagem": { "Campus Unifenas": 5, "Pra\u00e7a Dr. Em\u00edlio da Silveira": 7 } },
+      { "lat": -21.4200, "lng": -45.9300, "name": "Campus Unifenas", "tempoViagem": { "Terminal rodovi\u00e1rio": 5, "Pra\u00e7a Fausto Monteiro": 6 } },
+      { "lat": -21.4290, "lng": -45.9480, "name": "Pra\u00e7a Dr. Em\u00edlio da Silveira", "tempoViagem": { "Pra\u00e7a Fausto Monteiro": 2, "Avenida Jovino Fernandes Sales": 4 } },
+      { "lat": -21.4300, "lng": -45.9470, "name": "Pra\u00e7a Fausto Monteiro", "tempoViagem": { "Pra\u00e7a Dr. Em\u00edlio da Silveira": 2, "Rua Le\u00e3o de Faria": 3 } },
+      { "lat": -21.4310, "lng": -45.9460, "name": "Rua Le\u00e3o de Faria", "tempoViagem": { "Rua Gabriel Monteiro da Silva": 3, "Pra\u00e7a Fausto Monteiro": 3 } },
+      { "lat": -21.4320, "lng": -45.9465, "name": "Rua Gabriel Monteiro da Silva", "tempoViagem": { "Rua \u00c2ngelo Munhoz Leite": 4, "Rua Le\u00e3o de Faria": 3 } },
+      { "lat": -21.4285, "lng": -45.9460, "name": "Pra\u00e7a Melvin Jones", "tempoViagem": { "Rua Jos\u00e9 Munhoz Gago": 5 } }
+    ]
+    },
+    "002": {
+    "nome": "Pinheirinho / Vila Formosa",
+    "itinerario": [
+      "Avenida Jo\u00e3o Janu\u00e1rio de Magalh\u00e3es", "Avenida Jovino Fernandes Sales",
+      "Rua Padre Rolim", "Rua Dom Silv\u00e9rio", "Rua Marcial J\u00fanior",
+      "Pra\u00e7a Fausto Monteiro", "Pra\u00e7a Dr. Em\u00edlio da Silveira",
+      "Rua Alferes Domingos Vieira Silva", "Avenida Lincoln Westin da Silveira",
+      "Rua General Costa Campos", "Rua Ven\u00e2ncio Franco de Carvalho",
+      "Rua Gabriel Moura Leite", "Rua dos Tupinamb\u00e1s", "Avenida Jos\u00e9 Paulino da Costa",
+      "Campus Unifenas", "Terminal rodovi\u00e1rio", "Rua Padre Jo\u00e3o Batista",
+      "Rua Professor Carvalho J\u00fanior", "Rua Coronel Pedro Corr\u00eaa",
+      "Rua Juscelino Barbosa", "Rua Padre Corn\u00e9lio Hans",
+      "Avenida Paulo de Avila Salles", "Avenida Ant\u00f4nio Ivo de Carvalho"
+    ],
+    "horarios": {
+      "dias_uteis": [
+        "04:50","05:00","05:15","05:30","06:15","06:30","07:15","07:30","08:15","08:30",
+        "09:15","09:30","10:15","10:30","11:15","12:15","12:30","13:15","14:15","14:30",
+        "15:15","15:30","16:15","16:30","17:15","17:30","18:15","18:30","19:15","19:30",
+        "21:15","21:30","22:05","22:30"
+      ],
+      "sabado": [
+        "04:50","05:00","05:15","05:30","06:15","06:30","07:15","07:30","08:15","08:30",
+        "09:15","09:30","10:15","10:30","11:15","12:15","12:30","13:15","14:15","14:30",
+        "15:15","15:30","16:15","16:30","17:15","17:30","18:15","18:30","19:15"
+      ],
+      "domingo": [
+        "04:50","05:00","05:15","05:30","06:15","06:30","07:15","07:30","08:15","08:30",
+        "09:15","09:30","10:15","10:30","11:15","12:15","12:30","13:15","14:15","14:30","15:15"
+      ],
+      "feriado": [
+        "04:50","05:00","05:15","05:30","06:15","06:30","07:15","07:30","08:15","08:30",
+        "09:15","11:15","11:30","12:15","12:30","13:15","16:15","16:30","17:15","17:30","18:15"
       ]
     },
-    '003': {
-      nome: 'Jardim Vista Grande / Campus',
-      itinerario: ['Terminal Urbano', 'Vista Grande', 'Campus'],
-      horarios: {
-        dias_uteis: ['5:15', '5:45', '6:15', '7:15', '8:15', '9:15', '10:15', '11:15', '12:15', '13:15', '14:15', '15:15', '16:15', '17:15', '18:15', '19:30', '20:15', '21:15', '22:15'],
-        sabado: ['6:15', '7:15', '8:15', '9:15', '10:15', '11:15', '12:15', '13:15', '14:15', '15:15', '16:15', '17:15', '18:15', '20:15', '21:15'],
-        domingo: ['7:15', '9:15', '11:15', '13:15', '15:15', '17:15', '19:15'],
-        feriado: ['7:15', '9:15', '11:15', '13:15', '15:15', '17:15', '19:15']
-      },
-      cor: '#8e24aa',
-      paradas: [
-        { lat: -21.4289, lng: -45.9472, name: "Terminal Urbano", tempoViagem: { "Vista Grande": 18, "Campus": 28 } },
-        { lat: -21.4250, lng: -45.9400, name: "Rua das Flores", tempoViagem: { "Terminal Urbano": 6, "Campus": 22 } },
-        { lat: -21.4220, lng: -45.9350, name: "Jardim Vista Grande", tempoViagem: { "Terminal Urbano": 18, "Campus": 10 } },
-        { lat: -21.4200, lng: -45.9300, name: "Campus Unifenas", tempoViagem: { "Terminal Urbano": 28, "Vista Grande": 10 } }
+    "cor": "#3cb44b",
+    "paradas": [
+      { "lat": -21.4340, "lng": -45.9500, "name": "Terminal rodovi\u00e1rio", "tempoViagem": { "Campus Unifenas": 5, "Avenida Jos\u00e9 Paulino da Costa": 4 } },
+      { "lat": -21.4200, "lng": -45.9305, "name": "Campus Unifenas", "tempoViagem": { "Terminal rodovi\u00e1rio": 5, "Rua Geraldo de Campos": 4 } },
+      { "lat": -21.4260, "lng": -45.9480, "name": "Pra\u00e7a Dr. Em\u00edlio da Silveira", "tempoViagem": { "Pra\u00e7a Fausto Monteiro": 2, "Rua Coronel Pedro Corr\u00eaa": 5 } },
+      { "lat": -21.4255, "lng": -45.9475, "name": "Pra\u00e7a Fausto Monteiro", "tempoViagem": { "Rua Marcial J\u00fanior": 3, "Pra\u00e7a Dr. Em\u00edlio da Silveira": 2 } },
+      { "lat": -21.4270, "lng": -45.9490, "name": "Rua Coronel Pedro Corr\u00eaa", "tempoViagem": { "Pra\u00e7a Melvin Jones": 4, "Avenida Jos\u00e9 Paulino da Costa": 4 } }
+    ]
+  },
+  "003": {
+    "nome": "Jardim Vista Grande / Campus",
+    "itinerario": [
+      "Rua Thiago Barbosa Paes","Rua Jos\u00e9 Resck","Rua Joaquim Francisco de Oliveira",
+      "Avenida Olavo Bilaque","Avenida Governador Valadares","Pra\u00e7a Dr. Em\u00edilio da Silveira",
+      "Rua Alferes Domingos Vieira e Silva","Avenida S\u00e3o Jos\u00e9","Rua Gabriel Moura Leite",
+      "Rua Francisco Mariano","Rua Am\u00e9rico Totti","Avenida Jos\u00e9 Paulino da Costa",
+      "Campus Unifenas","Terminal rodovi\u00e1rio","Rua Presidente Artur Bernardes"
+    ],
+    "horarios": {
+      "dias_uteis": [
+        "05:15","05:30","06:15","06:35","07:15","07:35","08:15","08:35","09:15","09:35",
+        "10:15","10:35","11:15","11:35","12:15","12:35","13:15","13:35","14:15","14:35",
+        "15:15","15:35","16:15","16:35","17:15","17:35","18:15","18:35","20:30","21:30"
+      ],
+      "sabado": [
+        "05:15","05:30","06:15","06:35","07:15","07:35","08:15","08:35","09:15","09:35",
+        "10:15","10:35","11:15","11:35","12:15","12:35","13:15","13:35","14:15","14:35",
+        "15:15","15:35","16:15","16:35","17:15","18:35"
+      ],
+      "domingo": [
+        "05:15","05:30","06:15","06:35","07:15","07:35","08:15","08:35","09:15","09:35",
+        "10:15","10:35","11:15","11:35","12:15","12:35","13:15","13:35","14:15","16:15",
+        "16:35","17:15","17:35","18:15","20:30","21:30"
+      ],
+      "feriado": [
+        "05:15","05:30","06:15","06:35","07:15","07:35","08:15","08:35","10:15","10:35",
+        "11:15","11:35","12:15","12:35","13:15","15:15","15:35","16:15","16:35","17:15",
+        "17:35","18:15"
       ]
     },
-    '004': {
-      nome: 'Morada do Sol / Campus',
-      itinerario: ['Terminal Urbano', 'Morada do Sol', 'Distrito Industrial', 'Campus'],
-      horarios: {
-        dias_uteis: ['5:50', '6:50', '7:50', '8:50', '9:50', '10:50', '11:50', '12:50', '13:50', '14:50', '15:50', '16:50', '17:50', '18:50', '19:50', '21:50'],
-        sabado: ['6:50', '7:50', '8:50', '9:50', '10:50', '11:50', '12:50', '13:50', '14:50', '15:50', '16:50', '17:50', '18:50', '19:50'],
-        domingo: ['8:50', '10:50', '12:50', '14:50', '16:50', '18:50'],
-        feriado: ['8:50', '10:50', '12:50', '14:50', '16:50', '18:50']
-      },
-      cor: '#ff5722',
-      paradas: [
-        { lat: -21.4289, lng: -45.9472, name: "Terminal Urbano", tempoViagem: { "Morada do Sol": 25, "Distrito Industrial": 35, "Campus": 30 } },
-        { lat: -21.4100, lng: -45.9200, name: "Morada do Sol", tempoViagem: { "Terminal Urbano": 25, "Distrito Industrial": 10, "Campus": 20 } },
-        { lat: -21.4050, lng: -45.9100, name: "Distrito Industrial", tempoViagem: { "Terminal Urbano": 35, "Morada do Sol": 10, "Campus": 25 } },
-        { lat: -21.4200, lng: -45.9300, name: "Campus Unifenas", tempoViagem: { "Terminal Urbano": 30, "Morada do Sol": 20, "Distrito Industrial": 25 } }
+    "cor": "#ffe119",
+    "paradas": [
+      { "lat": -21.4355, "lng": -45.9490, "name": "Terminal rodovi\u00e1rio", "tempoViagem": { "Campus Unifenas": 6, "Pra\u00e7a Dr. Em\u00edlio da Silveira": 5 } },
+      { "lat": -21.4220, "lng": -45.9310, "name": "Campus Unifenas", "tempoViagem": { "Terminal rodovi\u00e1rio": 6, "Rua Thiago Barbosa Paes": 4 } },
+      { "lat": -21.4320, "lng": -45.9470, "name": "Pra\u00e7a Dr. Em\u00edlio da Silveira", "tempoViagem": { "Pra\u00e7a Fausto Monteiro": 2, "Rua Presidente Artur Bernardes": 3 } },
+      { "lat": -21.4320, "lng": -45.9485, "name": "Pra\u00e7a Fausto Monteiro", "tempoViagem": { "Rua Dom Silv\u00e9rio": 3, "Pra\u00e7a Dr. Em\u00edlio da Silveira": 2 } }
+    ]
+  },
+  "004": {
+    "nome": "Morada do Sol / Campus",
+    "itinerario": [
+      "Terminal rodovi\u00e1rio","Campus Unifenas","Avenida Jos\u00e9 Paulino da Costa",
+      "Rua Presidente Artur Bernardes","Pra\u00e7a Dr. Em\u00edlio da Silveira","Pra\u00e7a Fausto Monteiro",
+      "Rua Jo\u00e3o Pinheiro","Rua Dom Silv\u00e9rio","Avenida Henrique Munhoz Garcia",
+      "Avenida Alberto Vieira Rom\u00e3o","Rua Nicolau Para\u00edso","Rua Jo\u00e3o Ferraz",
+      "Rua Francisco Navarro Prado","Rua Jos\u00e9 da Silva Gomes","Rua Valda Tiso Veiga",
+      "Rua Jos\u00e9 Martins Azevedo","Rua Alaor da Fonseca","Rua Jo\u00e3o de Souza Sobrinho",
+      "Rua Henrique Carivaldo de Miranda","Rua da Amizade","Rua Manoel Jacinto Pereira",
+      "Rua da Saudade","Rua Marciel Junior","Rua Coronel Pedro Corr\u00eaa",
+      "Pra\u00e7a Melvin Jones"
+    ],
+    "horarios": {
+      "dias_uteis": [
+        "05:50","06:00","06:30","07:00","07:20","07:50","08:00","08:20","09:00","09:20",
+        "10:00","10:20","11:00","11:20","12:00","12:20","13:00","13:20","14:00","14:20",
+        "15:00","15:20","16:00","16:20","17:00","17:20","18:00","18:20","19:00","21:50",
+        "22:30","22:40"
+      ],
+      "sabado": [
+        "05:50","06:00","06:30","07:00","07:20","07:50","08:00","08:20","09:00","09:20",
+        "10:00","10:20","11:00","11:20","12:00","12:20","13:00","13:20","14:00","14:20",
+        "15:00","15:20","16:00","16:20","17:00","17:20","18:00","18:20","19:00","21:50",
+        "22:30","22:40"
+      ],
+      "domingo": [
+        "05:50","06:00","06:30","07:00","07:20","07:50","08:00","08:20","09:00","09:20",
+        "10:00","10:20","11:00","11:20","12:00","12:20","13:00","14:00","16:00","16:20",
+        "17:00","17:20","18:00","18:20"
+      ],
+      "feriado": [
+        "05:50","06:00","06:30","07:00","07:20","07:50","08:00","09:00","11:00","11:20",
+        "12:00","12:20","13:00","14:00","16:00","16:20","17:00","17:20","18:00","18:20"
       ]
     },
-    '005': {
-      nome: 'Santa Luzia / Imesa',
-      itinerario: ['Terminal Urbano', 'Imesa', 'Santa Luzia'],
-      horarios: {
-        dias_uteis: ['5:45', '6:45', '7:45', '8:45', '9:45', '10:45', '11:45', '12:45', '13:45', '14:45', '15:45', '16:45', '17:45', '18:45', '21:45'],
-        sabado: ['6:45', '7:45', '8:45', '9:45', '10:45', '11:45', '12:45', '13:45', '14:45', '15:45', '16:45', '17:45', '18:45'],
-        domingo: ['8:45', '10:45', '12:45', '14:45', '16:45', '18:45'],
-        feriado: ['8:45', '10:45', '12:45', '14:45', '16:45', '18:45']
-      },
-      cor: '#9c27b0',
-      paradas: [
-        { lat: -21.4289, lng: -45.9472, name: "Terminal Urbano", tempoViagem: { "Imesa": 22, "Santa Luzia": 18 } },
-        { lat: -21.4400, lng: -45.9600, name: "Imesa", tempoViagem: { "Terminal Urbano": 22, "Santa Luzia": 12 } },
-        { lat: -21.4350, lng: -45.9550, name: "Santa Luzia", tempoViagem: { "Terminal Urbano": 18, "Imesa": 12 } }
+    "cor": "#4363d8",
+    "paradas": [
+      { "lat": -21.4340, "lng": -45.9590, "name": "Terminal rodovi\u00e1rio", "tempoViagem": { "Campus Unifenas": 5, "Pra\u00e7a Dr. Em\u00edlio da Silveira": 6 } },
+      { "lat": -21.4200, "lng": -45.9310, "name": "Campus Unifenas", "tempoViagem": { "Terminal rodovi\u00e1rio": 5, "Pra\u00e7a Fausto Monteiro": 5 } },
+      { "lat": -21.4320, "lng": -45.9450, "name": "Pra\u00e7a Dr. Em\u00edlio da Silveira", "tempoViagem": { "Pra\u00e7a Fausto Monteiro": 2, "Rua Dom Silv\u00e9rio": 4 } },
+      { "lat": -21.4325, "lng": -45.9470, "name": "Pra\u00e7a Fausto Monteiro", "tempoViagem": { "Rua Marciel Junior": 3, "Pra\u00e7a Dr. Em\u00edlio da Silveira": 2 } }
+    ]
+  },
+  "005": {
+    "nome": "Santa Luzia / Imesa",
+    "itinerario": [
+      "Rua Maria Jos\u00e9 de Carvalho","Rua Jo\u00e3o Paulo Terra","Rua Doutor Jos\u00e9 Maria Soares",
+      "Rua Jo\u00e3o Paulino Damasceno","Rua Adolfo Engel","Rua Padre Jos\u00e9 Grimminck",
+      "Rua S\u00e3o Paulo","Rua Eduardo Ferreira Dias","Rua Ant\u00f4nio da Silva Lemos",
+      "Rua Jo\u00e3o Paulino Damasceno","Rua Presidente Artur Bernardes","Avenida Governador Valadares",
+      "Avenida Afonso Pena","Rua Benjamim Constant","Rua Pio XII",
+      "Rua Bar\u00e3o de Alfenas","Rua Jo\u00e3o Alves da Silva","Alameda dos Jacarandas",
+      "Alameda dos Jatobas","Alameda dos Ip\u00eas","Rua H","Rua Padre Jo\u00e3o Batista",
+      "Rua Professor Carvalho Junior","Rua Alferes Domingos e Silva","Avenida S\u00e3o Jos\u00e9",
+      "Rua Duque de Caxias","Rua Martins Alfenas"
+    ],
+    "horarios": {
+      "dias_uteis": [
+        "05:45","06:00","06:15","06:30","06:45","07:00","07:15","07:30","07:45","08:00",
+        "08:15","08:30","08:45","09:00","09:15","09:30","09:45","10:00","10:15","10:30",
+        "10:45","11:05","11:15","11:30","11:45","12:05","12:15","12:30","12:45","13:00",
+        "13:15","13:30","13:45","14:00","14:15","14:30","15:00","15:15","15:30","15:45",
+        "16:00","16:30","16:45","17:00","17:15","17:30","18:00","18:05","18:15","18:30"
+      ],
+      "sabado": [
+        "05:45","06:00","06:15","06:30","06:45","07:00","07:15","07:30","07:45","08:00",
+        "08:15","08:30","08:45","09:00","09:15","09:30","09:45","10:00","10:15","10:30",
+        "10:45","11:05","11:15","11:30","11:45","12:05","12:15","12:30","12:45","13:00",
+        "13:15","13:30","13:45","14:00","14:15","14:30","15:00","15:15","15:30","15:45","16:00"
+      ],
+      "domingo": [
+        "05:45","06:00","06:15","06:30","06:45","07:00","07:15","07:30","07:45","08:00",
+        "08:15","08:30","08:45","09:00","09:15","09:30","09:45","11:15","11:30","11:45",
+        "12:00","12:15","12:30","13:00","16:00"
+      ],
+      "feriado": [
+        "05:45","06:00","06:15","06:30","06:45","07:00","07:15","07:30","07:45","10:15",
+        "11:05","11:15","11:30","12:00","12:15","12:45","13:00","15:15","16:05","16:15",
+        "17:05","17:15","18:05"
       ]
     },
-    '006': {
-      nome: 'Jardim Primavera / Centro',
-      itinerario: ['Terminal Urbano', 'Jardim Primavera', 'Centro'],
-      horarios: {
-        dias_uteis: ['6:30', '7:00', '7:30', '8:00', '8:30', '9:00', '9:30', '10:00', '10:30', '11:00', '11:30', '12:00', '12:30', '13:00', '13:30', '14:00', '14:30', '15:00', '15:30', '16:00', '16:30', '17:00', '17:30', '18:00', '18:30', '19:00', '21:00', '21:30', '22:00', '22:30', '23:00'],
-        sabado: ['6:30', '7:00', '7:30', '8:00', '8:30', '9:00', '9:30', '10:00', '10:30', '11:00', '11:30', '12:00', '12:30', '13:00', '13:30', '14:00', '14:30', '15:00', '15:30', '16:00', '16:30', '17:00', '17:30', '18:00', '18:30', '19:00', '21:00', '21:30', '22:00', '22:30'],
-        domingo: ['7:30', '9:00', '10:30', '12:00', '13:30', '15:00', '16:30', '18:00', '19:00', '21:00'],
-        feriado: ['7:30', '9:00', '10:30', '12:00', '13:30', '15:00', '16:30', '18:00', '19:00', '21:00']
-      },
-      cor: '#00bcd4',
-      paradas: [
-        { lat: -21.4289, lng: -45.9472, name: "Terminal Urbano", tempoViagem: { "Jardim Primavera": 15, "Centro": 8 } },
-        { lat: -21.4320, lng: -45.9500, name: "Centro", tempoViagem: { "Terminal Urbano": 8, "Jardim Primavera": 12 } },
-        { lat: -21.4350, lng: -45.9530, name: "Jardim Primavera", tempoViagem: { "Terminal Urbano": 15, "Centro": 12 } }
-      ]
+    "cor": "#f58231",
+    "paradas": [
+      { "lat": -21.4330, "lng": -45.9560, "name": "Terminal rodovi\u00e1rio", "tempoViagem": { "Imesa": 8, "Santa Luzia": 6 } },
+      { "lat": -21.4220, "lng": -45.9315, "name": "Campus Unifenas", "tempoViagem": { "Terminal rodovi\u00e1rio": 8, "Rua Maria Jos\u00e9 de Carvalho": 4 } },
+      { "lat": -21.4290, "lng": -45.9465, "name": "Pra\u00e7a Dr. Em\u00edlio da Silveira", "tempoViagem": { "Alameda dos Jacarandas": 3, "Rua Presidente Artur Bernardes": 4 } },
+      { "lat": -21.4275, "lng": -45.9450, "name": "Pra\u00e7a Fausto Monteiro", "tempoViagem": { "Rua Benjamim Constant": 2, "Rua Pio XII": 3 } }
+    ]
+  },
+  "006": {
+    "nome": "Jardim Primavera / Centro",
+    "itinerario": [
+      "Pra\u00e7a Dr. Em\u00edlio da Silveira","Avenida Governador Valadares","Rua Lima Barreto",
+      "Rua Pedro Alberto Leite","Rua Ih\u00e9us","Rua Faniy Engel Macedo","Alameda dos Jacarandas",
+      "Alameda dos Jatobas","Alameda dos Jequitibas","Rua Alameda dos Eucaliptos",
+      "Rua Benjamim Constant","Rua Padre Jo\u00e3o Batista","Rua Professor Carvalho Junior"
+    ],
+    "horarios": {
+      "dias_uteis": ["06:30","07:30","08:30","11:30","12:30","17:30","18:30","22:30"],
+      "sabado": ["06:30","07:30","08:30","11:30","12:30","17:30","18:30","22:30"],
+      "domingo": ["06:30","07:30","11:30","12:30","17:30","18:30","22:30"],
+      "feriado": ["06:30","07:30","11:30","12:30","17:30","18:30","22:30"]
+    },
+    "cor": "#911eb4",
+    "paradas": [
+      { "lat": -21.4330, "lng": -45.9500, "name": "Terminal rodovi\u00e1rio", "tempoViagem": { "Pra\u00e7a Dr. Em\u00edlio da Silveira": 6, "Avenida Governador Valadares": 7 } },
+      { "lat": -21.4200, "lng": -45.9310, "name": "Campus Unifenas", "tempoViagem": { "Terminal rodovi\u00e1rio": 6, "Rua Lima Barreto": 5 } },
+      { "lat": -21.4320, "lng": -45.9470, "name": "Pra\u00e7a Dr. Em\u00edlio da Silveira", "tempoViagem": { "Pra\u00e7a Fausto Monteiro": 2, "Rua Padre Jo\u00e3o Batista": 4 } },
+      { "lat": -21.4315, "lng": -45.9455, "name": "Pra\u00e7a Fausto Monteiro", "tempoViagem": { "Rua Professor Carvalho Junior": 3, "Pra\u00e7a Dr. Em\u00edlio da Silveira": 2 } }
+    ]
     },
     '007': {
     nome: 'Jardim Boa Esperança / Campus',
@@ -1266,7 +1401,7 @@
         // Buscar informações de endereço
         reverseGeocode(userLocation.lat, userLocation.lng);
         
-        statusEl.innerHTML = `<i class="fas fa-check-circle"></i> Localização detectada (precisão: ${userLocation.accuracy.toFixed(0)}m)`;
+        statusEl.innerHTML = `<i class="fas fa-check-circle"></i> Localização detectada (Precisão: ${userLocation.accuracy.toFixed(0)}m)`;
         btn.innerHTML = '<i class="fas fa-location-arrow"></i> Minha Localização';
         btn.disabled = false;
         
@@ -1318,7 +1453,7 @@
       className: isDragModeEnabled ? 'draggable-marker' : ''
     })
     .addTo(map)
-    .bindPopup("<b>Sua localização</b><br>Clique em 'Ajustar Posição' para mover")
+    .bindPopup("<b>Sua localização</b>")
     .openPopup();
     
     // Centralizar mapa na localização do usuário
