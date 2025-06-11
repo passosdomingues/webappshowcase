@@ -1,7 +1,7 @@
 <!--
  * --------------------------------------------------------------
  * Author: Rafael Passos Domingues
- * Last Update: 2025 June 9
+ * Last Update: 2025 June 10
  * --------------------------------------------------------------
 -->
 
@@ -10,21 +10,44 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MarmitAI</title>
+    <title>MarmitAI - Planejador Inteligente de Marmitas</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root {
-            --primary-color: #4CAF50;
-            --primary-dark: #388E3C;
-            --primary-light: #C8E6C9;
-            --secondary-color: #FF9800;
-            --background: #f5f5f5;
-            --card-bg: #ffffff;
-            --text-color: #333333;
-            --text-light: #757575;
-            --error-color: #f44336;
-            --success-color: #4CAF50;
-            --border-radius: 8px;
-            --box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            /* Dark Theme Colors */
+            --bg-dark: #121212;
+            --surface-dark: #1e1e1e;
+            --primary-dark: #bb86fc;
+            --primary-variant-dark: #3700b3;
+            --secondary-dark: #03dac6;
+            --error-dark: #cf6679;
+            --on-bg-dark: #e1e1e1;
+            --on-surface-dark: #ffffff;
+            
+            /* Light Theme Colors */
+            --bg-light: #f5f5f5;
+            --surface-light: #ffffff;
+            --primary-light: #6200ee;
+            --primary-variant-light: #3700b3;
+            --secondary-light: #03dac6;
+            --error-light: #b00020;
+            --on-bg-light: #000000;
+            --on-surface-light: #000000;
+            
+            /* Current Theme - Starts with Dark */
+            --bg: var(--bg-dark);
+            --surface: var(--surface-dark);
+            --primary: var(--primary-dark);
+            --primary-variant: var(--primary-variant-dark);
+            --secondary: var(--secondary-dark);
+            --error: var(--error-dark);
+            --on-bg: var(--on-bg-dark);
+            --on-surface: var(--on-surface-dark);
+            
+            /* Common */
+            --border-radius: 12px;
+            --shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
             --transition: all 0.3s ease;
         }
 
@@ -36,43 +59,74 @@
         }
 
         body {
-            background-color: var(--background);
-            color: var(--text-color);
+            background-color: var(--bg);
+            color: var(--on-bg);
             line-height: 1.6;
+            transition: var(--transition);
+            min-height: 100vh;
         }
 
         .container {
-            max-width: 1200px;
+            max-width: 1400px;
             margin: 0 auto;
             padding: 20px;
         }
 
         header {
-            text-align: center;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
             margin-bottom: 30px;
-            padding: 20px 0;
-            background-color: var(--card-bg);
+            padding: 20px;
+            background-color: var(--surface);
             border-radius: var(--border-radius);
-            box-shadow: var(--box-shadow);
+            box-shadow: var(--shadow);
+            transition: var(--transition);
+        }
+
+        .header-content {
+            display: flex;
+            align-items: center;
+            gap: 15px;
         }
 
         h1 {
-            color: var(--primary-color);
-            margin-bottom: 10px;
+            color: var(--primary);
+            margin-bottom: 5px;
+            font-size: 2rem;
         }
 
         .subtitle {
-            color: var(--text-light);
-            font-size: 1.1rem;
+            color: var(--on-surface);
+            opacity: 0.8;
+            font-size: 1rem;
+        }
+
+        .theme-toggle {
+            background: var(--primary);
+            color: var(--on-surface);
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .theme-toggle:hover {
+            transform: scale(1.1);
         }
 
         .app-container {
             display: grid;
-            grid-template-columns: 300px 1fr;
+            grid-template-columns: 350px 1fr;
             gap: 20px;
         }
 
-        @media (max-width: 768px) {
+        @media (max-width: 1024px) {
             .app-container {
                 grid-template-columns: 1fr;
             }
@@ -80,62 +134,164 @@
 
         /* Sidebar */
         .sidebar {
-            background-color: var(--card-bg);
+            background-color: var(--surface);
             border-radius: var(--border-radius);
-            box-shadow: var(--box-shadow);
+            box-shadow: var(--shadow);
             padding: 20px;
-            height: fit-content;
+            transition: var(--transition);
         }
 
-        .form-group {
+        .section-title {
+            color: var(--primary);
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.3rem;
+        }
+
+        .food-categories {
+            margin-bottom: 25px;
+        }
+
+        .category-tabs {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
             margin-bottom: 15px;
         }
 
-        label {
+        .category-tab {
+            padding: 8px 12px;
+            background: var(--bg);
+            border: 1px solid var(--primary);
+            border-radius: 20px;
+            cursor: pointer;
+            transition: var(--transition);
+            font-size: 0.9rem;
+            color: var(--on-bg);
+        }
+
+        .category-tab.active {
+            background: var(--primary);
+            color: var(--on-surface);
+        }
+
+        .food-items {
+            max-height: 300px;
+            overflow-y: auto;
+            padding-right: 5px;
+        }
+
+        .food-items::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .food-items::-webkit-scrollbar-track {
+            background: var(--bg);
+            border-radius: 10px;
+        }
+
+        .food-items::-webkit-scrollbar-thumb {
+            background: var(--primary);
+            border-radius: 10px;
+        }
+
+        .food-item {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            margin-bottom: 8px;
+            background: var(--bg);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .food-item:hover {
+            background: var(--primary);
+            color: var(--on-surface);
+            transform: translateX(5px);
+        }
+
+        .food-item.selected {
+            background: var(--primary-variant);
+            color: var(--on-surface);
+        }
+
+        .food-item-emoji {
+            margin-right: 10px;
+            font-size: 1.2rem;
+        }
+
+        .food-item-name {
+            flex: 1;
+        }
+
+        .food-item-info {
+            font-size: 0.8rem;
+            opacity: 0.7;
+        }
+
+        .nutrition-filters {
+            margin-top: 20px;
+        }
+
+        .filter-group {
+            margin-bottom: 15px;
+        }
+
+        .filter-group label {
             display: block;
             margin-bottom: 5px;
-            font-weight: 600;
-            color: var(--text-color);
+            font-weight: 500;
         }
 
-        input, select, textarea {
+        .filter-range {
             width: 100%;
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: var(--border-radius);
-            font-size: 1rem;
-            transition: var(--transition);
-        }
-
-        input:focus, select:focus, textarea:focus {
+            height: 8px;
+            -webkit-appearance: none;
+            background: var(--bg);
+            border-radius: 4px;
             outline: none;
-            border-color: var(--primary-color);
-            box-shadow: 0 0 0 2px var(--primary-light);
         }
 
-        button {
-            background-color: var(--primary-color);
-            color: white;
-            border: none;
-            padding: 10px 15px;
-            border-radius: var(--border-radius);
+        .filter-range::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 18px;
+            height: 18px;
+            background: var(--primary);
+            border-radius: 50%;
             cursor: pointer;
-            font-size: 1rem;
-            font-weight: 600;
-            transition: var(--transition);
+        }
+
+        .range-values {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.8rem;
+            margin-top: 5px;
+        }
+
+        .generate-btn {
             width: 100%;
+            padding: 12px;
+            background: var(--primary);
+            color: var(--on-surface);
+            border: none;
+            border-radius: var(--border-radius);
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            margin-top: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
         }
 
-        button:hover {
-            background-color: var(--primary-dark);
-        }
-
-        button.secondary {
-            background-color: var(--secondary-color);
-        }
-
-        button.secondary:hover {
-            opacity: 0.9;
+        .generate-btn:hover {
+            background: var(--primary-variant);
+            transform: translateY(-2px);
         }
 
         /* Main Content */
@@ -145,132 +301,12 @@
             gap: 20px;
         }
 
-        .week-plan {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 20px;
-        }
-
-        .day-card {
-            background-color: var(--card-bg);
-            border-radius: var(--border-radius);
-            box-shadow: var(--box-shadow);
-            padding: 15px;
-            transition: var(--transition);
-        }
-
-        .day-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-        }
-
-        .day-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 10px;
-            padding-bottom: 10px;
-            border-bottom: 1px solid #eee;
-        }
-
-        .day-title {
-            font-weight: 700;
-            color: var(--primary-color);
-            font-size: 1.2rem;
-        }
-
-        .meal {
-            margin-bottom: 15px;
-        }
-
-        .meal-title {
-            font-weight: 600;
-            color: var(--secondary-color);
-            margin-bottom: 5px;
-            display: flex;
-            align-items: center;
-        }
-
-        .meal-title i {
-            margin-right: 8px;
-        }
-
-        .meal-description {
-            font-size: 0.9rem;
-            color: var(--text-light);
-            margin-bottom: 5px;
-        }
-
-        .meal-actions {
-            display: flex;
-            gap: 5px;
-            margin-top: 5px;
-        }
-
-        .meal-actions button {
-            padding: 5px 10px;
-            font-size: 0.8rem;
-        }
-
-        .shopping-list {
-            background-color: var(--card-bg);
-            border-radius: var(--border-radius);
-            box-shadow: var(--box-shadow);
-            padding: 20px;
-        }
-
-        .shopping-list h2 {
-            margin-bottom: 15px;
-            color: var(--primary-color);
-        }
-
-        .shopping-list ul {
-            list-style-type: none;
-        }
-
-        .shopping-list li {
-            padding: 8px 0;
-            border-bottom: 1px solid #eee;
-            display: flex;
-            justify-content: space-between;
-        }
-
-        .shopping-list li:last-child {
-            border-bottom: none;
-        }
-
-        .shopping-list input[type="checkbox"] {
-            width: auto;
-            margin-right: 10px;
-        }
-
-        .empty-state {
-            text-align: center;
-            padding: 40px 20px;
-            color: var(--text-light);
-        }
-
-        .empty-state i {
-            font-size: 3rem;
-            margin-bottom: 15px;
-            color: var(--primary-light);
-        }
-
-        /* Dashboard */
         .dashboard {
-            background-color: var(--card-bg);
+            background-color: var(--surface);
             border-radius: var(--border-radius);
-            box-shadow: var(--box-shadow);
+            box-shadow: var(--shadow);
             padding: 20px;
-            margin-bottom: 20px;
-        }
-
-        .dashboard h2 {
-            margin-bottom: 15px;
-            color: var(--primary-color);
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
+            transition: var(--transition);
         }
 
         .dashboard-grid {
@@ -281,21 +317,34 @@
         }
 
         .dashboard-card {
-            background-color: var(--primary-light);
+            background: var(--bg);
             border-radius: var(--border-radius);
             padding: 15px;
             text-align: center;
+            transition: var(--transition);
+        }
+
+        .dashboard-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow);
         }
 
         .dashboard-card h3 {
-            color: var(--primary-dark);
+            color: var(--primary);
             margin-bottom: 10px;
+            font-size: 1rem;
         }
 
         .dashboard-card .value {
-            font-size: 1.5rem;
+            font-size: 1.8rem;
             font-weight: bold;
-            color: var(--primary-color);
+            color: var(--on-surface);
+        }
+
+        .dashboard-card .unit {
+            font-size: 0.9rem;
+            color: var(--on-surface);
+            opacity: 0.7;
         }
 
         .chart-container {
@@ -304,636 +353,1494 @@
             position: relative;
         }
 
-        /* Share Buttons */
-        .share-buttons {
+        .week-plan {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+        }
+
+        .day-card {
+            background-color: var(--surface);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            padding: 15px;
+            transition: var(--transition);
+        }
+
+        .day-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .day-header {
             display: flex;
-            gap: 10px;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--bg);
+        }
+
+        .day-title {
+            font-weight: 700;
+            color: var(--primary);
+            font-size: 1.2rem;
+        }
+
+        .day-date {
+            font-size: 0.9rem;
+            color: var(--on-surface);
+            opacity: 0.7;
+        }
+
+        .meal {
+            margin-bottom: 15px;
+            background: var(--bg);
+            padding: 10px;
+            border-radius: 8px;
+        }
+
+        .meal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 5px;
+        }
+
+        .meal-title {
+            font-weight: 600;
+            color: var(--secondary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .meal-calories {
+            font-size: 0.8rem;
+            background: var(--primary);
+            color: var(--on-surface);
+            padding: 2px 6px;
+            border-radius: 10px;
+        }
+
+        .meal-ingredients {
+            font-size: 0.9rem;
+            margin-bottom: 5px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+        }
+
+        .ingredient-tag {
+            background: var(--surface);
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            display: flex;
+            align-items: center;
+            gap: 3px;
+        }
+
+        .meal-actions {
+            display: flex;
+            gap: 5px;
             margin-top: 10px;
         }
 
-        .share-buttons button {
+        .meal-btn {
+            padding: 5px 10px;
+            border: none;
+            border-radius: 5px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .replace-btn {
+            background: var(--primary);
+            color: var(--on-surface);
+        }
+
+        .replace-btn:hover {
+            background: var(--primary-variant);
+        }
+
+        .remove-btn {
+            background: var(--error);
+            color: white;
+        }
+
+        .remove-btn:hover {
+            opacity: 0.8;
+        }
+
+        .shopping-list {
+            background-color: var(--surface);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            padding: 20px;
+            transition: var(--transition);
+        }
+
+        .shopping-list-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .shopping-list-items {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .shopping-list-items::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .shopping-list-items::-webkit-scrollbar-track {
+            background: var(--bg);
+            border-radius: 10px;
+        }
+
+        .shopping-list-items::-webkit-scrollbar-thumb {
+            background: var(--primary);
+            border-radius: 10px;
+        }
+
+        .shopping-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid var(--bg);
+        }
+
+        .shopping-item:last-child {
+            border-bottom: none;
+        }
+
+        .shopping-item-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .shopping-item-checkbox {
+            width: 18px;
+            height: 18px;
+            accent-color: var(--primary);
+            cursor: pointer;
+        }
+
+        .shopping-item-name {
             flex: 1;
+            cursor: pointer;
+        }
+
+        .shopping-item-name.checked {
+            text-decoration: line-through;
+            opacity: 0.6;
+        }
+
+        .shopping-item-price {
+            font-weight: 600;
+            color: var(--secondary);
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+
+        .action-btn {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: var(--border-radius);
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
             display: flex;
             align-items: center;
             justify-content: center;
             gap: 8px;
+            min-width: 150px;
         }
 
-        /* Icons */
-        .icon {
-            display: inline-block;
-            width: 20px;
-            height: 20px;
-            background-size: contain;
-            background-repeat: no-repeat;
-            vertical-align: middle;
-            margin-right: 5px;
+        .whatsapp-btn {
+            background: #25D366;
+            color: white;
         }
 
-        /* Utility Classes */
-        .mt-10 { margin-top: 10px; }
-        .mt-20 { margin-top: 20px; }
-        .mb-10 { margin-bottom: 10px; }
-        .mb-20 { margin-bottom: 20px; }
-        .text-center { text-align: center; }
-        .hidden { display: none; }
+        .whatsapp-btn:hover {
+            background: #128C7E;
+        }
+
+        .export-btn {
+            background: var(--primary);
+            color: var(--on-surface);
+        }
+
+        .export-btn:hover {
+            background: var(--primary-variant);
+        }
+
+        .clear-btn {
+            background: var(--error);
+            color: white;
+        }
+
+        .clear-btn:hover {
+            opacity: 0.9;
+        }
+
+        /* Empty States */
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--on-surface);
+            opacity: 0.7;
+        }
+
+        .empty-state i {
+            font-size: 3rem;
+            margin-bottom: 15px;
+            color: var(--primary);
+        }
 
         /* Toast Notification */
         .toast {
             position: fixed;
             bottom: 20px;
-            right: 20px;
-            background-color: var(--primary-color);
-            color: white;
-            padding: 15px 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--surface);
+            color: var(--on-surface);
+            padding: 12px 24px;
             border-radius: var(--border-radius);
-            box-shadow: var(--box-shadow);
-            transform: translateY(100px);
-            opacity: 0;
-            transition: var(--transition);
+            box-shadow: var(--shadow);
             z-index: 1000;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            opacity: 0;
+            transition: opacity 0.3s ease;
         }
 
         .toast.show {
-            transform: translateY(0);
             opacity: 1;
         }
 
-        .toast.error {
-            background-color: var(--error-color);
+        .toast i {
+            font-size: 1.2rem;
         }
 
         .toast.success {
-            background-color: var(--success-color);
+            border-left: 5px solid var(--secondary);
+        }
+
+        .toast.error {
+            border-left: 5px solid var(--error);
+        }
+
+        /* Loading Spinner */
+        .spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,.3);
+            border-radius: 50%;
+            border-top-color: var(--on-surface);
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Responsive Adjustments */
+        @media (max-width: 768px) {
+            header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 15px;
+            }
+            
+            .action-buttons {
+                flex-direction: column;
+            }
+            
+            .action-btn {
+                width: 100%;
+            }
+            
+            .week-plan {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes slideIn {
+            from { 
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to { 
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        .slide-in {
+            animation: slideIn 0.5s ease-out;
+        }
+
+        /* Tooltip */
+        .tooltip {
+            position: relative;
+            display: inline-block;
+            margin-left: 5px;
+        }
+
+        .tooltip .tooltiptext {
+            visibility: hidden;
+            width: 200px;
+            background-color: var(--surface);
+            color: var(--on-surface);
+            text-align: center;
+            border-radius: 6px;
+            padding: 8px;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%;
+            left: 50%;
+            transform: translateX(-50%);
+            opacity: 0;
+            transition: opacity 0.3s;
+            font-size: 0.8rem;
+            box-shadow: var(--shadow);
+        }
+
+        .tooltip:hover .tooltiptext {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        /* Print Styles */
+        @media print {
+            body * {
+                visibility: hidden;
+            }
+            .shopping-list, .shopping-list * {
+                visibility: visible;
+            }
+            .shopping-list {
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%;
+                height: auto;
+                box-shadow: none;
+                background: white;
+                color: black;
+            }
+            .action-buttons {
+                display: none;
+            }
         }
     </style>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
     <div class="container">
         <header>
-            <h1><i class="fas fa-utensils"></i> MarmitAI</h1>
-            <p class="subtitle">Planeje suas refeições da semana de forma prática e saudável</p>
+            <div class="header-content">
+                <div>
+                    <h1><i class="fas fa-utensils"></i> MarmitAI</h1>
+                    <p class="subtitle">Planejador inteligente de marmitas semanais</p>
+                </div>
+            </div>
+            <button class="theme-toggle" id="theme-toggle">
+                <i class="fas fa-moon"></i>
+            </button>
         </header>
 
         <div class="app-container">
             <div class="sidebar">
-                <h2>Adicionar Refeição</h2>
-                <form id="meal-form">
-                    <div class="form-group">
-                        <label for="day">Dia da Semana</label>
-                        <select id="day" required>
-                            <option value="">Selecione um dia</option>
-                            <option value="Segunda">Segunda-feira</option>
-                            <option value="Terça">Terça-feira</option>
-                            <option value="Quarta">Quarta-feira</option>
-                            <option value="Quinta">Quinta-feira</option>
-                            <option value="Sexta">Sexta-feira</option>
-                            <option value="Sábado">Sábado</option>
-                            <option value="Domingo">Domingo</option>
-                        </select>
+                <h2 class="section-title"><i class="fas fa-carrot"></i> Seus Ingredientes</h2>
+                
+                <div class="food-categories">
+                    <div class="category-tabs">
+                        <button class="category-tab active" data-category="proteinas">🥩 Proteínas</button>
+                        <button class="category-tab" data-category="carboidratos">🍚 Carboidratos</button>
+                        <button class="category-tab" data-category="vegetais">🥦 Vegetais</button>
+                        <button class="category-tab" data-category="frutas">🍎 Frutas</button>
+                        <button class="category-tab" data-category="laticinios">🧀 Laticínios</button>
                     </div>
-
-                    <div class="form-group">
-                        <label for="meal-type">Tipo de Refeição</label>
-                        <select id="meal-type" required>
-                            <option value="">Selecione o tipo</option>
-                            <option value="Café da manhã">Café da manhã</option>
-                            <option value="Almoço">Almoço</option>
-                            <option value="Lanche">Lanche</option>
-                            <option value="Jantar">Jantar</option>
-                        </select>
+                    
+                    <div class="food-items" id="food-items">
+                        <!-- Itens serão carregados dinamicamente -->
                     </div>
-
-                    <div class="form-group">
-                        <label for="meal-name">Nome da Refeição</label>
-                        <input type="text" id="meal-name" placeholder="Ex: Frango grelhado com arroz integral" required>
+                </div>
+                
+                <div class="nutrition-filters">
+                    <h2 class="section-title"><i class="fas fa-filter"></i> Filtros Nutricionais</h2>
+                    
+                    <div class="filter-group">
+                        <label for="calories-range">
+                            Calorias por refeição 
+                            <span class="tooltip">
+                                <i class="fas fa-info-circle"></i>
+                                <span class="tooltiptext">Meta de calorias para cada refeição principal (almoço e jantar)</span>
+                            </span>
+                        </label>
+                        <input type="range" id="calories-range" class="filter-range" min="200" max="1000" value="600" step="50">
+                        <div class="range-values">
+                            <span>200 kcal</span>
+                            <span id="calories-value">600 kcal</span>
+                            <span>1000 kcal</span>
+                        </div>
                     </div>
-
-                    <div class="form-group">
-                        <label for="ingredients">Ingredientes (separados por vírgula)</label>
-                        <textarea id="ingredients" rows="3" placeholder="Ex: frango, arroz integral, brócolis, azeite" required></textarea>
+                    
+                    <div class="filter-group">
+                        <label for="protein-range">
+                            Proteínas (g) 
+                            <span class="tooltip">
+                                <i class="fas fa-info-circle"></i>
+                                <span class="tooltiptext">Quantidade mínima de proteínas por refeição principal</span>
+                            </span>
+                        </label>
+                        <input type="range" id="protein-range" class="filter-range" min="10" max="50" value="25" step="5">
+                        <div class="range-values">
+                            <span>10g</span>
+                            <span id="protein-value">25g</span>
+                            <span>50g</span>
+                        </div>
                     </div>
-
-                    <div class="form-group">
-                        <label for="category">Categoria Nutricional</label>
-                        <select id="category" required>
-                            <option value="">Selecione a categoria</option>
-                            <option value="Proteína">Proteína</option>
-                            <option value="Carboidrato">Carboidrato</option>
-                            <option value="Vegetal">Vegetal</option>
-                            <option value="Fruta">Fruta</option>
-                            <option value="Laticínio">Laticínio</option>
-                            <option value="Outro">Outro</option>
-                        </select>
-                    </div>
-
-                    <button type="submit" id="add-meal-btn">Adicionar Refeição</button>
-                </form>
-
-                <div class="mt-20">
-                    <h2>Dicas de Planejamento</h2>
-                    <ul style="list-style-type: none;">
-                        <li><i class="fas fa-check-circle" style="color: var(--primary-color);"></i> Planeje com antecedência</li>
-                        <li><i class="fas fa-check-circle" style="color: var(--primary-color);"></i> Varie os tipos de proteína</li>
-                        <li><i class="fas fa-check-circle" style="color: var(--primary-color);"></i> Inclua vegetais coloridos</li>
-                        <li><i class="fas fa-check-circle" style="color: var(--primary-color);"></i> Prepare porções para vários dias</li>
-                    </ul>
+                    
+                    <button class="generate-btn" id="generate-btn">
+                        <i class="fas fa-magic"></i> Gerar Cardápio
+                    </button>
                 </div>
             </div>
 
             <div class="main-content">
                 <div class="dashboard">
-                    <h2>
-                        <i class="fas fa-chart-pie"></i> Análise Nutricional
-                        <button class="secondary" onclick="shareWeeklyPlan()" style="width: auto; padding: 5px 10px;">
-                            <i class="fab fa-whatsapp"></i> Compartilhar
-                        </button>
-                    </h2>
+                    <h2 class="section-title"><i class="fas fa-chart-pie"></i> Resumo Nutricional</h2>
+                    
                     <div class="dashboard-grid">
                         <div class="dashboard-card">
+                            <h3>Calorias Diárias</h3>
+                            <div class="value" id="total-calories">0</div>
+                            <div class="unit">kcal</div>
+                        </div>
+                        <div class="dashboard-card">
                             <h3>Proteínas</h3>
-                            <div class="value" id="protein-count">0</div>
-                            <div>refeições</div>
+                            <div class="value" id="total-protein">0</div>
+                            <div class="unit">gramas</div>
                         </div>
                         <div class="dashboard-card">
                             <h3>Carboidratos</h3>
-                            <div class="value" id="carbs-count">0</div>
-                            <div>refeições</div>
+                            <div class="value" id="total-carbs">0</div>
+                            <div class="unit">gramas</div>
                         </div>
                         <div class="dashboard-card">
-                            <h3>Vegetais</h3>
-                            <div class="value" id="veggies-count">0</div>
-                            <div>refeições</div>
+                            <h3>Gorduras</h3>
+                            <div class="value" id="total-fat">0</div>
+                            <div class="unit">gramas</div>
                         </div>
                         <div class="dashboard-card">
-                            <h3>Variedade</h3>
-                            <div class="value" id="variety-count">0</div>
-                            <div>categorias</div>
+                            <h3>Custo Semanal</h3>
+                            <div class="value" id="total-cost">R$ 0</div>
+                            <div class="unit">estimado</div>
                         </div>
                     </div>
+                    
                     <div class="chart-container">
                         <canvas id="nutritionChart"></canvas>
                     </div>
                 </div>
 
                 <div class="week-plan" id="week-plan">
-                    <div class="day-card">
-                        <div class="day-header">
-                            <span class="day-title">Segunda-feira</span>
-                        </div>
-                        <div class="day-meals" id="segunda-meals"></div>
-                    </div>
-                    <div class="day-card">
-                        <div class="day-header">
-                            <span class="day-title">Terça-feira</span>
-                        </div>
-                        <div class="day-meals" id="terca-meals"></div>
-                    </div>
-                    <div class="day-card">
-                        <div class="day-header">
-                            <span class="day-title">Quarta-feira</span>
-                        </div>
-                        <div class="day-meals" id="quarta-meals"></div>
-                    </div>
-                    <div class="day-card">
-                        <div class="day-header">
-                            <span class="day-title">Quinta-feira</span>
-                        </div>
-                        <div class="day-meals" id="quinta-meals"></div>
-                    </div>
-                    <div class="day-card">
-                        <div class="day-header">
-                            <span class="day-title">Sexta-feira</span>
-                        </div>
-                        <div class="day-meals" id="sexta-meals"></div>
-                    </div>
-                    <div class="day-card">
-                        <div class="day-header">
-                            <span class="day-title">Sábado</span>
-                        </div>
-                        <div class="day-meals" id="sabado-meals"></div>
-                    </div>
-                    <div class="day-card">
-                        <div class="day-header">
-                            <span class="day-title">Domingo</span>
-                        </div>
-                        <div class="day-meals" id="domingo-meals"></div>
+                    <!-- Dias da semana serão gerados dinamicamente -->
+                    <div class="empty-state">
+                        <i class="fas fa-calendar-week"></i>
+                        <p>Seu planejamento semanal aparecerá aqui</p>
+                        <p>Selecione ingredientes e clique em "Gerar Cardápio"</p>
                     </div>
                 </div>
 
                 <div class="shopping-list">
-                    <h2><i class="fas fa-shopping-basket"></i> Lista de Compras</h2>
-                    <div id="shopping-list-empty" class="empty-state">
-                        <i class="fas fa-shopping-basket"></i>
-                        <p>Sua lista de compras aparecerá aqui</p>
-                        <p>Adicione refeições para gerar automaticamente</p>
+                    <div class="shopping-list-header">
+                        <h2 class="section-title"><i class="fas fa-shopping-basket"></i> Lista de Compras</h2>
+                        <button class="meal-btn replace-btn" id="print-btn">
+                            <i class="fas fa-print"></i> Imprimir
+                        </button>
                     </div>
-                    <ul id="shopping-list-items"></ul>
-                    <button id="clear-list-btn" class="secondary mt-10 hidden">Limpar Lista</button>
+                    
+                    <div class="shopping-list-items" id="shopping-list-items">
+                        <div class="empty-state">
+                            <i class="fas fa-shopping-basket"></i>
+                            <p>Sua lista de compras aparecerá aqui</p>
+                            <p>Gere um cardápio para ver os ingredientes necessários</p>
+                        </div>
+                    </div>
+                    
+                    <div class="action-buttons">
+                        <button class="action-btn whatsapp-btn" id="whatsapp-btn" disabled>
+                            <i class="fab fa-whatsapp"></i> Compartilhar
+                        </button>
+                        <button class="action-btn export-btn" id="export-btn" disabled>
+                            <i class="fas fa-file-export"></i> Exportar PDF
+                        </button>
+                        <button class="action-btn clear-btn" id="clear-btn" disabled>
+                            <i class="fas fa-trash"></i> Limpar Tudo
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <div class="toast" id="toast"></div>
+    <div class="toast" id="toast">
+        <i class="fas fa-check-circle"></i>
+        <span id="toast-message">Item adicionado com sucesso!</span>
+    </div>
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             // Elementos do DOM
-            const mealForm = document.getElementById('meal-form');
-            const weekPlan = document.getElementById('week-plan');
-            const shoppingListItems = document.getElementById('shopping-list-items');
-            const clearListBtn = document.getElementById('clear-list-btn');
-            const emptyState = document.getElementById('shopping-list-empty');
+            const themeToggle = document.getElementById('theme-toggle');
+            const categoryTabs = document.querySelectorAll('.category-tab');
+            const foodItemsContainer = document.getElementById('food-items');
+            const generateBtn = document.getElementById('generate-btn');
+            const weekPlanContainer = document.getElementById('week-plan');
+            const shoppingListContainer = document.getElementById('shopping-list-items');
+            const whatsappBtn = document.getElementById('whatsapp-btn');
+            const exportBtn = document.getElementById('export-btn');
+            const clearBtn = document.getElementById('clear-btn');
+            const printBtn = document.getElementById('print-btn');
             const toast = document.getElementById('toast');
+            const toastMessage = document.getElementById('toast-message');
             const nutritionChartCtx = document.getElementById('nutritionChart').getContext('2d');
+            const caloriesRange = document.getElementById('calories-range');
+            const proteinRange = document.getElementById('protein-range');
+            const caloriesValue = document.getElementById('calories-value');
+            const proteinValue = document.getElementById('protein-value');
             
-            // Dados da aplicação
-            let meals = JSON.parse(localStorage.getItem('marmitaMeals')) || [];
-            let shoppingList = JSON.parse(localStorage.getItem('marmitaShoppingList')) || [];
+            // Variáveis de estado
+            let selectedItems = [];
+            let currentMealPlan = null;
             let nutritionChart = null;
-
-            // Inicializar a aplicação
-            renderWeekPlan();
-            renderShoppingList();
-            updateDashboard();
-
-            // Event Listeners
-            mealForm.addEventListener('submit', addMeal);
-            clearListBtn.addEventListener('click', clearShoppingList);
-
-            // Função para adicionar refeição
-            function addMeal(e) {
-                e.preventDefault();
+            let isDarkMode = true; // Começa no modo dark
+            let isLoading = false;
+            
+            // Banco de dados de alimentos
+            const foodDatabase = {
+                proteinas: [
+                    { name: "Frango", emoji: "🍗", calories: 165, protein: 31, carbs: 0, fat: 3.6, price: 16.90, unit: "kg", season: "all", category: "proteinas" },
+                    { name: "Carne Moída", emoji: "🥩", calories: 250, protein: 26, carbs: 0, fat: 15, price: 28.50, unit: "kg", season: "all", category: "proteinas" },
+                    { name: "Peixe", emoji: "🐟", calories: 206, protein: 22, carbs: 0, fat: 12, price: 34.90, unit: "kg", season: "all", category: "proteinas" },
+                    { name: "Ovos", emoji: "🥚", calories: 155, protein: 13, carbs: 1.1, fat: 11, price: 15.90, unit: "dúzia", season: "all", category: "proteinas" },
+                    { name: "Tofu", emoji: "🧈", calories: 144, protein: 15, carbs: 3, fat: 8, price: 12.90, unit: "300g", season: "all", category: "proteinas" },
+                    { name: "Lentilha", emoji: "🥣", calories: 116, protein: 9, carbs: 20, fat: 0.4, price: 8.90, unit: "kg", season: "all", category: "proteinas" },
+                    { name: "Grão-de-bico", emoji: "🧆", calories: 164, protein: 9, carbs: 27, fat: 2.6, price: 9.90, unit: "kg", season: "all", category: "proteinas" }
+                ],
+                carboidratos: [
+                    { name: "Arroz Integral", emoji: "🍚", calories: 111, protein: 2.6, carbs: 23, fat: 0.9, price: 22.90, unit: "5kg", season: "all", category: "carboidratos" },
+                    { name: "Batata Doce", emoji: "🍠", calories: 86, protein: 1.6, carbs: 20, fat: 0.1, price: 6.90, unit: "kg", season: "winter", category: "carboidratos" },
+                    { name: "Mandioca", emoji: "🌿", calories: 160, protein: 1.4, carbs: 38, fat: 0.3, price: 5.90, unit: "kg", season: "winter", category: "carboidratos" },
+                    { name: "Pão Integral", emoji: "🍞", calories: 247, protein: 13, carbs: 41, fat: 3.4, price: 12.90, unit: "500g", season: "all", category: "carboidratos" },
+                    { name: "Macarrão Integral", emoji: "🍝", calories: 124, protein: 5, carbs: 25, fat: 1, price: 8.90, unit: "500g", season: "all", category: "carboidratos" },
+                    { name: "Quinoa", emoji: "🌾", calories: 120, protein: 4, carbs: 21, fat: 2, price: 24.90, unit: "500g", season: "all", category: "carboidratos" }
+                ],
+                vegetais: [
+                    { name: "Brócolis", emoji: "🥦", calories: 34, protein: 2.8, carbs: 6.6, fat: 0.4, price: 7.90, unit: "un", season: "winter", category: "vegetais" },
+                    { name: "Espinafre", emoji: "🍃", calories: 23, protein: 2.9, carbs: 3.6, fat: 0.4, price: 4.90, unit: "maço", season: "winter", category: "vegetais" },
+                    { name: "Cenoura", emoji: "🥕", calories: 41, protein: 0.9, carbs: 9.6, fat: 0.2, price: 3.99, unit: "kg", season: "all", category: "vegetais" },
+                    { name: "Abobrinha", emoji: "🥒", calories: 17, protein: 1.2, carbs: 3.1, fat: 0.3, price: 5.49, unit: "kg", season: "summer", category: "vegetais" },
+                    { name: "Berinjela", emoji: "🍆", calories: 25, protein: 1, carbs: 6, fat: 0.2, price: 6.90, unit: "kg", season: "summer", category: "vegetais" },
+                    { name: "Tomate", emoji: "🍅", calories: 18, protein: 0.9, carbs: 3.9, fat: 0.2, price: 8.99, unit: "kg", season: "summer", category: "vegetais" },
+                    { name: "Pimentão", emoji: "🫑", calories: 31, protein: 1, carbs: 6, fat: 0.3, price: 6.99, unit: "kg", season: "summer", category: "vegetais" }
+                ],
+                frutas: [
+                    { name: "Banana", emoji: "🍌", calories: 89, protein: 1.1, carbs: 23, fat: 0.3, price: 5.99, unit: "kg", season: "all", category: "frutas" },
+                    { name: "Maçã", emoji: "🍎", calories: 52, protein: 0.3, carbs: 14, fat: 0.2, price: 7.50, unit: "kg", season: "winter", category: "frutas" },
+                    { name: "Laranja", emoji: "🍊", calories: 47, protein: 0.9, carbs: 12, fat: 0.1, price: 4.90, unit: "kg", season: "winter", category: "frutas" },
+                    { name: "Mamão", emoji: "🍈", calories: 43, protein: 0.5, carbs: 11, fat: 0.3, price: 6.90, unit: "un", season: "summer", category: "frutas" },
+                    { name: "Melancia", emoji: "🍉", calories: 30, protein: 0.6, carbs: 8, fat: 0.2, price: 3.90, unit: "kg", season: "summer", category: "frutas" },
+                    { name: "Abacate", emoji: "🥑", calories: 160, protein: 2, carbs: 9, fat: 15, price: 12.90, unit: "un", season: "summer", category: "frutas" }
+                ],
+                laticinios: [
+                    { name: "Queijo Minas", emoji: "🧀", calories: 320, protein: 21, carbs: 3, fat: 25, price: 28.90, unit: "kg", season: "all", category: "laticinios" },
+                    { name: "Iogurte Natural", emoji: "🥛", calories: 59, protein: 10, carbs: 3.6, fat: 0.4, price: 6.50, unit: "un", season: "all", category: "laticinios" },
+                    { name: "Leite", emoji: "🥛", calories: 42, protein: 3.4, carbs: 5, fat: 1, price: 4.89, unit: "L", season: "all", category: "laticinios" },
+                    { name: "Requeijão", emoji: "🧈", calories: 257, protein: 9, carbs: 3, fat: 23, price: 7.90, unit: "250g", season: "all", category: "laticinios" }
+                ]
+            };
+            
+            // Inicialização
+            init();
+            function init() {
+                // Atualiza valores dos sliders
+                updateSliderValues();
                 
-                const day = document.getElementById('day').value;
-                const mealType = document.getElementById('meal-type').value;
-                const mealName = document.getElementById('meal-name').value;
-                const ingredients = document.getElementById('ingredients').value;
-                const category = document.getElementById('category').value;
+                // Carrega itens da primeira categoria
+                loadFoodItems('proteinas');
                 
-                if (!day || !mealType || !mealName || !ingredients || !category) {
-                    showToast('Por favor, preencha todos os campos', 'error');
+                // Configura event listeners
+                setupEventListeners();
+            }
+            
+            function setupEventListeners() {
+                // Alternar tema
+                themeToggle.addEventListener('click', toggleTheme);
+                
+                // Alternar categorias de alimentos
+                categoryTabs.forEach(tab => {
+                    tab.addEventListener('click', () => {
+                        const category = tab.dataset.category;
+                        categoryTabs.forEach(t => t.classList.remove('active'));
+                        tab.classList.add('active');
+                        loadFoodItems(category);
+                    });
+                });
+                
+                // Sliders de nutrição
+                caloriesRange.addEventListener('input', () => {
+                    caloriesValue.textContent = `${caloriesRange.value} kcal`;
+                });
+                
+                proteinRange.addEventListener('input', () => {
+                    proteinValue.textContent = `${proteinRange.value}g`;
+                });
+                
+                // Gerar cardápio
+                generateBtn.addEventListener('click', generateMealPlan);
+                
+                // Botões de ação
+                whatsappBtn.addEventListener('click', shareViaWhatsApp);
+                exportBtn.addEventListener('click', exportAsPDF);
+                clearBtn.addEventListener('click', clearMealPlan);
+                printBtn.addEventListener('click', printShoppingList);
+            }
+            
+            function updateSliderValues() {
+                caloriesValue.textContent = `${caloriesRange.value} kcal`;
+                proteinValue.textContent = `${proteinRange.value}g`;
+            }
+            
+            function toggleTheme() {
+                isDarkMode = !isDarkMode;
+                
+                if (isDarkMode) {
+                    // Aplica tema dark
+                    document.documentElement.style.setProperty('--bg', 'var(--bg-dark)');
+                    document.documentElement.style.setProperty('--surface', 'var(--surface-dark)');
+                    document.documentElement.style.setProperty('--primary', 'var(--primary-dark)');
+                    document.documentElement.style.setProperty('--primary-variant', 'var(--primary-variant-dark)');
+                    document.documentElement.style.setProperty('--secondary', 'var(--secondary-dark)');
+                    document.documentElement.style.setProperty('--error', 'var(--error-dark)');
+                    document.documentElement.style.setProperty('--on-bg', 'var(--on-bg-dark)');
+                    document.documentElement.style.setProperty('--on-surface', 'var(--on-surface-dark)');
+                    
+                    themeToggle.innerHTML = '<i class="fas fa-moon"></i>';
+                } else {
+                    // Aplica tema light
+                    document.documentElement.style.setProperty('--bg', 'var(--bg-light)');
+                    document.documentElement.style.setProperty('--surface', 'var(--surface-light)');
+                    document.documentElement.style.setProperty('--primary', 'var(--primary-light)');
+                    document.documentElement.style.setProperty('--primary-variant', 'var(--primary-variant-light)');
+                    document.documentElement.style.setProperty('--secondary', 'var(--secondary-light)');
+                    document.documentElement.style.setProperty('--error', 'var(--error-light)');
+                    document.documentElement.style.setProperty('--on-bg', 'var(--on-bg-light)');
+                    document.documentElement.style.setProperty('--on-surface', 'var(--on-surface-light)');
+                    
+                    themeToggle.innerHTML = '<i class="fas fa-sun"></i>';
+                }
+                
+                // Atualiza o gráfico para as novas cores
+                if (nutritionChart) {
+                    nutritionChart.update();
+                }
+            }
+            
+            function loadFoodItems(category) {
+                foodItemsContainer.innerHTML = '';
+                
+                const items = foodDatabase[category];
+                const currentSeason = getCurrentSeason();
+                
+                items.forEach(item => {
+                    // Filtra por estação do ano (se aplicável)
+                    if (item.season === 'all' || item.season === currentSeason) {
+                        const itemElement = document.createElement('div');
+                        itemElement.className = 'food-item';
+                        itemElement.innerHTML = `
+                            <span class="food-item-emoji">${item.emoji}</span>
+                            <span class="food-item-name">${item.name}</span>
+                            <span class="food-item-info">${item.calories}kcal</span>
+                        `;
+                        
+                        itemElement.addEventListener('click', () => {
+                            itemElement.classList.toggle('selected');
+                            
+                            if (itemElement.classList.contains('selected')) {
+                                if (!selectedItems.some(i => i.name === item.name)) {
+                                    selectedItems.push(item);
+                                    showToast(`${item.name} adicionado`);
+                                }
+                            } else {
+                                selectedItems = selectedItems.filter(i => i.name !== item.name);
+                                showToast(`${item.name} removido`);
+                            }
+                        });
+                        
+                        // Marca se já está selecionado
+                        if (selectedItems.some(i => i.name === item.name)) {
+                            itemElement.classList.add('selected');
+                        }
+                        
+                        foodItemsContainer.appendChild(itemElement);
+                    }
+                });
+                
+                if (foodItemsContainer.children.length === 0) {
+                    foodItemsContainer.innerHTML = `
+                        <div class="empty-state">
+                            <i class="fas fa-leaf"></i>
+                            <p>Nenhum item disponível nesta categoria</p>
+                            <p>durante esta estação do ano</p>
+                        </div>
+                    `;
+                }
+            }
+            
+            function getCurrentSeason() {
+                const now = new Date();
+                const month = now.getMonth() + 1;
+                
+                // Simplificação: verão (dez-fev), outono (mar-mai), inverno (jun-ago), primavera (set-nov)
+                if (month >= 12 || month <= 2) return 'summer';
+                if (month >= 3 && month <= 5) return 'autumn';
+                if (month >= 6 && month <= 8) return 'winter';
+                return 'spring';
+            }
+            
+            function generateMealPlan() {
+                if (isLoading) return;
+                
+                if (selectedItems.length === 0) {
+                    showToast('Selecione pelo menos 3 ingredientes', 'error');
                     return;
                 }
                 
-                const newMeal = {
-                    id: Date.now(),
-                    day,
-                    mealType,
-                    mealName,
-                    ingredients: ingredients.split(',').map(item => item.trim()),
-                    category
-                };
+                if (selectedItems.length < 3) {
+                    showToast('Selecione mais ingredientes para variedade', 'error');
+                    return;
+                }
                 
-                meals.push(newMeal);
-                saveMeals();
+                // Mostra loading
+                isLoading = true;
+                generateBtn.innerHTML = '<span class="spinner"></span> Gerando...';
+                generateBtn.disabled = true;
                 
-                // Adicionar ingredientes à lista de compras
-                addIngredientsToShoppingList(newMeal.ingredients);
-                
-                // Renderizar novamente
-                renderWeekPlan();
-                renderShoppingList();
-                updateDashboard();
-                
-                // Limpar formulário
-                mealForm.reset();
-                
-                showToast('Refeição adicionada com sucesso!', 'success');
+                // Simula um processamento assíncrono
+                setTimeout(() => {
+                    try {
+                        // Obter configurações nutricionais
+                        const targetCalories = parseInt(caloriesRange.value);
+                        const targetProtein = parseInt(proteinRange.value);
+                        
+                        // Gerar cardápio semanal
+                        currentMealPlan = generateWeeklyMeals(selectedItems, targetCalories, targetProtein);
+                        
+                        // Renderizar cardápio
+                        renderMealPlan(currentMealPlan);
+                        
+                        // Atualizar dashboard nutricional
+                        updateNutritionDashboard(currentMealPlan);
+                        
+                        // Gerar lista de compras
+                        generateShoppingList(currentMealPlan);
+                        
+                        showToast('Cardápio gerado com sucesso!', 'success');
+                        
+                        // Habilitar botões de ação
+                        whatsappBtn.disabled = false;
+                        exportBtn.disabled = false;
+                        clearBtn.disabled = false;
+                    } catch (error) {
+                        console.error(error);
+                        showToast('Erro ao gerar cardápio', 'error');
+                    } finally {
+                        // Remove loading
+                        isLoading = false;
+                        generateBtn.innerHTML = '<i class="fas fa-magic"></i> Gerar Cardápio';
+                        generateBtn.disabled = false;
+                    }
+                }, 1000);
             }
             
-            // Função para renderizar o planejamento semanal
-            function renderWeekPlan() {
-                // Limpar todas as refeições
-                document.querySelectorAll('.day-meals').forEach(el => el.innerHTML = '');
+            function generateWeeklyMeals(ingredients, targetCalories, targetProtein) {
+                const days = ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado'];
+                const mealTypes = ['Café da Manhã', 'Almoço', 'Jantar'];
+                const mealPlan = {};
                 
-                if (meals.length === 0) return;
+                // Obter a data atual e calcular as datas da semana
+                const today = new Date();
+                const currentDay = today.getDay(); // 0 (Domingo) a 6 (Sábado)
                 
-                meals.forEach(meal => {
-                    const dayElement = document.getElementById(`${meal.day.toLowerCase()}-meals`);
-                    if (dayElement) {
-                        const mealElement = document.createElement('div');
-                        mealElement.className = 'meal';
-                        mealElement.innerHTML = `
-                            <div class="meal-title">
-                                <i class="fas ${getMealIcon(meal.mealType)}"></i>
-                                ${meal.mealType}: ${meal.mealName}
-                                <span style="font-size: 0.8rem; color: var(--text-light); margin-left: 8px;">
-                                    (${meal.category})
+                // Gerar refeições para cada dia da semana
+                days.forEach((day, index) => {
+                    // Calcular a data para este dia
+                    const date = new Date(today);
+                    date.setDate(today.getDate() + (index - currentDay));
+                    
+                    mealPlan[day] = {
+                        date: formatDate(date),
+                        meals: {}
+                    };
+                    
+                    // Gerar cada refeição do dia
+                    mealTypes.forEach(mealType => {
+                        mealPlan[day].meals[mealType] = generateMeal(
+                            ingredients, 
+                            mealType, 
+                            targetCalories, 
+                            targetProtein
+                        );
+                    });
+                });
+                
+                return mealPlan;
+            }
+            
+            function formatDate(date) {
+                const options = { weekday: 'long', day: 'numeric', month: 'long' };
+                return date.toLocaleDateString('pt-BR', options);
+            }
+            
+            function generateMeal(ingredients, mealType, targetCalories, targetProtein) {
+                // Filtra ingredientes por tipo de refeição
+                let filteredIngredients = [...ingredients];
+                
+                if (mealType === 'Café da Manhã') {
+                    filteredIngredients = ingredients.filter(i => 
+                        i.category !== 'vegetais' || 
+                        ['Tomate', 'Abacate'].includes(i.name)
+                    );
+                }
+                
+                // Garante que temos ingredientes suficientes
+                if (filteredIngredients.length < 2) {
+                    filteredIngredients = [...ingredients];
+                }
+                
+                // Embaralha os ingredientes
+                const shuffled = [...filteredIngredients].sort(() => 0.5 - Math.random());
+                
+                // Seleciona 2-4 ingredientes para a refeição
+                const count = Math.min(2 + Math.floor(Math.random() * 3), shuffled.length);
+                const selected = shuffled.slice(0, count);
+                
+                // Calcula nutrientes totais
+                let totalCalories = 0;
+                let totalProtein = 0;
+                let totalCarbs = 0;
+                let totalFat = 0;
+                let totalCost = 0;
+                
+                selected.forEach(ing => {
+                    // Ajusta quantidades baseado no tipo de refeição
+                    let factor = 1;
+                    if (mealType === 'Café da Manhã') factor = 0.7;
+                    if (mealType === 'Jantar') factor = 0.8;
+                    
+                    totalCalories += ing.calories * factor;
+                    totalProtein += ing.protein * factor;
+                    totalCarbs += ing.carbs * factor;
+                    totalFat += ing.fat * factor;
+                    totalCost += ing.price * factor;
+                });
+                
+                // Ajusta para atingir as metas nutricionais
+                const adjustFactor = targetCalories / totalCalories;
+                totalCalories *= adjustFactor;
+                totalProtein *= adjustFactor;
+                totalCarbs *= adjustFactor;
+                totalFat *= adjustFactor;
+                totalCost *= adjustFactor;
+                
+                return {
+                    ingredients: selected,
+                    calories: Math.round(totalCalories),
+                    protein: Math.round(totalProtein),
+                    carbs: Math.round(totalCarbs),
+                    fat: Math.round(totalFat),
+                    cost: parseFloat(totalCost.toFixed(2))
+                };
+            }
+            
+            function renderMealPlan(mealPlan) {
+                weekPlanContainer.innerHTML = '';
+                
+                for (const day in mealPlan) {
+                    const dayData = mealPlan[day];
+                    const dayElement = document.createElement('div');
+                    dayElement.className = 'day-card slide-in';
+                    
+                    let mealsHTML = '';
+                    for (const mealType in dayData.meals) {
+                        const meal = dayData.meals[mealType];
+                        
+                        let ingredientsHTML = '';
+                        meal.ingredients.forEach(ing => {
+                            ingredientsHTML += `
+                                <span class="ingredient-tag">
+                                    ${ing.emoji} ${ing.name}
                                 </span>
-                            </div>
-                            <div class="meal-description">
-                                <strong>Ingredientes:</strong> ${meal.ingredients.join(', ')}
-                            </div>
-                            <div class="meal-actions">
-                                <button class="secondary" onclick="editMeal(${meal.id})">
-                                    <i class="fas fa-edit"></i> Editar
-                                </button>
-                                <button onclick="deleteMeal(${meal.id})">
-                                    <i class="fas fa-trash"></i> Remover
-                                </button>
+                            `;
+                        });
+                        
+                        mealsHTML += `
+                            <div class="meal">
+                                <div class="meal-header">
+                                    <h3 class="meal-title">
+                                        <i class="fas ${getMealIcon(mealType)}"></i>
+                                        ${mealType}
+                                    </h3>
+                                    <span class="meal-calories">${meal.calories}kcal</span>
+                                </div>
+                                <div class="meal-ingredients">
+                                    ${ingredientsHTML}
+                                </div>
+                                <div class="meal-actions">
+                                    <button class="meal-btn replace-btn" data-day="${day}" data-meal="${mealType}">
+                                        <i class="fas fa-sync-alt"></i> Substituir
+                                    </button>
+                                    <button class="meal-btn remove-btn" data-day="${day}" data-meal="${mealType}">
+                                        <i class="fas fa-trash"></i> Remover
+                                    </button>
+                                </div>
                             </div>
                         `;
-                        dayElement.appendChild(mealElement);
                     }
-                });
-            }
-            
-            // Função para renderizar a lista de compras
-            function renderShoppingList() {
-                shoppingListItems.innerHTML = '';
-                
-                if (shoppingList.length === 0) {
-                    emptyState.classList.remove('hidden');
-                    clearListBtn.classList.add('hidden');
-                    return;
-                }
-                
-                emptyState.classList.add('hidden');
-                clearListBtn.classList.remove('hidden');
-                
-                // Agrupar itens iguais
-                const groupedItems = shoppingList.reduce((acc, item) => {
-                    const existingItem = acc.find(i => i.name === item.name);
-                    if (existingItem) {
-                        existingItem.count++;
-                    } else {
-                        acc.push({...item, count: 1});
-                    }
-                    return acc;
-                }, []);
-                
-                // Ordenar alfabeticamente
-                groupedItems.sort((a, b) => a.name.localeCompare(b.name));
-                
-                // Renderizar itens
-                groupedItems.forEach(item => {
-                    const li = document.createElement('li');
-                    li.innerHTML = `
-                        <div>
-                            <input type="checkbox" id="item-${item.name}" ${item.checked ? 'checked' : ''} 
-                                   onchange="toggleShoppingItem('${item.name}')">
-                            <label for="item-${item.name}" style="${item.checked ? 'text-decoration: line-through; color: var(--text-light)' : ''}">
-                                ${item.name} ${item.count > 1 ? `(${item.count})` : ''}
-                            </label>
+                    
+                    dayElement.innerHTML = `
+                        <div class="day-header">
+                            <h2 class="day-title">${day}</h2>
+                            <span class="day-date">${dayData.date}</span>
                         </div>
-                        <button onclick="removeShoppingItem('${item.name}')" style="padding: 2px 8px; font-size: 0.8rem;">
-                            <i class="fas fa-times"></i>
-                        </button>
+                        ${mealsHTML}
                     `;
-                    shoppingListItems.appendChild(li);
-                });
-            }
-            
-            // Função para atualizar o dashboard nutricional
-            function updateDashboard() {
-                const categories = {
-                    'Proteína': 0,
-                    'Carboidrato': 0,
-                    'Vegetal': 0,
-                    'Fruta': 0,
-                    'Laticínio': 0,
-                    'Outro': 0
-                };
-                
-                // Contar refeições por categoria
-                meals.forEach(meal => {
-                    if (categories.hasOwnProperty(meal.category)) {
-                        categories[meal.category]++;
-                    }
-                });
-                
-                // Atualizar contadores
-                document.getElementById('protein-count').textContent = categories['Proteína'];
-                document.getElementById('carbs-count').textContent = categories['Carboidrato'];
-                document.getElementById('veggies-count').textContent = categories['Vegetal'];
-                
-                // Calcular variedade (quantas categorias diferentes foram usadas)
-                const variety = Object.values(categories).filter(count => count > 0).length;
-                document.getElementById('variety-count').textContent = variety;
-                
-                // Atualizar gráfico
-                updateNutritionChart(categories);
-            }
-            
-            // Função para atualizar o gráfico nutricional
-            function updateNutritionChart(categories) {
-                const labels = Object.keys(categories);
-                const data = Object.values(categories);
-                const backgroundColors = [
-                    '#FF6384', // Proteína
-                    '#36A2EB', // Carboidrato
-                    '#4BC0C0', // Vegetal
-                    '#FFCE56', // Fruta
-                    '#9966FF', // Laticínio
-                    '#FF9F40'  // Outro
-                ];
-                
-                if (nutritionChart) {
-                    nutritionChart.data.labels = labels;
-                    nutritionChart.data.datasets[0].data = data;
-                    nutritionChart.update();
-                } else {
-                    nutritionChart = new Chart(nutritionChartCtx, {
-                        type: 'doughnut',
-                        data: {
-                            labels: labels,
-                            datasets: [{
-                                data: data,
-                                backgroundColor: backgroundColors,
-                                borderWidth: 1
-                            }]
-                        },
-                        options: {
-                            responsive: true,
-                            maintainAspectRatio: false,
-                            plugins: {
-                                legend: {
-                                    position: 'bottom'
-                                }
-                            }
-                        }
-                    });
+                    
+                    weekPlanContainer.appendChild(dayElement);
                 }
-            }
-            
-            // Função para adicionar ingredientes à lista de compras
-            function addIngredientsToShoppingList(ingredients) {
-                ingredients.forEach(ingredient => {
-                    const existingItem = shoppingList.find(item => item.name.toLowerCase() === ingredient.toLowerCase());
-                    if (!existingItem) {
-                        shoppingList.push({
-                            name: ingredient,
-                            checked: false
-                        });
-                    }
+                
+                // Adiciona event listeners para os botões de ação
+                document.querySelectorAll('.replace-btn').forEach(btn => {
+                    btn.addEventListener('click', replaceMeal);
                 });
-                saveShoppingList();
+                
+                document.querySelectorAll('.remove-btn').forEach(btn => {
+                    btn.addEventListener('click', removeMeal);
+                });
             }
             
-            // Função para limpar a lista de compras
-            function clearShoppingList() {
-                if (confirm('Tem certeza que deseja limpar toda a lista de compras?')) {
-                    shoppingList = [];
-                    saveShoppingList();
-                    renderShoppingList();
-                    showToast('Lista de compras limpa', 'success');
-                }
-            }
-            
-            // Funções de persistência
-            function saveMeals() {
-                localStorage.setItem('marmitaMeals', JSON.stringify(meals));
-            }
-            
-            function saveShoppingList() {
-                localStorage.setItem('marmitaShoppingList', JSON.stringify(shoppingList));
-            }
-            
-            // Função auxiliar para obter ícone do tipo de refeição
             function getMealIcon(mealType) {
                 switch(mealType) {
-                    case 'Café da manhã': return 'fa-coffee';
+                    case 'Café da Manhã': return 'fa-coffee';
                     case 'Almoço': return 'fa-utensils';
                     case 'Jantar': return 'fa-moon';
-                    case 'Lanche': return 'fa-apple-alt';
                     default: return 'fa-utensils';
                 }
             }
             
-            // Função para mostrar notificação
+            function replaceMeal(e) {
+                const day = e.target.closest('button').dataset.day;
+                const mealType = e.target.closest('button').dataset.meal;
+                
+                if (selectedItems.length < 3) {
+                    showToast('Selecione mais ingredientes para substituir', 'error');
+                    return;
+                }
+                
+                // Obter configurações nutricionais
+                const targetCalories = parseInt(caloriesRange.value);
+                const targetProtein = parseInt(proteinRange.value);
+                
+                // Gerar nova refeição
+                const newMeal = generateMeal(selectedItems, mealType, targetCalories, targetProtein);
+                currentMealPlan[day].meals[mealType] = newMeal;
+                
+                // Renderizar novamente
+                renderMealPlan(currentMealPlan);
+                updateNutritionDashboard(currentMealPlan);
+                generateShoppingList(currentMealPlan);
+                
+                showToast(`${mealType} de ${day} substituído`, 'success');
+            }
+            
+            function removeMeal(e) {
+                const day = e.target.closest('button').dataset.day;
+                const mealType = e.target.closest('button').dataset.meal;
+                
+                delete currentMealPlan[day].meals[mealType];
+                
+                // Renderizar novamente
+                renderMealPlan(currentMealPlan);
+                updateNutritionDashboard(currentMealPlan);
+                generateShoppingList(currentMealPlan);
+                
+                showToast(`${mealType} de ${day} removido`, 'error');
+            }
+            
+            function updateNutritionDashboard(mealPlan) {
+                let totalCalories = 0;
+                let totalProtein = 0;
+                let totalCarbs = 0;
+                let totalFat = 0;
+                let totalCost = 0;
+                
+                // Calcula totais
+                for (const day in mealPlan) {
+                    for (const mealType in mealPlan[day].meals) {
+                        const meal = mealPlan[day].meals[mealType];
+                        totalCalories += meal.calories;
+                        totalProtein += meal.protein;
+                        totalCarbs += meal.carbs;
+                        totalFat += meal.fat;
+                        totalCost += meal.cost;
+                    }
+                }
+                
+                // Calcula médias diárias
+                const daysCount = Object.keys(mealPlan).length;
+                const avgDailyCalories = Math.round(totalCalories / daysCount);
+                const avgDailyProtein = Math.round(totalProtein / daysCount);
+                const avgDailyCarbs = Math.round(totalCarbs / daysCount);
+                const avgDailyFat = Math.round(totalFat / daysCount);
+                
+                // Atualiza a UI
+                document.getElementById('total-calories').textContent = avgDailyCalories;
+                document.getElementById('total-protein').textContent = avgDailyProtein;
+                document.getElementById('total-carbs').textContent = avgDailyCarbs;
+                document.getElementById('total-fat').textContent = avgDailyFat;
+                document.getElementById('total-cost').textContent = `R$ ${totalCost.toFixed(2)}`;
+                
+                // Atualiza o gráfico
+                updateNutritionChart(avgDailyProtein, avgDailyCarbs, avgDailyFat);
+            }
+            
+            function updateNutritionChart(protein, carbs, fat) {
+                const data = {
+                    labels: ['Proteínas', 'Carboidratos', 'Gorduras'],
+                    datasets: [{
+                        data: [protein, carbs, fat],
+                        backgroundColor: [
+                            'rgba(3, 218, 198, 0.7)',
+                            'rgba(187, 134, 252, 0.7)',
+                            'rgba(255, 193, 7, 0.7)'
+                        ],
+                        borderColor: [
+                            'rgba(3, 218, 198, 1)',
+                            'rgba(187, 134, 252, 1)',
+                            'rgba(255, 193, 7, 1)'
+                        ],
+                        borderWidth: 1
+                    }]
+                };
+                
+                const options = {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                color: getComputedStyle(document.documentElement).getPropertyValue('--on-surface')
+                            }
+                        }
+                    }
+                };
+                
+                if (nutritionChart) {
+                    nutritionChart.data = data;
+                    nutritionChart.update();
+                } else {
+                    nutritionChart = new Chart(nutritionChartCtx, {
+                        type: 'doughnut',
+                        data: data,
+                        options: options
+                    });
+                }
+            }
+            
+            function generateShoppingList(mealPlan) {
+                const shoppingItems = {};
+                
+                // Agrega todos os ingredientes necessários
+                for (const day in mealPlan) {
+                    for (const mealType in mealPlan[day].meals) {
+                        const meal = mealPlan[day].meals[mealType];
+                        
+                        meal.ingredients.forEach(ing => {
+                            if (shoppingItems[ing.name]) {
+                                shoppingItems[ing.name].quantity += 1;
+                                shoppingItems[ing.name].totalCost += ing.price;
+                            } else {
+                                shoppingItems[ing.name] = {
+                                    name: ing.name,
+                                    emoji: ing.emoji,
+                                    unit: ing.unit,
+                                    price: ing.price,
+                                    quantity: 1,
+                                    totalCost: ing.price,
+                                    checked: false
+                                };
+                            }
+                        });
+                    }
+                }
+                
+                // Renderiza a lista de compras
+                renderShoppingList(shoppingItems);
+            }
+            
+            function renderShoppingList(items) {
+                if (Object.keys(items).length === 0) {
+                    shoppingListContainer.innerHTML = `
+                        <div class="empty-state">
+                            <i class="fas fa-shopping-basket"></i>
+                            <p>Sua lista de compras aparecerá aqui</p>
+                            <p>Gere um cardápio para ver os ingredientes necessários</p>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                shoppingListContainer.innerHTML = '';
+                
+                // Agrupa por categoria para melhor organização
+                const categories = {
+                    'Proteínas': [],
+                    'Carboidratos': [],
+                    'Vegetais': [],
+                    'Frutas': [],
+                    'Laticínios': [],
+                    'Outros': []
+                };
+                
+                for (const itemName in items) {
+                    const item = items[itemName];
+                    const category = getShoppingItemCategory(itemName);
+                    
+                    if (categories[category]) {
+                        categories[category].push(item);
+                    } else {
+                        categories['Outros'].push(item);
+                    }
+                }
+                
+                // Renderiza por categoria
+                for (const category in categories) {
+                    if (categories[category].length > 0) {
+                        const categoryHeader = document.createElement('div');
+                        categoryHeader.className = 'shopping-item';
+                        categoryHeader.innerHTML = `
+                            <strong style="color: var(--primary);">${category}</strong>
+                        `;
+                        shoppingListContainer.appendChild(categoryHeader);
+                        
+                        categories[category].forEach(item => {
+                            const itemElement = document.createElement('div');
+                            itemElement.className = 'shopping-item';
+                            itemElement.innerHTML = `
+                                <div class="shopping-item-info">
+                                    <input type="checkbox" class="shopping-item-checkbox" 
+                                           id="item-${item.name}" ${item.checked ? 'checked' : ''}
+                                           data-item="${item.name}">
+                                    <label for="item-${item.name}" class="shopping-item-name ${item.checked ? 'checked' : ''}">
+                                        ${item.emoji} ${item.name} (${item.quantity} ${item.unit})
+                                    </label>
+                                </div>
+                                <div class="shopping-item-price">R$ ${item.totalCost.toFixed(2)}</div>
+                            `;
+                            
+                            // Adiciona event listener para o checkbox
+                            const checkbox = itemElement.querySelector('.shopping-item-checkbox');
+                            checkbox.addEventListener('change', (e) => {
+                                const itemName = e.target.dataset.item;
+                                items[itemName].checked = e.target.checked;
+                                
+                                // Atualiza a classe do label
+                                const label = e.target.nextElementSibling;
+                                if (e.target.checked) {
+                                    label.classList.add('checked');
+                                } else {
+                                    label.classList.remove('checked');
+                                }
+                            });
+                            
+                            shoppingListContainer.appendChild(itemElement);
+                        });
+                    }
+                }
+            }
+            
+            function getShoppingItemCategory(itemName) {
+                // Proteínas
+                if (['Frango', 'Carne Moída', 'Peixe', 'Ovos', 'Tofu', 'Lentilha', 'Grão-de-bico'].includes(itemName)) {
+                    return 'Proteínas';
+                }
+                
+                // Carboidratos
+                if (['Arroz Integral', 'Batata Doce', 'Mandioca', 'Pão Integral', 'Macarrão Integral', 'Quinoa'].includes(itemName)) {
+                    return 'Carboidratos';
+                }
+                
+                // Vegetais
+                if (['Brócolis', 'Espinafre', 'Cenoura', 'Abobrinha', 'Berinjela', 'Tomate', 'Pimentão'].includes(itemName)) {
+                    return 'Vegetais';
+                }
+                
+                // Frutas
+                if (['Banana', 'Maçã', 'Laranja', 'Mamão', 'Melancia', 'Abacate'].includes(itemName)) {
+                    return 'Frutas';
+                }
+                
+                // Laticínios
+                if (['Queijo Minas', 'Iogurte Natural', 'Leite', 'Requeijão'].includes(itemName)) {
+                    return 'Laticínios';
+                }
+                
+                return 'Outros';
+            }
+            
+            function shareViaWhatsApp() {
+                if (!currentMealPlan || Object.keys(currentMealPlan).length === 0) {
+                    showToast('Gere um cardápio primeiro', 'error');
+                    return;
+                }
+                
+                let message = '📋 *Planejamento Semanal de Marmitas* 📋\n\n';
+                
+                // Adiciona cada dia e refeição
+                for (const day in currentMealPlan) {
+                    const dayData = currentMealPlan[day];
+                    message += `*${day} - ${dayData.date}*\n`;
+                    
+                    for (const mealType in dayData.meals) {
+                        const meal = dayData.meals[mealType];
+                        message += `🍽️ *${mealType}* (${meal.calories}kcal)\n`;
+                        
+                        meal.ingredients.forEach(ing => {
+                            message += `  ${ing.emoji} ${ing.name}\n`;
+                        });
+                        
+                        message += '\n';
+                    }
+                    
+                    message += '\n';
+                }
+                
+                // Adiciona resumo nutricional
+                message += `💪 *Resumo Nutricional Diário*\n`;
+                message += `🔥 Calorias: ${document.getElementById('total-calories').textContent}kcal\n`;
+                message += `🍗 Proteínas: ${document.getElementById('total-protein').textContent}g\n`;
+                message += `🍞 Carboidratos: ${document.getElementById('total-carbs').textContent}g\n`;
+                message += `🥑 Gorduras: ${document.getElementById('total-fat').textContent}g\n\n`;
+                message += `💰 *Custo Semanal Estimado: ${document.getElementById('total-cost').textContent}*\n\n`;
+                message += `Planejado com MarmitAI - ${new Date().toLocaleDateString('pt-BR')}`;
+                
+                // Codifica para URL
+                const encodedMessage = encodeURIComponent(message);
+                window.open(`https://wa.me/?text=${encodedMessage}`, '_blank');
+            }
+            
+            function exportAsPDF() {
+                if (!currentMealPlan || Object.keys(currentMealPlan).length === 0) {
+                    showToast('Gere um cardápio primeiro', 'error');
+                    return;
+                }
+
+                // Mostra loading no botão
+                exportBtn.innerHTML = '<span class="spinner"></span> Gerando PDF...';
+                exportBtn.disabled = true;
+
+                // Verifica se jsPDF está disponível
+                if (typeof jsPDF === 'undefined') {
+                    showToast('Erro ao carregar biblioteca PDF', 'error');
+                    exportBtn.innerHTML = '<i class="fas fa-file-export"></i> Exportar PDF';
+                    exportBtn.disabled = false;
+                    return;
+                }
+
+                const doc = new jsPDF();
+
+                // Adiciona título
+                doc.setFontSize(18);
+                doc.setTextColor(98, 0, 238);
+                doc.text('Planejamento Semanal - MarmitAI', 105, 15, { align: 'center' });
+
+                // Adiciona data
+                doc.setFontSize(10);
+                doc.setTextColor(100, 100, 100);
+                doc.text(`Gerado em: ${new Date().toLocaleDateString('pt-BR')}`, 105, 22, { align: 'center' });
+
+                let yPosition = 30;
+                const pageWidth = doc.internal.pageSize.getWidth();
+                const margin = 15;
+
+                // Adiciona cada dia e refeição
+                for (const day in currentMealPlan) {
+                    const dayData = currentMealPlan[day];
+
+                    // Verifica se precisa de uma nova página
+                    if (yPosition > 250) {
+                        doc.addPage();
+                        yPosition = 20;
+                    }
+
+                    // Dia e data
+                    doc.setFontSize(14);
+                    doc.setTextColor(98, 0, 238);
+                    doc.text(`${day} - ${dayData.date}`, margin, yPosition);
+                    yPosition += 10;
+
+                    // Refeições
+                    for (const mealType in dayData.meals) {
+                        const meal = dayData.meals[mealType];
+
+                        // Tipo de refeição
+                        doc.setFontSize(12);
+                        doc.setTextColor(50, 50, 50);
+                        doc.text(`${mealType} (${meal.calories}kcal)`, margin + 5, yPosition);
+                        yPosition += 7;
+
+                        // Ingredientes
+                        doc.setFontSize(10);
+                        meal.ingredients.forEach(ing => {
+                            doc.text(`  ${ing.emoji} ${ing.name}`, margin + 10, yPosition);
+                            yPosition += 6;
+                        });
+
+                        yPosition += 5;
+                    }
+
+                    yPosition += 5;
+                }
+
+                // Adiciona resumo nutricional em nova página
+                doc.addPage();
+                yPosition = 20;
+                doc.setFontSize(16);
+                doc.setTextColor(98, 0, 238);
+                doc.text('Resumo Nutricional', 105, yPosition, { align: 'center' });
+                yPosition += 15;
+
+                doc.setFontSize(12);
+                doc.setTextColor(50, 50, 50);
+                doc.text(`🔥 Calorias diárias: ${document.getElementById('total-calories').textContent}kcal`, margin, yPosition);
+                yPosition += 10;
+                doc.text(`🍗 Proteínas: ${document.getElementById('total-protein').textContent}g`, margin, yPosition);
+                yPosition += 10;
+                doc.text(`🍞 Carboidratos: ${document.getElementById('total-carbs').textContent}g`, margin, yPosition);
+                yPosition += 10;
+                doc.text(`🥑 Gorduras: ${document.getElementById('total-fat').textContent}g`, margin, yPosition);
+                yPosition += 15;
+                doc.text(`💰 Custo semanal estimado: ${document.getElementById('total-cost').textContent}`, margin, yPosition);
+
+                // Salva o PDF
+                doc.save('cardapio-marmitai.pdf');
+                showToast('Cardápio exportado como PDF!', 'success');
+
+                // Restaura o botão
+                exportBtn.innerHTML = '<i class="fas fa-file-export"></i> Exportar PDF';
+                exportBtn.disabled = false;
+            }
+
+            function printShoppingList() {
+                if (!currentMealPlan || Object.keys(currentMealPlan).length === 0) {
+                    showToast('Gere um cardápio primeiro', 'error');
+                    return;
+                }
+                
+                // Abre a janela de impressão do navegador
+                window.print();
+            }
+            
+            function clearMealPlan() {
+                if (confirm('Tem certeza que deseja limpar todo o planejamento?')) {
+                    currentMealPlan = null;
+                    selectedItems = [];
+                    
+                    // Limpa seleção dos itens
+                    document.querySelectorAll('.food-item.selected').forEach(item => {
+                        item.classList.remove('selected');
+                    });
+                    
+                    weekPlanContainer.innerHTML = `
+                        <div class="empty-state">
+                            <i class="fas fa-calendar-week"></i>
+                            <p>Seu planejamento semanal aparecerá aqui</p>
+                            <p>Selecione ingredientes e clique em "Gerar Cardápio"</p>
+                        </div>
+                    `;
+                    
+                    shoppingListContainer.innerHTML = `
+                        <div class="empty-state">
+                            <i class="fas fa-shopping-basket"></i>
+                            <p>Sua lista de compras aparecerá aqui</p>
+                            <p>Gere um cardápio para ver os ingredientes necessários</p>
+                        </div>
+                    `;
+                    
+                    // Limpa dashboard
+                    document.getElementById('total-calories').textContent = '0';
+                    document.getElementById('total-protein').textContent = '0';
+                    document.getElementById('total-carbs').textContent = '0';
+                    document.getElementById('total-fat').textContent = '0';
+                    document.getElementById('total-cost').textContent = 'R$ 0';
+                    
+                    // Desabilita botões de ação
+                    whatsappBtn.disabled = true;
+                    exportBtn.disabled = true;
+                    clearBtn.disabled = true;
+                    
+                    showToast('Planejamento limpo', 'error');
+                }
+            }
+            
             function showToast(message, type = 'success') {
-                toast.textContent = message;
+                toastMessage.textContent = message;
                 toast.className = 'toast';
-                toast.classList.add(type, 'show');
+                toast.classList.add(type);
+                toast.classList.add('show');
+                
+                // Define o ícone baseado no tipo
+                const icon = toast.querySelector('i');
+                icon.className = type === 'success' ? 'fas fa-check-circle' : 'fas fa-exclamation-circle';
                 
                 setTimeout(() => {
                     toast.classList.remove('show');
                 }, 3000);
             }
-            
-            // Função para compartilhar via WhatsApp
-            window.shareWeeklyPlan = function() {
-                if (meals.length === 0) {
-                    showToast('Adicione refeições para compartilhar', 'error');
-                    return;
-                }
-                
-                // Agrupar refeições por dia
-                const mealsByDay = {
-                    'Segunda': [],
-                    'Terça': [],
-                    'Quarta': [],
-                    'Quinta': [],
-                    'Sexta': [],
-                    'Sábado': [],
-                    'Domingo': []
-                };
-                
-                meals.forEach(meal => {
-                    if (mealsByDay[meal.day]) {
-                        mealsByDay[meal.day].push(meal);
-                    }
-                });
-                
-                // Construir mensagem
-                let message = '📅 *Planejamento Semanal de Marmitas* 📅\n\n';
-                
-                Object.entries(mealsByDay).forEach(([day, dayMeals]) => {
-                    if (dayMeals.length > 0) {
-                        message += `*${day}*\n`;
-                        
-                        dayMeals.forEach(meal => {
-                            message += `- ${meal.mealType}: ${meal.mealName} (${meal.category})\n`;
-                        });
-                        
-                        message += '\n';
-                    }
-                });
-                
-                // Adicionar lista de compras se existir
-                if (shoppingList.length > 0) {
-                    message += '\n🛒 *Lista de Compras*\n';
-                    
-                    // Agrupar itens iguais
-                    const groupedItems = shoppingList.reduce((acc, item) => {
-                        const existingItem = acc.find(i => i.name === item.name);
-                        if (existingItem) {
-                            existingItem.count++;
-                        } else {
-                            acc.push({...item, count: 1});
-                        }
-                        return acc;
-                    }, []);
-                    
-                    groupedItems.forEach(item => {
-                        message += `- ${item.name}${item.count > 1 ? ` (${item.count})` : ''}\n`;
-                    });
-                }
-                
-                message += '\nPlanejado com MarmitAI: <a href="https://rpassosdomingues.github.io/insights/site/utilities/marmitAI.html" target="_blank">🍱 Clique aqui</a>';
-                
-                // Codificar para URL
-                const encodedMessage = encodeURIComponent(message);
-                const whatsappUrl = `https://wa.me/?text=${encodedMessage}`;
-                
-                // Abrir em nova aba
-                window.open(whatsappUrl, '_blank');
-            };
-            
-            // Expor funções para o escopo global
-            window.editMeal = function(id) {
-                const meal = meals.find(m => m.id === id);
-                if (meal) {
-                    document.getElementById('day').value = meal.day;
-                    document.getElementById('meal-type').value = meal.mealType;
-                    document.getElementById('meal-name').value = meal.mealName;
-                    document.getElementById('ingredients').value = meal.ingredients.join(', ');
-                    document.getElementById('category').value = meal.category;
-                    
-                    // Remover a refeição antiga
-                    meals = meals.filter(m => m.id !== id);
-                    saveMeals();
-                    renderWeekPlan();
-                    updateDashboard();
-                    
-                    // Rolagem suave para o formulário
-                    document.querySelector('.sidebar').scrollIntoView({ behavior: 'smooth' });
-                    document.getElementById('meal-name').focus();
-                    
-                    showToast('Edite a refeição e clique em Adicionar', 'success');
-                }
-            };
-            
-            window.deleteMeal = function(id) {
-                if (confirm('Tem certeza que deseja remover esta refeição?')) {
-                    meals = meals.filter(m => m.id !== id);
-                    saveMeals();
-                    renderWeekPlan();
-                    updateDashboard();
-                    showToast('Refeição removida', 'success');
-                }
-            };
-            
-            window.toggleShoppingItem = function(name) {
-                shoppingList.forEach(item => {
-                    if (item.name === name) {
-                        item.checked = !item.checked;
-                    }
-                });
-                saveShoppingList();
-                renderShoppingList();
-            };
-            
-            window.removeShoppingItem = function(name) {
-                shoppingList = shoppingList.filter(item => item.name !== name);
-                saveShoppingList();
-                renderShoppingList();
-                showToast('Item removido da lista', 'success');
-            };
         });
     </script>
 </body>
