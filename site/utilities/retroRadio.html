@@ -1,0 +1,1267 @@
+<!--
+ * --------------------------------------------------------------
+ * Author: Rafael Passos Domingues
+ * Last Update: 2025 June 8
+ * --------------------------------------------------------------
+-->
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rádio Retrô</title>
+    <meta name="description" content="Ouça estações de rádio de todo o mundo em um player retrô moderno">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Roboto:wght@300;400&display=swap');
+
+        :root {
+            --primary-color: #0a0a12;
+            --secondary-color: #1a1a2e;
+            --accent-color: #4cc9f0;
+            --accent-dark: #3a86ff;
+            --text-color: #e0e0e0;
+            --text-secondary: #b8b8b8;
+            --shadow-color: rgba(76, 201, 240, 0.3);
+            --whatsapp-color: #25D366;
+            --favorite-color: #ffbe0b;
+            --error-color: #ff3860;
+            --success-color: #09c372;
+            --brazil-color: #009c3b;
+            --usa-color: #3c3b6e;
+            --japan-color: #bc002d;
+        }
+
+        body {
+            background-color: var(--primary-color);
+            color: var(--text-color);
+            font-family: 'Roboto', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 15px;
+            box-sizing: border-box;
+            line-height: 1.6;
+        }
+
+        .radio-container {
+            width: 100%;
+            max-width: 420px;
+            background: var(--secondary-color);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), 
+                        0 0 20px var(--shadow-color),
+                        inset 0 0 10px rgba(0, 0, 0, 0.3);
+            text-align: center;
+            border: 1px solid #2a2a3a;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .radio-container::before {
+            content: '';
+            position: absolute;
+            top: -10px;
+            left: -10px;
+            right: -10px;
+            bottom: -10px;
+            background: linear-gradient(45deg, 
+                var(--accent-color) 0%, 
+                var(--accent-dark) 50%, 
+                transparent 100%);
+            z-index: -1;
+            filter: blur(15px);
+            opacity: 0.3;
+        }
+
+        .station-info {
+            margin-bottom: 25px;
+            min-height: 80px;
+            position: relative;
+        }
+
+        #station-name {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.5em;
+            color: var(--accent-color);
+            text-shadow: 0 0 5px var(--shadow-color);
+            margin: 0 0 5px 0;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            padding: 0 20px;
+        }
+
+        #station-country {
+            font-size: 0.9em;
+            opacity: 0.8;
+            margin: 3px 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+        }
+
+        .country-flag {
+            width: 16px;
+            height: 12px;
+            border-radius: 2px;
+            display: inline-block;
+        }
+
+        .flag-brazil {
+            background: linear-gradient(to right, #009c3b 33%, #ffdf00 33% 66%, #002776 66%);
+        }
+
+        .flag-usa {
+            background: linear-gradient(to bottom, #3c3b6e 40%, #b22234 40% 60%, #3c3b6e 60%);
+            position: relative;
+        }
+
+        .flag-usa::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 40%;
+            height: 50%;
+            background: repeating-linear-gradient(
+                to bottom,
+                #b22234,
+                #b22234 7.7%,
+                #ffffff 7.7%,
+                #ffffff 15.4%
+            );
+        }
+
+        .flag-japan {
+            background: white;
+            position: relative;
+        }
+
+        .flag-japan::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 60%;
+            height: 60%;
+            background: #bc002d;
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        #station-genre {
+            font-size: 0.9em;
+            opacity: 0.8;
+            margin: 3px 0;
+        }
+
+        #station-bitrate {
+            font-size: 0.8em;
+            color: var(--text-secondary);
+            margin: 3px 0;
+        }
+
+        .album-art {
+            margin: 0 auto 25px auto;
+            width: 180px;
+            height: 180px;
+            background: #1a1a2e;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border: 5px solid var(--accent-color);
+            box-shadow: 0 0 20px var(--shadow-color);
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.3s;
+        }
+
+        .album-art:hover {
+            transform: scale(1.03);
+        }
+
+        .album-art img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: none;
+        }
+
+        .retro-radio-icon i {
+            font-size: 70px;
+            color: var(--accent-color);
+            text-shadow: 0 0 15px var(--shadow-color);
+        }
+
+        .controls {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 25px;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .control-btn {
+            background: none;
+            border: 2px solid var(--accent-color);
+            color: var(--accent-color);
+            border-radius: 50%;
+            width: 55px;
+            height: 55px;
+            cursor: pointer;
+            font-size: 1.3em;
+            transition: all 0.3s ease;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+        }
+
+        .control-btn:hover {
+            background-color: var(--accent-color);
+            color: var(--primary-color);
+            box-shadow: 0 0 15px var(--shadow-color);
+            transform: scale(1.05);
+        }
+
+        .control-btn.active {
+            background-color: var(--accent-color);
+            color: var(--primary-color);
+            box-shadow: 0 0 15px var(--shadow-color);
+        }
+
+        .play-btn {
+            width: 70px;
+            height: 70px;
+            font-size: 2em;
+        }
+
+        #whatsapp-btn {
+            border-color: var(--whatsapp-color);
+            color: var(--whatsapp-color);
+        }
+
+        #whatsapp-btn:hover {
+            background-color: var(--whatsapp-color);
+            color: white;
+            box-shadow: 0 0 15px rgba(37, 211, 102, 0.5);
+        }
+
+        #favorite-btn {
+            border-color: var(--favorite-color);
+            color: var(--favorite-color);
+        }
+
+        #favorite-btn:hover {
+            background-color: var(--favorite-color);
+            color: var(--primary-color);
+            box-shadow: 0 0 15px rgba(255, 190, 11, 0.5);
+        }
+
+        #favorite-btn.favorited {
+            background-color: var(--favorite-color);
+            color: var(--primary-color);
+        }
+
+        .volume-control {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 20px;
+            width: 100%;
+        }
+
+        .volume-slider {
+            -webkit-appearance: none;
+            width: 70%;
+            height: 6px;
+            background: #2a2a3a;
+            border-radius: 3px;
+            outline: none;
+        }
+
+        .volume-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: var(--accent-color);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .volume-slider::-webkit-slider-thumb:hover {
+            transform: scale(1.2);
+            box-shadow: 0 0 5px var(--shadow-color);
+        }
+
+        .dial-container {
+            height: 20px;
+            background: #1a1a2e;
+            border-radius: 10px;
+            overflow: hidden;
+            position: relative;
+            border: 1px solid #2a2a3a;
+            margin-bottom: 15px;
+        }
+
+        .dial {
+            width: 200%;
+            height: 100%;
+            background: linear-gradient(90deg, 
+                var(--primary-color), 
+                var(--accent-color), 
+                var(--primary-color));
+            position: absolute;
+            left: -50%;
+            transition: transform 0.5s cubic-bezier(0.25, 0.1, 0.25, 1);
+        }
+
+        .status {
+            font-size: 0.85em;
+            color: var(--text-secondary);
+            margin-top: 10px;
+            min-height: 20px;
+        }
+
+        .privacy-banner {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: var(--secondary-color);
+            padding: 15px;
+            box-shadow: 0 -5px 15px rgba(0, 0, 0, 0.3);
+            z-index: 1000;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-items: center;
+            gap: 15px;
+            border-top: 1px solid var(--accent-color);
+        }
+
+        .privacy-banner p {
+            margin: 0;
+            font-size: 0.9em;
+            max-width: 600px;
+        }
+
+        .privacy-banner button {
+            background: var(--accent-color);
+            color: var(--primary-color);
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.2s;
+        }
+
+        .privacy-banner button:hover {
+            background: var(--accent-dark);
+            transform: translateY(-2px);
+        }
+
+        .station-tags {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 5px;
+            margin: 10px 0;
+        }
+
+        .tag {
+            background: rgba(76, 201, 240, 0.1);
+            color: var(--accent-color);
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 0.75em;
+            border: 1px solid var(--accent-color);
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        /* Loading animation */
+        @keyframes pulse {
+            0% { opacity: 0.6; }
+            50% { opacity: 1; }
+            100% { opacity: 0.6; }
+        }
+
+        .loading {
+            animation: pulse 1.5s infinite;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 480px) {
+            .radio-container {
+                padding: 20px;
+            }
+            
+            .album-art {
+                width: 150px;
+                height: 150px;
+            }
+            
+            .control-btn {
+                width: 50px;
+                height: 50px;
+            }
+            
+            .play-btn {
+                width: 60px;
+                height: 60px;
+            }
+        }
+
+        /* Retro VU meter effect */
+        .vu-meter {
+            display: flex;
+            justify-content: center;
+            gap: 2px;
+            height: 10px;
+            margin: 10px 0;
+        }
+
+        .vu-bar {
+            width: 3px;
+            background: var(--accent-color);
+            border-radius: 2px;
+            animation: vuPulse 0.5s infinite alternate;
+        }
+
+        @keyframes vuPulse {
+            0% { height: 2px; opacity: 0.3; }
+            100% { height: 10px; opacity: 1; }
+        }
+
+        .vu-bar:nth-child(1) { animation-delay: 0.1s; }
+        .vu-bar:nth-child(2) { animation-delay: 0.2s; }
+        .vu-bar:nth-child(3) { animation-delay: 0.3s; }
+        .vu-bar:nth-child(4) { animation-delay: 0.4s; }
+        .vu-bar:nth-child(5) { animation-delay: 0.5s; }
+
+        /* Country indicator */
+        .country-indicator {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            font-size: 0.7em;
+            padding: 2px 5px;
+            border-radius: 3px;
+            font-weight: bold;
+        }
+
+        .country-brazil {
+            background-color: var(--brazil-color);
+        }
+
+        .country-usa {
+            background-color: var(--usa-color);
+        }
+
+        .country-japan {
+            background-color: var(--japan-color);
+        }
+
+        .country-world {
+            background-color: var(--accent-dark);
+        }
+    </style>
+</head>
+<body>
+    <div class="radio-container">
+        <div class="station-info">
+            <h2 id="station-name">Sintonizando...</h2>
+            <div id="station-country" class="loading">Carregando...</div>
+            <div id="station-genre"></div>
+            <div id="station-bitrate"></div>
+            <div class="station-tags" id="station-tags"></div>
+            <div id="country-indicator" class="country-indicator hidden"></div>
+        </div>
+
+        <div class="album-art">
+            <div class="retro-radio-icon">
+                <i class="fas fa-broadcast-tower"></i>
+            </div>
+            <img id="station-image" src="" alt="Capa da Rádio">
+        </div>
+
+        <div class="vu-meter hidden" id="vu-meter">
+            <div class="vu-bar"></div>
+            <div class="vu-bar"></div>
+            <div class="vu-bar"></div>
+            <div class="vu-bar"></div>
+            <div class="vu-bar"></div>
+        </div>
+
+        <div class="controls">
+            <button id="prev-btn" class="control-btn" title="Estação anterior"><i class="fas fa-backward"></i></button>
+            <button id="play-pause-btn" class="control-btn play-btn" title="Play/Pause"><i class="fas fa-play"></i></button>
+            <button id="next-btn" class="control-btn" title="Próxima estação"><i class="fas fa-forward"></i></button>
+            <button id="favorite-btn" class="control-btn" title="Favoritar"><i class="fas fa-heart"></i></button>
+            <button id="whatsapp-btn" class="control-btn" title="Compartilhar"><i class="fab fa-whatsapp"></i></button>
+        </div>
+
+        <div class="volume-control">
+            <i class="fas fa-volume-down" style="color: var(--text-secondary);"></i>
+            <input type="range" min="0" max="1" step="0.01" value="0.7" class="volume-slider" id="volume-slider">
+            <i class="fas fa-volume-up" style="color: var(--text-secondary);"></i>
+        </div>
+
+        <div class="dial-container">
+            <div id="dial" class="dial"></div>
+        </div>
+
+        <div class="status" id="status">Pronto para sintonizar</div>
+    </div>
+
+    <audio id="audio-player" src="" crossOrigin="anonymous"></audio>
+
+    <div class="privacy-banner" id="privacy-banner">
+        <p>Este web app utiliza cookies para te oferecer uma experiência personalizada e lembrar suas estações de rádio favoritas com base na memória local do seu navegador. Ao continuar navegando, você concorda com nossa política de privacidade. O "Radio Retrô" não possui, de forma alguma, responsabilidade sobre as estações de rádio disponibilizadas, pois elas são fornecidas por meio da API de código aberto Radio Browser (<a href="https://www.radio-browser.info/" target="_blank" rel="noopener">https://www.radio-browser.info/</a>). Essa API agrega e disponibiliza transmissões, em domínio público, de estações de rádio do mundo todo.</p>
+        <button id="accept-privacy">Entendi e Aceito</button>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Elementos DOM
+            const stationNameEl = document.getElementById('station-name');
+            const stationCountryEl = document.getElementById('station-country');
+            const stationGenreEl = document.getElementById('station-genre');
+            const stationBitrateEl = document.getElementById('station-bitrate');
+            const stationTagsEl = document.getElementById('station-tags');
+            const stationImageEl = document.getElementById('station-image');
+            const playPauseBtn = document.getElementById('play-pause-btn');
+            const prevBtn = document.getElementById('prev-btn');
+            const nextBtn = document.getElementById('next-btn');
+            const whatsappBtn = document.getElementById('whatsapp-btn');
+            const favoriteBtn = document.getElementById('favorite-btn');
+            const audioPlayer = document.getElementById('audio-player');
+            const dial = document.getElementById('dial');
+            const statusEl = document.getElementById('status');
+            const volumeSlider = document.getElementById('volume-slider');
+            const vuMeter = document.getElementById('vu-meter');
+            const privacyBanner = document.getElementById('privacy-banner');
+            const acceptPrivacyBtn = document.getElementById('accept-privacy');
+            const countryIndicator = document.getElementById('country-indicator');
+
+            // Variáveis de estado
+            let stations = [];
+            let currentIndex = 0;
+            let isPlaying = false;
+            let listenTimer;
+            let listenStartTime;
+            let favorites = [];
+            let history = [];
+            let privacyAccepted = false;
+            let currentRegion = '';
+
+            // Chaves para localStorage
+            const preferenceKey = 'radioRetroPreferences';
+            const favoritesKey = 'radioRetroFavorites';
+            const historyKey = 'radioRetroHistory';
+            const privacyKey = 'radioRetroPrivacyAccepted';
+
+            // Inicialização
+            const init = async () => {
+                loadPreferences();
+                loadFavorites();
+                loadHistory();
+                checkPrivacy();
+                setupEventListeners();
+                await fetchStations();
+            };
+
+            // Carregar preferências
+            const loadPreferences = () => {
+                try {
+                    const prefs = localStorage.getItem(preferenceKey);
+                    if (prefs) {
+                        return JSON.parse(prefs);
+                    }
+                } catch (e) {
+                    console.error("Erro ao carregar preferências:", e);
+                }
+                return {};
+            };
+
+            let preferences = loadPreferences();
+
+            // Salvar preferências
+            const savePreferences = () => {
+                try {
+                    localStorage.setItem(preferenceKey, JSON.stringify(preferences));
+                } catch (e) {
+                    console.error("Erro ao salvar preferências:", e);
+                }
+            };
+
+            // Carregar favoritos
+            const loadFavorites = () => {
+                try {
+                    const favs = localStorage.getItem(favoritesKey);
+                    favorites = favs ? JSON.parse(favs) : [];
+                } catch (e) {
+                    console.error("Erro ao carregar favoritos:", e);
+                    favorites = [];
+                }
+            };
+
+            // Salvar favoritos
+            const saveFavorites = () => {
+                try {
+                    localStorage.setItem(favoritesKey, JSON.stringify(favorites));
+                } catch (e) {
+                    console.error("Erro ao salvar favoritos:", e);
+                }
+            };
+
+            // Carregar histórico
+            const loadHistory = () => {
+                try {
+                    const hist = localStorage.getItem(historyKey);
+                    history = hist ? JSON.parse(hist) : [];
+                } catch (e) {
+                    console.error("Erro ao carregar histórico:", e);
+                    history = [];
+                }
+            };
+
+            // Salvar histórico
+            const saveHistory = () => {
+                try {
+                    localStorage.setItem(historyKey, JSON.stringify(history));
+                } catch (e) {
+                    console.error("Erro ao salvar histórico:", e);
+                }
+            };
+
+            // Verificar privacidade
+            const checkPrivacy = () => {
+                privacyAccepted = localStorage.getItem(privacyKey) === 'true';
+                if (privacyAccepted) {
+                    privacyBanner.style.display = 'none';
+                }
+            };
+
+            // Buscar estações da API com prioridade por região
+            const fetchStations = async () => {
+                showLoading(true);
+                statusEl.textContent = 'Buscando estações...';
+                
+                // Tentar buscar em ordem de prioridade
+                const regions = [
+                    { country: 'Brazil', cacheKey: 'cachedStationsBR', name: 'Brasil' },
+                    { country: 'United States', cacheKey: 'cachedStationsUS', name: 'EUA' },
+                    { country: 'Japan', cacheKey: 'cachedStationsJP', name: 'Japão' },
+                    { cacheKey: 'cachedStationsWorld', name: 'Mundo', filter: 'flashback' }
+                ];
+                
+                for (const region of regions) {
+                    try {
+                        const stations = await fetchStationsForRegion(region);
+                        if (stations && stations.length > 0) {
+                            currentRegion = region.name;
+                            processStations(stations);
+                            statusEl.textContent = `Estações de ${region.name} carregadas`;
+                            return;
+                        }
+                    } catch (error) {
+                        console.error(`Erro ao buscar estações para ${region.name}:`, error);
+                    }
+                }
+                
+                // Se nenhuma região retornou estações
+                stationNameEl.textContent = 'Nenhuma estação encontrada';
+                statusEl.textContent = 'Nenhuma estação disponível';
+                showLoading(false);
+            };
+
+            // Buscar estações para uma região específica
+            const fetchStationsForRegion = async (region) => {
+                // Primeiro tenta buscar do cache
+                const cachedStations = localStorage.getItem(region.cacheKey);
+                const cacheTimestamp = localStorage.getItem(`${region.cacheKey}Timestamp`);
+                
+                if (cachedStations && cacheTimestamp && (Date.now() - parseInt(cacheTimestamp)) < 6 * 60 * 60 * 1000) {
+                    // Usar cache se tiver menos de 6 horas
+                    return JSON.parse(cachedStations);
+                }
+                
+                // Se não tiver cache válido, buscar da API
+                let apiUrl = 'https://de1.api.radio-browser.info/json/stations?limit=200&order=votes&reverse=true';
+                
+                if (region.country) {
+                    apiUrl += `&country=${region.country}`;
+                }
+                
+                if (region.filter) {
+                    apiUrl += `&tag=${region.filter}`;
+                }
+                
+                const response = await fetch(apiUrl);
+                if (!response.ok) throw new Error(`Falha ao buscar estações para ${region.name}`);
+                
+                let data = await response.json();
+                
+                // Filtrar estações válidas
+                data = data.filter(station => 
+                    station.url_resolved && 
+                    (station.codec === "MP3" || station.codec === "AAC") &&
+                    !station.url_resolved.includes('localhost')
+                );
+                
+                // Salvar no cache
+                if (data.length > 0) {
+                    localStorage.setItem(region.cacheKey, JSON.stringify(data));
+                    localStorage.setItem(`${region.cacheKey}Timestamp`, Date.now().toString());
+                }
+                
+                return data;
+            };
+
+            // Processar estações recebidas
+            const processStations = (data) => {
+                stations = data;
+                
+                // Ordenar por preferências (tempo de escuta)
+                stations.sort((a, b) => {
+                    const timeA = preferences[a.stationuuid] || 0;
+                    const timeB = preferences[b.stationuuid] || 0;
+                    return timeB - timeA;
+                });
+                
+                // Verificar se há estação na URL
+                const params = new URLSearchParams(window.location.search);
+                const stationIdFromUrl = params.get('station');
+                
+                if (stationIdFromUrl) {
+                    const requestedIndex = stations.findIndex(s => s.stationuuid === stationIdFromUrl);
+                    if (requestedIndex > -1) {
+                        currentIndex = requestedIndex;
+                    }
+                }
+                
+                if (stations.length > 0) {
+                    updateStationInfo();
+                } else {
+                    stationNameEl.textContent = 'Nenhuma estação encontrada';
+                    statusEl.textContent = 'Nenhuma estação disponível';
+                }
+                
+                showLoading(false);
+            };
+
+            // Atualizar informações da estação
+            const updateStationInfo = () => {
+                if (!stations[currentIndex]) return;
+                
+                const station = stations[currentIndex];
+                
+                // Atualizar elementos de texto
+                stationNameEl.textContent = station.name || 'Rádio sem nome';
+                
+                // País com bandeira
+                stationCountryEl.innerHTML = '';
+                if (station.country) {
+                    const flagSpan = document.createElement('span');
+                    flagSpan.className = 'country-flag';
+                    
+                    if (station.country.toLowerCase().includes('brazil') || station.country.toLowerCase().includes('brasil')) {
+                        flagSpan.classList.add('flag-brazil');
+                    } else if (station.country.toLowerCase().includes('united states') || station.country.toLowerCase().includes('usa')) {
+                        flagSpan.classList.add('flag-usa');
+                    } else if (station.country.toLowerCase().includes('japan') || station.country.toLowerCase().includes('japão')) {
+                        flagSpan.classList.add('flag-japan');
+                    }
+                    
+                    stationCountryEl.appendChild(flagSpan);
+                    stationCountryEl.appendChild(document.createTextNode(station.country));
+                } else {
+                    stationCountryEl.textContent = 'País desconhecido';
+                }
+                
+                stationCountryEl.classList.remove('loading');
+                
+                // Gênero e bitrate
+                stationGenreEl.textContent = station.tags ? `Gênero: ${station.tags.split(',')[0]}` : '';
+                stationBitrateEl.textContent = station.bitrate ? `${station.bitrate}kbps` : '';
+                
+                // Tags
+                stationTagsEl.innerHTML = '';
+                if (station.tags) {
+                    const tags = station.tags.split(',').slice(0, 3); // Limitar a 3 tags
+                    tags.forEach(tag => {
+                        if (tag.trim()) {
+                            const tagEl = document.createElement('span');
+                            tagEl.className = 'tag';
+                            tagEl.textContent = tag.trim();
+                            stationTagsEl.appendChild(tagEl);
+                        }
+                    });
+                }
+                
+                // Imagem da estação (se existir)
+                if (station.favicon && station.favicon.startsWith('http')) {
+                    stationImageEl.src = station.favicon;
+                    stationImageEl.style.display = 'block';
+                    document.querySelector('.retro-radio-icon').style.display = 'none';
+                } else {
+                    stationImageEl.style.display = 'none';
+                    document.querySelector('.retro-radio-icon').style.display = 'flex';
+                }
+                
+                // Atualizar URL do áudio
+                audioPlayer.src = station.url_resolved;
+                audioPlayer.load();
+                
+                // Atualizar indicador de região
+                //updateRegionIndicator();
+                
+                // Verificar se é favorito
+                updateFavoriteButton();
+                
+                // Adicionar ao histórico
+                addToHistory(station);
+                
+                // Se estava tocando, continuar
+                if (isPlaying) {
+                    audioPlayer.play().catch(e => {
+                        console.error("Erro ao tocar:", e);
+                        statusEl.textContent = 'Erro ao conectar à rádio';
+                        isPlaying = false;
+                        playPauseBtn.innerHTML = '<i class="fas fa-play"></i>';
+                    });
+                }
+            };
+
+            // Atualizar indicador de região
+            const updateRegionIndicator = () => {
+                if (!currentRegion) return;
+                
+                countryIndicator.textContent = currentRegion;
+                countryIndicator.classList.remove('hidden', 'country-brazil', 'country-usa', 'country-japan', 'country-world');
+                
+                switch(currentRegion.toLowerCase()) {
+                    case 'brasil':
+                        countryIndicator.classList.add('country-brazil');
+                        break;
+                    case 'eua':
+                        countryIndicator.classList.add('country-usa');
+                        break;
+                    case 'japão':
+                        countryIndicator.classList.add('country-japan');
+                        break;
+                    default:
+                        countryIndicator.classList.add('country-world');
+                }
+                
+                countryIndicator.classList.remove('hidden');
+            };
+
+            // Adicionar ao histórico
+            const addToHistory = (station) => {
+                // Remover se já existir
+                history = history.filter(s => s.stationuuid !== station.stationuuid);
+                
+                // Adicionar no início
+                history.unshift({
+                    stationuuid: station.stationuuid,
+                    name: station.name,
+                    country: station.country,
+                    url_resolved: station.url_resolved
+                });
+                
+                // Manter apenas os últimos 20
+                if (history.length > 20) {
+                    history = history.slice(0, 20);
+                }
+                
+                saveHistory();
+            };
+
+            // Atualizar botão de favorito
+            const updateFavoriteButton = () => {
+                if (!stations[currentIndex]) return;
+                
+                const station = stations[currentIndex];
+                const isFavorited = favorites.some(fav => fav.stationuuid === station.stationuuid);
+                
+                if (isFavorited) {
+                    favoriteBtn.classList.add('favorited');
+                    favoriteBtn.title = 'Remover dos favoritos';
+                } else {
+                    favoriteBtn.classList.remove('favorited');
+                    favoriteBtn.title = 'Adicionar aos favoritos';
+                }
+            };
+
+            // Alternar favorito
+            const toggleFavorite = () => {
+                if (!stations[currentIndex]) return;
+                
+                const station = stations[currentIndex];
+                const index = favorites.findIndex(fav => fav.stationuuid === station.stationuuid);
+                
+                if (index > -1) {
+                    // Remover dos favoritos
+                    favorites.splice(index, 1);
+                    statusEl.textContent = 'Removido dos favoritos';
+                } else {
+                    // Adicionar aos favoritos
+                    favorites.push({
+                        stationuuid: station.stationuuid,
+                        name: station.name,
+                        country: station.country,
+                        url_resolved: station.url_resolved
+                    });
+                    statusEl.textContent = 'Adicionado aos favoritos';
+                }
+                
+                saveFavorites();
+                updateFavoriteButton();
+                
+                // Resetar mensagem após 2 segundos
+                setTimeout(() => {
+                    if (statusEl.textContent.includes('favoritos')) {
+                        statusEl.textContent = isPlaying ? 'Tocando agora' : 'Pausado';
+                    }
+                }, 2000);
+            };
+
+            // Mostrar/ocultar loading
+            const showLoading = (show) => {
+                if (show) {
+                    stationCountryEl.classList.add('loading');
+                } else {
+                    stationCountryEl.classList.remove('loading');
+                }
+            };
+
+            // Iniciar timer de escuta
+            const startListenTimer = () => {
+                if (!stations[currentIndex]) return;
+                
+                listenStartTime = Date.now();
+                clearInterval(listenTimer);
+                
+                listenTimer = setInterval(() => {
+                    const station = stations[currentIndex];
+                    const elapsedTime = Date.now() - listenStartTime;
+                    preferences[station.stationuuid] = (preferences[station.stationuuid] || 0) + elapsedTime;
+                    listenStartTime = Date.now();
+                    savePreferences();
+                }, 10000); // Atualiza a cada 10 segundos
+            };
+
+            // Parar timer de escuta
+            const stopListenTimer = () => {
+                clearInterval(listenTimer);
+                
+                if (listenStartTime && stations[currentIndex]) {
+                    const station = stations[currentIndex];
+                    const elapsedTime = Date.now() - listenStartTime;
+                    preferences[station.stationuuid] = (preferences[station.stationuuid] || 0) + elapsedTime;
+                    savePreferences();
+                }
+                
+                listenStartTime = null;
+            };
+
+            // Alternar play/pause
+            const togglePlayPause = () => {
+                if (stations.length === 0) {
+                    statusEl.textContent = 'Nenhuma estação disponível';
+                    return;
+                }
+                
+                if (isPlaying) {
+                    // Pausar
+                    audioPlayer.pause();
+                    stopListenTimer();
+                    playPauseBtn.innerHTML = '<i class="fas fa-play"></i>';
+                    statusEl.textContent = 'Pausado';
+                    vuMeter.classList.add('hidden');
+                } else {
+                    // Play
+                    audioPlayer.play().then(() => {
+                        playPauseBtn.innerHTML = '<i class="fas fa-pause"></i>';
+                        startListenTimer();
+                        statusEl.textContent = 'Tocando agora';
+                        vuMeter.classList.remove('hidden');
+                    }).catch(error => {
+                        console.error("Erro ao tocar:", error);
+                        statusEl.textContent = 'Erro ao conectar à rádio';
+                        changeStation(1); // Tentar próxima estação
+                    });
+                }
+                
+                isPlaying = !isPlaying;
+            };
+
+            // Animar dial
+            const animateDial = (direction) => {
+                const rotation = direction > 0 ? '50%' : '-50%';
+                dial.style.transform = `translateX(${rotation})`;
+                
+                setTimeout(() => {
+                    dial.style.transform = 'translateX(0)';
+                }, 250);
+            };
+
+            // Mudar de estação
+            const changeStation = (direction) => {
+                if (stations.length === 0) return;
+                
+                stopListenTimer();
+                currentIndex = (currentIndex + direction + stations.length) % stations.length;
+                animateDial(direction);
+                updateStationInfo();
+                
+                if (isPlaying) {
+                    audioPlayer.play().catch(e => {
+                        console.error("Erro ao tocar:", e);
+                        statusEl.textContent = 'Erro ao conectar à rádio';
+                        isPlaying = false;
+                        playPauseBtn.innerHTML = '<i class="fas fa-play"></i>';
+                    });
+                }
+            };
+
+            // Compartilhar no WhatsApp
+            const shareOnWhatsApp = async () => {
+                if (stations.length === 0 || !stations[currentIndex]) {
+                    statusEl.textContent = 'Nenhuma rádio selecionada para compartilhar!';
+                    setTimeout(() => {
+                        if (isPlaying) statusEl.textContent = 'Tocando agora';
+                        else statusEl.textContent = 'Pausado';
+                    }, 2000);
+                    return;
+                }
+                
+                const station = stations[currentIndex];
+
+                // URL base da aplicação
+                const appUrlBase = window.location.href.split('?')[0];
+
+                // URL com parâmetro da estação
+                const appUrlWithStation = `${appUrlBase}?station=${station.stationuuid}`;
+
+                // Mensagem de compartilhamento (LGPD compliant e com aviso de isenção de responsabilidade)
+                const message = `🎧 Estou ouvindo ${station.name || 'uma rádio incrível'} no Rádio Retrô!\n\n` +
+                    `📻 Sintonize você também: ${appUrlWithStation}\n\n` +
+                    `🚨 Aviso: O web app "Radio Retrô" não é responsável, de forma alguma, pelas estações disponíveis aqui. As rádios são fornecidas por uma API de código aberto chamada Radio Browser (https://www.radio-browser.info/), que agrega e disponibiliza, para domínio público, transmissões públicas de estações de rádio do mundo todo.`;
+
+                // Verificar se o usuário já aceitou os termos de compartilhamento
+                const shareConsentKey = 'radioRetroShareConsent';
+                const hasConsent = localStorage.getItem(shareConsentKey) === 'true';
+
+                if (!hasConsent) {
+                    // Criar um modal mais amigável que o confirm padrão
+                    const consent = await showConsentDialog();
+        
+                if (consent) {
+                    localStorage.setItem(shareConsentKey, 'true');
+                    proceedWithSharing(message);
+                } else {
+                    statusEl.textContent = 'Compartilhamento cancelado';
+                    setTimeout(() => {
+                        if (isPlaying) statusEl.textContent = 'Tocando agora';
+                        else statusEl.textContent = 'Pausado';
+                    }, 2000);
+                    return;
+                }
+            } else {
+                proceedWithSharing(message);
+            }
+        };
+
+        // Mostrar diálogo de consentimento personalizado
+        const showConsentDialog = () => {
+            return new Promise((resolve) => {
+                // Criar elementos do modal
+                const modal = document.createElement('div');
+                modal.style.position = 'fixed';
+                modal.style.top = '0';
+                modal.style.left = '0';
+                modal.style.width = '100%';
+                modal.style.height = '100%';
+                modal.style.backgroundColor = 'rgba(0,0,0,0.7)';
+                modal.style.display = 'flex';
+                modal.style.justifyContent = 'center';
+                modal.style.alignItems = 'center';
+                modal.style.zIndex = '10000';
+        
+        const modalContent = document.createElement('div');
+            modalContent.style.backgroundColor = 'var(--secondary-color)';
+            modalContent.style.padding = '20px';
+            modalContent.style.borderRadius = '10px';
+            modalContent.style.maxWidth = '500px';
+            modalContent.style.width = '90%';
+            modalContent.style.border = '1px solid var(--accent-color)';
+        
+            const title = document.createElement('h3');
+            title.textContent = 'Termos de Compartilhamento';
+            title.style.color = 'var(--accent-color)';
+            title.style.marginTop = '0';
+        
+            const text = document.createElement('p');
+            text.textContent = 'Antes de compartilhar, por favor, note que:';
+            text.style.color = 'var(--text-color)';
+        
+            const list = document.createElement('ul');
+                list.innerHTML = `
+                <li>Você está prestes a compartilhar um link público para esta rádio.</li>
+                <li>O link inclui o nome da rádio, gerado pela API Radio Browser -- Um projeto Código Aberto.</li>
+                <li>Nenhum dado pessoal seu será compartilhado, e o conteúdo que está sendo compartilhado é de sua vontade explícita e de responsabilidade da fonte da mesma. Este web app não é responsável, de forma alguma, pelas estações de rádio que podem ser encontradas aqui.</li>
+            `;
+            list.style.color = 'var(--text-color)';
+        
+            const buttonContainer = document.createElement('div');
+                buttonContainer.style.display = 'flex';
+                buttonContainer.style.justifyContent = 'space-between';
+                buttonContainer.style.marginTop = '20px';
+        
+            const acceptButton = document.createElement('button');
+                acceptButton.textContent = 'Aceitar e Compartilhar';
+                acceptButton.style.backgroundColor = 'var(--accent-color)';
+                acceptButton.style.color = 'var(--primary-color)';
+                acceptButton.style.border = 'none';
+                acceptButton.style.padding = '10px 15px';
+                acceptButton.style.borderRadius = '5px';
+                acceptButton.style.cursor = 'pointer';
+
+                const rejectButton = document.createElement('button');
+                rejectButton.textContent = 'Cancelar';
+                rejectButton.style.backgroundColor = 'var(--error-color)';
+                rejectButton.style.color = 'white';
+                rejectButton.style.border = 'none';
+                rejectButton.style.padding = '10px 15px';
+                rejectButton.style.borderRadius = '5px';
+                rejectButton.style.cursor = 'pointer';
+
+                // Adicionar eventos
+                acceptButton.addEventListener('click', () => {
+                    document.body.removeChild(modal);
+                    resolve(true);
+                });
+
+                rejectButton.addEventListener('click', () => {
+                    document.body.removeChild(modal);
+                    resolve(false);
+                });
+
+                // Montar o modal
+                buttonContainer.appendChild(rejectButton);
+                buttonContainer.appendChild(acceptButton);
+
+                modalContent.appendChild(title);
+                modalContent.appendChild(text);
+                modalContent.appendChild(list);
+                modalContent.appendChild(buttonContainer);
+
+                modal.appendChild(modalContent);
+                document.body.appendChild(modal);
+            });
+        };
+
+        // Proceder com o compartilhamento
+        const proceedWithSharing = (message) => {
+            // Codificar a mensagem para URL
+            const encodedMessage = encodeURIComponent(message);
+    
+            // URL do WhatsApp
+            const whatsappUrl = `https://wa.me/?text=${encodedMessage}`;
+    
+            // Abrir em nova aba
+            window.open(whatsappUrl, '_blank');
+
+            statusEl.textContent = 'Compartilhando no WhatsApp...';
+            setTimeout(() => {
+                if (isPlaying) statusEl.textContent = 'Tocando agora';
+                else statusEl.textContent = 'Pausado';
+            }, 2000);
+        };
+
+        // Configurar event listeners
+        const setupEventListeners = () => {
+            // Botões de controle
+            playPauseBtn.addEventListener('click', togglePlayPause);
+            prevBtn.addEventListener('click', () => changeStation(-1));
+            nextBtn.addEventListener('click', () => changeStation(1));
+            favoriteBtn.addEventListener('click', toggleFavorite);
+            whatsappBtn.addEventListener('click', shareOnWhatsApp);
+            
+            // Controle de volume
+            volumeSlider.addEventListener('input', (e) => {
+                audioPlayer.volume = e.target.value;
+            });
+            
+            // Eventos do player de áudio
+            audioPlayer.addEventListener('play', () => {
+                isPlaying = true;
+                playPauseBtn.innerHTML = '<i class="fas fa-pause"></i>';
+                statusEl.textContent = 'Tocando agora';
+                vuMeter.classList.remove('hidden');
+            });
+            
+            audioPlayer.addEventListener('pause', () => {
+                isPlaying = false;
+                playPauseBtn.innerHTML = '<i class="fas fa-play"></i>';
+                vuMeter.classList.add('hidden');
+            });
+            
+            audioPlayer.addEventListener('error', () => {
+                statusEl.textContent = 'Erro ao conectar à rádio';
+                isPlaying = false;
+                playPauseBtn.innerHTML = '<i class="fas fa-play"></i>';
+                vuMeter.classList.add('hidden');
+            });
+            
+            audioPlayer.addEventListener('ended', () => {
+                statusEl.textContent = 'Conexão perdida, tentando próxima estação...';
+                setTimeout(() => changeStation(1), 2000);
+            });
+            
+            // Banner de privacidade
+            acceptPrivacyBtn.addEventListener('click', () => {
+                localStorage.setItem(privacyKey, 'true');
+                privacyBanner.style.display = 'none';
+                privacyAccepted = true;
+            });
+            
+            // Teclado
+            document.addEventListener('keydown', (e) => {
+                switch(e.code) {
+                    case 'Space':
+                        e.preventDefault();
+                        togglePlayPause();
+                        break;
+                    case 'ArrowLeft':
+                        changeStation(-1);
+                        break;
+                    case 'ArrowRight':
+                        changeStation(1);
+                        break;
+                }
+            });
+        };
+
+        // Iniciar o aplicativo
+        init();
+    });
+</script>

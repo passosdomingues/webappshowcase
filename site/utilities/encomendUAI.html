@@ -1,0 +1,2217 @@
+<!--
+ * --------------------------------------------------------------
+ * Author: Rafael Passos Domingues
+ * Last Update: 2025 June 11
+ * --------------------------------------------------------------
+-->
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EncomendUAI</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <style>
+        :root {
+            --primary: #8B4513; /* Cor terrosa típica de Minas */
+            --primary-light: #A0522D;
+            --secondary: #2E8B57; /* Verde que remete às montanhas */
+            --danger: #D2691E;
+            --light: #F5F5DC; /* Bege claro */
+            --dark: #3E2723; /* Marrom escuro */
+            --gray: #8D6E63;
+            --white: #FFF8E1;
+            --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s ease;
+        }
+
+        .dark-mode {
+            --primary: #D2B48C;
+            --primary-light: #CD853F;
+            --secondary: #3CB371;
+            --danger: #FF6347;
+            --light: #2D2D2D;
+            --dark: #E0E0E0;
+            --gray: #A0A0A0;
+            --white: #1E1E1E;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--light);
+            color: var(--dark);
+            line-height: 1.6;
+            transition: var(--transition);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            animation: fadeIn 0.5s ease-out;
+            position: relative;
+        }
+
+        .theme-toggle {
+            position: absolute;
+            right: 20px;
+            top: 20px;
+            background: var(--primary);
+            color: var(--white);
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .theme-toggle:hover {
+            background: var(--primary-light);
+            transform: rotate(30deg);
+        }
+
+        h1 {
+            color: var(--primary);
+            margin-bottom: 10px;
+            font-size: 2.5rem;
+        }
+
+        .subtitle {
+            color: var(--gray);
+            font-size: 1.1rem;
+        }
+
+        .app-container {
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+        }
+
+        @media (min-width: 768px) {
+            .app-container {
+                flex-direction: row;
+            }
+        }
+
+        .categories-section {
+            flex: 1;
+            background: var(--white);
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: var(--shadow);
+            transition: var(--transition);
+        }
+
+        .cart-section {
+            flex: 1;
+            background: var(--white);
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: var(--shadow);
+            transition: var(--transition);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .section-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 20px;
+            color: var(--primary);
+            font-size: 1.5rem;
+        }
+
+        .section-title i {
+            font-size: 1.3rem;
+        }
+
+        .category-tabs {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 20px;
+            overflow-x: auto;
+            padding-bottom: 10px;
+        }
+
+        .category-tab {
+            padding: 8px 15px;
+            background: var(--light);
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: var(--transition);
+            font-weight: 500;
+            color: var(--gray);
+            white-space: nowrap;
+        }
+
+        .category-tab.active {
+            background: var(--primary);
+            color: var(--white);
+        }
+
+        .category-tab:hover:not(.active) {
+            background: var(--primary-light);
+            color: var(--white);
+        }
+
+        .category-content {
+            display: none;
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        .category-content.active {
+            display: block;
+        }
+
+        .items-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 15px;
+        }
+
+        .item-card {
+            background: var(--light);
+            border-radius: 8px;
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            transition: var(--transition);
+            border-left: 4px solid var(--primary);
+        }
+
+        .item-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow);
+        }
+
+        .item-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .item-name {
+            font-weight: 600;
+            color: var(--dark);
+        }
+
+        .item-price {
+            font-weight: 700;
+            color: var(--secondary);
+        }
+
+        .item-controls {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .quantity-control {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .quantity-btn {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            border: none;
+            background: var(--primary);
+            color: var(--white);
+            font-weight: bold;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: var(--transition);
+        }
+
+        .quantity-btn:hover {
+            background: var(--primary-light);
+            transform: scale(1.1);
+        }
+
+        .quantity-value {
+            min-width: 20px;
+            text-align: center;
+        }
+
+        .add-to-cart-btn {
+            padding: 5px 10px;
+            background: var(--secondary);
+            color: var(--white);
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: var(--transition);
+            font-weight: 500;
+        }
+
+        .add-to-cart-btn:hover {
+            background: #2E8B57;
+            transform: translateY(-2px);
+        }
+
+        .cart-items {
+            flex: 1;
+            overflow-y: auto;
+            margin-bottom: 20px;
+            padding-right: 10px;
+            max-height: 500px;
+        }
+
+        .cart-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid var(--gray);
+            animation: slideIn 0.3s ease-out;
+        }
+
+        .cart-item:last-child {
+            border-bottom: none;
+        }
+
+        .cart-item-info {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .cart-item-name {
+            font-weight: 600;
+        }
+
+        .cart-item-quantity {
+            font-size: 0.9rem;
+            color: var(--gray);
+        }
+
+        .cart-item-price {
+            font-weight: 700;
+            color: var(--secondary);
+        }
+
+        .remove-item-btn {
+            background: none;
+            border: none;
+            color: var(--danger);
+            cursor: pointer;
+            font-size: 1.1rem;
+            transition: var(--transition);
+        }
+
+        .remove-item-btn:hover {
+            transform: scale(1.2);
+        }
+
+        .cart-summary {
+            border-top: 2px solid var(--gray);
+            padding-top: 15px;
+            margin-top: auto;
+        }
+
+        .total-price {
+            display: flex;
+            justify-content: space-between;
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+        }
+
+        .total-label {
+            color: var(--dark);
+        }
+
+        .total-value {
+            color: var(--secondary);
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .action-btn {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 5px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            min-width: 120px;
+        }
+
+        .action-btn i {
+            font-size: 1.1rem;
+        }
+
+        .whatsapp-btn {
+            background: #25D366;
+            color: white;
+        }
+
+        .whatsapp-btn:hover {
+            background: #128C7E;
+            transform: translateY(-2px);
+        }
+
+        .export-btn {
+            background: var(--primary);
+            color: white;
+        }
+
+        .export-btn:hover {
+            background: var(--primary-light);
+            transform: translateY(-2px);
+        }
+
+        .pdf-btn {
+            background: #D32F2F;
+            color: white;
+        }
+
+        .pdf-btn:hover {
+            background: #B71C1C;
+            transform: translateY(-2px);
+        }
+
+        .clear-btn {
+            background: var(--danger);
+            color: white;
+        }
+
+        .clear-btn:hover {
+            background: #B22222;
+            transform: translateY(-2px);
+        }
+
+        .empty-cart {
+            text-align: center;
+            padding: 40px 0;
+            color: var(--gray);
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        .empty-cart i {
+            font-size: 3rem;
+            margin-bottom: 15px;
+            color: var(--primary-light);
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes slideIn {
+            from { 
+                opacity: 0;
+                transform: translateX(20px);
+            }
+            to { 
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .items-list {
+                grid-template-columns: 1fr;
+            }
+            
+            .action-buttons {
+                flex-direction: column;
+            }
+            
+            .action-btn {
+                width: 100%;
+            }
+        }
+
+        /* Toast notification */
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--dark);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 5px;
+            box-shadow: var(--shadow);
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .toast.show {
+            opacity: 1;
+        }
+
+        .toast i {
+            font-size: 1.2rem;
+        }
+
+        .toast.success {
+            background: var(--secondary);
+        }
+
+        .toast.error {
+            background: var(--danger);
+        }
+
+        /* Scrollbar styling */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--light);
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--primary);
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--primary-light);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <button class="theme-toggle" id="theme-toggle">
+                <i class="fas fa-moon"></i>
+            </button>
+            <h1><i class="fas fa-cheese"></i> EncomendUAI</h1>
+            <p class="subtitle">Monte seu carrinho com as melhores iguarias mineiras</p>
+        </header>
+
+        <div class="app-container">
+            <section class="categories-section">
+                <h2 class="section-title"><i class="fas fa-store-alt"></i> Categorias Mineiras</h2>
+                
+                <div class="category-tabs">
+                    <button class="category-tab active" data-category="queijos">🧀 Queijos</button>
+                    <button class="category-tab" data-category="doces">🍯 Doces</button>
+                    <button class="category-tab" data-category="cachacas">🥃 Cachaças</button>
+                    <button class="category-tab" data-category="cafes">☕ Cafés</button>
+                    <button class="category-tab" data-category="paes">🍞 Pães & Biscoitos</button>
+                    <button class="category-tab" data-category="embutidos">🌭 Embutidos</button>
+                    <button class="category-tab" data-category="conservas">🥫 Conservas</button>
+                    <button class="category-tab" data-category="geleias">🍓 Geleias</button>
+                    <button class="category-tab" data-category="bebidas">🥤 Bebidas</button>
+                    <button class="category-tab" data-category="artesanais">🖐️ Artesanais</button>
+                </div>
+
+                <!-- Queijos Mineiros -->
+                <div class="category-content active" id="queijos">
+                    <div class="items-list">
+                        <div class="item-card">
+                            <div class="item-header">
+                                <span class="item-name">Queijo Canastra</span>
+                                <span class="item-price">R$ 85,90/kg</span>
+                            </div>
+                            <div class="item-controls">
+                                <div class="quantity-control">
+                                    <button class="quantity-btn minus" data-item="Queijo Canastra">-</button>
+                                    <span class="quantity-value" data-item="Queijo Canastra">0</span>
+                                    <button class="quantity-btn plus" data-item="Queijo Canastra">+</button>
+                                </div>
+                                <button class="add-to-cart-btn" data-item="Queijo Canastra" data-price="85.90" data-unit="kg">Adicionar</button>
+                            </div>
+                        </div>
+                        
+                        <div class="item-card">
+                            <div class="item-header">
+                                <span class="item-name">Queijo Minas Frescal</span>
+                                <span class="item-price">R$ 32,50/kg</span>
+                            </div>
+                            <div class="item-controls">
+                                <div class="quantity-control">
+                                    <button class="quantity-btn minus" data-item="Queijo Minas Frescal">-</button>
+                                    <span class="quantity-value" data-item="Queijo Minas Frescal">0</span>
+                                    <button class="quantity-btn plus" data-item="Queijo Minas Frescal">+</button>
+                                </div>
+                                <button class="add-to-cart-btn" data-item="Queijo Minas Frescal" data-price="32.50" data-unit="kg">Adicionar</button>
+                            </div>
+                        </div>
+                        
+                        <div class="item-card">
+                            <div class="item-header">
+                                <span class="item-name">Queijo Minas Meia Cura</span>
+                                <span class="item-price">R$ 45,90/kg</span>
+                            </div>
+                            <div class="item-controls">
+                                <div class="quantity-control">
+                                    <button class="quantity-btn minus" data-item="Queijo Minas Meia Cura">-</button>
+                                    <span class="quantity-value" data-item="Queijo Minas Meia Cura">0</span>
+                                    <button class="quantity-btn plus" data-item="Queijo Minas Meia Cura">+</button>
+                                </div>
+                                <button class="add-to-cart-btn" data-item="Queijo Minas Meia Cura" data-price="45.90" data-unit="kg">Adicionar</button>
+                            </div>
+                        </div>
+                        
+                        <div class="item-card">
+                            <div class="item-header">
+                                <span class="item-name">Queijo Serra da Canastra</span>
+                                <span class="item-price">R$ 92,50/kg</span>
+                            </div>
+                            <div class="item-controls">
+                                <div class="quantity-control">
+                                    <button class="quantity-btn minus" data-item="Queijo Serra da Canastra">-</button>
+                                    <span class="quantity-value" data-item="Queijo Serra da Canastra">0</span>
+                                    <button class="quantity-btn plus" data-item="Queijo Serra da Canastra">+</button>
+                                </div>
+                                <button class="add-to-cart-btn" data-item="Queijo Serra da Canastra" data-price="92.50" data-unit="kg">Adicionar</button>
+                            </div>
+                        </div>
+                        
+                        <div class="item-card">
+                            <div class="item-header">
+                                <span class="item-name">Queijo do Serro</span>
+                                <span class="item-price">R$ 78,90/kg</span>
+                            </div>
+                            <div class="item-controls">
+                                <div class="quantity-control">
+                                    <button class="quantity-btn minus" data-item="Queijo do Serro">-</button>
+                                    <span class="quantity-value" data-item="Queijo do Serro">0</span>
+                                    <button class="quantity-btn plus" data-item="Queijo do Serro">+</button>
+                                </div>
+                                <button class="add-to-cart-btn" data-item="Queijo do Serro" data-price="78.90" data-unit="kg">Adicionar</button>
+                            </div>
+                        </div>
+                        
+                        <div class="item-card">
+                            <div class="item-header">
+                                <span class="item-name">Queijo Araxá</span>
+                                <span class="item-price">R$ 65,90/kg</span>
+                            </div>
+                            <div class="item-controls">
+                                <div class="quantity-control">
+                                    <button class="quantity-btn minus" data-item="Queijo Araxá">-</button>
+                                    <span class="quantity-value" data-item="Queijo Araxá">0</span>
+                                    <button class="quantity-btn plus" data-item="Queijo Araxá">+</button>
+                                </div>
+                                <button class="add-to-cart-btn" data-item="Queijo Araxá" data-price="65.90" data-unit="kg">Adicionar</button>
+                            </div>
+                        </div>
+
+                        <div class="item-card">
+                            <div class="item-header">
+                                <span class="item-name">Queijo Cabacinha</span>
+                                <span class="item-price">R$ 88,90/kg</span>
+                            </div>
+                            <div class="item-controls">
+                                <div class="quantity-control">
+                                    <button class="quantity-btn minus" data-item="Queijo Cabacinha">-</button>
+                                    <span class="quantity-value" data-item="Queijo Cabacinha">0</span>
+                                    <button class="quantity-btn plus" data-item="Queijo Cabacinha">+</button>
+                                </div>
+                                <button class="add-to-cart-btn" data-item="Queijo Cabacinha" data-price="88.90" data-unit="kg">Adicionar</button>
+                            </div>
+                        </div>
+
+                        <div class="item-card">
+                            <div class="item-header">
+                                <span class="item-name">Queijo Curado</span>
+                                <span class="item-price">R$ 95,90/kg</span>
+                            </div>
+                            <div class="item-controls">
+                                <div class="quantity-control">
+                                    <button class="quantity-btn minus" data-item="Queijo Curado">-</button>
+                                    <span class="quantity-value" data-item="Queijo Curado">0</span>
+                                    <button class="quantity-btn plus" data-item="Queijo Curado">+</button>
+                                </div>
+                                <button class="add-to-cart-btn" data-item="Queijo Curado" data-price="95.90" data-unit="kg">Adicionar</button>
+                            </div>
+                        </div>
+
+                        <div class="item-card">
+                            <div class="item-header">
+                                <span class="item-name">Queijo com Pimenta</span>
+                                <span class="item-price">R$ 72,90/kg</span>
+                            </div>
+                            <div class="item-controls">
+                                <div class="quantity-control">
+                                    <button class="quantity-btn minus" data-item="Queijo com Pimenta">-</button>
+                                    <span class="quantity-value" data-item="Queijo com Pimenta">0</span>
+                                    <button class="quantity-btn plus" data-item="Queijo com Pimenta">+</button>
+                                </div>
+                                <button class="add-to-cart-btn" data-item="Queijo com Pimenta" data-price="72.90" data-unit="kg">Adicionar</button>
+                            </div>
+                        </div>
+
+                        <div class="item-card">
+                            <div class="item-header">
+                                <span class="item-name">Queijo Requeijão Cremoso</span>
+                                <span class="item-price">R$ 18,90/500g</span>
+                            </div>
+                            <div class="item-controls">
+                                <div class="quantity-control">
+                                    <button class="quantity-btn minus" data-item="Queijo Requeijão Cremoso">-</button>
+                                    <span class="quantity-value" data-item="Queijo Requeijão Cremoso">0</span>
+                                    <button class="quantity-btn plus" data-item="Queijo Requeijão Cremoso">+</button>
+                                </div>
+                                <button class="add-to-cart-btn" data-item="Queijo Requeijão Cremoso" data-price="18.90" data-unit="500g">Adicionar</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Doces Mineiros -->
+                <div class="category-content" id="doces">
+                    <div class="items-list">
+                        <div class="item-card">
+                            <div class="item-header">
+                                <span class="item-name">Doce de Leite</span>
+                                <span class="item-price">R$ 22,90/500g</span>
+                            </div>
+                            <div class="item-controls">
+                                <div class="quantity-control">
+                                    <button class="quantity-btn minus" data-item="Doce de Leite">-</button>
+                                    <span class="quantity-value" data-item="Doce de Leite">0</span>
+                                    <button class="quantity-btn plus" data-item="Doce de Leite">+</button>
+                                </div>
+                                <button class="add-to-cart-btn" data-item="Doce de Leite" data-price="22.90" data-unit="500g">Adicionar</button>
+                            </div>
+                        </div>
+                        
+                        <div class="item-card">
+                            <div class="item-header">
+                                <span class="item-name">Goiabada Cascão</span>
+                                <span class="item-price">R$ 18,50/500g</span>
+                            </div>
+                            <div class="item-controls">
+                                <div class="quantity-control">
+                                    <button class="quantity-btn minus" data-item="Goiabada Cascão">-</button>
+                                    <span class="quantity-value" data-item="Goiabada Cascão">0</span>
+                                    <button class="quantity-btn plus" data-item="Goiabada Cascão">+</button>
+                                </div>
+                                <button class="add-to-cart-btn" data-item="Goiabada Cascão" data-price="18.50" data-unit="500g">Adicionar</button>
+                            </div>
+                        </div>
+                        
+                        <div class="item-card">
+                            <div class="item-header">
+                                <span class="item-name">Romeu e Julieta</span>
+                                <span class="item-price">R$ 25,90/500g</span>
+                            </div>
+                            <div class="item-controls">
+                                <div class="quantity-control">
+                                    <button class="quantity-btn minus" data-item="Romeu e Julieta">-</button>
+                                    <span class="quantity-value" data-item="Romeu e Julieta">0</span>
+                                    <button class="quantity-btn plus" data-item="Romeu e Julieta">+</button>
+                                </div>
+                                <button class="add-to-cart-btn" data-item="Romeu e Julieta" data-price="25.90" data-unit="500g">Adicionar</button>
+                            </div>
+                        </div>
+
+                        <div class="item-card">
+                            <div class="item-header">
+                                <span class="item-name">Doce de Leite com Amendoim</span>
+                                <span class="item-price">R$ 28,90/500g</span>
+                            </div>
+                            <div class="item-controls">
+                                <div class="quantity-control">
+                                    <button class="quantity-btn minus" data-item="Doce de Leite com Amendoim">-</button>
+                                    <span class="quantity-value" data-item="Doce de Leite com Amendoim">0</span>
+                                    <button class="quantity-btn plus" data-item="Doce de Leite com Amendoim">+</button>
+                                </div>
+                                <button class="add-to-cart-btn" data-item="Doce de Leite com Amendoim" data-price="28.90" data-unit="500g">Adicionar</button>
+                            </div>
+                        </div>
+
+                        <div class="item-card">
+                            <div class="item-header">
+                                <span class="item-name">Pé de Moleque</span>
+                                <span class="item-price">R$ 15,90/300g</span>
+                            </div>
+                            <div class="item-controls">
+                                <div class="quantity-control">
+                                    <button class="quantity-btn minus" data-item="Pé de Moleque">-</button>
+                                    <span class="quantity-value" data-item="Pé de Moleque">0</span>
+                                    <button class="quantity-btn plus" data-item="Pé de Moleque">+</button>
+                                </div>
+                                <button class="add-to-cart-btn" data-item="Pé de Moleque" data-price="15.90" data-unit="300g">Adicionar</button>
+                            </div>
+                        </div>
+
+                        <div class="item-card">
+                            <div class="item-header">
+                                <span class="item-name">Doce de Figo</span>
+                                <span class="item-price">R$ 19,90/300g</span>
+                            </div>
+                            <div class="item-controls">
+                                <div class="quantity-control">
+                                    <button class="quantity-btn minus" data-item="Doce de Figo">-</button>
+                                    <span class="quantity-value" data-item="Doce de Figo">0</span>
+                                    <button class="quantity-btn plus" data-item="Doce de Figo">+</button>
+                                </div>
+                                <button class="add-to-cart-btn" data-item="Doce de Figo" data-price="19.90" data-unit="300g">Adicionar</button>
+                            </div>
+                        </div>
+
+                        <div class="item-card">
+                            <div class="item-header">
+                                <span class="item-name">Doce de Abóbora</span>
+                                <span class="item-price">R$ 16,90/300g</span>
+                            </div>
+                            <div class="item-controls">
+                                <div class="quantity-control">
+                                    <button class="quantity-btn minus" data-item="Doce de Abóbora">-</button>
+                                    <span class="quantity-value" data-item="Doce de Abóbora">0</span>
+                                    <button class="quantity-btn plus" data-item="Doce de Abóbora">+</button>
+                                </div>
+                                <button class="add-to-cart-btn" data-item="Doce de Abóbora" data-price="16.90" data-unit="300g">Adicionar</button>
+                            </div>
+                        </div>
+
+                        <div class="item-card">
+                            <div class="item-header">
+                                <span class="item-name">Bolo de Fubá</span>
+                                <span class="item-price">R$ 24,90/un</span>
+                            </div>
+                            <div class="item-controls">
+                                <div class="quantity-control">
+                                    <button class="quantity-btn minus" data-item="Bolo de Fubá">-</button>
+                                    <span class="quantity-value" data-item="Bolo de Fubá">0</span>
+                                    <button class="quantity-btn plus" data-item="Bolo de Fubá">+</button>
+                                </div>
+                                <button class="add-to-cart-btn" data-item="Bolo de Fubá" data-price="24.90" data-unit="un">Adicionar</button>
+                            </div>
+                        </div>
+
+                        <div class="item-card">
+                            <div class="item-header">
+                                <span class="item-name">Bolo de Milho</span>
+                                <span class="item-price">R$ 22,90/un</span>
+                            </div>
+                            <div class="item-controls">
+                                <div class="quantity-control">
+                                    <button class="quantity-btn minus" data-item="Bolo de Milho">-</button>
+                                    <span class="quantity-value" data-item="Bolo de Milho">0</span>
+                                    <button class="quantity-btn plus" data-item="Bolo de Milho">+</button>
+                                </div>
+                                <button class="add-to-cart-btn" data-item="Bolo de Milho" data-price="22.90" data-unit="un">Adicionar</button>
+                            </div>
+                        </div>
+
+                        <div class="item-card">
+                            <div class="item-header">
+                                <span class="item-name">Quindim</span>
+                                <span class="item-price">R$ 3,50/un</span>
+                            </div>
+                            <div class="item-controls">
+                                <div class="quantity-control">
+                                    <button class="quantity-btn minus" data-item="Quindim">-</button>
+                                    <span class="quantity-value" data-item="Quindim">0</span>
+                                    <button class="quantity-btn plus" data-item="Quindim">+</button>
+                                </div>
+                                <button class="add-to-cart-btn" data-item="Quindim" data-price="3.50" data-unit="un">Adicionar</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Cachaças Mineiras -->
+                <div class="category-content" id="cachacas">
+                    <div class="items-list">
+                        <div class="item-card">
+                            <div class="item-header">
+                                <span class="item-name">Cachaça Salinas Envelhecida</span>
+                                <span class="item-price">R$ 89,90/750ml</span>
+                            </div>
+                            <div class="item-controls">
+                                <div class="quantity-control">
+                                    <button class="quantity-btn minus" data-item="Cachaça Salinas Envelhecida">-</button>
+                                    <span class="quantity-value" data-item="Cachaça Salinas Envelhecida">0</span>
+                                    <button class="quantity-btn plus" data-item="Cachaça Salinas Envelhecida">+</button>
+                                </div>
+                                <button class="add-to-cart-btn" data-item="Cachaça Salinas Envelhecida" data-price="89.90" data-unit="750ml">Adicionar</button>
+                            </div>
+                        </div>
+                        
+                        <div class="item-card">
+                            <div class="item-header">
+                                <span class="item-name">Cachaça Vale Verde Premium</span>
+                                <span class="item-price">R$ 75,50/750ml</span>
+                            </div>
+                            <div class="item-controls">
+                                <div class="quantity-control">
+                                    <button class="quantity-btn minus" data-item="Cachaça Vale Verde Premium">-</button>
+                                    <span class="quantity-value" data-item="Cachaça Vale Verde Premium">0</span>
+                                    <button class="quantity-btn plus" data-item="Cachaça Vale Verde Premium">+</button>
+                                </div>
+                                <button class="add-to-cart-btn" data-item="Cachaça Vale Verde Premium" data-price="75.50" data-unit="750ml">Adicionar</button>
+                            </div>
+                        </div>
+                        
+                        <div class="item-card">
+                            <div class="item-header">
+                                <span class="item-name">Cachaça Weber Haus</span>
+                                <span class="item-price">R$ 65,90/750ml</span>
+                            </div>
+                            <div class="item-controls">
+                                <div class="quantity-control">
+                                    <button class="quantity-btn minus" data-item="Cachaça Weber Haus">-</button>
+                                    <span class="quantity-value" data-item="Cachaça Weber Haus">0</span>
+                                    <button class="quantity-btn plus" data-item="Cachaça Weber Haus">+</button>
+                                </div>
+                                <button class="add-to-cart-btn" data-item="Cachaça Weber Haus" data-price="65.90" data-unit="750ml">Adicionar</button>
+                            </div>
+                        </div>
+
+                        <div class="item-card">
+                            <div class="item-header">
+                                <span class="item-name">Cachaça Magnífica</span>
+                                <span class="item-price">R$ 120,90/750ml</span>
+                            </div>
+                            <div class="item-controls">
+                                <div class="quantity-control">
+                                    <button class="quantity-btn minus" data-item="Cachaça Magnífica">-</button>
+                                    <span class="quantity-value" data-item="Cachaça Magnífica">0</span>
+                                    <button class="quantity-btn plus" data-item="Cachaça Magnífica">+</button>
+                                </div>
+                                <button class="add-to-cart-btn" data-item="Cachaça Magnífica" data-price="120.90" data-unit="750ml">Adicionar</button>
+                            </div>
+                        </div>
+
+                        <div class="item-card">
+                            <div class="item-header">
+                                <span class="item-name">Cachaça de Alambique</span>
+                                <span class="item-price">R$ 45,90/750ml</span>
+                            </div>
+                            <div class="item-controls">
+                                <div class="quantity-control">
+                                    <button class="quantity-btn minus" data-item="Cachaça de Alambique">-</button>
+                                    <span class="quantity-value" data-item="Cachaça de Alambique">0</span>
+                                    <button class="quantity-btn plus" data-item="Cachaça de Alambique">+</button>
+                                </div>
+                                <button class="add-to-cart-btn" data-item="Cachaça de Alambique" data-price="45.90" data-unit="750ml">Adicionar</button>
+                            </div>
+                        </div>
+
+                        <div class="item-card">
+                            <div class="item-header">
+                                <span class="item-name">Cachaça com Mel</span>
+                                <span class="item-price">R$ 52,90/750ml</span>
+                            </div>
+                            <div class="item-controls">
+                                <div class="quantity-control">
+                                    <button class="quantity-btn minus" data-item="Cachaça com Mel">-</button>
+                                    <span class="quantity-value" data-item="Cachaça com Mel">0</span>
+                                    <button class="quantity-btn plus" data-item="Cachaça com Mel">+</button>
+                                </div>
+                                <button class="add-to-cart-btn" data-item="Cachaça com Mel" data-price="52.90" data-unit="750ml">Adicionar</button>
+                            </div>
+                        </div>
+
+                        <div class="item-card">
+                            <div class="item-header">
+                                <span class="item-name">Cachaça Premium</span>
+                                <span class="item-price">R$ 150,90/750ml</span>
+                            </div>
+                            <div class="item-controls">
+                                <div class="quantity-control">
+                                    <button class="quantity-btn minus" data-item="Cachaça Premium">-</button>
+                                    <span class="quantity-value" data-item="Cachaça Premium">0</span>
+                                    <button class="quantity-btn plus" data-item="Cachaça Premium">+</button>
+                                </div>
+                                <button class="add-to-cart-btn" data-item="Cachaça Premium" data-price="150.90" data-unit="750ml">Adicionar</button>
+                            </div>
+                        </div>
+
+                        <div class="item-card">
+                            <div class="item-header">
+                                <span class="item-name">Cachaça Artesanal</span>
+                                <span class="item-price">R$ 68,90/750ml</span>
+                            </div>
+                            <div class="item-controls">
+                                <div class="quantity-control">
+                                    <button class="quantity-btn minus" data-item="Cachaça Artesanal">-</button>
+                                    <span class="quantity-value" data-item="Cachaça Artesanal">0</span>
+                                    <button class="quantity-btn plus" data-item="Cachaça Artesanal">+</button>
+                                </div>
+                                <button class="add-to-cart-btn" data-item="Cachaça Artesanal" data-price="68.90" data-unit="750ml">Adicionar</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Cafés Mineiros -->
+                <div class="category-content" id="cafes">
+                    <div class="items-list">
+                        <div class="item-card">
+                            <div class="item-header">
+                                <span class="item-name">Café Sul de Minas</span>
+                                <span class="item-price">R$ 28,90/500g</span>
+                            </div>
+                            <div class="item-controls">
+                                <div class="quantity-control">
+                                    <button class="quantity-btn minus" data-item="Café Sul de Minas">-</button>
+                                    <span class="quantity-value" data-item="Café Sul de Minas">0</span>
+                                    <button class="quantity-btn plus" data-item="Café Sul de Minas">+</button>
+                                </div>
+                                <button class="add-to-cart-btn" data-item="Café Sul de Minas" data-price="28.90" data-unit="500g">Adicionar</button>
+                            </div>
+                        </div>
+                        
+                        <div class="item-card">
+                            <div class="item-header">
+                                <span class="item-name">Café Chapada de Minas</span>
+                                <span class="item-price">R$ 32,50/500g</span>
+                            </div>
+                            <div class="item-controls">
+                                <div class="quantity-control">
+                                    <button class="quantity-btn minus" data-item="Café Chapada de Minas">-</button>
+                                    <span class="quantity-value" data-item="Café Chapada de Minas">0</span>
+                                    <button class="quantity-btn plus" data-item="Café Chapada de Minas">+</button>
+                                </div>
+                                <button class="add-to-cart-btn" data-item="Café Chapada de Minas" data-price="32.50" data-unit="500g">Adicionar</button>
+                            </div>
+                        </div>
+                        
+                        <div class="item-card">
+                            <div class="item-header">
+                                <span class="item-name">Café Cerrado Mineiro</span>
+                                <span class="item-price">R$ 35,90/500g</span>
+                            </div>
+                            <div class="item-controls">
+                                <div class="quantity-control">
+                                    <button class="quantity-btn minus" data-item="Café Cerrado Mineiro">-</button>
+                                    <span class="quantity-value" data-item="Café Cerrado Mineiro">0</span>
+                                    <button class="quantity-btn plus" data-item="Café Cerrado Mineiro">+</button>
+                                </div>
+                                <button class="add-to-cart-btn" data-item="Café Cerrado Mineiro" data-price="35.90" data-unit="500g">Adicionar</button>
+                            </div>
+                        </div>
+
+                        <div class="item-card">
+                            <div class="item-header">
+                                <span class="item-name">Café Especial</span>
+                                <span class="item-price">R$ 45,90/500g</span>
+                            </div>
+                            <div class="item-controls">
+                                <div class="quantity-control">
+                                    <button class="quantity-btn minus" data-item="Café Especial">-</button>
+                                    <span class="quantity-value" data-item="Café Especial">0</span>
+                                    <button class="quantity-btn plus" data-item="Café Especial">+</button>
+                                </div>
+                                <button class="add-to-cart-btn" data-item="Café Especial" data-price="45.90" data-unit="500g">Adicionar</button>
+                            </div>
+                        </div>
+
+                        <div class="item-card">
+                            <div class="item-header">
+                                <span class="item-name">Café Gourmet</span>
+                                <span class="item-price">R$ 52,90/500g</span>
+                            </div>
+                            <div class="item-controls">
+                                <div class="quantity-control">
+                                    <button class="quantity-btn minus" data-item="Café Gourmet">-</button>
+                                    <span class="quantity-value" data-item="Café Gourmet">0</span>
+                                    <button class="quantity-btn plus" data-item="Café Gourmet">+</button>
+                                </div>
+                                <button class="add-to-cart-btn" data-item="Café Gourmet" data-price="52.90" data-unit="500g">Adicionar</button>
+                            </div>
+                        </div>
+
+                        <div class="item-card">
+                            <div class="item-header">
+                                <span class="item-name">Café Orgânico</span>
+                                <span class="item-price">R$ 48,90/500g</span>
+                            </div>
+                            <div class="item-controls">
+                                <div class="quantity-control">
+                                    <button class="quantity-btn minus" data-item="Café Orgânico">-</button>
+                                    <span class="quantity-value" data-item="Café Orgânico">0</span>
+                                    <button class="quantity-btn plus" data-item="Café Orgânico">+</button>
+                                </div>
+                                <button class="add-to-cart-btn" data-item="Café Orgânico" data-price="48.90" data-unit="500g">Adicionar</button>
+                            </div>
+                        </div>
+
+                        <div class="item-card">
+                            <div class="item-header">
+                                <span class="item-name">Café Torra Média</span>
+                                <span class="item-price">R$ 29,90/500g</span>
+                            </div>
+                            <div class="item-controls">
+                                <div class="quantity-control">
+                                    <button class="quantity-btn minus" data-item="Café Torra Média">-</button>
+                                    <span class="quantity-value" data-item="Café Torra Média">0</span>
+                                    <button class="quantity-btn plus" data-item="Café Torra Média">+</button>
+                                </div>
+                                <button class="add-to-cart-btn" data-item="Café Torra Média" data-price="29.90" data-unit="500g">Adicionar</button>
+                            </div>
+                        </div>
+
+                        <div class="item-card">
+                            <div class="item-header">
+                                <span class="item-name">Café Torra Escura</span>
+                                <span class="item-price">R$ 31,90/500g</span>
+                            </div>
+                            <div class="item-controls">
+                                <div class="quantity-control">
+                                    <button class="quantity-btn minus" data-item="Café Torra Escura">-</button>
+                                    <span class="quantity-value" data-item="Café Torra Escura">0</span>
+                                    <button class="quantity-btn plus" data-item="Café Torra Escura">+</button>
+                                </div>
+                                <button class="add-to-cart-btn" data-item="Café Torra Escura" data-price="31.90" data-unit="500g">Adicionar</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Pães e Biscoitos Mineiros -->
+                <div class="category-content" id="paes">
+                    <div class="items-list">
+                        <div class="item-card">
+                            <div class="item-header">
+                                <span class="item-name">Pão de Queijo Tradicional</span>
+                                <span class="item-price">R$ 12,90/500g</span>
+                            </div>
+                            <div class="item-controls">
+                                <div class="quantity-control">
+                                    <button class="quantity-btn minus" data-item="Pão de Queijo Tradicional">-</button>
+                                    <span class="quantity-value" data-item="Pão de Queijo Tradicional">0</span>
+                                    <button class="quantity-btn plus" data-item="Pão de Queijo Tradicional">+</button>
+                                </div>
+                                <button class="add-to-cart-btn" data-item="Pão de Queijo Tradicional" data-price="12.90" data-unit="500g">Adicionar</button>
+                            </div>
+                        </div>
+                        
+                        <div class="item-card">
+                            <div class="item-header">
+                                <span class="item-name">Biscoito de Polvilho</span>
+                                <span class="item-price">R$ 8,50/300g</span>
+                            </div>
+                            <div class="item-controls">
+                                <div class="quantity-control">
+                                    <button class="quantity-btn minus" data-item="Biscoito de Polvilho">-</button>
+                                    <span class="quantity-value" data-item="Biscoito de Polvilho">0</span>
+                                    <button class="quantity-btn plus" data-item="Biscoito de Polvilho">+</button>
+                                </div>
+                                <button class="add-to-cart-btn" data-item="Biscoito de Polvilho" data-price="8.50" data-unit="300g">Adicionar</button>
+                            </div>
+                        </div>
+                        
+                        <div class="item-card">
+                            <div class="item-header">
+                                <span class="item-name">Pão de Queijo Recheado</span>
+                                <span class="item-price">R$ 18,90/500g</span>
+                            </div>
+                            <div class="item-controls">
+                                <div class="quantity-control">
+                                    <button class="quantity-btn minus" data-item="Pão de Queijo Recheado">-</button>
+                                    <span class="quantity-value" data-item="Pão de Queijo Recheado">0</span>
+                                    <button class="quantity-btn plus" data-item="Pão de Queijo Recheado">+</button>
+                                </div>
+                                <button class="add-to-cart-btn" data-item="Pão de Queijo Recheado" data-price="18.90" data-unit="500g">Adicionar</button>
+                            </div>
+                        </div>
+
+                        <div class="item-card">
+                            <div class="item-header">
+                                <span class="item-name">Biscoito de Queijo</span>
+                                <span class="item-price">R$ 10,90/300g</span>
+                            </div>
+                            <div class="item-controls">
+                                <div class="quantity-control">
+                                    <button class="quantity-btn minus" data-item="Biscoito de Queijo">-</button>
+                                    <span class="quantity-value" data-item="Biscoito de Queijo">0</span>
+                                    <button class="quantity-btn plus" data-item="Biscoito de Queijo">+</button>
+                                </div>
+                                <button class="add-to-cart-btn" data-item="Biscoito de Queijo" data-price="10.90" data-unit="300g">Adicionar</button>
+                            </div>
+                        </div>
+
+                        <div class="item-card">
+                            <div class="item-header">
+                                <span class="item-name">Pão de Queijo Gigante</span>
+                                <span class="item-price">R$ 6,50/un</span>
+                            </div>
+                            <div class="item-controls">
+                                <div class="quantity-control">
+                                    <button class="quantity-btn minus" data-item="Pão de Queijo Gigante">-</button>
+                                    <span class="quantity-value" data-item="Pão de Queijo Gigante">0</span>
+                                    <button class="quantity-btn plus" data-item="Pão de Queijo Gigante">+</button>
+                                </div>
+                                <button class="add-to-cart-btn" data-item="Pão de Queijo Gigante" data-price="6.50" data-unit="un">Adicionar</button>
+                            </div>
+                        </div>
+
+                        <div class="item-card">
+                            <div class="item-header">
+                                <span class="item-name">Rosquinha de Nata</span>
+                                <span class="item-price">R$ 14,90/300g</span>
+                            </div>
+                            <div class="item-controls">
+                                <div class="quantity-control">
+                                    <button class="quantity-btn minus" data-item="Rosquinha de Nata">-</button>
+                                    <span class="quantity-value" data-item="Rosquinha de Nata">0</span>
+                                    <button class="quantity-btn plus" data-item="Rosquinha de Nata">+</button>
+                                </div>
+                                <button class="add-to-cart-btn" data-item="Rosquinha de Nata" data-price="14.90" data-unit="300g">Adicionar</button>
+                            </div>
+                        </div>
+
+                        <div class="item-card">
+                            <div class="item-header">
+                                <span class="item-name">Biscoito de Fubá</span>
+                                <span class="item-price">R$ 9,90/300g</span>
+                            </div>
+                            <div class="item-controls">
+                                <div class="quantity-control">
+                                    <button class="quantity-btn minus" data-item="Biscoito de Fubá">-</button>
+                                    <span class="quantity-value" data-item="Biscoito de Fubá">0</span>
+                                    <button class="quantity-btn plus" data-item="Biscoito de Fubá">+</button>
+                                </div>
+                                <button class="add-to-cart-btn" data-item="Biscoito de Fubá" data-price="9.90" data-unit="300g">Adicionar</button>
+                            </div>
+                        </div>
+
+                        <div class="item-card">
+                            <div class="item-header">
+                                <span class="item-name">Pão Caseiro</span>
+                                <span class="item-price">R$ 7,90/un</span>
+                            </div>
+                            <div class="item-controls">
+                                <div class="quantity-control">
+                                    <button class="quantity-btn minus" data-item="Pão Caseiro">-</button>
+                                    <span class="quantity-value" data-item="Pão Caseiro">0</span>
+                                    <button class="quantity-btn plus" data-item="Pão Caseiro">+</button>
+                                </div>
+                                <button class="add-to-cart-btn" data-item="Pão Caseiro" data-price="7.90" data-unit="un">Adicionar</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Embutidos Mineiros -->
+                <div class="category-content" id="embutidos">
+                    <div class="items-list">
+                        <div class="item-card">
+                            <div class="item-header">
+                                <span class="item-name">Linguiça Caseira</span>
+                                <span class="item-price">R$ 28,90/kg</span>
+                            </div>
+                            <div class="item-controls">
+                                <div class="quantity-control">
+                                    <button class="quantity-btn minus" data-item="Linguiça Caseira">-</button>
+                                    <span class="quantity-value" data-item="Linguiça Caseira">0</span>
+                                    <button class="quantity-btn plus" data-item="Linguiça Caseira">+</button>
+                                </div>
+                                <button class="add-to-cart-btn" data-item="Linguiça Caseira" data-price="28.90" data-unit="kg">Adicionar</button>
+                            </div>
+                        </div>
+                        
+                        <div class="item-card">
+                            <div class="item-header">
+                                <span class="item-name">Paio Mineiro</span>
+                                <span class="item-price">R$ 32,50/kg</span>
+                            </div>
+                            <div class="item-controls">
+                                <div class="quantity-control">
+                                    <button class="quantity-btn minus" data-item="Paio Mineiro">-</button>
+                                    <span class="quantity-value" data-item="Paio Mineiro">0</span>
+                                    <button class="quantity-btn plus" data-item="Paio Mineiro">+</button>
+                                </div>
+                                <button class="add-to-cart-btn" data-item="Paio Mineiro" data-price="32.50" data-unit="kg">Adicionar</button>
+                            </div>
+                        </div>
+                        
+                        <div class="item-card">
+                            <div class="item-header">
+                                <span class="item-name">Toucinho Defumado</span>
+                                <span class="item-price">R$ 25,90/kg</span>
+                            </div>
+                            <div class="item-controls">
+                                <div class="quantity-control">
+                                    <button class="quantity-btn minus" data-item="Toucinho Defumado">-</button>
+                                    <span class="quantity-value" data-item="Toucinho Defumado">0</span>
+                                    <button class="quantity-btn plus" data-item="Toucinho Defumado">+</button>
+                                </div>
+                                <button class="add-to-cart-btn" data-item="Toucinho Defumado" data-price="25.90" data-unit="kg">Adicionar</button>
+                            </div>
+                        </div>
+
+                        <div class="item-card">
+                            <div class="item-header">
+                                <span class="item-name">Linguiça de Frango</span>
+                                <span class="item-price">R$ 26,90/kg</span>
+                            </div>
+                            <div class="item-controls">
+                                <div class="quantity-control">
+                                    <button class="quantity-btn minus" data-item="Linguiça de Frango">-</button>
+                                    <span class="quantity-value" data-item="Linguiça de Frango">0</span>
+                                    <button class="quantity-btn plus" data-item="Linguiça de Frango">+</button>
+                                </div>
+                                <button class="add-to-cart-btn" data-item="Linguiça de Frango" data-price="26.90" data-unit="kg">Adicionar</button>
+                            </div>
+                        </div>
+
+                        <div class="item-card">
+                            <div class="item-header">
+                                <span class="item-name">Linguiça Apimentada</span>
+                                <span class="item-price">R$ 29,90/kg</span>
+                            </div>
+                            <div class="item-controls">
+                                <div class="quantity-control">
+                                    <button class="quantity-btn minus" data-item="Linguiça Apimentada">-</button>
+                                    <span class="quantity-value" data-item="Linguiça Apimentada">0</span>
+                                    <button class="quantity-btn plus" data-item="Linguiça Apimentada">+</button>
+                                </div>
+                                <button class="add-to-cart-btn" data-item="Linguiça Apimentada" data-price="29.90" data-unit="kg">Adicionar</button>
+                            </div>
+                        </div>
+
+                        <div class="item-card">
+                            <div class="item-header">
+                                <span class="item-name">Salame Mineiro</span>
+                                <span class="item-price">R$ 45,90/kg</span>
+                            </div>
+                            <div class="item-controls">
+                                <div class="quantity-control">
+                                    <button class="quantity-btn minus" data-item="Salame Mineiro">-</button>
+                                    <span class="quantity-value" data-item="Salame Mineiro">0</span>
+                                    <button class="quantity-btn plus" data-item="Salame Mineiro">+</button>
+                                </div>
+                                <button class="add-to-cart-btn" data-item="Salame Mineiro" data-price="45.90" data-unit="kg">Adicionar</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Conservas Mineiras -->
+                <div class="category-content" id="conservas">
+                    <div class="items-list">
+                        <div class="item-card">
+                            <div class="item-header">
+                                <span class="item-name">Pimenta Biquinho</span>
+                                <span class="item-price">R$ 18,90/200g</span>
+                            </div>
+                            <div class="item-controls">
+                                <div class="quantity-control">
+                                    <button class="quantity-btn minus" data-item="Pimenta Biquinho">-</button>
+                                    <span class="quantity-value" data-item="Pimenta Biquinho">0</span>
+                                    <button class="quantity-btn plus" data-item="Pimenta Biquinho">+</button>
+                                </div>
+                                <button class="add-to-cart-btn" data-item="Pimenta Biquinho" data-price="18.90" data-unit="200g">Adicionar</button>
+                            </div>
+                        </div>
+                        
+                        <div class="item-card">
+                            <div class="item-header">
+                                <span class="item-name">Palmito Pupunha</span>
+                                <span class="item-price">R$ 22,50/300g</span>
+                            </div>
+                            <div class="item-controls">
+                                <div class="quantity-control">
+                                    <button class="quantity-btn minus" data-item="Palmito Pupunha">-</button>
+                                    <span class="quantity-value" data-item="Palmito Pupunha">0</span>
+                                    <button class="quantity-btn plus" data-item="Palmito Pupunha">+</button>
+                                </div>
+                                <button class="add-to-cart-btn" data-item="Palmito Pupunha" data-price="22.50" data-unit="300g">Adicionar</button>
+                            </div>
+                        </div>
+                        
+                        <div class="item-card">
+                            <div class="item-header">
+                                <span class="item-name">Azeitona Verde</span>
+                                <span class="item-price">R$ 15,90/300g</span>
+                            </div>
+                            <div class="item-controls">
+                                <div class="quantity-control">
+                                    <button class="quantity-btn minus" data-item="Azeitona Verde">-</button>
+                                    <span class="quantity-value" data-item="Azeitona Verde">0</span>
+                                    <button class="quantity-btn plus" data-item="Azeitona Verde">+</button>
+                                </div>
+                                <button class="add-to-cart-btn" data-item="Azeitona Verde" data-price="15.90" data-unit="300g">Adicionar</button>
+                            </div>
+                        </div>
+
+                        <div class="item-card">
+                            <div class="item-header">
+                                <span class="item-name">Pimenta Dedo de Moça</span>
+                                <span class="item-price">R$ 16,90/200g</span>
+                            </div>
+                            <div class="item-controls">
+                                <div class="quantity-control">
+                                    <button class="quantity-btn minus" data-item="Pimenta Dedo de Moça">-</button>
+                                    <span class="quantity-value" data-item="Pimenta Dedo de Moça">0</span>
+                                    <button class="quantity-btn plus" data-item="Pimenta Dedo de Moça">+</button>
+                                </div>
+                                <button class="add-to-cart-btn" data-item="Pimenta Dedo de Moça" data-price="16.90" data-unit="200g">Adicionar</button>
+                            </div>
+                        </div>
+
+                        <div class="item-card">
+                            <div class="item-header">
+                                <span class="item-name">Tomate Seco</span>
+                                <span class="item-price">R$ 24,90/200g</span>
+                            </div>
+                            <div class="item-controls">
+                                <div class="quantity-control">
+                                    <button class="quantity-btn minus" data-item="Tomate Seco">-</button>
+                                    <span class="quantity-value" data-item="Tomate Seco">0</span>
+                                    <button class="quantity-btn plus" data-item="Tomate Seco">+</button>
+                                </div>
+                                <button class="add-to-cart-btn" data-item="Tomate Seco" data-price="24.90" data-unit="200g">Adicionar</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Geleias Mineiras -->
+                <div class="category-content" id="geleias">
+                    <div class="items-list">
+                        <div class="item-card">
+                            <div class="item-header">
+                                <span class="item-name">Geleia de Jabuticaba</span>
+                                <span class="item-price">R$ 22,90/250g</span>
+                            </div>
+                            <div class="item-controls">
+                                <div class="quantity-control">
+                                    <button class="quantity-btn minus" data-item="Geleia de Jabuticaba">-</button>
+                                    <span class="quantity-value" data-item="Geleia de Jabuticaba">0</span>
+                                    <button class="quantity-btn plus" data-item="Geleia de Jabuticaba">+</button>
+                                </div>
+                                <button class="add-to-cart-btn" data-item="Geleia de Jabuticaba" data-price="22.90" data-unit="250g">Adicionar</button>
+                            </div>
+                        </div>
+                        
+                        <div class="item-card">
+                            <div class="item-header">
+                                <span class="item-name">Geleia de Goiaba</span>
+                                <span class="item-price">R$ 18,50/250g</span>
+                            </div>
+                            <div class="item-controls">
+                                <div class="quantity-control">
+                                    <button class="quantity-btn minus" data-item="Geleia de Goiaba">-</button>
+                                    <span class="quantity-value" data-item="Geleia de Goiaba">0</span>
+                                    <button class="quantity-btn plus" data-item="Geleia de Goiaba">+</button>
+                                </div>
+                                <button class="add-to-cart-btn" data-item="Geleia de Goiaba" data-price="18.50" data-unit="250g">Adicionar</button>
+                            </div>
+                        </div>
+                        
+                        <div class="item-card">
+                            <div class="item-header">
+                                <span class="item-name">Geleia de Pimenta</span>
+                                <span class="item-price">R$ 25,90/250g</span>
+                            </div>
+                            <div class="item-controls">
+                                <div class="quantity-control">
+                                    <button class="quantity-btn minus" data-item="Geleia de Pimenta">-</button>
+                                    <span class="quantity-value" data-item="Geleia de Pimenta">0</span>
+                                    <button class="quantity-btn plus" data-item="Geleia de Pimenta">+</button>
+                                </div>
+                                <button class="add-to-cart-btn" data-item="Geleia de Pimenta" data-price="25.90" data-unit="250g">Adicionar</button>
+                            </div>
+                        </div>
+
+                        <div class="item-card">
+                            <div class="item-header">
+                                <span class="item-name">Geleia de Queijo</span>
+                                <span class="item-price">R$ 28,90/250g</span>
+                            </div>
+                            <div class="item-controls">
+                                <div class="quantity-control">
+                                    <button class="quantity-btn minus" data-item="Geleia de Queijo">-</button>
+                                    <span class="quantity-value" data-item="Geleia de Queijo">0</span>
+                                    <button class="quantity-btn plus" data-item="Geleia de Queijo">+</button>
+                                </div>
+                                <button class="add-to-cart-btn" data-item="Geleia de Queijo" data-price="28.90" data-unit="250g">Adicionar</button>
+                            </div>
+                        </div>
+
+                        <div class="item-card">
+                            <div class="item-header">
+                                <span class="item-name">Geleia de Figo</span>
+                                <span class="item-price">R$ 24,90/250g</span>
+                            </div>
+                            <div class="item-controls">
+                                <div class="quantity-control">
+                                    <button class="quantity-btn minus" data-item="Geleia de Figo">-</button>
+                                    <span class="quantity-value" data-item="Geleia de Figo">0</span>
+                                    <button class="quantity-btn plus" data-item="Geleia de Figo">+</button>
+                                </div>
+                                <button class="add-to-cart-btn" data-item="Geleia de Figo" data-price="24.90" data-unit="250g">Adicionar</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Bebidas Mineiras -->
+                <div class="category-content" id="bebidas">
+                    <div class="items-list">
+                        <div class="item-card">
+                            <div class="item-header">
+                                <span class="item-name">Cerveja Artesanal</span>
+                                <span class="item-price">R$ 12,90/600ml</span>
+                            </div>
+                            <div class="item-controls">
+                                <div class="quantity-control">
+                                    <button class="quantity-btn minus" data-item="Cerveja Artesanal">-</button>
+                                    <span class="quantity-value" data-item="Cerveja Artesanal">0</span>
+                                    <button class="quantity-btn plus" data-item="Cerveja Artesanal">+</button>
+                                </div>
+                                <button class="add-to-cart-btn" data-item="Cerveja Artesanal" data-price="12.90" data-unit="600ml">Adicionar</button>
+                            </div>
+                        </div>
+                        
+                        <div class="item-card">
+                            <div class="item-header">
+                                <span class="item-name">Suco de Jabuticaba</span>
+                                <span class="item-price">R$ 15,50/1L</span>
+                            </div>
+                            <div class="item-controls">
+                                <div class="quantity-control">
+                                    <button class="quantity-btn minus" data-item="Suco de Jabuticaba">-</button>
+                                    <span class="quantity-value" data-item="Suco de Jabuticaba">0</span>
+                                    <button class="quantity-btn plus" data-item="Suco de Jabuticaba">+</button>
+                                </div>
+                                <button class="add-to-cart-btn" data-item="Suco de Jabuticaba" data-price="15.50" data-unit="1L">Adicionar</button>
+                            </div>
+                        </div>
+                        
+                        <div class="item-card">
+                            <div class="item-header">
+                                <span class="item-name">Licor de Jabuticaba</span>
+                                <span class="item-price">R$ 65,90/750ml</span>
+                            </div>
+                            <div class="item-controls">
+                                <div class="quantity-control">
+                                    <button class="quantity-btn minus" data-item="Licor de Jabuticaba">-</button>
+                                    <span class="quantity-value" data-item="Licor de Jabuticaba">0</span>
+                                    <button class="quantity-btn plus" data-item="Licor de Jabuticaba">+</button>
+                                </div>
+                                <button class="add-to-cart-btn" data-item="Licor de Jabuticaba" data-price="65.90" data-unit="750ml">Adicionar</button>
+                            </div>
+                        </div>
+
+                        <div class="item-card">
+                            <div class="item-header">
+                                <span class="item-name">Licor de Queijo</span>
+                                <span class="item-price">R$ 58,90/750ml</span>
+                            </div>
+                            <div class="item-controls">
+                                <div class="quantity-control">
+                                    <button class="quantity-btn minus" data-item="Licor de Queijo">-</button>
+                                    <span class="quantity-value" data-item="Licor de Queijo">0</span>
+                                    <button class="quantity-btn plus" data-item="Licor de Queijo">+</button>
+                                </div>
+                                <button class="add-to-cart-btn" data-item="Licor de Queijo" data-price="58.90" data-unit="750ml">Adicionar</button>
+                            </div>
+                        </div>
+
+                        <div class="item-card">
+                            <div class="item-header">
+                                <span class="item-name">Vinho de Jabuticaba</span>
+                                <span class="item-price">R$ 72,90/750ml</span>
+                            </div>
+                            <div class="item-controls">
+                                <div class="quantity-control">
+                                    <button class="quantity-btn minus" data-item="Vinho de Jabuticaba">-</button>
+                                    <span class="quantity-value" data-item="Vinho de Jabuticaba">0</span>
+                                    <button class="quantity-btn plus" data-item="Vinho de Jabuticaba">+</button>
+                                </div>
+                                <button class="add-to-cart-btn" data-item="Vinho de Jabuticaba" data-price="72.90" data-unit="750ml">Adicionar</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Produtos Artesanais -->
+                <div class="category-content" id="artesanais">
+                    <div class="items-list">
+                        <div class="item-card">
+                            <div class="item-header">
+                                <span class="item-name">Trufas de Queijo</span>
+                                <span class="item-price">R$ 28,90/200g</span>
+                            </div>
+                            <div class="item-controls">
+                                <div class="quantity-control">
+                                    <button class="quantity-btn minus" data-item="Trufas de Queijo">-</button>
+                                    <span class="quantity-value" data-item="Trufas de Queijo">0</span>
+                                    <button class="quantity-btn plus" data-item="Trufas de Queijo">+</button>
+                                </div>
+                                <button class="add-to-cart-btn" data-item="Trufas de Queijo" data-price="28.90" data-unit="200g">Adicionar</button>
+                            </div>
+                        </div>
+                        
+                        <div class="item-card">
+                            <div class="item-header">
+                                <span class="item-name">Brigadeiro Gourmet</span>
+                                <span class="item-price">R$ 32,50/12un</span>
+                            </div>
+                            <div class="item-controls">
+                                <div class="quantity-control">
+                                    <button class="quantity-btn minus" data-item="Brigadeiro Gourmet">-</button>
+                                    <span class="quantity-value" data-item="Brigadeiro Gourmet">0</span>
+                                    <button class="quantity-btn plus" data-item="Brigadeiro Gourmet">+</button>
+                                </div>
+                                <button class="add-to-cart-btn" data-item="Brigadeiro Gourmet" data-price="32.50" data-unit="12un">Adicionar</button>
+                            </div>
+                        </div>
+                        
+                        <div class="item-card">
+                            <div class="item-header">
+                                <span class="item-name">Pão de Mel</span>
+                                <span class="item-price">R$ 6,90/un</span>
+                            </div>
+                            <div class="item-controls">
+                                <div class="quantity-control">
+                                    <button class="quantity-btn minus" data-item="Pão de Mel">-</button>
+                                    <span class="quantity-value" data-item="Pão de Mel">0</span>
+                                    <button class="quantity-btn plus" data-item="Pão de Mel">+</button>
+                                </div>
+                                <button class="add-to-cart-btn" data-item="Pão de Mel" data-price="6.90" data-unit="un">Adicionar</button>
+                            </div>
+                        </div>
+
+                        <div class="item-card">
+                            <div class="item-header">
+                                <span class="item-name">Queijadinha</span>
+                                <span class="item-price">R$ 4,50/un</span>
+                            </div>
+                            <div class="item-controls">
+                                <div class="quantity-control">
+                                    <button class="quantity-btn minus" data-item="Queijadinha">-</button>
+                                    <span class="quantity-value" data-item="Queijadinha">0</span>
+                                    <button class="quantity-btn plus" data-item="Queijadinha">+</button>
+                                </div>
+                                <button class="add-to-cart-btn" data-item="Queijadinha" data-price="4.50" data-unit="un">Adicionar</button>
+                            </div>
+                        </div>
+
+                        <div class="item-card">
+                            <div class="item-header">
+                                <span class="item-name">Doce de Leite em Barra</span>
+                                <span class="item-price">R$ 18,90/200g</span>
+                            </div>
+                            <div class="item-controls">
+                                <div class="quantity-control">
+                                    <button class="quantity-btn minus" data-item="Doce de Leite em Barra">-</button>
+                                    <span class="quantity-value" data-item="Doce de Leite em Barra">0</span>
+                                    <button class="quantity-btn plus" data-item="Doce de Leite em Barra">+</button>
+                                </div>
+                                <button class="add-to-cart-btn" data-item="Doce de Leite em Barra" data-price="18.90" data-unit="200g">Adicionar</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="cart-section">
+                <h2 class="section-title"><i class="fas fa-shopping-basket"></i> Meu Carrinho</h2>
+                
+                <div class="cart-items" id="cart-items">
+                    <div class="empty-cart">
+                        <i class="fas fa-shopping-basket"></i>
+                        <p>Seu carrinho está vazio</p>
+                        <p>Adicione itens para começar</p>
+                    </div>
+                </div>
+                
+                <div class="cart-summary">
+                    <div class="total-price">
+                        <span class="total-label">Total Estimado:</span>
+                        <span class="total-value" id="total-price">R$ 0,00</span>
+                    </div>
+                    
+                    <div class="action-buttons">
+                        <button class="action-btn whatsapp-btn" id="whatsapp-btn" disabled>
+                            <i class="fab fa-whatsapp"></i> WhatsApp
+                        </button>
+                        <button class="action-btn pdf-btn" id="pdf-btn" disabled>
+                            <i class="fas fa-file-pdf"></i> Gerar PDF
+                        </button>
+                        <button class="action-btn export-btn" id="export-btn" disabled>
+                            <i class="fas fa-image"></i> Exportar
+                        </button>
+                        <button class="action-btn clear-btn" id="clear-btn" disabled>
+                            <i class="fas fa-trash"></i> Limpar
+                        </button>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </div>
+
+    <div class="toast" id="toast">
+        <i class="fas fa-check-circle"></i>
+        <span id="toast-message">Item adicionado ao carrinho!</span>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Variáveis globais
+            const cart = {};
+            let total = 0;
+            const toast = document.getElementById('toast');
+            const toastMessage = document.getElementById('toast-message');
+            const themeToggle = document.getElementById('theme-toggle');
+            const { jsPDF } = window.jspdf;
+            
+            // Mapeamento de emojis por item
+            const itemEmojis = {
+                // Queijos
+                'Queijo Canastra': '🧀',
+                'Queijo Minas Frescal': '🧀',
+                'Queijo Minas Meia Cura': '🧀',
+                'Queijo Serra da Canastra': '🧀',
+                'Queijo do Serro': '🧀',
+                'Queijo Araxá': '🧀',
+                'Queijo Cabacinha': '🧀',
+                'Queijo Curado': '🧀',
+                'Queijo com Pimenta': '🧀🌶️',
+                'Queijo Requeijão Cremoso': '🧀',
+                
+                // Doces
+                'Doce de Leite': '🍯',
+                'Goiabada Cascão': '🍈',
+                'Romeu e Julieta': '🧀🍈',
+                'Doce de Leite com Amendoim': '🍯🥜',
+                'Pé de Moleque': '🍯🥜',
+                'Doce de Figo': '🍯',
+                'Doce de Abóbora': '🍯🎃',
+                'Bolo de Fubá': '🍰',
+                'Bolo de Milho': '🍰🌽',
+                'Quindim': '🍮',
+                
+                // Cachaças
+                'Cachaça Salinas Envelhecida': '🥃',
+                'Cachaça Vale Verde Premium': '🥃',
+                'Cachaça Weber Haus': '🥃',
+                'Cachaça Magnífica': '🥃',
+                'Cachaça de Alambique': '🥃',
+                'Cachaça com Mel': '🥃🍯',
+                'Cachaça Premium': '🥃',
+                'Cachaça Artesanal': '🥃',
+                
+                // Cafés
+                'Café Sul de Minas': '☕',
+                'Café Chapada de Minas': '☕',
+                'Café Cerrado Mineiro': '☕',
+                'Café Especial': '☕',
+                'Café Gourmet': '☕',
+                'Café Orgânico': '☕',
+                'Café Torra Média': '☕',
+                'Café Torra Escura': '☕',
+                
+                // Pães e Biscoitos
+                'Pão de Queijo Tradicional': '🧀',
+                'Biscoito de Polvilho': '🍪',
+                'Pão de Queijo Recheado': '🧀',
+                'Biscoito de Queijo': '🍪🧀',
+                'Pão de Queijo Gigante': '🧀',
+                'Rosquinha de Nata': '🍩',
+                'Biscoito de Fubá': '🍪',
+                'Pão Caseiro': '🍞',
+                
+                // Embutidos
+                'Linguiça Caseira': '🌭',
+                'Paio Mineiro': '🌭',
+                'Toucinho Defumado': '🥓',
+                'Linguiça de Frango': '🌭🍗',
+                'Linguiça Apimentada': '🌭🌶️',
+                'Salame Mineiro': '🍖',
+                
+                // Conservas
+                'Pimenta Biquinho': '🌶️',
+                'Palmito Pupunha': '🌴',
+                'Azeitona Verde': '🫒',
+                'Pimenta Dedo de Moça': '🌶️',
+                'Tomate Seco': '🍅',
+                
+                // Geleias
+                'Geleia de Jabuticaba': '🍇',
+                'Geleia de Goiaba': '🍈',
+                'Geleia de Pimenta': '🌶️',
+                'Geleia de Queijo': '🧀',
+                'Geleia de Figo': '🍯',
+                
+                // Bebidas
+                'Cerveja Artesanal': '🍺',
+                'Suco de Jabuticaba': '🧃',
+                'Licor de Jabuticaba': '🍷',
+                'Licor de Queijo': '🧀🍷',
+                'Vinho de Jabuticaba': '🍷',
+                
+                // Artesanais
+                'Trufas de Queijo': '🧀🍫',
+                'Brigadeiro Gourmet': '🍫',
+                'Pão de Mel': '🍯',
+                'Queijadinha': '🧀',
+                'Doce de Leite em Barra': '🍯'
+            };
+            
+            // Elementos do DOM
+            const categoryTabs = document.querySelectorAll('.category-tab');
+            const categoryContents = document.querySelectorAll('.category-content');
+            const cartItemsContainer = document.getElementById('cart-items');
+            const totalPriceElement = document.getElementById('total-price');
+            const whatsappBtn = document.getElementById('whatsapp-btn');
+            const pdfBtn = document.getElementById('pdf-btn');
+            const exportBtn = document.getElementById('export-btn');
+            const clearBtn = document.getElementById('clear-btn');
+            
+            // Event Listeners
+            categoryTabs.forEach(tab => {
+                tab.addEventListener('click', switchCategory);
+            });
+            
+            document.querySelectorAll('.quantity-btn.plus').forEach(btn => {
+                btn.addEventListener('click', increaseQuantity);
+            });
+            
+            document.querySelectorAll('.quantity-btn.minus').forEach(btn => {
+                btn.addEventListener('click', decreaseQuantity);
+            });
+            
+            document.querySelectorAll('.add-to-cart-btn').forEach(btn => {
+                btn.addEventListener('click', addToCart);
+            });
+            
+            themeToggle.addEventListener('click', toggleTheme);
+            whatsappBtn.addEventListener('click', shareViaWhatsApp);
+            pdfBtn.addEventListener('click', generatePDF);
+            exportBtn.addEventListener('click', exportAsImage);
+            clearBtn.addEventListener('click', clearCart);
+            
+            // Verifica o tema salvo no localStorage
+            if (localStorage.getItem('theme') === 'dark') {
+                document.body.classList.add('dark-mode');
+                themeToggle.innerHTML = '<i class="fas fa-sun"></i>';
+            }
+            
+            // Funções
+            function toggleTheme() {
+                document.body.classList.toggle('dark-mode');
+                const isDarkMode = document.body.classList.contains('dark-mode');
+                
+                if (isDarkMode) {
+                    themeToggle.innerHTML = '<i class="fas fa-sun"></i>';
+                    localStorage.setItem('theme', 'dark');
+                } else {
+                    themeToggle.innerHTML = '<i class="fas fa-moon"></i>';
+                    localStorage.setItem('theme', 'light');
+                }
+            }
+            
+            function switchCategory(e) {
+                const category = e.target.dataset.category;
+                
+                // Atualiza as abas
+                categoryTabs.forEach(tab => {
+                    tab.classList.remove('active');
+                });
+                e.target.classList.add('active');
+                
+                // Atualiza os conteúdos
+                categoryContents.forEach(content => {
+                    content.classList.remove('active');
+                });
+                document.getElementById(category).classList.add('active');
+            }
+            
+            function increaseQuantity(e) {
+                const itemName = e.target.dataset.item;
+                const quantityElement = document.querySelector(`.quantity-value[data-item="${itemName}"]`);
+                let quantity = parseInt(quantityElement.textContent);
+                quantityElement.textContent = quantity + 1;
+            }
+            
+            function decreaseQuantity(e) {
+                const itemName = e.target.dataset.item;
+                const quantityElement = document.querySelector(`.quantity-value[data-item="${itemName}"]`);
+                let quantity = parseInt(quantityElement.textContent);
+                if (quantity > 0) {
+                    quantityElement.textContent = quantity - 1;
+                }
+            }
+            
+            function addToCart(e) {
+                const itemName = e.target.dataset.item;
+                const itemPrice = parseFloat(e.target.dataset.price);
+                const itemUnit = e.target.dataset.unit;
+                const quantityElement = document.querySelector(`.quantity-value[data-item="${itemName}"]`);
+                let quantity = parseInt(quantityElement.textContent);
+                
+                if (quantity <= 0) {
+                    showToast('Selecione uma quantidade maior que zero', 'error');
+                    return;
+                }
+                
+                if (cart[itemName]) {
+                    cart[itemName].quantity += quantity;
+                    cart[itemName].totalPrice = cart[itemName].quantity * itemPrice;
+                } else {
+                    cart[itemName] = {
+                        name: itemName,
+                        price: itemPrice,
+                        unit: itemUnit,
+                        quantity: quantity,
+                        totalPrice: quantity * itemPrice
+                    };
+                }
+                
+                total += quantity * itemPrice;
+                updateCart();
+                quantityElement.textContent = 0;
+                showToast(`${quantity}x ${itemName} adicionado ao carrinho!`, 'success');
+            }
+            
+            function updateCart() {
+                if (Object.keys(cart).length === 0) {
+                    cartItemsContainer.innerHTML = `
+                        <div class="empty-cart">
+                            <i class="fas fa-shopping-basket"></i>
+                            <p>Seu carrinho está vazio</p>
+                            <p>Adicione itens para começar</p>
+                        </div>
+                    `;
+                    whatsappBtn.disabled = true;
+                    pdfBtn.disabled = true;
+                    exportBtn.disabled = true;
+                    clearBtn.disabled = true;
+                } else {
+                    cartItemsContainer.innerHTML = '';
+                    for (const item in cart) {
+                        const cartItem = cart[item];
+                        const itemElement = document.createElement('div');
+                        itemElement.className = 'cart-item';
+                        const emoji = itemEmojis[cartItem.name] || '🛒';
+                        itemElement.innerHTML = `
+                            <div class="cart-item-info">
+                                <span class="cart-item-name">${emoji} ${cartItem.name}</span>
+                                <span class="cart-item-quantity">${cartItem.quantity} ${cartItem.unit}</span>
+                            </div>
+                            <div class="cart-item-price">R$ ${cartItem.totalPrice.toFixed(2)}</div>
+                            <button class="remove-item-btn" data-item="${cartItem.name}">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        `;
+                        cartItemsContainer.appendChild(itemElement);
+                    }
+                    
+                    // Adiciona event listeners aos botões de remover
+                    document.querySelectorAll('.remove-item-btn').forEach(btn => {
+                        btn.addEventListener('click', removeItemFromCart);
+                    });
+                    
+                    whatsappBtn.disabled = false;
+                    pdfBtn.disabled = false;
+                    exportBtn.disabled = false;
+                    clearBtn.disabled = false;
+                }
+                
+                totalPriceElement.textContent = `R$ ${total.toFixed(2)}`;
+            }
+            
+            function removeItemFromCart(e) {
+                const itemName = e.currentTarget.dataset.item;
+                total -= cart[itemName].totalPrice;
+                delete cart[itemName];
+                updateCart();
+                showToast('Item removido do carrinho', 'error');
+            }
+            
+            function clearCart() {
+                for (const item in cart) {
+                    delete cart[item];
+                }
+                total = 0;
+                updateCart();
+                showToast('Carrinho limpo', 'error');
+            }
+            
+            function shareViaWhatsApp() {
+                let message = '📋 *Lista de Compras - Delícias de Minas* 📋\n\n';
+                
+                // Agrupa por categoria
+                const categorizedItems = {};
+                for (const item in cart) {
+                    const cartItem = cart[item];
+                    const category = getItemCategory(cartItem.name);
+                    
+                    if (!categorizedItems[category]) {
+                        categorizedItems[category] = [];
+                    }
+                    categorizedItems[category].push(cartItem);
+                }
+                
+                // Ordena categorias
+                const categoryOrder = ['Queijos', 'Doces', 'Cachaças', 'Cafés', 'Pães & Biscoitos', 'Embutidos', 'Conservas', 'Geleias', 'Bebidas', 'Artesanais'];
+                const sortedCategories = Object.keys(categorizedItems).sort((a, b) => {
+                    return categoryOrder.indexOf(a) - categoryOrder.indexOf(b);
+                });
+                
+                // Adiciona itens à mensagem
+                sortedCategories.forEach(category => {
+                    message += `${getCategoryEmoji(category)} *${category}*:\n`;
+                    
+                    categorizedItems[category].forEach(item => {
+                        const emoji = itemEmojis[item.name] || '🛒';
+                        message += `${emoji} ${item.name} - ${item.quantity} ${item.unit} - R$ ${item.totalPrice.toFixed(2)}\n`;
+                    });
+                    
+                    message += '\n';
+                });
+                
+                message += `\n💰 *Total Estimado: R$ ${total.toFixed(2)}*`;
+                
+                const encodedMessage = encodeURIComponent(message);
+                window.open(`https://wa.me/?text=${encodedMessage}`);
+            }
+            
+            function generatePDF() {
+                const doc = new jsPDF();
+                
+                // Cabeçalho
+                doc.setFontSize(18);
+                doc.setTextColor(139, 69, 19); // Cor marrom
+                doc.text('EncomendUAI', 105, 15, null, null, 'center');
+                
+                doc.setFontSize(12);
+                doc.setTextColor(0, 0, 0);
+                doc.text('Lista de Compras', 105, 25, null, null, 'center');
+                
+                // Data
+                const today = new Date();
+                const dateStr = today.toLocaleDateString('pt-BR');
+                doc.setFontSize(10);
+                doc.text(`Data: ${dateStr}`, 15, 35);
+                
+                // Itens
+                let y = 45;
+                doc.setFontSize(12);
+                doc.setTextColor(46, 139, 87); // Verde
+                doc.text('Itens', 15, y);
+                y += 10;
+                
+                doc.setFontSize(10);
+                doc.setTextColor(0, 0, 0);
+                
+                // Agrupa por categoria
+                const categorizedItems = {};
+                for (const item in cart) {
+                    const cartItem = cart[item];
+                    const category = getItemCategory(cartItem.name);
+                    
+                    if (!categorizedItems[category]) {
+                        categorizedItems[category] = [];
+                    }
+                    categorizedItems[category].push(cartItem);
+                }
+                
+                // Ordena categorias
+                const categoryOrder = ['Queijos', 'Doces', 'Cachaças', 'Cafés', 'Pães & Biscoitos', 'Embutidos', 'Conservas', 'Geleias', 'Bebidas', 'Artesanais'];
+                const sortedCategories = Object.keys(categorizedItems).sort((a, b) => {
+                    return categoryOrder.indexOf(a) - categoryOrder.indexOf(b);
+                });
+                
+                // Adiciona itens ao PDF
+                sortedCategories.forEach(category => {
+                    // Verifica se precisa de nova página
+                    if (y > 250) {
+                        doc.addPage();
+                        y = 20;
+                    }
+                    
+                    doc.setFontSize(11);
+                    doc.setTextColor(139, 69, 19); // Marrom
+                    doc.text(`${category}:`, 15, y);
+                    y += 7;
+                    
+                    categorizedItems[category].forEach(item => {
+                        if (y > 270) {
+                            doc.addPage();
+                            y = 20;
+                        }
+                        
+                        doc.setFontSize(10);
+                        doc.setTextColor(0, 0, 0);
+                        const emoji = itemEmojis[item.name] || '';
+                        doc.text(`${emoji} ${item.name} - ${item.quantity} ${item.unit} - R$ ${item.totalPrice.toFixed(2)}`, 20, y);
+                        y += 7;
+                    });
+                    
+                    y += 5;
+                });
+                
+                // Total
+                if (y > 250) {
+                    doc.addPage();
+                    y = 20;
+                }
+                
+                doc.setFontSize(12);
+                doc.setTextColor(46, 139, 87); // Verde
+                doc.text('Total Estimado:', 15, y);
+                doc.setTextColor(0, 0, 0);
+                doc.text(`R$ ${total.toFixed(2)}`, 50, y);
+                
+                // Salva o PDF
+                doc.save('delicias_de_minas.pdf');
+                showToast('PDF gerado com sucesso!', 'success');
+            }
+            
+            function getItemCategory(itemName) {
+                // Verifica em qual categoria o item está
+                const categories = {
+                    'queijos': ['Queijo Canastra', 'Queijo Minas Frescal', 'Queijo Minas Meia Cura', 'Queijo Serra da Canastra', 'Queijo do Serro', 'Queijo Araxá', 'Queijo Cabacinha', 'Queijo Curado', 'Queijo com Pimenta', 'Queijo Requeijão Cremoso'],
+                    'doces': ['Doce de Leite', 'Goiabada Cascão', 'Romeu e Julieta', 'Doce de Leite com Amendoim', 'Pé de Moleque', 'Doce de Figo', 'Doce de Abóbora', 'Bolo de Fubá', 'Bolo de Milho', 'Quindim'],
+                    'cachacas': ['Cachaça Salinas Envelhecida', 'Cachaça Vale Verde Premium', 'Cachaça Weber Haus', 'Cachaça Magnífica', 'Cachaça de Alambique', 'Cachaça com Mel', 'Cachaça Premium', 'Cachaça Artesanal'],
+                    'cafes': ['Café Sul de Minas', 'Café Chapada de Minas', 'Café Cerrado Mineiro', 'Café Especial', 'Café Gourmet', 'Café Orgânico', 'Café Torra Média', 'Café Torra Escura'],
+                    'paes': ['Pão de Queijo Tradicional', 'Biscoito de Polvilho', 'Pão de Queijo Recheado', 'Biscoito de Queijo', 'Pão de Queijo Gigante', 'Rosquinha de Nata', 'Biscoito de Fubá', 'Pão Caseiro'],
+                    'embutidos': ['Linguiça Caseira', 'Paio Mineiro', 'Toucinho Defumado', 'Linguiça de Frango', 'Linguiça Apimentada', 'Salame Mineiro'],
+                    'conservas': ['Pimenta Biquinho', 'Palmito Pupunha', 'Azeitona Verde', 'Pimenta Dedo de Moça', 'Tomate Seco'],
+                    'geleias': ['Geleia de Jabuticaba', 'Geleia de Goiaba', 'Geleia de Pimenta', 'Geleia de Queijo', 'Geleia de Figo'],
+                    'bebidas': ['Cerveja Artesanal', 'Suco de Jabuticaba', 'Licor de Jabuticaba', 'Licor de Queijo', 'Vinho de Jabuticaba'],
+                    'artesanais': ['Trufas de Queijo', 'Brigadeiro Gourmet', 'Pão de Mel', 'Queijadinha', 'Doce de Leite em Barra']
+                };
+                
+                for (const category in categories) {
+                    if (categories[category].includes(itemName)) {
+                        // Converte o ID da categoria para o nome formatado
+                        return formatCategoryName(category);
+                    }
+                }
+                
+                return 'Outros';
+            }
+            
+            function formatCategoryName(categoryId) {
+                const names = {
+                    'queijos': 'Queijos',
+                    'doces': 'Doces',
+                    'cachacas': 'Cachaças',
+                    'cafes': 'Cafés',
+                    'paes': 'Pães & Biscoitos',
+                    'embutidos': 'Embutidos',
+                    'conservas': 'Conservas',
+                    'geleias': 'Geleias',
+                    'bebidas': 'Bebidas',
+                    'artesanais': 'Artesanais'
+                };
+                
+                return names[categoryId] || categoryId;
+            }
+            
+            function getCategoryEmoji(category) {
+                const emojis = {
+                    'Queijos': '🧀',
+                    'Doces': '🍯',
+                    'Cachaças': '🥃',
+                    'Cafés': '☕',
+                    'Pães & Biscoitos': '🍞',
+                    'Embutidos': '🌭',
+                    'Conservas': '🥫',
+                    'Geleias': '🍓',
+                    'Bebidas': '🥤',
+                    'Artesanais': '🖐️',
+                    'Outros': '🛒'
+                };
+                
+                return emojis[category] || '🛒';
+            }
+            
+            function exportAsImage() {
+                // Em uma implementação real, usaria html2canvas ou similar
+                // Aqui vamos simular copiando os dados
+                let listText = '📋 Lista de Compras - Delícias de Minas 📋\n\n';
+                
+                // Agrupa por categoria
+                const categorizedItems = {};
+                for (const item in cart) {
+                    const cartItem = cart[item];
+                    const category = getItemCategory(cartItem.name);
+                    
+                    if (!categorizedItems[category]) {
+                        categorizedItems[category] = [];
+                    }
+                    categorizedItems[category].push(cartItem);
+                }
+                
+                // Ordena categorias
+                const categoryOrder = ['Queijos', 'Doces', 'Cachaças', 'Cafés', 'Pães & Biscoitos', 'Embutidos', 'Conservas', 'Geleias', 'Bebidas', 'Artesanais'];
+                const sortedCategories = Object.keys(categorizedItems).sort((a, b) => {
+                    return categoryOrder.indexOf(a) - categoryOrder.indexOf(b);
+                });
+                
+                // Adiciona itens à mensagem
+                sortedCategories.forEach(category => {
+                    listText += `${getCategoryEmoji(category)} ${category}:\n`;
+                    
+                    categorizedItems[category].forEach(item => {
+                        const emoji = itemEmojis[item.name] || '🛒';
+                        listText += `${emoji} ${item.name} - ${item.quantity} ${item.unit} - R$ ${item.totalPrice.toFixed(2)}\n`;
+                    });
+                    
+                    listText += '\n';
+                });
+                
+                listText += `\n💰 Total Estimado: R$ ${total.toFixed(2)}`;
+                
+                // Copia para área de transferência
+                navigator.clipboard.writeText(listText)
+                    .then(() => showToast('Lista copiada para a área de transferência!', 'success'))
+                    .catch(() => showToast('Falha ao copiar lista', 'error'));
+            }
+            
+            function showToast(message, type) {
+                toastMessage.textContent = message;
+                toast.className = 'toast';
+                toast.classList.add(type);
+                toast.classList.add('show');
+                
+                setTimeout(() => {
+                    toast.classList.remove('show');
+                }, 3000);
+            }
+        });
+    </script>
+</body>
+</html>

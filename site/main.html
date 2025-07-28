@@ -1,0 +1,866 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="Coleção de utilitários e projetos HTML interativos" />
+  <meta name="keywords" content="utilitários, ferramentas, projetos, HTML, JavaScript" />
+  <meta name="author" content="Rafael Passos Domingues" />
+  <meta name="theme-color" content="#1976d2" />
+  <title>Simple Utility App Suite</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    /* Reset e variáveis */
+    :root {
+      --color-primary: #1976d2;
+      --color-primary-dark: #0d47a1;
+      --color-primary-light: #bbdefb;
+      --color-text: #333;
+      --color-text-secondary: #555;
+      --color-background: #f5f7fa;
+      --color-card: #fff;
+      --color-card-hover: #e8f0fe;
+      --color-border: #e0e0e0;
+      --shadow-sm: 0 2px 6px rgba(0,0,0,0.08);
+      --shadow-md: 0 4px 12px rgba(0,0,0,0.12);
+      --shadow-lg: 0 8px 24px rgba(0,0,0,0.15);
+      --radius-sm: 8px;
+      --radius-md: 12px;
+      --radius-lg: 16px;
+      --transition: 0.3s ease;
+      --font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen,
+                   Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
+    }
+
+    /* Dark mode variables */
+    [data-theme="dark"] {
+      --color-primary: #90caf9;
+      --color-primary-dark: #64b5f6;
+      --color-primary-light: #1e3a5f;
+      --color-text: #e0e0e0;
+      --color-text-secondary: #aaa;
+      --color-background: #121212;
+      --color-card: #1e1e1e;
+      --color-card-hover: #2c2c2c;
+      --color-border: #333;
+      --shadow-sm: 0 2px 6px rgba(0,0,0,0.3);
+      --shadow-md: 0 4px 12px rgba(0,0,0,0.4);
+      --shadow-lg: 0 8px 24px rgba(0,0,0,0.5);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      font-family: var(--font-family);
+      background-color: var(--color-background);
+      color: var(--color-text);
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+      padding: 0;
+      transition: background-color var(--transition), color var(--transition);
+      line-height: 1.6;
+    }
+
+    /* Header e navegação */
+    header {
+      background-color: var(--color-primary);
+      color: white;
+      padding: 1.5rem 1rem;
+      text-align: center;
+      position: relative;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .header-content {
+      max-width: 1200px;
+      margin: 0 auto;
+      position: relative;
+    }
+
+    h1 {
+      font-size: 2.5rem;
+      margin-bottom: 0.5rem;
+      font-weight: 700;
+    }
+
+    p.subtitle {
+      color: rgba(255, 255, 255, 0.9);
+      font-size: 1.1rem;
+      margin-bottom: 1rem;
+      font-weight: 400;
+    }
+
+    /* Controles */
+    .controls {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 1rem;
+      background-color: var(--color-card);
+      border-radius: var(--radius-md);
+      box-shadow: var(--shadow-sm);
+      margin-top: -1.5rem;
+      position: relative;
+      z-index: 10;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+
+    .search-container {
+      position: relative;
+      flex: 1;
+      min-width: 200px;
+    }
+
+    #searchInput {
+      width: 100%;
+      padding: 0.75rem 1rem 0.75rem 2.5rem;
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-sm);
+      font-size: 1rem;
+      background-color: var(--color-card);
+      color: var(--color-text);
+      transition: all var(--transition);
+    }
+
+    #searchInput:focus {
+      outline: none;
+      border-color: var(--color-primary);
+      box-shadow: 0 0 0 3px var(--color-primary-light);
+    }
+
+    .search-icon {
+      position: absolute;
+      left: 0.75rem;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--color-text-secondary);
+      pointer-events: none;
+    }
+
+    .filter-container {
+      display: flex;
+      gap: 0.5rem;
+      align-items: center;
+    }
+
+    #categoryFilter {
+      padding: 0.75rem 1rem;
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-sm);
+      font-size: 1rem;
+      background-color: var(--color-card);
+      color: var(--color-text);
+      cursor: pointer;
+      transition: all var(--transition);
+    }
+
+    #categoryFilter:focus {
+      outline: none;
+      border-color: var(--color-primary);
+    }
+
+    #darkModeToggle {
+      background: none;
+      border: none;
+      width: 40px;
+      height: 40px;
+      font-size: 1.5rem;
+      line-height: 1;
+      cursor: pointer;
+      color: var(--color-text);
+      transition: all var(--transition);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    #darkModeToggle:hover {
+      background-color: rgba(0,0,0,0.1);
+    }
+
+    #darkModeToggle:focus {
+      outline: 3px solid var(--color-primary-light);
+      outline-offset: 2px;
+    }
+
+    /* Conteúdo principal */
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 2rem 1rem;
+      width: 100%;
+      flex-grow: 1;
+    }
+
+    .category-title {
+      margin: 2rem 0 1rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 2px solid var(--color-primary);
+      color: var(--color-text);
+      font-size: 1.5rem;
+      font-weight: 600;
+    }
+
+    .category-title:first-of-type {
+      margin-top: 0;
+    }
+
+    .cards-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+    }
+
+    .card {
+      display: flex;
+      flex-direction: column;
+      background-color: var(--color-card);
+      border-radius: var(--radius-md);
+      box-shadow: var(--shadow-sm);
+      text-decoration: none;
+      color: var(--color-text);
+      transition: all var(--transition);
+      overflow: hidden;
+      height: 100%;
+      border: 1px solid var(--color-border);
+    }
+
+    .card:hover,
+    .card:focus {
+      transform: translateY(-4px);
+      box-shadow: var(--shadow-md);
+      border-color: var(--color-primary);
+      outline: none;
+    }
+
+    .card:focus-visible {
+      outline: 3px solid var(--color-primary);
+      outline-offset: 2px;
+    }
+
+    .card-header {
+      padding: 1.25rem 1.25rem 0.75rem;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .card-icon {
+      font-size: 2.5rem;
+      user-select: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .card-title {
+      font-weight: 600;
+      font-size: 1.2rem;
+      color: var(--color-text);
+      flex-grow: 1;
+    }
+
+    .card-body {
+      padding: 0 1.25rem 1.25rem;
+      flex-grow: 1;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .card-desc {
+      font-size: 0.95rem;
+      color: var(--color-text-secondary);
+      margin-bottom: 1rem;
+      flex-grow: 1;
+    }
+
+    .card-meta {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      font-size: 0.85rem;
+      color: var(--color-text-secondary);
+    }
+
+    .meta-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .card-category {
+      background-color: var(--color-primary-light);
+      color: var(--color-primary-dark);
+      padding: 0.25rem 0.5rem;
+      border-radius: var(--radius-sm);
+      font-weight: 500;
+      font-size: 0.8rem;
+    }
+
+    .card-hash {
+      font-family: monospace;
+      font-size: 0.7rem;
+      opacity: 0.7;
+      word-break: break-all;
+    }
+
+    .card-date {
+      font-size: 0.8rem;
+    }
+
+    [data-theme="dark"] .card-category {
+      background-color: var(--color-primary-dark);
+      color: var(--color-primary-light);
+    }
+
+    /* Rodapé */
+    footer {
+      background-color: var(--color-card);
+      color: var(--color-text-secondary);
+      text-align: center;
+      padding: 1.5rem;
+      margin-top: auto;
+      border-top: 1px solid var(--color-border);
+    }
+
+    .footer-content {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    /* Mensagem de nenhum resultado */
+    .no-results {
+      text-align: center;
+      padding: 3rem 1rem;
+      color: var(--color-text-secondary);
+      font-size: 1.2rem;
+    }
+
+    /* Animações */
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .card {
+      animation: fadeIn 0.3s ease-out;
+    }
+
+    /* Responsividade */
+    @media (max-width: 768px) {
+      h1 {
+        font-size: 2rem;
+      }
+
+      .controls {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .filter-container {
+        justify-content: space-between;
+      }
+
+      .cards-grid {
+        grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+      }
+    }
+
+    @media (max-width: 480px) {
+      h1 {
+        font-size: 1.75rem;
+      }
+
+      .cards-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .card-header {
+        flex-direction: column;
+        text-align: center;
+      }
+
+      .card-title {
+        margin-top: 0.5rem;
+      }
+    }
+
+    /* Acessibilidade */
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border-width: 0;
+    }
+
+    /* Botão de voltar ao topo */
+    #backToTop {
+      position: fixed;
+      bottom: 2rem;
+      right: 2rem;
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      background-color: var(--color-primary);
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      cursor: pointer;
+      box-shadow: var(--shadow-md);
+      opacity: 0;
+      visibility: hidden;
+      transition: all var(--transition);
+      border: none;
+    }
+
+    #backToTop.visible {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    #backToTop:hover {
+      background-color: var(--color-primary-dark);
+      transform: translateY(-4px);
+    }
+
+    /* Skeleton loading */
+    .skeleton {
+      background: linear-gradient(90deg, var(--color-card) 25%, var(--color-card-hover) 50%, var(--color-card) 75%);
+      background-size: 200% 100%;
+      animation: loading 1.5s infinite;
+      border-radius: var(--radius-sm);
+    }
+
+    @keyframes loading {
+      0% { background-position: 200% 0; }
+      100% { background-position: -200% 0; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="header-content">
+      <h1>Simple Utility App Suite</h1>
+      <p class="subtitle">by Rafael Passos Domingues</p>
+    </div>
+  </header>
+
+  <div class="container">
+    <div class="controls">
+      <div class="search-container">
+        <span class="search-icon" aria-hidden="true">🔍</span>
+        <input type="text" id="searchInput" placeholder="Buscar projetos..." aria-label="Buscar projetos">
+      </div>
+      <div class="filter-container">
+        <label for="categoryFilter" class="sr-only">Filtrar por categoria</label>
+        <select id="categoryFilter" aria-label="Filtrar por categoria">
+          <option value="all">Todas as categorias</option>
+          <!-- Categorias serão adicionadas via JavaScript -->
+        </select>
+        <button id="darkModeToggle" aria-pressed="false" aria-label="Alternar modo escuro">🌙</button>
+      </div>
+    </div>
+
+    <div id="projectsContainer">
+      <!-- Conteúdo será gerado dinamicamente -->
+    </div>
+  </div>
+
+  <button id="backToTop" aria-label="Voltar ao topo" title="Voltar ao topo">↑</button>
+
+  <script>
+    // Dados dos projetos
+    const BASE_URL = "${BASE_URL}";  // Base URL para links diretos no GitHub Pages
+    const projects = [
+      {
+        id: "barber",
+        title: "BarberAI",
+        icon: "💈",
+        category: "Outros",
+        path: "https://rpassosdomingues.github.io/insights/site/utilities/barber.html",
+        lastModified: "2025-06-08 02:44",
+        fileHash: "c65380382d88b75fe26f2630529a4f1f"
+      },
+      {
+        id: "blueParking",
+        title: "VagAI",
+        icon: "🅿️🚗",
+        category: "Outros",
+        path: "https://rpassosdomingues.github.io/insights/site/utilities/blueParking.html",
+        lastModified: "2025-06-12 07:18",
+        fileHash: "22411e0d632a4ec39d8f16583a186a46"
+      },
+      {
+        id: "buscaContextoPDFs",
+        title: "Context Hunter",
+        icon: "🔎📄",
+        category: "Outros",
+        path: "https://rpassosdomingues.github.io/insights/site/utilities/buscaContextoPDFs.html",
+        lastModified: "2025-06-08 02:48",
+        fileHash: "55b2c6823d6a172aaca8195e539d5ffd"
+      },
+      {
+        id: "busHour",
+        title: "BusAI",
+        icon: "🔎🚌",
+        category: "Outros",
+        path: "https://rpassosdomingues.github.io/insights/site/utilities/busHour.html",
+        lastModified: "2025-06-09 23:14",
+        fileHash: "ac23aced16e8b8cb18198a8c4a3b58b4"
+      },
+      {
+        id: "comandaDigital",
+        title: "ComandAI",
+        icon: "🍢",
+        category: "Outros",
+        path: "https://rpassosdomingues.github.io/insights/site/utilities/comandaDigital.html",
+        lastModified: "2025-06-08 02:34",
+        fileHash: "1cc61a34ebe28ea66306b385b1a1e387"
+      },
+      {
+        id: "confereListaSupermercado",
+        title: "ConfereAI",
+        icon: "🛒",
+        category: "Outros",
+        path: "https://rpassosdomingues.github.io/insights/site/utilities/confereListaSupermercado.html",
+        lastModified: "2025-06-08 02:16",
+        fileHash: "374e74fd1366e781e8b6dd815cae7888"
+      },
+      {
+        id: "dengueZero",
+        title: "DengueAI",
+        icon: "🔎🦟",
+        category: "Outros",
+        path: "https://rpassosdomingues.github.io/insights/site/utilities/dengueZero.html",
+        lastModified: "2025-06-08 02:34",
+        fileHash: "aa2cb507080d0cf0afaa9fcc10703ab2"
+      },
+      {
+        id: "dentaLog",
+        title: "DentAI - Sistema Odontológico",
+        icon: "🦷",
+        category: "Outros",
+        path: "https://rpassosdomingues.github.io/insights/site/utilities/dentaLog.html",
+        lastModified: "2025-06-08 22:06",
+        fileHash: "9ed5406c49bad695c19b2803454cd1e8"
+      },
+      {
+        id: "dogGuest",
+        title: "DogNB",
+        icon: "🐶",
+        category: "Outros",
+        path: "https://rpassosdomingues.github.io/insights/site/utilities/dogGuest.html",
+        lastModified: "2025-06-08 02:37",
+        fileHash: "8d71fccae3756a801fd6025db671cb73"
+      },
+      {
+        id: "encomendUAI",
+        title: "EncomendUAI",
+        icon: "🍞🧀",
+        category: "Outros",
+        path: "https://rpassosdomingues.github.io/insights/site/utilities/encomendUAI.html",
+        lastModified: "2025-06-11 18:43",
+        fileHash: "0b46343f148d1c2b4e26fcb0de7cc65d"
+      },
+      {
+        id: "fitMotivation",
+        title: "FitMotivation+",
+        icon: "🏋️‍♂️💪",
+        category: "Outros",
+        path: "https://rpassosdomingues.github.io/insights/site/utilities/fitMotivation.html",
+        lastModified: "2025-06-08 01:26",
+        fileHash: "bd612f9ee0841f28ad3c92ac215c330b"
+      },
+      {
+        id: "marmitAI",
+        title: "MarmitAI - Planejador Inteligente de Marmitas",
+        icon: "🍱",
+        category: "Outros",
+        path: "https://rpassosdomingues.github.io/insights/site/utilities/marmitAI.html",
+        lastModified: "2025-06-10 21:10",
+        fileHash: "67f117c44c08a34f95e2e6c3fa1020f5"
+      },
+      {
+        id: "meetMotions",
+        title: "Meet Motions Tracking",
+        icon: "🎤",
+        category: "Outros",
+        path: "https://rpassosdomingues.github.io/insights/site/utilities/meetMotions.html",
+        lastModified: "2025-06-08 01:27",
+        fileHash: "e68a25e74a5df72aa733634cce33f791"
+      },
+      {
+        id: "motoboyDanger",
+        title: "Moto Guardian",
+        icon: "⚠️🛵",
+        category: "Outros",
+        path: "https://rpassosdomingues.github.io/insights/site/utilities/motoboyDanger.html",
+        lastModified: "2025-06-08 01:46",
+        fileHash: "34f4c2e6e79d2faee81d591cf4d4a9de"
+      },
+      {
+        id: "nurseLog",
+        title: "NurseLog+",
+        icon: "🩹",
+        category: "Outros",
+        path: "https://rpassosdomingues.github.io/insights/site/utilities/nurseLog.html",
+        lastModified: "2025-06-08 01:29",
+        fileHash: "627d5556614e40a9f2b743edbe951b7a"
+      },
+      {
+        id: "pawgel",
+        title: "Pawgel",
+        icon: "🔎🐾🪽",
+        category: "Outros",
+        path: "https://rpassosdomingues.github.io/insights/site/utilities/pawgel.html",
+        lastModified: "2025-06-08 01:30",
+        fileHash: "af1ac5e2733a35a0f8dcae63ab837565"
+      },
+      {
+        id: "pedreiroBot",
+        title: "PedreiroBot",
+        icon: "🧱",
+        category: "Outros",
+        path: "https://rpassosdomingues.github.io/insights/site/utilities/pedreiroBot.html",
+        lastModified: "2025-06-08 01:47",
+        fileHash: "084d0026041c25933763d33ff79a3778"
+      },
+      {
+        id: "peregrinApp",
+        title: "PeregrinApp",
+        icon: "🔎🗺️🚴‍♂️",
+        category: "Outros",
+        path: "https://rpassosdomingues.github.io/insights/site/utilities/peregrinApp.html",
+        lastModified: "2025-06-09 00:54",
+        fileHash: "97ba267991e815260244f8b95982fc86"
+      },
+      {
+        id: "planejaMercado",
+        title: "ComprAI",
+        icon: "🛒",
+        category: "Outros",
+        path: "https://rpassosdomingues.github.io/insights/site/utilities/planejaMercado.html",
+        lastModified: "2025-06-08 01:35",
+        fileHash: "54a5e775d553760f7bfad483565f3708"
+      },
+      {
+        id: "plantAI",
+        title: "PlantAI",
+        icon: "🛰️🌱",
+        category: "Outros",
+        path: "https://rpassosdomingues.github.io/insights/site/utilities/plantAI.html",
+        lastModified: "2025-06-08 01:36",
+        fileHash: "4c62ad6a18dc2eeece739e48b5c93ee7"
+      },
+      {
+        id: "qrCodeGenerator",
+        title: "QR Code Safe Generator",
+        icon: "🔒🔳",
+        category: "Outros",
+        path: "https://rpassosdomingues.github.io/insights/site/utilities/qrCodeGenerator.html",
+        lastModified: "2025-06-08 01:38",
+        fileHash: "f56640a9baf4a8842989fef942828ac0"
+      },
+      {
+        id: "retroRadio",
+        title: "Rádio Retrô",
+        icon: "📻",
+        category: "Outros",
+        path: "https://rpassosdomingues.github.io/insights/site/utilities/retroRadio.html",
+        lastModified: "2025-06-08 17:04",
+        fileHash: "a09f678593e84628d5d624226674d4e7"
+      },
+      {
+        id: "revisaoCarro",
+        title: "AutoCheck",
+        icon: "🔎🚗",
+        category: "Outros",
+        path: "https://rpassosdomingues.github.io/insights/site/utilities/revisaoCarro.html",
+        lastModified: "2025-06-08 01:39",
+        fileHash: "9fa2ae6ff62e0e915c61fd437aeb3c20"
+      },
+      {
+        id: "rondaSegura",
+        title: "RondAI",
+        icon: "⚠️👮‍♂️📝",
+        category: "Outros",
+        path: "https://rpassosdomingues.github.io/insights/site/utilities/rondaSegura.html",
+        lastModified: "2025-06-08 02:39",
+        fileHash: "525b8b51f826f51aba1209453262a1fa"
+      },
+    ];
+
+    // Função para aplicar tema escuro/claro
+    function applyTheme() {
+      const darkPref = localStorage.getItem('darkMode') === 'true';
+      document.body.setAttribute('data-theme', darkPref ? 'dark' : 'light');
+      const toggleBtn = document.getElementById('darkModeToggle');
+      toggleBtn.setAttribute('aria-pressed', darkPref.toString());
+      toggleBtn.textContent = darkPref ? '☀️' : '🌙';
+    }
+
+    // Aplicar tema inicial
+    applyTheme();
+
+    // Função para organizar projetos por categoria
+    function organizeByCategory(projects) {
+      const categories = {};
+      projects.forEach(project => {
+        if (!categories[project.category]) {
+          categories[project.category] = [];
+        }
+        categories[project.category].push(project);
+      });
+      return categories;
+    }
+
+    // Função para renderizar projetos
+    function renderProjects(filteredProjects) {
+      const container = document.getElementById('projectsContainer');
+      container.innerHTML = '';
+
+      if (filteredProjects.length === 0) {
+        container.innerHTML = `<div class="no-results">...</div>`;
+        return;
+      }
+
+      const organizedProjects = organizeByCategory(filteredProjects);
+
+      Object.keys(organizedProjects).sort().forEach(category => {
+        const categoryProjects = organizedProjects[category];
+
+        const section = document.createElement('section');
+        section.innerHTML = `
+          <h2 class="category-title">${category}</h2>
+          <div class="cards-grid" id="grid-${category.toLowerCase().replace(/\s+/g, '-')}"></div>
+        `;
+        container.appendChild(section);
+
+        const grid = section.querySelector('.cards-grid');
+
+        categoryProjects.forEach(proj => {
+          const card = document.createElement('a');
+          card.className = 'card';
+          card.href = proj.path;
+          card.setAttribute('target', '_blank');
+          card.setAttribute('rel', 'noopener');
+          card.setAttribute('aria-label', `${proj.title} – abre em nova aba`);
+          card.setAttribute('data-category', proj.category);
+          card.setAttribute('data-id', proj.id);
+          card.setAttribute('data-hash', proj.fileHash);
+
+          card.innerHTML = `
+            <div class="card-header">
+              <div class="card-icon" aria-hidden="true">${proj.icon}</div>
+              <div class="card-title">${proj.title}</div>
+            </div>
+            <div class="card-body">
+              <div class="card-meta">
+                <div class="meta-row">
+                  <span class="card-category">${proj.category}</span>
+                  <span class="card-date">${proj.lastModified}</span>
+                </div>
+                <div class="meta-row">
+                  <span class="card-hash" title="Hash MD5 do arquivo">${proj.fileHash}</span>
+                </div>
+              </div>
+            </div>
+          `;
+
+          grid.appendChild(card);
+        });
+      });
+    }
+
+    // Função para popular o filtro de categorias
+    function populateCategoryFilter(projects) {
+      const categories = [...new Set(projects.map(p => p.category))].sort();
+      const select = document.getElementById('categoryFilter');
+      categories.forEach(cat => {
+        const option = document.createElement('option');
+        option.value = cat;
+        option.textContent = cat;
+        select.appendChild(option);
+      });
+    }
+
+    // Função para filtrar projetos
+    function filterProjects() {
+      const term = document.getElementById('searchInput').value.toLowerCase();
+      const catFilter = document.getElementById('categoryFilter').value;
+
+      let filtered = projects;
+      if (catFilter !== 'all') {
+        filtered = filtered.filter(p => p.category === catFilter);
+      }
+      if (term) {
+        filtered = filtered.filter(p =>
+          p.title.toLowerCase().includes(term) ||
+          p.description.toLowerCase().includes(term) ||
+          p.category.toLowerCase().includes(term)
+        );
+      }
+
+      renderProjects(filtered);
+    }
+
+    // Inicialização
+    document.addEventListener('DOMContentLoaded', () => {
+      renderProjects(projects);
+      populateCategoryFilter(projects);
+      document.getElementById('searchInput').addEventListener('input', filterProjects);
+      document.getElementById('categoryFilter').addEventListener('change', filterProjects);
+
+      const toggleBtn = document.getElementById('darkModeToggle');
+      toggleBtn.addEventListener('click', () => {
+        const isDark = localStorage.getItem('darkMode') === 'true';
+        localStorage.setItem('darkMode', (!isDark).toString());
+        applyTheme();
+      });
+
+      // Botão voltar ao topo
+      const backToTop = document.getElementById('backToTop');
+      window.addEventListener('scroll', () => {
+        if (window.scrollY > 300) {
+          backToTop.classList.add('visible');
+        } else {
+          backToTop.classList.remove('visible');
+        }
+      });
+      backToTop.addEventListener('click', () => {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      });
+
+      // Preferência de tema
+      if (!localStorage.getItem('darkMode')) {
+        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        localStorage.setItem('darkMode', prefersDark.toString());
+        applyTheme();
+      }
+    });
+  </script>
+</body>
+</html>

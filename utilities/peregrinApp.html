@@ -1,0 +1,1127 @@
+<!--
+ * --------------------------------------------------------------
+ * Author: Rafael Passos Domingues
+ * Last Update: 2025 June 9
+ * --------------------------------------------------------------
+-->
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>PeregrinApp</title>
+
+<!-- Leaflet CSS -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<!-- Leaflet Routing Machine CSS -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.css" />
+<!-- Font Awesome -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+<!-- Leaflet Draw CSS -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.css" />
+
+<style>
+  :root {
+    --primary: #3a7ca5;
+    --primary-dark: #2f6690;
+    --secondary: #d9dcd6;
+    --secondary-dark: #16425b;
+    --accent: #81c3d7;
+    --danger: #e15554;
+    --warning: #e1bc29;
+    --success: #3bb273;
+    --light: #f8f9fa;
+    --dark: #343a40;
+    --background: #f5f5f5;
+    --text: #212529;
+    --border-radius: 8px;
+    --box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    --transition: all 0.3s ease;
+  }
+
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+
+  html, body {
+    height: 100%;
+    font-family: 'Segoe UI', 'Arial', sans-serif;
+    background: var(--background);
+    color: var(--text);
+    line-height: 1.6;
+  }
+
+  header {
+    background: var(--primary);
+    color: white;
+    padding: 1rem;
+    text-align: center;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    position: relative;
+    z-index: 1000;
+  }
+
+  header h1 {
+    margin: 0;
+    font-size: 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+  }
+
+  .app-container {
+    display: flex;
+    flex-direction: column;
+    height: calc(100% - 60px);
+  }
+
+  .controls {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 1rem;
+    padding: 1rem;
+    background: white;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    z-index: 1000;
+  }
+
+  .btn {
+    background: var(--primary);
+    color: white;
+    border: none;
+    padding: 0.8rem 1.5rem;
+    border-radius: var(--border-radius);
+    cursor: pointer;
+    font-weight: 600;
+    transition: var(--transition);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-width: 180px;
+    justify-content: center;
+  }
+
+  .btn:hover {
+    background: var(--primary-dark);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+  }
+
+  .btn-secondary {
+    background: var(--secondary);
+    color: var(--dark);
+  }
+
+  .btn-secondary:hover {
+    background: var(--secondary-dark);
+    color: white;
+  }
+
+  .btn-accent {
+    background: var(--accent);
+  }
+
+  .btn-accent:hover {
+    background: #6ba7c0;
+  }
+
+  .btn-danger {
+    background: var(--danger);
+  }
+
+  .btn-danger:hover {
+    background: #c82333;
+  }
+
+  .btn-warning {
+    background: var(--warning);
+    color: var(--dark);
+  }
+
+  .btn-warning:hover {
+    background: #e0a800;
+  }
+
+  .btn-success {
+    background: var(--success);
+  }
+
+  .btn-success:hover {
+    background: #2d995b;
+  }
+
+  #map {
+    flex: 1;
+    width: 100%;
+    border-radius: var(--border-radius);
+    margin: 0 auto;
+    z-index: 1;
+  }
+
+  .stats-panel {
+    position: absolute;
+    bottom: 20px;
+    left: 20px;
+    background: rgba(255, 255, 255, 0.95);
+    padding: 15px;
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
+    z-index: 1000;
+    max-width: 300px;
+    border: 1px solid var(--secondary);
+  }
+
+  .stats-panel h3 {
+    margin-bottom: 10px;
+    color: var(--primary);
+    font-size: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    border-bottom: 1px solid var(--secondary);
+    padding-bottom: 5px;
+  }
+
+  .stats-panel p {
+    margin: 5px 0;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .legend {
+    position: absolute;
+    top: 80px;
+    right: 20px;
+    background: rgba(255, 255, 255, 0.95);
+    padding: 15px;
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
+    z-index: 1000;
+    max-width: 220px;
+    border: 1px solid var(--secondary);
+  }
+
+  .legend h3 {
+    margin-bottom: 10px;
+    color: var(--primary);
+    font-size: 1rem;
+    border-bottom: 1px solid var(--secondary);
+    padding-bottom: 5px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .legend-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 8px;
+    font-size: 0.9rem;
+  }
+
+  .legend-icon {
+    width: 24px;
+    height: 24px;
+    margin-right: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .leaflet-popup-content {
+    min-width: 280px;
+    max-width: 300px;
+  }
+
+  .leaflet-popup-content label {
+    font-weight: 600;
+    margin-bottom: 5px;
+    display: block;
+    color: var(--dark);
+  }
+
+  .leaflet-popup-content select,
+  .leaflet-popup-content input,
+  .leaflet-popup-content textarea {
+    width: 100%;
+    padding: 8px;
+    margin-bottom: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 0.9rem;
+    transition: var(--transition);
+  }
+
+  .leaflet-popup-content select:focus,
+  .leaflet-popup-content input:focus,
+  .leaflet-popup-content textarea:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(58, 124, 165, 0.2);
+  }
+
+  .leaflet-popup-content textarea {
+    resize: vertical;
+    min-height: 80px;
+  }
+
+  .leaflet-popup-content .popup-btn {
+    width: 100%;
+    padding: 10px;
+    background: var(--primary);
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: var(--transition);
+    margin-top: 5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+
+  .leaflet-popup-content .popup-btn:hover {
+    background: var(--primary-dark);
+  }
+
+  .popup-photo-preview {
+    width: 100%;
+    max-height: 150px;
+    object-fit: cover;
+    border-radius: 4px;
+    margin-bottom: 10px;
+    display: none;
+  }
+
+  .photo-upload-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    background: var(--secondary);
+    color: var(--dark);
+    padding: 8px;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-bottom: 10px;
+    transition: var(--transition);
+  }
+
+  .photo-upload-btn:hover {
+    background: var(--secondary-dark);
+    color: white;
+  }
+
+  .custom-icon {
+    background: white;
+    border-radius: 50%;
+    padding: 5px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.7);
+    z-index: 2000;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .modal-content {
+    background: white;
+    padding: 20px;
+    border-radius: var(--border-radius);
+    max-width: 500px;
+    width: 90%;
+    max-height: 80vh;
+    overflow-y: auto;
+  }
+
+  .modal-close {
+    float: right;
+    cursor: pointer;
+    font-size: 1.5rem;
+  }
+
+  .route-save-form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+  }
+
+  @media (max-width: 768px) {
+    header h1 {
+      font-size: 1.2rem;
+    }
+    
+    .controls {
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+    
+    .btn {
+      width: 100%;
+      padding: 0.7rem;
+      font-size: 0.9rem;
+    }
+    
+    .legend {
+      top: auto;
+      bottom: 150px;
+      right: 10px;
+      max-width: 180px;
+      font-size: 0.8rem;
+    }
+    
+    .stats-panel {
+      bottom: 10px;
+      left: 10px;
+      right: 10px;
+      max-width: none;
+    }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1><i class="fas fa-bicycle"></i> PeregrinApp - Revelando Lugares Escondidos no Mapa</h1>
+</header>
+
+<div class="app-container">
+  <div class="controls">
+    <button class="btn btn-success" onclick="ativarAdicaoDeRota()">
+      <i class="fas fa-route"></i> Planejar Rota
+    </button>
+    <button class="btn btn-warning" onclick="adicionarPontoInteresse()">
+      <i class="fas fa-map-marker-alt"></i> Adicionar Ponto
+    </button>
+    <button class="btn btn-accent" onclick="adicionarPerigo()">
+      <i class="fas fa-exclamation-triangle"></i> Alertar Perigo
+    </button>
+    <button class="btn btn-secondary" onclick="salvarRota()">
+      <i class="fas fa-save"></i> Salvar Rota
+    </button>
+    <button class="btn" onclick="exportarParaWhatsApp()">
+      <i class="fab fa-whatsapp"></i> Compartilhar
+    </button>
+    <button class="btn btn-danger" onclick="limparRota()">
+      <i class="fas fa-trash-alt"></i> Limpar
+    </button>
+  </div>
+
+  <div id="map"></div>
+
+  <div class="stats-panel" id="statsPanel" style="display: none;">
+    <h3><i class="fas fa-chart-line"></i> Estatísticas da Peregrinação</h3>
+    <p><i class="fas fa-ruler-combined"></i> Distância: <span id="distancia">0</span> km</p>
+    <p><i class="fas fa-clock"></i> Tempo estimado: <span id="tempo">0</span> dias</p>
+    <p><i class="fas fa-exclamation-triangle"></i> Alertas: <span id="totalAlertas">0</span></p>
+    <p><i class="fas fa-map-marker-alt"></i> Pontos de interesse: <span id="totalPontos">0</span></p>
+  </div>
+
+  <div class="legend">
+    <h3><i class="fas fa-key"></i> Legenda</h3>
+    <div class="legend-item">
+      <div class="legend-icon"><i class="fas fa-play" style="color: var(--success);"></i></div>
+      <span>Início da rota</span>
+    </div>
+    <div class="legend-item">
+      <div class="legend-icon"><i class="fas fa-flag" style="color: var(--danger);"></i></div>
+      <span>Fim da rota</span>
+    </div>
+    <div class="legend-item">
+      <div class="legend-icon"><i class="fas fa-exclamation-triangle" style="color: var(--warning);"></i></div>
+      <span>Perigo/Alerta</span>
+    </div>
+    <div class="legend-item">
+      <div class="legend-icon"><i class="fas fa-bed" style="color: var(--accent);"></i></div>
+      <span>Pousada/Apoio</span>
+    </div>
+    <div class="legend-item">
+      <div class="legend-icon"><i class="fas fa-tools" style="color: var(--primary);"></i></div>
+      <span>Borracheiro</span>
+    </div>
+    <div class="legend-item">
+      <div class="legend-icon"><i class="fas fa-utensils" style="color: #e67e22;"></i></div>
+      <span>Alimentação</span>
+    </div>
+    <div class="legend-item">
+      <div class="legend-icon"><i class="fas fa-tree" style="color: #27ae60;"></i></div>
+      <span>Área de Descanso</span>
+    </div>
+  </div>
+</div>
+
+<!-- Modal para salvar rota -->
+<div id="saveRouteModal" class="modal">
+  <div class="modal-content">
+    <span class="modal-close" onclick="closeModal('saveRouteModal')">&times;</span>
+    <h2><i class="fas fa-save"></i> Salvar Rota de Peregrinação</h2>
+    <form id="routeForm" class="route-save-form">
+      <label for="routeName">Nome da Rota:</label>
+      <input type="text" id="routeName" placeholder="Ex: Caminho da Serra" required>
+      
+      <label for="routeDescription">Descrição:</label>
+      <textarea id="routeDescription" placeholder="Descreva sua rota, pontos importantes, dificuldade..."></textarea>
+      
+      <label for="routeDifficulty">Dificuldade:</label>
+      <select id="routeDifficulty">
+        <option value="Fácil">Fácil</option>
+        <option value="Moderada">Moderada</option>
+        <option value="Difícil">Difícil</option>
+        <option value="Extrema">Extrema</option>
+      </select>
+      
+      <label for="routeTags">Tags (separadas por vírgula):</label>
+      <input type="text" id="routeTags" placeholder="Ex: serra, asfalto, trilha, religioso">
+      
+      <button type="button" class="btn btn-success" onclick="confirmarSalvarRota()">
+        <i class="fas fa-save"></i> Salvar Rota
+      </button>
+    </form>
+  </div>
+</div>
+
+<!-- Leaflet JS -->
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<!-- Leaflet Routing Machine JS -->
+<script src="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.js"></script>
+<!-- Leaflet Draw JS -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.js"></script>
+<!-- Font Awesome JS -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
+
+<script>
+  // Variáveis globais
+  let map;
+  let routingControl;
+  let adicionandoRota = false;
+  let adicionandoPonto = false;
+  let adicionandoPerigoFlag = false;
+  const waypoints = [];
+  const pontosInteresse = [];
+  const alertas = [];
+  let startMarker, endMarker;
+  let drawnItems = new L.FeatureGroup();
+
+  // Inicializa o mapa
+  function iniciarMapa(lat, lng) {
+    map = L.map('map').setView([lat, lng], 14);
+
+    // Camada base do OpenStreetMap
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 19,
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+    }).addTo(map);
+
+    // Adiciona controle para desenhar no mapa
+    const drawControl = new L.Control.Draw({
+      edit: {
+        featureGroup: drawnItems
+      },
+      draw: {
+        polygon: false,
+        rectangle: false,
+        circle: false,
+        marker: false,
+        circlemarker: false,
+        polyline: {
+          shapeOptions: {
+            color: '#3a7ca5',
+            weight: 5,
+            opacity: 0.7
+          }
+        }
+      }
+    });
+    map.addControl(drawControl);
+
+    // Evento quando uma rota é desenhada
+    map.on(L.Draw.Event.CREATED, function(e) {
+      const layer = e.layer;
+      drawnItems.addLayer(layer);
+      
+      // Converte os pontos da linha em waypoints
+      const latlngs = layer.getLatLngs();
+      waypoints.length = 0;
+      
+      latlngs.forEach((latlng, i) => {
+        waypoints.push(L.Routing.waypoint(latlng));
+        
+        // Define primeiro e último ponto
+        if (i === 0) {
+          if (startMarker) map.removeLayer(startMarker);
+          startMarker = criarMarcadorInicio(latlng);
+          startMarker.addTo(map);
+        } else if (i === latlngs.length - 1) {
+          if (endMarker) map.removeLayer(endMarker);
+          endMarker = criarMarcadorFim(latlng);
+          endMarker.addTo(map);
+        }
+      });
+      
+      atualizarRota();
+    });
+
+    // Evento de clique no mapa
+    map.on('click', (e) => {
+      if (adicionandoRota) {
+        adicionarPontoDeRota(e.latlng);
+      } else if (adicionandoPonto) {
+        abrirFormularioPontoInteresse(e.latlng);
+      } else if (adicionandoPerigoFlag) {
+        abrirFormularioAlerta(e.latlng);
+      }
+    });
+
+    // Centraliza no usuário
+    centralizarNoUsuario();
+  }
+
+  // Centraliza o mapa na localização do usuário
+  function centralizarNoUsuario() {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          map.setView([pos.coords.latitude, pos.coords.longitude], 14);
+        },
+        (err) => {
+          console.error("Erro de geolocalização:", err);
+        },
+        { enableHighAccuracy: true, timeout: 5000 }
+      );
+    }
+  }
+
+  // Cria marcador de início
+  function criarMarcadorInicio(latlng) {
+    return L.marker(latlng, {
+      icon: L.divIcon({
+        html: '<i class="fas fa-play" style="color: var(--success); font-size: 24px;"></i>',
+        className: 'start-icon',
+        iconSize: [24, 24]
+      })
+    }).addTo(map).bindPopup("Ponto de partida");
+  }
+
+  // Cria marcador de fim
+  function criarMarcadorFim(latlng) {
+    return L.marker(latlng, {
+      icon: L.divIcon({
+        html: '<i class="fas fa-flag" style="color: var(--danger); font-size: 24px;"></i>',
+        className: 'end-icon',
+        iconSize: [24, 24]
+      })
+    }).addTo(map).bindPopup("Ponto de chegada");
+  }
+
+  // Ativa o modo de adição de rota
+  function ativarAdicaoDeRota() {
+    adicionandoRota = true;
+    adicionandoPonto = false;
+    adicionandoPerigoFlag = false;
+    alert('Modo de planejamento de rota ativado. Clique no mapa para adicionar pontos da sua peregrinação. O primeiro ponto será o início e o último o final.');
+  }
+
+  // Ativa o modo de adição de ponto de interesse
+  function adicionarPontoInteresse() {
+    adicionandoPonto = true;
+    adicionandoRota = false;
+    adicionandoPerigoFlag = false;
+    alert('Modo de adição de pontos de interesse ativado. Clique no mapa para marcar pousadas, borracheiros, pontos de apoio e outros locais úteis.');
+  }
+
+  // Ativa o modo de adição de perigo
+  function adicionarPerigo() {
+    adicionandoPerigoFlag = true;
+    adicionandoRota = false;
+    adicionandoPonto = false;
+    alert('Modo de alertas ativado. Clique no mapa para marcar perigos, áreas de risco ou problemas no caminho.');
+  }
+
+  // Adiciona um ponto de rota
+  function adicionarPontoDeRota(latlng) {
+    waypoints.push(L.Routing.waypoint(latlng));
+    
+    // Atualiza marcadores de início e fim
+    if (waypoints.length === 1) {
+      if (startMarker) map.removeLayer(startMarker);
+      startMarker = criarMarcadorInicio(latlng);
+    } else {
+      if (endMarker) map.removeLayer(endMarker);
+      endMarker = criarMarcadorFim(latlng);
+    }
+
+    atualizarRota();
+  }
+
+  // Atualiza a rota no mapa
+  function atualizarRota() {
+    if (routingControl) {
+      map.removeControl(routingControl);
+    }
+
+    if (waypoints.length < 2) return;
+
+    routingControl = L.Routing.control({
+      waypoints: waypoints.map(wp => wp.latLng),
+      routeWhileDragging: true,
+      draggableWaypoints: true,
+      addWaypoints: false,
+      show: false,
+      createMarker: (i, wp, n) => {
+        if (i === 0) return null; // Já temos o marcador de início
+        if (i === n - 1) return null; // Já temos o marcador de fim
+        
+        // Marcadores intermediários
+        return L.marker(wp.latLng, {
+          draggable: true,
+          icon: L.divIcon({
+            html: '<i class="fas fa-circle" style="color: var(--primary); font-size: 16px;"></i>',
+            className: 'waypoint-icon',
+            iconSize: [16, 16]
+          })
+        }).bindPopup(`Ponto ${i + 1}`);
+      },
+      lineOptions: {
+        styles: [{ color: '#3a7ca5', weight: 5, opacity: 0.7 }]
+      },
+      plan: L.Routing.plan(waypoints, {
+        draggableWaypoints: true,
+        addWaypoints: false
+      })
+    }).addTo(map);
+
+    // Atualiza estatísticas quando a rota é calculada
+    routingControl.on('routesfound', function(e) {
+      const routes = e.routes;
+      const distancia = (routes[0].summary.totalDistance / 1000).toFixed(1);
+      const tempo = Math.round(routes[0].summary.totalTime / 60 / 60 / 24);
+      
+      document.getElementById('distancia').textContent = distancia;
+      document.getElementById('tempo').textContent = tempo;
+      document.getElementById('totalAlertas').textContent = alertas.length;
+      document.getElementById('totalPontos').textContent = pontosInteresse.length;
+      document.getElementById('statsPanel').style.display = 'block';
+    });
+  }
+
+  // Abre formulário para adicionar ponto de interesse
+  function abrirFormularioPontoInteresse(latlng) {
+    const popupContent = document.createElement('div');
+    popupContent.className = 'popup-form';
+
+    popupContent.innerHTML = `
+      <label for="tipoPonto">Tipo de Ponto:</label>
+      <select id="tipoPonto">
+        <option value="Pousada">🏠 Pousada/Hospedagem</option>
+        <option value="Borracheiro">🔧 Borracheiro/Oficina</option>
+        <option value="Alimentação">🍴 Local para Alimentação</option>
+        <option value="Água">🚰 Ponto de Água Potável</option>
+        <option value="Descanso">🌳 Área de Descanso</option>
+        <option value="Vista">🏞️ Ponto de Vista Panorâmica</option>
+        <option value="Religioso">⛪ Ponto Religioso</option>
+        <option value="Outros">📍 Outro Ponto de Interesse</option>
+      </select>
+
+      <label for="nomePonto">Nome do Local (opcional):</label>
+      <input type="text" id="nomePonto" placeholder="Ex: Pousada do Peregrino">
+
+      <label for="contatoPonto">Contato (opcional):</label>
+      <input type="text" id="contatoPonto" placeholder="Telefone ou rede social">
+
+      <label for="obsPonto">Observações:</label>
+      <textarea id="obsPonto" placeholder="Horário de funcionamento, preços, dicas..."></textarea>
+
+      <div class="photo-upload-btn" onclick="document.getElementById('fotoPonto').click()">
+        <i class="fas fa-camera"></i> Adicionar Foto
+      </div>
+      <input type="file" id="fotoPonto" accept="image/*" style="display: none;" onchange="previewPhoto(this, 'pontoPhotoPreview')">
+      <img id="pontoPhotoPreview" class="popup-photo-preview">
+
+      <button class="popup-btn" onclick="salvarPontoInteresse(${latlng.lat}, ${latlng.lng}, this.parentElement)">
+        <i class="fas fa-save"></i> Salvar Ponto
+      </button>
+    `;
+
+    L.popup()
+      .setLatLng(latlng)
+      .setContent(popupContent)
+      .openOn(map);
+  }
+
+  // Abre formulário para adicionar alerta/perigo
+  function abrirFormularioAlerta(latlng) {
+    const popupContent = document.createElement('div');
+    popupContent.className = 'popup-form';
+
+    popupContent.innerHTML = `
+      <label for="tipoAlerta">Tipo de Alerta:</label>
+      <select id="tipoAlerta">
+        <option value="Buraco">🕳️ Buraco na pista</option>
+        <option value="Caco de Vidro">🔪 Caco de vidro/objeto cortante</option>
+        <option value="Cachorro Solto">🐕 Cachorro solto</option>
+        <option value="Imprudência">🚗 Área de imprudência no trânsito</option>
+        <option value="Assalto">⚠️ Área com risco de assalto</option>
+        <option value="Pavimento">🔄 Pavimento irregular/escorregadio</option>
+        <option value="Obras">🚧 Obras na pista</option>
+        <option value="Trilha Perigosa">🌲 Trilha perigosa/nebulosa</option>
+        <option value="Outros">❓ Outros perigos</option>
+      </select>
+
+      <label for="gravidadeAlerta">Gravidade:</label>
+      <select id="gravidadeAlerta">
+        <option value="Baixa">🟢 Baixa</option>
+        <option value="Média">🟡 Média</option>
+        <option value="Alta">🔴 Alta</option>
+      </select>
+
+      <label for="obsAlerta">Observações:</label>
+      <textarea id="obsAlerta" placeholder="Descreva o perigo com detalhes..."></textarea>
+
+      <div class="photo-upload-btn" onclick="document.getElementById('fotoAlerta').click()">
+        <i class="fas fa-camera"></i> Adicionar Foto
+      </div>
+      <input type="file" id="fotoAlerta" accept="image/*" style="display: none;" onchange="previewPhoto(this, 'alertaPhotoPreview')">
+      <img id="alertaPhotoPreview" class="popup-photo-preview">
+
+      <button class="popup-btn" onclick="salvarAlerta(${latlng.lat}, ${latlng.lng}, this.parentElement)">
+        <i class="fas fa-exclamation-circle"></i> Salvar Alerta
+      </button>
+    `;
+
+    L.popup()
+      .setLatLng(latlng)
+      .setContent(popupContent)
+      .openOn(map);
+  }
+
+  // Pré-visualiza foto no formulário
+  function previewPhoto(input, previewId) {
+    const preview = document.getElementById(previewId);
+    const file = input.files[0];
+    
+    if (file) {
+      const reader = new FileReader();
+      
+      reader.onload = function(e) {
+        preview.src = e.target.result;
+        preview.style.display = 'block';
+      }
+      
+      reader.readAsDataURL(file);
+    }
+  }
+
+  // Salva um ponto de interesse no mapa
+  function salvarPontoInteresse(lat, lng, content) {
+    const tipoPonto = content.querySelector('#tipoPonto').value;
+    const nomePonto = content.querySelector('#nomePonto').value.trim();
+    const contatoPonto = content.querySelector('#contatoPonto').value.trim();
+    const obsPonto = content.querySelector('#obsPonto').value.trim();
+    const emoji = content.querySelector('#tipoPonto').options[content.querySelector('#tipoPonto').selectedIndex].text.split(' ')[0];
+    
+    const fotoInput = content.querySelector('#fotoPonto');
+    let fotoBase64 = '';
+    
+    if (fotoInput.files[0]) {
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        fotoBase64 = e.target.result;
+        criarMarcadorPontoInteresse(lat, lng, tipoPonto, nomePonto, contatoPonto, obsPonto, emoji, fotoBase64);
+      };
+      reader.readAsDataURL(fotoInput.files[0]);
+    } else {
+      criarMarcadorPontoInteresse(lat, lng, tipoPonto, nomePonto, contatoPonto, obsPonto, emoji, '');
+    }
+    
+    map.closePopup();
+  }
+
+  // Cria marcador de ponto de interesse
+  function criarMarcadorPontoInteresse(lat, lng, tipoPonto, nomePonto, contatoPonto, obsPonto, emoji, fotoBase64) {
+    // Determina a cor do ícone baseado no tipo de ponto
+    let cor, icone;
+    
+    switch(tipoPonto) {
+      case 'Pousada':
+        cor = '#3a7ca5';
+        icone = 'fa-bed';
+        break;
+      case 'Borracheiro':
+        cor = '#16425b';
+        icone = 'fa-tools';
+        break;
+      case 'Alimentação':
+        cor = '#e67e22';
+        icone = 'fa-utensils';
+        break;
+      case 'Água':
+        cor = '#81c3d7';
+        icone = 'fa-tint';
+        break;
+      case 'Descanso':
+        cor = '#27ae60';
+        icone = 'fa-tree';
+        break;
+      case 'Vista':
+        cor = '#9b59b6';
+        icone = 'fa-mountain';
+        break;
+      case 'Religioso':
+        cor = '#e74c3c';
+        icone = 'fa-church';
+        break;
+      default:
+        cor = '#f1c40f';
+        icone = 'fa-map-marker-alt';
+    }
+    
+    const marcador = L.marker([lat, lng], {
+      icon: L.divIcon({
+        html: `<i class="fas ${icone}" style="color: ${cor}; font-size: 24px;"></i>`,
+        className: 'ponto-icon',
+        iconSize: [24, 24]
+      })
+    }).addTo(map);
+
+    let popupContent = `
+      <b>${emoji} ${tipoPonto}</b><br>
+      ${nomePonto ? `<b>${nomePonto}</b><br>` : ''}
+      ${contatoPonto ? `<small>Contato: ${contatoPonto}</small><br>` : ''}
+      <br>${obsPonto || 'Nenhuma observação adicional'}
+    `;
+    
+    if (fotoBase64) {
+      popupContent += `<br><br><img src="${fotoBase64}" style="max-width: 100%; max-height: 150px; border-radius: 4px;">`;
+    }
+    
+    marcador.bindPopup(popupContent);
+
+    pontosInteresse.push({ 
+      emoji, 
+      tipoPonto, 
+      nomePonto, 
+      contatoPonto, 
+      obsPonto, 
+      lat, 
+      lng,
+      cor,
+      icone,
+      fotoBase64
+    });
+
+    document.getElementById('totalPontos').textContent = pontosInteresse.length;
+  }
+
+  // Salva um alerta no mapa
+  function salvarAlerta(lat, lng, content) {
+    const tipoAlerta = content.querySelector('#tipoAlerta').value;
+    const gravidade = content.querySelector('#gravidadeAlerta').value;
+    const obsAlerta = content.querySelector('#obsAlerta').value.trim();
+    const emoji = content.querySelector('#tipoAlerta').options[content.querySelector('#tipoAlerta').selectedIndex].text.split(' ')[0];
+    
+    const fotoInput = content.querySelector('#fotoAlerta');
+    let fotoBase64 = '';
+    
+    if (fotoInput.files[0]) {
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        fotoBase64 = e.target.result;
+        criarMarcadorAlerta(lat, lng, tipoAlerta, gravidade, obsAlerta, emoji, fotoBase64);
+      };
+      reader.readAsDataURL(fotoInput.files[0]);
+    } else {
+      criarMarcadorAlerta(lat, lng, tipoAlerta, gravidade, obsAlerta, emoji, '');
+    }
+    
+    map.closePopup();
+  }
+
+  // Cria marcador de alerta
+  function criarMarcadorAlerta(lat, lng, tipoAlerta, gravidade, obsAlerta, emoji, fotoBase64) {
+    // Determina a cor do ícone baseado na gravidade
+    let cor;
+    if (gravidade === 'Baixa') cor = '#28a745';
+    else if (gravidade === 'Média') cor = '#ffc107';
+    else cor = '#dc3545';
+
+    const marcador = L.marker([lat, lng], {
+      icon: L.divIcon({
+        html: `<i class="fas fa-exclamation-triangle" style="color: ${cor}; font-size: 24px;"></i>`,
+        className: 'alerta-icon',
+        iconSize: [24, 24]
+      })
+    }).addTo(map);
+
+    let popupContent = `
+      <b>${emoji} ${tipoAlerta}</b><br>
+      <small>Gravidade: ${gravidade}</small><br><br>
+      ${obsAlerta || 'Nenhuma observação adicional'}
+    `;
+    
+    if (fotoBase64) {
+      popupContent += `<br><br><img src="${fotoBase64}" style="max-width: 100%; max-height: 150px; border-radius: 4px;">`;
+    }
+    
+    marcador.bindPopup(popupContent);
+
+    alertas.push({ 
+      emoji, 
+      tipoAlerta, 
+      gravidade, 
+      obsAlerta, 
+      lat, 
+      lng,
+      cor,
+      fotoBase64
+    });
+
+    document.getElementById('totalAlertas').textContent = alertas.length;
+  }
+
+  // Abre modal para salvar rota
+  function salvarRota() {
+    if (waypoints.length < 2) {
+      alert('⚠️ Você precisa planejar uma rota com pelo menos dois pontos antes de salvar!');
+      return;
+    }
+    
+    document.getElementById('routeName').value = '';
+    document.getElementById('routeDescription').value = '';
+    document.getElementById('routeDifficulty').value = 'Moderada';
+    document.getElementById('routeTags').value = '';
+    
+    document.getElementById('saveRouteModal').style.display = 'flex';
+  }
+
+  // Fecha modal
+  function closeModal(modalId) {
+    document.getElementById(modalId).style.display = 'none';
+  }
+
+  // Confirma salvamento da rota
+  function confirmarSalvarRota() {
+    const nome = document.getElementById('routeName').value.trim();
+    const descricao = document.getElementById('routeDescription').value.trim();
+    const dificuldade = document.getElementById('routeDifficulty').value;
+    const tags = document.getElementById('routeTags').value.trim();
+    
+    if (!nome) {
+      alert('Por favor, dê um nome à sua rota!');
+      return;
+    }
+    
+    // Aqui você normalmente enviaria os dados para um servidor
+    // Por enquanto, vamos apenas mostrar um alerta
+    alert(`Rota "${nome}" salva com sucesso!\nDificuldade: ${dificuldade}\nTags: ${tags || 'Nenhuma'}`);
+    
+    closeModal('saveRouteModal');
+  }
+
+  // Exporta rota para WhatsApp
+  function exportarParaWhatsApp() {
+    if (waypoints.length < 2) {
+      alert('⚠️ Você precisa ter pelo menos dois pontos (início e fim) para criar uma rota!');
+      return;
+    }
+
+    const distancia = document.getElementById('distancia').textContent;
+    const tempo = document.getElementById('tempo').textContent;
+    
+    let texto = `🚴‍♂️ *Rota de Peregrinação - PedalPeregrino* 🚴‍♀️\n\n`;
+    texto += `📏 *Distância:* ${distancia} km\n`;
+    texto += `⏱️ *Tempo estimado:* ${tempo} dias\n\n`;
+    
+    texto += `📍 *Pontos da Rota:*\n`;
+    waypoints.forEach((wp, i) => {
+      const tipo = i === 0 ? 'Partida' : 
+                  i === waypoints.length - 1 ? 'Chegada' : `Ponto ${i}`;
+      texto += `${i + 1}. ${tipo}: https://maps.google.com/?q=${wp.latLng.lat},${wp.latLng.lng}\n`;
+    });
+
+    if (pontosInteresse.length > 0) {
+      texto += `\n🏡 *Pontos de Interesse (${pontosInteresse.length}):*\n`;
+      pontosInteresse.forEach((p, i) => {
+        texto += `\n${i + 1}. ${p.emoji} *${p.tipoPonto}*${p.nomePonto ? ` - ${p.nomePonto}` : ''}\n`;
+        texto += `📍 Local: https://maps.google.com/?q=${p.lat},${p.lng}\n`;
+        texto += `📝 ${p.obsPonto || 'Sem observações adicionais'}\n`;
+        if (p.contatoPonto) texto += `📞 Contato: ${p.contatoPonto}\n`;
+      });
+    }
+
+    if (alertas.length > 0) {
+      texto += `\n⚠️ *Alertas no trajeto (${alertas.length}):*\n`;
+      alertas.forEach((a, i) => {
+        texto += `\n${i + 1}. ${a.emoji} *${a.tipoAlerta}* (${a.gravidade})\n`;
+        texto += `📍 Local: https://maps.google.com/?q=${a.lat},${a.lng}\n`;
+        texto += `📝 ${a.obsAlerta || 'Sem observações adicionais'}\n`;
+      });
+    }
+
+    texto += `\n📅 *Planejamento gerado em:* ${new Date().toLocaleString()}\n`;
+    texto += `🔗 *Compartilhado via PedalPeregrino*`;
+
+    const url = `https://wa.me/?text=${encodeURIComponent(texto)}`;
+    window.open(url, '_blank');
+  }
+
+  // Limpa a rota atual
+  function limparRota() {
+    if (confirm('Tem certeza que deseja limpar toda a rota, pontos de interesse e alertas?')) {
+      if (routingControl) {
+        map.removeControl(routingControl);
+        routingControl = null;
+      }
+      
+      waypoints.length = 0;
+      pontosInteresse.length = 0;
+      alertas.length = 0;
+      drawnItems.clearLayers();
+      
+      if (startMarker) map.removeLayer(startMarker);
+      if (endMarker) map.removeLayer(endMarker);
+      
+      map.eachLayer(layer => {
+        if (layer instanceof L.Marker && layer !== startMarker && layer !== endMarker) {
+          map.removeLayer(layer);
+        }
+      });
+      
+      document.getElementById('statsPanel').style.display = 'none';
+      document.getElementById('totalAlertas').textContent = '0';
+      document.getElementById('totalPontos').textContent = '0';
+    }
+  }
+
+  // Inicializa o mapa com localização padrão ou do usuário
+  if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(
+      (pos) => iniciarMapa(pos.coords.latitude, pos.coords.longitude),
+      () => iniciarMapa(-23.5505, -46.6333) // Fallback para São Paulo
+    );
+  } else {
+    iniciarMapa(-23.5505, -46.6333);
+  }
+</script>
+
+</body>
+</html>

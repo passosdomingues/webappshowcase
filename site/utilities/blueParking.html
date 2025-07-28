@@ -1,0 +1,1300 @@
+<!--
+ * --------------------------------------------------------------
+ * Author: Rafael Passos Domingues
+ * Last Update: 2025 June 11 (Wed)
+ * --------------------------------------------------------------
+-->
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>VagAI</title>
+<!-- Bibliotecas externas -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js">
+<style>
+  :root {
+    /* Cores principais */
+    --primary-color: #1a5f7a;       /* Azul área azul */
+    --primary-dark: #0e4a63;        /* Azul mais escuro */
+    --secondary-color: #ff914d;     /* Laranja para alertas */
+    --success-color: #57cc99;       /* Verde para vagas livres */
+    --warning-color: #ff9b54;       /* Laranja para vagas prestes a expirar */
+    --danger-color: #ff5a5f;        /* Vermelho para vagas vencidas */
+    --text-color: #333;             /* Cor principal do texto */
+    --light-gray: #f5f7fa;          /* Cor de fundo */
+    --border-radius: 8px;           /* Arredondamento de bordas */
+    --box-shadow: 0 4px 6px rgba(0,0,0,0.1); /* Sombra padrão */
+    --parking-spot-size: 24px;      /* Tamanho das vagas no mapa */
+  }
+  
+  body {
+    font-family: 'Segoe UI', Roboto, Arial, sans-serif;
+    margin: 0;
+    padding: 1rem;
+    background: var(--light-gray);
+    color: var(--text-color);
+    line-height: 1.6;
+  }
+  
+  .container {
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+  
+  header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+    gap: 1rem;
+    padding-bottom: 1rem;
+    border-bottom: 2px solid var(--primary-color);
+  }
+  
+  h1 {
+    margin: 0;
+    color: var(--primary-color);
+    font-size: 1.8rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  
+  #map {
+    height: 500px;
+    border-radius: var(--border-radius);
+    margin-bottom: 1.5rem;
+    box-shadow: var(--box-shadow);
+    border: 1px solid #ddd;
+    position: relative;
+  }
+  
+  .info-panel {
+    background: white;
+    padding: 1rem;
+    border-radius: var(--border-radius);
+    margin-bottom: 1.5rem;
+    box-shadow: var(--box-shadow);
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  .stats-card {
+    background: white;
+    padding: 1rem;
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
+    margin-bottom: 1.5rem;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+  }
+  
+  .stat-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 0.5rem;
+    border-radius: var(--border-radius);
+  }
+  
+  .stat-value {
+    font-size: 1.8rem;
+    font-weight: bold;
+    margin: 0.3rem 0;
+  }
+  
+  .stat-label {
+    font-size: 0.9rem;
+    text-align: center;
+    color: #666;
+  }
+  
+  .alert {
+    color: var(--secondary-color);
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  
+  .status-info {
+    display: flex;
+    gap: 1rem;
+  }
+  
+  .status-item {
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+    font-size: 0.9rem;
+  }
+  
+  .button-group {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+  }
+  
+  button {
+    padding: 0.8rem 1.2rem;
+    border: none;
+    border-radius: var(--border-radius);
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.9rem;
+  }
+  
+  .btn-primary {
+    background: var(--primary-color);
+    color: white;
+  }
+  
+  .btn-primary:hover {
+    background: var(--primary-dark);
+    transform: translateY(-2px);
+  }
+  
+  .btn-success {
+    background: var(--success-color);
+    color: white;
+  }
+  
+  .btn-success:hover {
+    background: #38a169;
+    transform: translateY(-2px);
+  }
+  
+  .btn-danger {
+    background: var(--danger-color);
+    color: white;
+  }
+  
+  .btn-danger:hover {
+    background: #e53e3e;
+    transform: translateY(-2px);
+  }
+  
+  .btn-accent {
+    background: var(--secondary-color);
+    color: white;
+  }
+  
+  .btn-accent:hover {
+    background: #dd6b20;
+    transform: translateY(-2px);
+  }
+  
+  .btn-outline {
+    background: transparent;
+    border: 2px solid var(--primary-color);
+    color: var(--primary-color);
+  }
+  
+  .btn-outline:hover {
+    background: var(--primary-color);
+    color: white;
+  }
+  
+  .legend {
+    background: white;
+    padding: 1rem;
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
+    position: absolute;
+    bottom: 30px;
+    right: 10px;
+    z-index: 1000;
+    font-size: 0.9rem;
+    max-width: 200px;
+  }
+  
+  .legend h3 {
+    margin-top: 0;
+    margin-bottom: 0.8rem;
+    font-size: 1rem;
+    color: var(--primary-color);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  
+  .legend-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 0.5rem;
+    gap: 0.5rem;
+  }
+  
+  .legend-icon {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 0.8rem;
+  }
+  
+  /* Modal de registro de veículo */
+  .modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.5);
+    z-index: 2000;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  .modal-content {
+    background: white;
+    padding: 1.5rem;
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
+    width: 100%;
+    max-width: 500px;
+    max-height: 90vh;
+    overflow-y: auto;
+  }
+  
+  .modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid #eee;
+  }
+  
+  .modal-title {
+    margin: 0;
+    color: var(--primary-color);
+    font-size: 1.3rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  
+  .close-modal {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: #999;
+  }
+  
+  .form-group {
+    margin-bottom: 1rem;
+  }
+  
+  .form-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+  }
+  
+  .form-control {
+    width: 100%;
+    padding: 0.8rem;
+    border: 1px solid #ddd;
+    border-radius: var(--border-radius);
+    font-family: inherit;
+  }
+  
+  .form-select {
+    width: 100%;
+    padding: 0.8rem;
+    border: 1px solid #ddd;
+    border-radius: var(--border-radius);
+    font-family: inherit;
+    background-color: white;
+  }
+  
+  /* Banner de aviso LGPD */
+  .lgpd-banner {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: var(--primary-color);
+    color: white;
+    padding: 1rem;
+    z-index: 3000;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+  }
+  
+  .lgpd-banner p {
+    margin: 0;
+    font-size: 0.9rem;
+  }
+  
+  .lgpd-banner .btn {
+    flex-shrink: 0;
+  }
+  
+  /* Lista de veículos estacionados */
+  .vehicles-list {
+    background: white;
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
+    margin-bottom: 1.5rem;
+    max-height: 300px;
+    overflow-y: auto;
+  }
+  
+  .vehicle-item {
+    padding: 1rem;
+    border-bottom: 1px solid #eee;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: center;
+    gap: 1rem;
+  }
+  
+  .vehicle-item:last-child {
+    border-bottom: none;
+  }
+  
+  .vehicle-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+  }
+  
+  .vehicle-plate {
+    font-weight: bold;
+    font-size: 1.1rem;
+    color: var(--primary-color);
+  }
+  
+  .vehicle-type {
+    font-size: 0.9rem;
+    color: #666;
+  }
+  
+  .vehicle-time {
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+  }
+  
+  .vehicle-location {
+    font-size: 0.8rem;
+    color: #999;
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+  }
+  
+  .vehicle-actions {
+    display: flex;
+    gap: 0.5rem;
+  }
+  
+  .time-left {
+    font-weight: bold;
+    padding: 0.3rem 0.6rem;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    margin-top: 0.3rem;
+  }
+  
+  .time-left.ok {
+    background: #e6ffed;
+    color: #22863a;
+  }
+  
+  .time-left.warning {
+    background: #fff5b1;
+    color: #735c0f;
+  }
+  
+  .time-left.danger {
+    background: #ffeef0;
+    color: #cb2431;
+  }
+  
+  /* Responsividade */
+  @media (max-width: 768px) {
+    header {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+    
+    .info-panel {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+    
+    .button-group {
+      flex-direction: column;
+    }
+    
+    .legend {
+      position: relative;
+      bottom: auto;
+      right: auto;
+      margin-top: 1rem;
+      max-width: 100%;
+    }
+    
+    #map {
+      height: 400px;
+    }
+    
+    .stats-card {
+      grid-template-columns: 1fr;
+    }
+    
+    .vehicle-item {
+      grid-template-columns: 1fr;
+    }
+    
+    .vehicle-actions {
+      justify-content: flex-end;
+      margin-top: 0.5rem;
+    }
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <!-- Cabeçalho com título e informações de status -->
+  <header>
+    <h1><i class="fas fa-parking"></i> VagAI</h1>
+    <div class="status-info">
+      <div class="status-item">
+        <i class="fas fa-car" style="color: var(--primary-color);"></i>
+        <span>Veículos: <strong id="vehicle-count">0</strong></span>
+      </div>
+      <div class="status-item">
+        <i class="far fa-clock" style="color: var(--primary-color);"></i>
+        <span id="current-time">--:--:--</span>
+      </div>
+      <div class="status-item">
+        <i class="fas fa-map-marker-alt" style="color: var(--primary-color);"></i>
+        <span>Praça Getúlio Vargas</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Painel de estatísticas -->
+  <div class="stats-card">
+    <div class="stat-item">
+      <div class="stat-value" id="total-spots">--</div>
+      <div class="stat-label">Vagas Totais</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-value" id="free-spots">--</div>
+      <div class="stat-label">Vagas Livres</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-value" id="occupied-spots">--</div>
+      <div class="stat-label">Vagas Ocupadas</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-value" id="total-revenue">R$ 0,00</div>
+      <div class="stat-label">Valor Arrecadado</div>
+    </div>
+  </div>
+
+  <!-- Painel de informações principais -->
+  <div class="info-panel">
+    <p class="alert"><i class="fas fa-info-circle"></i> Clique em uma vaga no mapa para registrar um veículo estacionado</p>
+    <div class="button-group">
+      <button class="btn-success" onclick="exportToWhatsApp()">
+        <i class="fab fa-whatsapp"></i> Enviar Relatório
+      </button>
+      <button class="btn-accent" onclick="generatePDF()">
+        <i class="fas fa-file-pdf"></i> Gerar PDF
+      </button>
+    </div>
+  </div>
+
+  <!-- Mapa Leaflet -->
+  <div id="map"></div>
+
+  <!-- Legenda do mapa -->
+  <div class="legend">
+    <h3><i class="fas fa-key"></i> Legenda</h3>
+    <div class="legend-item">
+      <span class="legend-icon" style="background: var(--success-color);"><i class="fas fa-parking"></i></span>
+      <span>Vaga livre</span>
+    </div>
+    <div class="legend-item">
+      <span class="legend-icon" style="background: var(--primary-color);"><i class="fas fa-car"></i></span>
+      <span>Vaga ocupada</span>
+    </div>
+    <div class="legend-item">
+      <span class="legend-icon" style="background: var(--warning-color);"><i class="fas fa-clock"></i></span>
+      <span>Estacionamento expirando</span>
+    </div>
+    <div class="legend-item">
+      <span class="legend-icon" style="background: var(--danger-color);"><i class="fas fa-exclamation"></i></span>
+      <span>Estacionamento vencido</span>
+    </div>
+    <div class="legend-item">
+      <span class="legend-icon" style="background: #9b59b6;"><i class="fas fa-bus"></i></span>
+      <span>Ônibus/Veículo grande</span>
+    </div>
+  </div>
+
+  <!-- Lista de veículos estacionados -->
+  <h2><i class="fas fa-car-side"></i> Veículos Estacionados</h2>
+  <div class="vehicles-list" id="vehiclesList">
+    <p style="padding: 1rem; text-align: center; color: #999;">Nenhum veículo estacionado no momento</p>
+  </div>
+
+  <!-- Modal de registro de veículo -->
+  <div class="modal" id="vehicleModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 class="modal-title"><i class="fas fa-car"></i> Registrar Veículo</h3>
+        <button class="close-modal" onclick="closeModal()">&times;</button>
+      </div>
+      <form id="vehicleForm">
+        <div class="form-group">
+          <label for="vehicleType"><i class="fas fa-car-side"></i> Tipo de Veículo</label>
+          <select class="form-select" id="vehicleType" required>
+            <option value="">Selecione o tipo...</option>
+            <option value="car">Carro</option>
+            <option value="bus">Ônibus/Veículo grande</option>
+            <option value="motorcycle">Moto</option>
+            <option value="truck">Caminhão</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="vehiclePlate"><i class="fas fa-id-card"></i> Placa do Veículo</label>
+          <input type="text" class="form-control" id="vehiclePlate" placeholder="Ex: ABC1D23" required>
+        </div>
+        <div class="form-group">
+          <label for="parkingDuration"><i class="fas fa-clock"></i> Tempo de Estacionamento</label>
+          <select class="form-select" id="parkingDuration" required>
+            <option value="1">1 hora - R$ 1,75</option>
+            <option value="2">2 horas - R$ 3,50</option>
+            <option value="3">3 horas - R$ 5,25</option>
+            <option value="4">4 horas - R$ 7,00</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="additionalInfo"><i class="fas fa-info-circle"></i> Observações (opcional)</label>
+          <textarea class="form-control" id="additionalInfo" rows="3" placeholder="Cor do veículo, modelo, etc."></textarea>
+        </div>
+        <div class="button-group">
+          <button type="submit" class="btn-primary">
+            <i class="fas fa-check"></i> Confirmar
+          </button>
+          <button type="button" class="btn-outline" onclick="closeModal()">
+            <i class="fas fa-times"></i> Cancelar
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal de LGPD -->
+  <div class="modal" id="lgpdModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 class="modal-title"><i class="fas fa-shield-alt"></i> Termos de Uso e Privacidade</h3>
+      </div>
+      <div style="margin-bottom: 1rem;">
+        <p><strong>Importante:</strong> Este sistema (NÃO-OFICIAL) é meramente ilustrativo, demonstrando um controle de estacionamento rotativo na Praça X em Cidade-UF.</p>
+        
+        <h4><i class="fas fa-info-circle"></i> Coleta de Dados</h4>
+        <p>Coletamos apenas a placa do veículo, tipo, tempo de estacionamento e localização para fins de gestão do estacionamento rotativo.</p>
+        
+        <h4><i class="fas fa-lock"></i> Armazenamento</h4>
+        <p>Os dados são armazenados apenas temporariamente apenas no seu navegador, nada é enviado para servidores externos, e serão perdidos quando você fechar a página. Recomendamos exportar os dados antes de sair, via relatório PDF ou WhatsApp.</p>
+        
+        <h4><i class="fas fa-share-alt"></i> Compartilhamento</h4>
+        <p>Ao exportar os dados, você concorda em enviar essas informações para fins de testes demonstrativos, NÃO-OFICIAL e sem fins comerciais.</p>
+      </div>
+      <div class="button-group">
+        <button class="btn-primary" onclick="acceptLGPD()">
+          <i class="fas fa-check"></i> Aceitar e Continuar
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Banner de aviso de dados temporários -->
+<div class="lgpd-banner" id="dataWarningBanner" style="display: none;">
+  <p><i class="fas fa-exclamation-triangle"></i> <strong>Aviso:</strong> Os dados são armazenados apenas temporariamente. Exporte antes de fechar a página para não perder as informações.</p>
+  <button class="btn-outline" style="color: white; border-color: white;" onclick="hideWarningBanner()">Entendi</button>
+</div>
+
+<!-- Bibliotecas JavaScript -->
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/moment-timezone/0.5.34/moment-timezone-with-data.min.js"></script>
+
+<script>
+  // Configurações globais
+  const ALFENAS_COORDS = [-21.4294, -45.9471]; // Coordenadas da Praça Getúlio Vargas
+  const HOUR_RATE = 1.75; // Valor por hora do estacionamento
+  const WORKING_HOURS = { start: 8, end: 17 }; // Horário de funcionamento 8h-17h
+  
+  // Variáveis globais
+  const parkedVehicles = []; // Armazena todos os veículos estacionados
+  let map; // Objeto do mapa Leaflet
+  let parkingSpots = []; // Armazena as vagas de estacionamento
+  let selectedSpot = null; // Vaga selecionada no mapa
+  let currentMarker = null; // Marcador atual no mapa
+  
+  // Tipos de veículos com ícones e cores
+  const vehicleTypes = {
+    car: { icon: 'car', color: '#1a5f7a', label: 'Carro' },
+    bus: { icon: 'bus', color: '#9b59b6', label: 'Ônibus/Veículo grande' },
+    motorcycle: { icon: 'motorcycle', color: '#1a5f7a', label: 'Moto' },
+    truck: { icon: 'truck', color: '#1a5f7a', label: 'Caminhão' }
+  };
+  
+  /**
+   * FUNÇÕES DE INTERFACE
+   */
+  
+  // Atualiza contador de veículos na interface
+  function updateVehicleCount() {
+    document.getElementById('vehicle-count').textContent = parkedVehicles.length;
+    document.getElementById('occupied-spots').textContent = parkedVehicles.length;
+    document.getElementById('free-spots').textContent = parkingSpots.length - parkedVehicles.length;
+    
+    // Atualiza lista de veículos
+    const vehiclesList = document.getElementById('vehiclesList');
+    if (parkedVehicles.length === 0) {
+      vehiclesList.innerHTML = '<p style="padding: 1rem; text-align: center; color: #999;">Nenhum veículo estacionado no momento</p>';
+    } else {
+      vehiclesList.innerHTML = '';
+      parkedVehicles.forEach(vehicle => {
+        const timeLeft = getTimeLeft(vehicle);
+        const timeLeftClass = getTimeLeftClass(timeLeft);
+        
+        const vehicleItem = document.createElement('div');
+        vehicleItem.className = 'vehicle-item';
+        vehicleItem.innerHTML = `
+          <div class="vehicle-info">
+            <div class="vehicle-plate"><i class="fas fa-${vehicleTypes[vehicle.type].icon}"></i> ${vehicle.plate}</div>
+            <div class="vehicle-type">${vehicleTypes[vehicle.type].label}</div>
+            <div class="vehicle-time">
+              <i class="far fa-clock"></i> 
+              Estacionado às ${formatTime(vehicle.startTime)} | 
+              Expira às ${formatTime(vehicle.endTime)}
+            </div>
+            <div class="vehicle-location">
+              <i class="fas fa-map-marker-alt"></i> 
+              ${vehicle.location}
+            </div>
+            <div class="time-left ${timeLeftClass}">
+              ${formatTimeLeft(timeLeft)}
+            </div>
+          </div>
+          <div class="vehicle-actions">
+            <button class="btn-outline" onclick="focusOnVehicle('${vehicle.id}')" title="Localizar no mapa">
+              <i class="fas fa-map-marker-alt"></i>
+            </button>
+            <button class="btn-outline" onclick="removeVehicle('${vehicle.id}')" title="Remover veículo">
+              <i class="fas fa-trash-alt"></i>
+            </button>
+          </div>
+        `;
+        vehiclesList.appendChild(vehicleItem);
+      });
+    }
+    
+    // Atualiza valor arrecadado
+    updateRevenue();
+  }
+  
+  // Formata tempo restante para exibição
+  function formatTimeLeft(minutes) {
+    if (minutes <= 0) return 'Expirado';
+    const hours = Math.floor(minutes / 60);
+    const mins = minutes % 60;
+    if (hours > 0) return `${hours}h ${mins}m restantes`;
+    return `${mins}m restantes`;
+  }
+  
+  // Retorna classe CSS baseada no tempo restante
+  function getTimeLeftClass(minutes) {
+    if (minutes <= 0) return 'danger';
+    if (minutes <= 30) return 'warning';
+    return 'ok';
+  }
+  
+  // Atualiza o valor arrecadado
+  function updateRevenue() {
+    const total = parkedVehicles.reduce((sum, vehicle) => {
+      return sum + (vehicle.duration * HOUR_RATE);
+    }, 0);
+    document.getElementById('total-revenue').textContent = `R$ ${total.toFixed(2).replace('.', ',')}`;
+  }
+  
+  // Atualiza relógio em tempo real
+  function updateClock() {
+    const now = new Date();
+    const hours = String(now.getHours()).padStart(2, '0');
+    const minutes = String(now.getMinutes()).padStart(2, '0');
+    const seconds = String(now.getSeconds()).padStart(2, '0');
+    document.getElementById('current-time').textContent = `${hours}:${minutes}:${seconds}`;
+    
+    // Verifica se há veículos com tempo expirado
+    checkExpiredVehicles();
+  }
+  
+  // Formata hora para exibição
+  function formatTime(date) {
+    const d = new Date(date);
+    const hours = String(d.getHours()).padStart(2, '0');
+    const minutes = String(d.getMinutes()).padStart(2, '0');
+    return `${hours}:${minutes}`;
+  }
+  
+  // Abre o modal de registro de veículo
+  function openModal(spot) {
+    selectedSpot = spot;
+    document.getElementById('vehicleModal').style.display = 'flex';
+    document.getElementById('vehiclePlate').focus();
+  }
+  
+  // Fecha o modal
+  function closeModal() {
+    document.getElementById('vehicleModal').style.display = 'none';
+    selectedSpot = null;
+    document.getElementById('vehicleForm').reset();
+  }
+  
+  // Mostra modal de LGPD na primeira vez
+  function showLGPDModal() {
+    if (!localStorage.getItem('lgpdAccepted')) {
+      document.getElementById('lgpdModal').style.display = 'flex';
+    } else {
+      showDataWarning();
+    }
+  }
+  
+  // Aceita os termos de LGPD
+  function acceptLGPD() {
+    localStorage.setItem('lgpdAccepted', 'true');
+    document.getElementById('lgpdModal').style.display = 'none';
+    showDataWarning();
+  }
+  
+  // Mostra aviso sobre dados temporários
+  function showDataWarning() {
+    document.getElementById('dataWarningBanner').style.display = 'flex';
+    
+    // Mostra aviso antes de fechar a página
+    window.addEventListener('beforeunload', (e) => {
+      if (parkedVehicles.length > 0) {
+        e.preventDefault();
+        e.returnValue = 'Você tem veículos registrados que serão perdidos se sair desta página. Deseja realmente sair?';
+      }
+    });
+  }
+  
+  // Esconde o aviso de dados temporários
+  function hideWarningBanner() {
+    document.getElementById('dataWarningBanner').style.display = 'none';
+  }
+  
+  /**
+   * FUNÇÕES DO MAPA
+   */
+  
+  // Inicializa o mapa
+  function initMap() {
+    // Cria o mapa centrado na Praça Getúlio Vargas
+    map = L.map('map').setView(ALFENAS_COORDS, 18);
+    
+    // Adiciona camada do mapa
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 19,
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+    }).addTo(map);
+    
+    // Cria vagas de estacionamento ao redor da praça
+    createParkingSpots();
+    
+    // Adiciona marcador da praça
+    L.marker(ALFENAS_COORDS, {
+      title: "Praça Getúlio Vargas",
+      icon: L.divIcon({
+        html: '<i class="fas fa-map-marker-alt" style="color: #e74c3c; font-size: 24px;"></i>',
+        className: 'plaza-marker',
+        iconSize: [24, 24]
+      })
+    }).addTo(map).bindPopup("<b>Praça Getúlio Vargas</b><br>Centro de Alfenas - MG").openPopup();
+  }
+  
+  function createParkingSpots() {
+    const spots = [];
+    
+    // Todas as 65 vagas do KML (coordenadas exatas)
+    const spotCoordinates = [
+        // Vagas 1-16 (Lado Norte e adjacências)
+        { lat: -21.42746320445982, lng: -45.94718027516355 },  // Vaga 1
+        { lat: -21.42744434118405, lng: -45.9472545334792 },    // Vaga 2
+        { lat: -21.4274379396194, lng: -45.94731793728903 },    // Vaga 3
+        { lat: -21.4274514144371, lng: -45.94737026738287 },    // Vaga 4
+        { lat: -21.42744619919503, lng: -45.94743149817901 },   // Vaga 6
+        { lat: -21.42753899558789, lng: -45.9475250427801 },    // Vaga 7
+        { lat: -21.42760517959281, lng: -45.94752282496707 },   // Vaga 8
+        { lat: -21.42766703523872, lng: -45.94752026454483 },   // Vaga 9
+        { lat: -21.42774265017087, lng: -45.94751778359925 },   // Vaga 10
+        { lat: -21.42780179733672, lng: -45.94751399929251 },   // Vaga 11
+        { lat: -21.42786633236872, lng: -45.94751181968405 },   // Vaga 12
+        { lat: -21.42796408128218, lng: -45.94750703700912 },   // Vaga 13
+        { lat: -21.42804618746992, lng: -45.94750921898467 },   // Vaga 14
+        { lat: -21.42812575212443, lng: -45.94750362845367 },   // Vaga 15
+        { lat: -21.42819799635629, lng: -45.94750957481512 },   // Vaga 16
+        { lat: -21.42829627188696, lng: -45.9475079561496 },    // Vaga 17
+        
+        // Vagas 18-35 (Lado Leste e ruas próximas)
+        { lat: -21.42860370914874, lng: -45.9474971930439 },    // Vaga 18
+        { lat: -21.42867804415441, lng: -45.94749385946169 },   // Vaga 19
+        { lat: -21.42875971078252, lng: -45.94748891647461 },   // Vaga 20
+        { lat: -21.42886302002438, lng: -45.94748251745445 },   // Vaga 21
+        { lat: -21.42897398516177, lng: -45.94749935108533 },   // Vaga 22
+        { lat: -21.42906862642882, lng: -45.94749797114901 },   // Vaga 23
+        { lat: -21.42910731464244, lng: -45.94750000618954 },   // Vaga 24
+        { lat: -21.42915773111541, lng: -45.94749923818712 },   // Vaga 25
+        { lat: -21.42920763820545, lng: -45.94749872911308 },   // Vaga 26
+        { lat: -21.42927139888563, lng: -45.94749749506438 },   // Vaga 27
+        { lat: -21.42932642422982, lng: -45.9474953587296 },    // Vaga 28
+        { lat: -21.42940872227969, lng: -45.94749514587039 },   // Vaga 29
+        { lat: -21.42946118008262, lng: -45.9474962190731 },    // Vaga 30
+        { lat: -21.42953664619944, lng: -45.94749299406909 },   // Vaga 31
+        { lat: -21.42961686495989, lng: -45.94749170157019 },   // Vaga 32
+        { lat: -21.42970248762841, lng: -45.94748541629739 },   // Vaga 33
+        { lat: -21.4298020446814, lng: -45.94748107284185 },    // Vaga 34
+        { lat: -21.4298941272677, lng: -45.9474761856603 },     // Vaga 35
+        
+        // Vagas 36-50 (Lado Sul e áreas próximas)
+        { lat: -21.42997775181562, lng: -45.94729726883352 },   // Vaga 36
+        { lat: -21.42996890408971, lng: -45.94719960298601 },   // Vaga 37
+        { lat: -21.42996571359255, lng: -45.94710320545245 },   // Vaga 38
+        { lat: -21.42983095038034, lng: -45.9469828179268 },    // Vaga 39
+        { lat: -21.42975711505901, lng: -45.94698768735221 },   // Vaga 40
+        { lat: -21.42965364337584, lng: -45.94699252876046 },   // Vaga 41
+        { lat: -21.42955917824206, lng: -45.94699647545756 },   // Vaga 42
+        { lat: -21.42950203501416, lng: -45.94700018966525 },   // Vaga 43
+        { lat: -21.42944309813691, lng: -45.94700023712964 },   // Vaga 44
+        { lat: -21.4293756274878, lng: -45.94700267518695 },    // Vaga 45
+        { lat: -21.42926359497072, lng: -45.94700992348798 },   // Vaga 46
+        { lat: -21.42918255974525, lng: -45.94701452296138 },   // Vaga 47
+        { lat: -21.4291118536445, lng: -45.94701971807302 },    // Vaga 48
+        { lat: -21.42901359348141, lng: -45.94702209722388 },   // Vaga 49
+        { lat: -21.42893731986631, lng: -45.94702786417601 },   // Vaga 50
+        
+        // Vagas 51-65 (Lado Oeste e ruas internas)
+        { lat: -21.42884802177452, lng: -45.947028471187 },     // Vaga 51
+        { lat: -21.42879460825438, lng: -45.94702972668828 },   // Vaga 52
+        { lat: -21.42869180137145, lng: -45.94703669834077 },   // Vaga 53
+        { lat: -21.4286425398425, lng: -45.94703982410839 },    // Vaga 54
+        { lat: -21.42859637979668, lng: -45.94704376862705 },   // Vaga 55
+        { lat: -21.42821380018851, lng: -45.94705641602886 },   // Vaga 57
+        { lat: -21.42828956423293, lng: -45.94705446515729 },   // Vaga 56
+        { lat: -21.42811979294251, lng: -45.9470605723793 },    // Vaga 58
+        { lat: -21.42801218540647, lng: -45.94706583093163 },   // Vaga 59
+        { lat: -21.42791737487985, lng: -45.94707179096991 },   // Vaga 60
+        { lat: -21.42782632735122, lng: -45.94707614931416 },   // Vaga 61
+        { lat: -21.42775054896958, lng: -45.94707948963732 },   // Vaga 62
+        { lat: -21.42768542995917, lng: -45.94708735098667 },   // Vaga 63
+        { lat: -21.427609485022, lng: -45.94708772303177 },     // Vaga 64
+        { lat: -21.42754124260428, lng: -45.94709015139617 }    // Vaga 65
+    ];
+
+    // Criar marcadores para cada vaga
+    spotCoordinates.forEach((coord, index) => {
+        const spotId = index;
+        const spotMarker = L.marker([coord.lat, coord.lng], {
+            title: `Vaga ${spotId + 1}`,
+            icon: L.divIcon({
+                html: '<i class="fas fa-parking" style="color: #57cc99; font-size: 20px;"></i>',
+                className: 'parking-spot',
+                iconSize: [20, 20] // Ícones um pouco menores para evitar poluição visual
+            }),
+            zIndexOffset: 1000
+        }).addTo(map);
+
+        // Evento de clique para registrar veículos
+        spotMarker.on('click', function() {
+            const isOccupied = parkedVehicles.some(v => v.spotId === spotId);
+            if (!isOccupied) {
+                openModal(spotId);
+            } else {
+                const vehicle = parkedVehicles.find(v => v.spotId === spotId);
+                if (vehicle) {
+                    const timeLeft = getTimeLeft(vehicle);
+                    spotMarker.bindPopup(`
+                        <b>Vaga ${spotId + 1}</b><br>
+                        <i class="fas fa-${vehicleTypes[vehicle.type].icon}"></i> ${vehicle.plate}<br>
+                        <small>${vehicleTypes[vehicle.type].label}</small><br>
+                        <i class="far fa-clock"></i> Até: ${formatTime(vehicle.endTime)}<br>
+                        <button onclick="removeVehicle('${vehicle.id}')" 
+                                style="padding: 3px 8px; background: #e74c3c; color: white; border: none; border-radius: 4px; cursor: pointer;">
+                            Remover
+                        </button>
+                    `).openPopup();
+                }
+            }
+        });
+
+        spots.push({
+            id: spotId,
+            marker: spotMarker,
+            latlng: [coord.lat, coord.lng],
+            side: getSideForIndex(index) // Classifica por região (Norte, Leste, Sul, Oeste)
+        });
+    });
+
+    parkingSpots = spots;
+    updateSpotCounters();
+  }
+
+  // Classifica as vagas por região (ajuste conforme necessário)
+  function getSideForIndex(index) {
+      if (index < 17) return 0;    // Norte
+      if (index < 35) return 1;    // Leste
+      if (index < 50) return 2;    // Sul
+      return 3;                    // Oeste
+  }
+  
+  // Atualiza o ícone de uma vaga
+  function updateSpotIcon(spotId, isOccupied, vehicleType = 'car') {
+    const spot = parkingSpots.find(s => s.id === spotId);
+    if (!spot) return;
+    
+    if (isOccupied) {
+      spot.marker.setIcon(L.divIcon({
+        html: `<i class="fas fa-${vehicleTypes[vehicleType].icon}" style="color: ${vehicleTypes[vehicleType].color}; font-size: 24px;"></i>`,
+        className: 'parking-spot-occupied',
+        iconSize: [24, 24]
+      }));
+    } else {
+      spot.marker.setIcon(L.divIcon({
+        html: '<i class="fas fa-parking" style="color: #57cc99; font-size: 24px;"></i>',
+        className: 'parking-spot',
+        iconSize: [24, 24]
+      }));
+    }
+  }
+  
+  // Centraliza o mapa em um veículo específico
+  function focusOnVehicle(vehicleId) {
+    const vehicle = parkedVehicles.find(v => v.id === vehicleId);
+    if (vehicle) {
+      const spot = parkingSpots.find(s => s.id === vehicle.spotId);
+      if (spot) {
+        map.setView(spot.latlng, 19);
+        spot.marker.openPopup();
+      }
+    }
+  }
+  
+  /**
+   * FUNÇÕES DE GESTÃO DE VEÍCULOS
+   */
+  
+  // Registra um novo veículo
+  function registerVehicle(e) {
+    e.preventDefault();
+    
+    const type = document.getElementById('vehicleType').value;
+    const plate = document.getElementById('vehiclePlate').value.toUpperCase();
+    const duration = parseInt(document.getElementById('parkingDuration').value);
+    const notes = document.getElementById('additionalInfo').value;
+    
+    // Validações básicas
+    if (!type || !plate || !duration) {
+      alert('Preencha todos os campos obrigatórios.');
+      return;
+    }
+    
+    // Formata a placa (remove espaços e caracteres especiais)
+    const formattedPlate = plate.replace(/[^a-zA-Z0-9]/g, '');
+    
+    // Verifica se a placa já está estacionada
+    if (parkedVehicles.some(v => v.plate === formattedPlate)) {
+      alert('Este veículo já está registrado no estacionamento.');
+      return;
+    }
+    
+    // Verifica se a vaga está disponível
+    if (parkedVehicles.some(v => v.spotId === selectedSpot)) {
+      alert('Esta vaga já está ocupada. Por favor, selecione outra.');
+      return;
+    }
+    
+    const now = new Date();
+    const endTime = new Date(now.getTime() + duration * 60 * 60 * 1000);
+    
+    // Cria o objeto do veículo
+    const vehicle = {
+      id: generateId(),
+      type,
+      plate: formattedPlate,
+      duration,
+      startTime: now,
+      endTime,
+      spotId: selectedSpot,
+      location: `Vaga ${selectedSpot + 1}`,
+      notes,
+      value: duration * HOUR_RATE
+    };
+    
+    // Adiciona ao array de veículos
+    parkedVehicles.push(vehicle);
+    
+    // Atualiza a vaga no mapa
+    updateSpotIcon(selectedSpot, true, type);
+    
+    // Atualiza a interface
+    updateVehicleCount();
+    
+    // Fecha o modal
+    closeModal();
+  }
+  
+  // Remove um veículo do estacionamento
+  function removeVehicle(vehicleId) {
+    if (!confirm('Deseja realmente remover este veículo do registro?')) return;
+    
+    const index = parkedVehicles.findIndex(v => v.id === vehicleId);
+    if (index !== -1) {
+      const vehicle = parkedVehicles[index];
+      
+      // Libera a vaga no mapa
+      updateSpotIcon(vehicle.spotId, false);
+      
+      // Remove do array
+      parkedVehicles.splice(index, 1);
+      
+      // Atualiza a interface
+      updateVehicleCount();
+    }
+  }
+  
+  // Verifica veículos com tempo expirado
+  function checkExpiredVehicles() {
+    const now = new Date();
+    
+    parkedVehicles.forEach(vehicle => {
+      const timeLeft = getTimeLeft(vehicle);
+      
+      // Atualiza ícone se estiver expirado ou prestes a expirar
+      if (timeLeft <= 0) {
+        updateSpotIcon(vehicle.spotId, true, vehicle.type);
+      } else if (timeLeft <= 30) {
+        updateSpotIcon(vehicle.spotId, true, vehicle.type);
+      }
+    });
+  }
+  
+  // Calcula o tempo restante em minutos
+  function getTimeLeft(vehicle) {
+    const now = new Date();
+    const endTime = new Date(vehicle.endTime);
+    return Math.round((endTime - now) / (60 * 1000));
+  }
+  
+  // Gera um ID único para o veículo
+  function generateId() {
+    return 'v-' + Math.random().toString(36).substr(2, 9);
+  }
+  
+  /**
+   * FUNÇÕES DE EXPORTAÇÃO
+   */
+  
+  // Exporta relatório para WhatsApp
+  function exportToWhatsApp() {
+    if (parkedVehicles.length === 0) {
+      alert('Nenhum veículo registrado para exportar.');
+      return;
+    }
+    
+    const now = new Date();
+    let message = `*RELATÓRIO ÁREA AZUL - CIDADE/UF*\n\n`;
+    message += `📅 *Data:* ${formatDate(now)}\n`;
+    message += `🕒 *Horário:* ${formatTime(now)}\n\n`;
+    message += `🚗 *Veículos Estacionados:* ${parkedVehicles.length}\n`;
+    message += `💰 *Valor Total:* R$ ${(parkedVehicles.reduce((sum, v) => sum + v.value, 0)).toFixed(2).replace('.', ',')}\n\n`;
+    message += `📋 *Detalhes dos Veículos:*\n\n`;
+    
+    parkedVehicles.forEach((vehicle, index) => {
+      const timeLeft = getTimeLeft(vehicle);
+      
+      message += `*Veículo ${index + 1}:*\n`;
+      message += `🚘 *Placa:* ${vehicle.plate}\n`;
+      message += `🔤 *Tipo:* ${vehicleTypes[vehicle.type].label}\n`;
+      message += `📍 *Local:* ${vehicle.location}\n`;
+      message += `⏱️ *Entrada:* ${formatTime(vehicle.startTime)}\n`;
+      message += `⏰ *Saída prevista:* ${formatTime(vehicle.endTime)}\n`;
+      message += `⏳ *Status:* ${formatTimeLeft(timeLeft)}\n`;
+      message += `💰 *Valor:* R$ ${vehicle.value.toFixed(2).replace('.', ',')}\n`;
+      if (vehicle.notes) message += `📝 *Observações:* ${vehicle.notes}\n`;
+      message += `\n`;
+    });
+    
+    message += `\n*Observações:*\n`;
+    message += `- Horário de funcionamento: 8h às 17h\n`;
+    message += `- Valor por hora: R$ 1,75\n`;
+    message += `- Este relatório foi gerado pelo Sistema Área Azul Digital\n`;
+    
+    // Codifica a mensagem para URL
+    const encodedMessage = encodeURIComponent(message);
+    window.open(`https://wa.me/?text=${encodedMessage}`, '_blank');
+  }
+  
+  // Gera um PDF com o relatório
+  function generatePDF() {
+    if (parkedVehicles.length === 0) {
+      alert('Nenhum veículo registrado para gerar PDF.');
+      return;
+    }
+    
+    // Cria um novo documento PDF
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+    
+    // Adiciona cabeçalho
+    doc.setFontSize(18);
+    doc.setTextColor(26, 95, 122); // Azul área azul
+    doc.text('RELATÓRIO - ÁREA AZUL DIGITAL (SEM VALOR FISCAL)', 105, 15, { align: 'center' });
+    
+    doc.setFontSize(12);
+    doc.setTextColor(0, 0, 0); // Preto
+    doc.text(`Cidade/UF`, 105, 22, { align: 'center' });
+    
+    const now = new Date();
+    doc.text(`Data: ${formatDate(now)} - ${formatTime(now)}`, 105, 29, { align: 'center' });
+    
+    // Adiciona informações resumidas
+    doc.setFontSize(12);
+    doc.text(`Veículos estacionados: ${parkedVehicles.length}`, 14, 40);
+    doc.text(`Valor total: R$ ${(parkedVehicles.reduce((sum, v) => sum + v.value, 0)).toFixed(2).replace('.', ',')}`, 14, 47);
+    
+    // Adiciona tabela de veículos
+    let y = 60;
+    doc.setFontSize(12);
+    doc.setTextColor(255, 255, 255);
+    doc.setFillColor(26, 95, 122);
+    doc.rect(14, y, 182, 8, 'F');
+    doc.text('Placa', 20, y + 6);
+    doc.text('Tipo', 50, y + 6);
+    doc.text('Local', 80, y + 6);
+    doc.text('Entrada', 120, y + 6);
+    doc.text('Saída', 150, y + 6);
+    doc.text('Valor', 180, y + 6);
+    
+    y += 8;
+    doc.setTextColor(0, 0, 0);
+    doc.setFontSize(10);
+    
+    parkedVehicles.forEach(vehicle => {
+      const timeLeft = getTimeLeft(vehicle);
+      
+      if (y > 270) { // Se estiver no final da página, adiciona nova página
+        doc.addPage();
+        y = 20;
+        
+        // Cabeçalho da nova página
+        doc.setFontSize(12);
+        doc.setTextColor(255, 255, 255);
+        doc.setFillColor(26, 95, 122);
+        doc.rect(14, y, 182, 8, 'F');
+        doc.text('Placa', 20, y + 6);
+        doc.text('Tipo', 50, y + 6);
+        doc.text('Local', 80, y + 6);
+        doc.text('Entrada', 120, y + 6);
+        doc.text('Saída', 150, y + 6);
+        doc.text('Valor', 180, y + 6);
+        
+        y += 8;
+        doc.setTextColor(0, 0, 0);
+        doc.setFontSize(10);
+      }
+      
+      doc.text(vehicle.plate, 20, y + 6);
+      doc.text(vehicleTypes[vehicle.type].label, 50, y + 6);
+      doc.text(vehicle.location, 80, y + 6);
+      doc.text(formatTime(vehicle.startTime), 120, y + 6);
+      doc.text(formatTime(vehicle.endTime), 150, y + 6);
+      doc.text(`R$ ${vehicle.value.toFixed(2).replace('.', ',')}`, 180, y + 6);
+      
+      y += 7;
+    });
+    
+    // Adiciona rodapé
+    doc.setFontSize(10);
+    doc.setTextColor(100, 100, 100);
+    doc.text('Sistema (NÃO-OFICIAL) Área Azul Digital - Prefeitura de Cidade/MG', 105, 290, { align: 'center' });
+    
+    // Salva o PDF
+    doc.save(`relatorio_area_azul_${formatDate(now, true)}.pdf`);
+  }
+  
+  // Formata data para exibição
+  function formatDate(date, fileFormat = false) {
+    const d = new Date(date);
+    const day = String(d.getDate()).padStart(2, '0');
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const year = d.getFullYear();
+    
+    if (fileFormat) return `${day}-${month}-${year}`;
+    return `${day}/${month}/${year}`;
+  }
+  
+  /**
+   * INICIALIZAÇÃO
+   */
+  document.addEventListener('DOMContentLoaded', function() {
+    // Configura o formulário de registro
+    document.getElementById('vehicleForm').addEventListener('submit', registerVehicle);
+    
+    // Inicia o relógio
+    setInterval(updateClock, 1000);
+    updateClock();
+    
+    // Inicia o mapa
+    initMap();
+    
+    // Mostra modal de LGPD
+    showLGPDModal();
+    
+    // Verifica veículos expirados a cada minuto
+    setInterval(checkExpiredVehicles, 60000);
+  });
+</script>
+</body>
+</html>
