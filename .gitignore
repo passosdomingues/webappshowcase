@@ -1,0 +1,49 @@
+# Executáveis e binários
+*.exe        # Arquivos executáveis do Windows
+*.class      # Arquivos compilados Java
+*.jar        # Pacotes Java compilados
+*.dll        # Bibliotecas do Windows
+*.so         # Bibliotecas do Linux
+*.dylib      # Bibliotecas do macOS
+
+# Arquivos de mídia pesados
+*.mp3        # Áudios
+*.mp4        # Vídeos
+*.stl        # Modelos 3D
+*.wav        # Áudio
+*.mov        # Vídeo
+
+# Arquivos compactados / pacotes
+*.zip
+*.rar
+*.tar.gz
+*.ear        # Enterprise Archive (Java)
+*.war        # Web Archive (Java)
+
+# Logs e arquivos temporários
+*.log        # Logs de execução
+*.tmp        # Temporários genéricos
+*.mtj        # Temporários específicos (ex.: IDE)
+*.ctxt       # Contextos temporários
+
+# Ambientes virtuais / dependências locais
+venv/        # Python virtual environment
+node_modules/ # Dependências Node.js
+.env         # Variáveis de ambiente
+
+# Arquivos do sistema e de editor
+.DS_Store    # macOS
+Thumbs.db    # Windows
+*.swp        # Vim swap
+*.swo        # Vim swap
+.idea/       # IntelliJ / PyCharm
+*.iml        # Arquivos de projeto IDE
+.vscode/     # Configurações do VS Code
+*.project    # Eclipse
+
+# Builds e outputs
+build/
+dist/
+out/
+target/
+
