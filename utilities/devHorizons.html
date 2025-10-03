@@ -40,6 +40,87 @@
             transform: translateY(-2px);
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
         }
+        .roadmap-timeline {
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            margin: 20px 0;
+        }
+        .roadmap-timeline::before {
+            content: '';
+            position: absolute;
+            left: 20px;
+            top: 0;
+            bottom: 0;
+            width: 4px;
+            background: linear-gradient(to bottom, #14B8A6, #8B5CF6);
+            border-radius: 2px;
+        }
+        .roadmap-stage {
+            display: flex;
+            margin-bottom: 30px;
+            position: relative;
+        }
+        .roadmap-stage::before {
+            content: '';
+            position: absolute;
+            left: 16px;
+            top: 10px;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #14B8A6;
+            z-index: 1;
+        }
+        .roadmap-stage-content {
+            margin-left: 50px;
+            padding: 15px;
+            background: rgba(20, 184, 166, 0.05);
+            border-radius: 8px;
+            border-left: 3px solid #14B8A6;
+            flex: 1;
+        }
+        .roadmap-stage-title {
+            font-weight: bold;
+            margin-bottom: 8px;
+            color: #14B8A6;
+        }
+        .roadmap-skills {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 10px;
+        }
+        .skill-tag {
+            background: rgba(20, 184, 166, 0.1);
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            color: #0f766e;
+        }
+        .salary-slider {
+            width: 100%;
+            margin: 15px 0;
+        }
+        .salary-value {
+            text-align: center;
+            font-weight: bold;
+            color: #14B8A6;
+            margin-top: 5px;
+        }
+        .progress-bar {
+            height: 8px;
+            background-color: #e5e7eb;
+            border-radius: 4px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(to right, #14B8A6, #8B5CF6);
+            border-radius: 4px;
+            transition: width 0.5s ease;
+        }
     </style>
 
     <script>
@@ -104,7 +185,7 @@
                             <canvas id="unifiedRadarChart"></canvas>
                         </div>
                         <div class="mt-4 text-center text-sm text-slate-500 dark:text-slate-400">
-                            <p>Each axis represents a compatibility dimension. Larger areas indicate higher compatibility.</p>
+                            <p>Each axis represents a career path. Larger areas indicate higher compatibility with your profile.</p>
                         </div>
                     </div>
                     <div id="recommendationDetails" class="bg-light-card dark:bg-dark-card p-6 rounded-xl shadow-md">
@@ -171,11 +252,66 @@
                         exploratory: { text: "Self-Directed Exploration", icon: "fa-compass" },
                     }
                 },
+                workLifeBalance: {
+                    title: "Work-Life Balance Priority", 
+                    description: "How important is work-life balance to you",
+                    type: 'single', 
+                    options: {
+                        high: { text: "Very Important", icon: "fa-heart" },
+                        medium: { text: "Moderately Important", icon: "fa-scale-balanced" },
+                        low: { text: "Less Important", icon: "fa-briefcase" },
+                    }
+                },
+                riskTolerance: {
+                    title: "Risk Tolerance", 
+                    description: "Your comfort level with uncertainty and change",
+                    type: 'single', 
+                    options: {
+                        low: { text: "Low - Prefer Stability", icon: "fa-shield" },
+                        medium: { text: "Medium - Balanced Approach", icon: "fa-scale-balanced" },
+                        high: { text: "High - Embrace Change", icon: "fa-dice" },
+                    }
+                },
+                salaryExpectation: {
+                    title: "Salary Expectations (Annual USD)", 
+                    description: "Your target salary range",
+                    type: 'slider', 
+                    min: 50000,
+                    max: 250000,
+                    step: 10000,
+                    default: 100000
+                },
+                currentExperience: {
+                    title: "Current Experience Level", 
+                    description: "Your current professional level",
+                    type: 'single', 
+                    options: {
+                        student: { text: "Student / Beginner", icon: "fa-graduation-cap" },
+                        junior: { text: "Junior (0-2 years)", icon: "fa-seedling" },
+                        mid: { text: "Mid-Level (2-5 years)", icon: "fa-tree" },
+                        senior: { text: "Senior (5+ years)", icon: "fa-mountain" },
+                    }
+                },
                 techSkills: {
                     title: "Technical Skills", 
                     description: "Select the technologies you're familiar with",
                     type: 'multiple', 
                     options: { }
+                },
+                industryInterest: {
+                    title: "Industry Interests", 
+                    description: "Which industries interest you most",
+                    type: 'multiple', 
+                    options: {
+                        fintech: { text: "Fintech & Finance", icon: "fa-coins" },
+                        health: { text: "Healthcare", icon: "fa-heart-pulse" },
+                        education: { text: "EdTech", icon: "fa-book" },
+                        ecommerce: { text: "E-commerce", icon: "fa-cart-shopping" },
+                        entertainment: { text: "Media & Entertainment", icon: "fa-film" },
+                        automotive: { text: "Automotive", icon: "fa-car" },
+                        gaming: { text: "Gaming", icon: "fa-gamepad" },
+                        ai: { text: "AI & Machine Learning", icon: "fa-robot" },
+                    }
                 }
             };
             
@@ -209,17 +345,40 @@
                         collaborationStyle: { lead: 4, pair: 9, async: 7, team: 8 }, 
                         workEnvironment: { startup: 8, corporate: 5, remote: 9, hybrid: 8 },
                         learningStyle: { handsOn: 9, structured: 6, mentoring: 7, exploratory: 8 },
+                        workLifeBalance: { high: 8, medium: 7, low: 4 },
+                        riskTolerance: { low: 6, medium: 7, high: 8 },
+                        currentExperience: { student: 8, junior: 9, mid: 8, senior: 7 },
                         techFocus: { ux: 10, logic: 7, infrastructure: 3, security: 4 }, 
                         techSkills: ["javascript", "typescript", "react", "vue", "angular", "svelte", "html5", "css3", "sass", "figma"] 
                     },
-                    roadmap: [
-                        { title: "Foundational Stage", skills: ["HTML5 Semantics", "CSS3 (Flexbox, Grid)", "Core JavaScript (ES6+)", "Git Basics", "Intro to a JS Framework (React or Vue)"] },
-                        { title: "Intermediate Stage", skills: ["Advanced CSS (Animations, SASS)", "TypeScript", "State Management (Redux, Pinia)", "API Consumption (REST, GraphQL)", "Testing (Jest, Vitest)"] },
-                        { title: "Advanced Stage", skills: ["Performance Optimization (Lighthouse)", "Web Accessibility (WCAG)", "Build Tools (Vite, Webpack)", "Server-Side Rendering (Next.js, Nuxt)", "Micro-Frontends"] }
-                    ],
-                    salaryRange: "$70K - $150K",
+                    salaryRange: { min: 70000, max: 150000, median: 110000 },
                     growthOutlook: "High",
-                    companies: ["Google", "Meta", "Netflix", "Airbnb", "Shopify"]
+                    workLifeBalance: "Good",
+                    companies: ["Google", "Meta", "Netflix", "Airbnb", "Shopify"],
+                    industries: ["ecommerce", "entertainment", "education", "fintech"],
+                    roadmap: [
+                        { 
+                            title: "Foundational Stage (3-6 months)", 
+                            duration: "3-6 months",
+                            effort: 30,
+                            skills: ["HTML5 Semantics", "CSS3 (Flexbox, Grid)", "Core JavaScript (ES6+)", "Git Basics", "Intro to a JS Framework (React or Vue)"],
+                            focus: "Fundamentals"
+                        },
+                        { 
+                            title: "Intermediate Stage (6-12 months)", 
+                            duration: "6-12 months",
+                            effort: 50,
+                            skills: ["Advanced CSS (Animations, SASS)", "TypeScript", "State Management (Redux, Pinia)", "API Consumption (REST, GraphQL)", "Testing (Jest, Vitest)"],
+                            focus: "Specialization"
+                        },
+                        { 
+                            title: "Advanced Stage (12+ months)", 
+                            duration: "12+ months",
+                            effort: 20,
+                            skills: ["Performance Optimization (Lighthouse)", "Web Accessibility (WCAG)", "Build Tools (Vite, Webpack)", "Server-Side Rendering (Next.js, Nuxt)", "Micro-Frontends"],
+                            focus: "Mastery"
+                        }
+                    ]
                 },
                 backend: {
                     name: "Backend Developer", 
@@ -231,17 +390,40 @@
                         collaborationStyle: { lead: 7, pair: 6, async: 9, team: 6 }, 
                         workEnvironment: { startup: 7, corporate: 8, remote: 9, hybrid: 7 },
                         learningStyle: { handsOn: 8, structured: 9, mentoring: 6, exploratory: 7 },
+                        workLifeBalance: { high: 7, medium: 8, low: 6 },
+                        riskTolerance: { low: 7, medium: 8, high: 6 },
+                        currentExperience: { student: 6, junior: 7, mid: 9, senior: 10 },
                         techFocus: { ux: 2, logic: 10, infrastructure: 8, security: 8 }, 
                         techSkills: ["python", "java", "c#", "go", "rust", "nodejs", "sql", "nosql", "postgresql", "mongodb", "docker", "kubernetes"] 
                     },
-                    roadmap: [
-                        { title: "Foundational Stage", skills: ["Choose a Language (Python, Node.js, Go)", "Core Concepts (HTTP, REST APIs)", "Database Fundamentals (SQL)", "Git & Version Control", "Basic Authentication"] },
-                        { title: "Intermediate Stage", skills: ["Framework Mastery (Django, Express)", "Containerization (Docker)", "Database Design (Normalization, Indexing)", "Caching Strategies (Redis)", "Writing Unit & Integration Tests"] },
-                        { title: "Advanced Stage", skills: ["System Design & Architecture", "Microservices Communication", "Orchestration (Kubernetes)", "CI/CD Pipelines", "Message Queues (RabbitMQ, Kafka)"] }
-                    ],
-                    salaryRange: "$80K - $160K",
+                    salaryRange: { min: 80000, max: 160000, median: 120000 },
                     growthOutlook: "High",
-                    companies: ["Amazon", "Microsoft", "Uber", "Stripe", "PayPal"]
+                    workLifeBalance: "Good",
+                    companies: ["Amazon", "Microsoft", "Uber", "Stripe", "PayPal"],
+                    industries: ["fintech", "ecommerce", "health", "ai"],
+                    roadmap: [
+                        { 
+                            title: "Foundational Stage (3-6 months)", 
+                            duration: "3-6 months",
+                            effort: 30,
+                            skills: ["Choose a Language (Python, Node.js, Go)", "Core Concepts (HTTP, REST APIs)", "Database Fundamentals (SQL)", "Git & Version Control", "Basic Authentication"],
+                            focus: "Fundamentals"
+                        },
+                        { 
+                            title: "Intermediate Stage (6-18 months)", 
+                            duration: "6-18 months",
+                            effort: 50,
+                            skills: ["Framework Mastery (Django, Express)", "Containerization (Docker)", "Database Design (Normalization, Indexing)", "Caching Strategies (Redis)", "Writing Unit & Integration Tests"],
+                            focus: "Specialization"
+                        },
+                        { 
+                            title: "Advanced Stage (18+ months)", 
+                            duration: "18+ months",
+                            effort: 20,
+                            skills: ["System Design & Architecture", "Microservices Communication", "Orchestration (Kubernetes)", "CI/CD Pipelines", "Message Queues (RabbitMQ, Kafka)"],
+                            focus: "Mastery"
+                        }
+                    ]
                 },
                 fullstack: {
                     name: "Full-Stack Developer", 
@@ -253,17 +435,40 @@
                         collaborationStyle: { lead: 6, pair: 8, async: 8, team: 7 }, 
                         workEnvironment: { startup: 9, corporate: 6, remote: 8, hybrid: 8 },
                         learningStyle: { handsOn: 9, structured: 7, mentoring: 7, exploratory: 8 },
+                        workLifeBalance: { high: 6, medium: 8, low: 7 },
+                        riskTolerance: { low: 5, medium: 8, high: 8 },
+                        currentExperience: { student: 5, junior: 7, mid: 9, senior: 9 },
                         techFocus: { ux: 8, logic: 9, infrastructure: 7, security: 7 }, 
                         techSkills: ["javascript", "typescript", "python", "react", "nodejs", "sql", "docker", "aws"] 
                     },
-                    roadmap: [
-                        { title: "Foundational Stage", skills: ["Master Frontend Basics (HTML, CSS, JS)", "Learn a Backend Language (Node.js)", "Understand REST APIs from both sides", "SQL Database Fundamentals", "Git for collaboration"] },
-                        { title: "Intermediate Stage", skills: ["Deep dive into a Full-Stack Framework (Next.js, Nuxt)", "Authentication & Authorization (JWT, OAuth)", "Basic Cloud Deployment (AWS S3, EC2)", "Docker for consistent environments", "Frontend & Backend Testing"] },
-                        { title: "Advanced Stage", skills: ["Infrastructure as Code (Terraform)", "CI/CD pipeline setup", "Advanced Database Management", "WebSockets for real-time apps", "Monitoring and Logging"] }
-                    ],
-                    salaryRange: "$85K - $170K",
+                    salaryRange: { min: 85000, max: 170000, median: 125000 },
                     growthOutlook: "Very High",
-                    companies: ["Netflix", "Airbnb", "Shopify", "Spotify", "Slack"]
+                    workLifeBalance: "Moderate",
+                    companies: ["Netflix", "Airbnb", "Shopify", "Spotify", "Slack"],
+                    industries: ["ecommerce", "entertainment", "education", "fintech"],
+                    roadmap: [
+                        { 
+                            title: "Foundational Stage (6-9 months)", 
+                            duration: "6-9 months",
+                            effort: 40,
+                            skills: ["Master Frontend Basics (HTML, CSS, JS)", "Learn a Backend Language (Node.js)", "Understand REST APIs from both sides", "SQL Database Fundamentals", "Git for collaboration"],
+                            focus: "Fundamentals"
+                        },
+                        { 
+                            title: "Intermediate Stage (9-18 months)", 
+                            duration: "9-18 months",
+                            effort: 45,
+                            skills: ["Deep dive into a Full-Stack Framework (Next.js, Nuxt)", "Authentication & Authorization (JWT, OAuth)", "Basic Cloud Deployment (AWS S3, EC2)", "Docker for consistent environments", "Frontend & Backend Testing"],
+                            focus: "Specialization"
+                        },
+                        { 
+                            title: "Advanced Stage (18+ months)", 
+                            duration: "18+ months",
+                            effort: 15,
+                            skills: ["Infrastructure as Code (Terraform)", "CI/CD pipeline setup", "Advanced Database Management", "WebSockets for real-time apps", "Monitoring and Logging"],
+                            focus: "Mastery"
+                        }
+                    ]
                 },
                 dataScientist: {
                     name: "Data Scientist", 
@@ -275,17 +480,40 @@
                         collaborationStyle: { lead: 7, pair: 5, async: 9, team: 8 }, 
                         workEnvironment: { startup: 7, corporate: 8, remote: 8, hybrid: 7 },
                         learningStyle: { handsOn: 7, structured: 9, mentoring: 6, exploratory: 8 },
+                        workLifeBalance: { high: 7, medium: 8, low: 6 },
+                        riskTolerance: { low: 6, medium: 8, high: 7 },
+                        currentExperience: { student: 5, junior: 6, mid: 8, senior: 9 },
                         techFocus: { ux: 2, logic: 9, infrastructure: 6, security: 5 }, 
                         techSkills: ["python", "sql", "pandas", "scikitlearn", "tensorflow", "pytorch", "r"] 
                     },
-                    roadmap: [
-                        { title: "Foundational Stage", skills: ["Python for Data Science (Pandas, NumPy)", "Statistics & Probability Fundamentals", "Data Wrangling and Cleaning", "SQL for Data Extraction", "Data Visualization (Matplotlib, Seaborn)"] },
-                        { title: "Intermediate Stage", skills: ["Machine Learning Models (Regression, Classification)", "Feature Engineering", "Intro to Deep Learning (TensorFlow/PyTorch)", "Model Evaluation Metrics", "Big Data Concepts (Spark)"] },
-                        { title: "Advanced Stage", skills: ["Natural Language Processing (NLP)", "Computer Vision", "Time Series Analysis", "MLOps (Deploying models)", "Advanced Statistical Modeling"] }
-                    ],
-                    salaryRange: "$90K - $180K",
+                    salaryRange: { min: 90000, max: 180000, median: 130000 },
                     growthOutlook: "Very High",
-                    companies: ["Google", "Facebook", "Amazon", "Netflix", "Uber"]
+                    workLifeBalance: "Good",
+                    companies: ["Google", "Facebook", "Amazon", "Netflix", "Uber"],
+                    industries: ["health", "fintech", "ecommerce", "ai"],
+                    roadmap: [
+                        { 
+                            title: "Foundational Stage (6-9 months)", 
+                            duration: "6-9 months",
+                            effort: 40,
+                            skills: ["Python for Data Science (Pandas, NumPy)", "Statistics & Probability Fundamentals", "Data Wrangling and Cleaning", "SQL for Data Extraction", "Data Visualization (Matplotlib, Seaborn)"],
+                            focus: "Fundamentals"
+                        },
+                        { 
+                            title: "Intermediate Stage (9-18 months)", 
+                            duration: "9-18 months",
+                            effort: 45,
+                            skills: ["Machine Learning Models (Regression, Classification)", "Feature Engineering", "Intro to Deep Learning (TensorFlow/PyTorch)", "Model Evaluation Metrics", "Big Data Concepts (Spark)"],
+                            focus: "Specialization"
+                        },
+                        { 
+                            title: "Advanced Stage (18+ months)", 
+                            duration: "18+ months",
+                            effort: 15,
+                            skills: ["Natural Language Processing (NLP)", "Computer Vision", "Time Series Analysis", "MLOps (Deploying models)", "Advanced Statistical Modeling"],
+                            focus: "Mastery"
+                        }
+                    ]
                 },
                 cloudEngineer: {
                     name: "Cloud Engineer", 
@@ -297,17 +525,40 @@
                         collaborationStyle: { lead: 6, pair: 6, async: 10, team: 7 }, 
                         workEnvironment: { startup: 6, corporate: 8, remote: 9, hybrid: 7 },
                         learningStyle: { handsOn: 8, structured: 8, mentoring: 6, exploratory: 7 },
+                        workLifeBalance: { high: 6, medium: 8, low: 7 },
+                        riskTolerance: { low: 5, medium: 7, high: 9 },
+                        currentExperience: { student: 4, junior: 6, mid: 8, senior: 9 },
                         techFocus: { ux: 2, logic: 6, infrastructure: 10, security: 8 }, 
                         techSkills: ["aws", "azure", "gcp", "docker", "kubernetes", "terraform", "python", "go", "bash", "linux"] 
                     },
-                    roadmap: [
-                        { title: "Foundational Stage", skills: ["Choose a Cloud Provider (AWS is common)", "Core Services (IAM, EC2, S3, VPC)", "Linux Command Line & Bash Scripting", "Networking Fundamentals (TCP/IP, DNS)", "Containerization with Docker"] },
-                        { title: "Intermediate Stage", skills: ["Infrastructure as Code (Terraform)", "Container Orchestration (Kubernetes)", "CI/CD Concepts & Tools (GitHub Actions)", "Serverless Computing (Lambda)", "Monitoring & Observability"] },
-                        { title: "Advanced Stage", skills: ["Advanced Networking (Transit Gateway)", "Cloud Security Best Practices", "Cost Optimization Strategies", "Disaster Recovery Planning", "Multi-Cloud Architectures"] }
-                    ],
-                    salaryRange: "$95K - $175K",
+                    salaryRange: { min: 95000, max: 175000, median: 135000 },
                     growthOutlook: "Very High",
-                    companies: ["Amazon", "Microsoft", "Google", "Salesforce", "IBM"]
+                    workLifeBalance: "Good",
+                    companies: ["Amazon", "Microsoft", "Google", "Salesforce", "IBM"],
+                    industries: ["fintech", "health", "ecommerce", "ai"],
+                    roadmap: [
+                        { 
+                            title: "Foundational Stage (3-6 months)", 
+                            duration: "3-6 months",
+                            effort: 35,
+                            skills: ["Choose a Cloud Provider (AWS is common)", "Core Services (IAM, EC2, S3, VPC)", "Linux Command Line & Bash Scripting", "Networking Fundamentals (TCP/IP, DNS)", "Containerization with Docker"],
+                            focus: "Fundamentals"
+                        },
+                        { 
+                            title: "Intermediate Stage (6-15 months)", 
+                            duration: "6-15 months",
+                            effort: 50,
+                            skills: ["Infrastructure as Code (Terraform)", "Container Orchestration (Kubernetes)", "CI/CD Concepts & Tools (GitHub Actions)", "Serverless Computing (Lambda)", "Monitoring & Observability"],
+                            focus: "Specialization"
+                        },
+                        { 
+                            title: "Advanced Stage (15+ months)", 
+                            duration: "15+ months",
+                            effort: 15,
+                            skills: ["Advanced Networking (Transit Gateway)", "Cloud Security Best Practices", "Cost Optimization Strategies", "Disaster Recovery Planning", "Multi-Cloud Architectures"],
+                            focus: "Mastery"
+                        }
+                    ]
                 },
                 cybersecurityAnalyst: {
                     name: "Cybersecurity Analyst", 
@@ -319,17 +570,40 @@
                         collaborationStyle: { lead: 7, pair: 6, async: 9, team: 7 }, 
                         workEnvironment: { startup: 5, corporate: 9, remote: 7, hybrid: 7 },
                         learningStyle: { handsOn: 8, structured: 9, mentoring: 7, exploratory: 6 },
+                        workLifeBalance: { high: 6, medium: 8, low: 7 },
+                        riskTolerance: { low: 8, medium: 7, high: 6 },
+                        currentExperience: { student: 5, junior: 6, mid: 8, senior: 9 },
                         techFocus: { ux: 1, logic: 7, infrastructure: 9, security: 10 }, 
                         techSkills: ["python", "bash", "linux", "wireshark", "metasploit", "aws", "azure"] 
                     },
-                    roadmap: [
-                        { title: "Foundational Stage", skills: ["Networking (CompTIA Network+)", "Operating Systems (Linux & Windows)", "Security Fundamentals (CompTIA Security+)", "Intro to Python/Bash for scripting", "Cybersecurity Principles (CIA Triad)"] },
-                        { title: "Intermediate Stage", skills: ["Vulnerability Assessment", "Penetration Testing Tools (Metasploit)", "Log Analysis (SIEM tools)", "Network Traffic Analysis (Wireshark)", "Incident Response Procedures"] },
-                        { title: "Advanced Stage", skills: ["Digital Forensics", "Malware Analysis", "Threat Hunting", "Cloud Security (AWS/Azure Security)", "Ethical Hacking (CEH, OSCP)"] }
-                    ],
-                    salaryRange: "$85K - $160K",
+                    salaryRange: { min: 85000, max: 160000, median: 120000 },
                     growthOutlook: "Very High",
-                    companies: ["CrowdStrike", "Palo Alto Networks", "Cisco", "IBM", "Amazon"]
+                    workLifeBalance: "Good",
+                    companies: ["CrowdStrike", "Palo Alto Networks", "Cisco", "IBM", "Amazon"],
+                    industries: ["fintech", "health", "ecommerce", "gaming"],
+                    roadmap: [
+                        { 
+                            title: "Foundational Stage (6-9 months)", 
+                            duration: "6-9 months",
+                            effort: 40,
+                            skills: ["Networking (CompTIA Network+)", "Operating Systems (Linux & Windows)", "Security Fundamentals (CompTIA Security+)", "Intro to Python/Bash for scripting", "Cybersecurity Principles (CIA Triad)"],
+                            focus: "Fundamentals"
+                        },
+                        { 
+                            title: "Intermediate Stage (9-18 months)", 
+                            duration: "9-18 months",
+                            effort: 45,
+                            skills: ["Vulnerability Assessment", "Penetration Testing Tools (Metasploit)", "Log Analysis (SIEM tools)", "Network Traffic Analysis (Wireshark)", "Incident Response Procedures"],
+                            focus: "Specialization"
+                        },
+                        { 
+                            title: "Advanced Stage (18+ months)", 
+                            duration: "18+ months",
+                            effort: 15,
+                            skills: ["Digital Forensics", "Malware Analysis", "Threat Hunting", "Cloud Security (AWS/Azure Security)", "Ethical Hacking (CEH, OSCP)"],
+                            focus: "Mastery"
+                        }
+                    ]
                 },
                 uxUiDesigner: {
                     name: "UX/UI Designer", 
@@ -341,17 +615,40 @@
                         collaborationStyle: { lead: 5, pair: 8, async: 6, team: 9 }, 
                         workEnvironment: { startup: 8, corporate: 6, remote: 8, hybrid: 8 },
                         learningStyle: { handsOn: 9, structured: 6, mentoring: 8, exploratory: 8 },
+                        workLifeBalance: { high: 9, medium: 7, low: 3 },
+                        riskTolerance: { low: 7, medium: 8, high: 6 },
+                        currentExperience: { student: 8, junior: 9, mid: 8, senior: 7 },
                         techFocus: { ux: 10, logic: 3, infrastructure: 2, security: 3 }, 
                         techSkills: ["figma", "html5", "css3", "javascript"] 
                     },
-                    roadmap: [
-                        { title: "Foundational Stage", skills: ["Design Principles (Color Theory, Typography)", "Master a Design Tool (Figma)", "User Research & Personas", "Wireframing & Prototyping", "Usability Testing Basics"] },
-                        { title: "Intermediate Stage", skills: ["User Journey Mapping", "Information Architecture", "Design Systems", "Accessibility (WCAG) Standards", "Basic HTML/CSS understanding"] },
-                        { title: "Advanced Stage", skills: ["Microinteractions & Animation", "Data-Driven Design (A/B Testing)", "Voice User Interface (VUI) Design", "UX Writing", "Leading Design Sprints"] }
-                    ],
-                    salaryRange: "$70K - $140K",
+                    salaryRange: { min: 70000, max: 140000, median: 100000 },
                     growthOutlook: "High",
-                    companies: ["Apple", "Google", "Adobe", "Figma", "Airbnb"]
+                    workLifeBalance: "Excellent",
+                    companies: ["Apple", "Google", "Adobe", "Figma", "Airbnb"],
+                    industries: ["ecommerce", "entertainment", "education", "health"],
+                    roadmap: [
+                        { 
+                            title: "Foundational Stage (3-6 months)", 
+                            duration: "3-6 months",
+                            effort: 35,
+                            skills: ["Design Principles (Color Theory, Typography)", "Master a Design Tool (Figma)", "User Research & Personas", "Wireframing & Prototyping", "Usability Testing Basics"],
+                            focus: "Fundamentals"
+                        },
+                        { 
+                            title: "Intermediate Stage (6-12 months)", 
+                            duration: "6-12 months",
+                            effort: 45,
+                            skills: ["User Journey Mapping", "Information Architecture", "Design Systems", "Accessibility (WCAG) Standards", "Basic HTML/CSS understanding"],
+                            focus: "Specialization"
+                        },
+                        { 
+                            title: "Advanced Stage (12+ months)", 
+                            duration: "12+ months",
+                            effort: 20,
+                            skills: ["Microinteractions & Animation", "Data-Driven Design (A/B Testing)", "Voice User Interface (VUI) Design", "UX Writing", "Leading Design Sprints"],
+                            focus: "Mastery"
+                        }
+                    ]
                 },
                 gameDeveloper: {
                     name: "Game Developer", 
@@ -363,17 +660,40 @@
                         collaborationStyle: { lead: 6, pair: 7, async: 8, team: 9 }, 
                         workEnvironment: { startup: 7, corporate: 6, remote: 7, hybrid: 7 },
                         learningStyle: { handsOn: 10, structured: 6, mentoring: 7, exploratory: 9 },
+                        workLifeBalance: { high: 4, medium: 6, low: 9 },
+                        riskTolerance: { low: 4, medium: 7, high: 10 },
+                        currentExperience: { student: 7, junior: 8, mid: 8, senior: 7 },
                         techFocus: { ux: 7, logic: 10, infrastructure: 6, security: 4 }, 
                         techSkills: ["csharp", "c++", "unity", "unrealengine", "python"] 
                     },
-                    roadmap: [
-                        { title: "Foundational Stage", skills: ["Choose a Language (C# or C++)", "Master a Game Engine (Unity or Unreal)", "Programming Fundamentals (Loops, Data Structures)", "Basic 3D Math (Vectors, Matrices)", "Version Control with Git"] },
-                        { title: "Intermediate Stage", skills: ["Game Physics", "AI for NPCs (Pathfinding)", "Shaders & Graphics Programming", "Gameplay Systems Design", "Performance Optimization"] },
-                        { title: "Advanced Stage", skills: ["Multiplayer Networking", "Advanced Engine Architecture", "Tool Development for Designers", "Procedural Content Generation", "Porting to Consoles/Mobile"] }
-                    ],
-                    salaryRange: "$65K - $130K",
+                    salaryRange: { min: 65000, max: 130000, median: 90000 },
                     growthOutlook: "Medium",
-                    companies: ["Epic Games", "Unity Technologies", "Electronic Arts", "Nintendo", "Activision"]
+                    workLifeBalance: "Challenging",
+                    companies: ["Epic Games", "Unity Technologies", "Electronic Arts", "Nintendo", "Activision"],
+                    industries: ["gaming", "entertainment", "automotive"],
+                    roadmap: [
+                        { 
+                            title: "Foundational Stage (6-9 months)", 
+                            duration: "6-9 months",
+                            effort: 40,
+                            skills: ["Choose a Language (C# or C++)", "Master a Game Engine (Unity or Unreal)", "Programming Fundamentals (Loops, Data Structures)", "Basic 3D Math (Vectors, Matrices)", "Version Control with Git"],
+                            focus: "Fundamentals"
+                        },
+                        { 
+                            title: "Intermediate Stage (9-18 months)", 
+                            duration: "9-18 months",
+                            effort: 45,
+                            skills: ["Game Physics", "AI for NPCs (Pathfinding)", "Shaders & Graphics Programming", "Gameplay Systems Design", "Performance Optimization"],
+                            focus: "Specialization"
+                        },
+                        { 
+                            title: "Advanced Stage (18+ months)", 
+                            duration: "18+ months",
+                            effort: 15,
+                            skills: ["Multiplayer Networking", "Advanced Engine Architecture", "Tool Development for Designers", "Procedural Content Generation", "Porting to Consoles/Mobile"],
+                            focus: "Mastery"
+                        }
+                    ]
                 },
                 devopsEngineer: {
                     name: "DevOps Engineer", 
@@ -385,17 +705,40 @@
                         collaborationStyle: { lead: 7, pair: 7, async: 9, team: 8 }, 
                         workEnvironment: { startup: 8, corporate: 7, remote: 9, hybrid: 8 },
                         learningStyle: { handsOn: 9, structured: 7, mentoring: 6, exploratory: 8 },
+                        workLifeBalance: { high: 5, medium: 8, low: 8 },
+                        riskTolerance: { low: 5, medium: 7, high: 9 },
+                        currentExperience: { student: 4, junior: 6, mid: 8, senior: 9 },
                         techFocus: { ux: 3, logic: 8, infrastructure: 10, security: 7 }, 
                         techSkills: ["docker", "kubernetes", "aws", "terraform", "ansible", "jenkins", "python", "bash", "linux"] 
                     },
-                    roadmap: [
-                        { title: "Foundational Stage", skills: ["Linux Fundamentals", "Scripting (Bash, Python)", "Version Control (Git)", "Networking Basics", "Cloud Provider Essentials"] },
-                        { title: "Intermediate Stage", skills: ["Containerization (Docker)", "Orchestration (Kubernetes)", "Infrastructure as Code (Terraform)", "CI/CD Pipeline Design", "Monitoring & Logging"] },
-                        { title: "Advanced Stage", skills: ["Site Reliability Engineering (SRE)", "Advanced Cloud Architecture", "Security Best Practices (DevSecOps)", "Performance Tuning", "Disaster Recovery Strategies"] }
-                    ],
-                    salaryRange: "$95K - $170K",
+                    salaryRange: { min: 95000, max: 170000, median: 130000 },
                     growthOutlook: "Very High",
-                    companies: ["Google", "Amazon", "Netflix", "Spotify", "GitHub"]
+                    workLifeBalance: "Moderate",
+                    companies: ["Google", "Amazon", "Netflix", "Spotify", "GitHub"],
+                    industries: ["fintech", "health", "ecommerce", "ai"],
+                    roadmap: [
+                        { 
+                            title: "Foundational Stage (3-6 months)", 
+                            duration: "3-6 months",
+                            effort: 35,
+                            skills: ["Linux Fundamentals", "Scripting (Bash, Python)", "Version Control (Git)", "Networking Basics", "Cloud Provider Essentials"],
+                            focus: "Fundamentals"
+                        },
+                        { 
+                            title: "Intermediate Stage (6-15 months)", 
+                            duration: "6-15 months",
+                            effort: 50,
+                            skills: ["Containerization (Docker)", "Orchestration (Kubernetes)", "Infrastructure as Code (Terraform)", "CI/CD Pipeline Design", "Monitoring & Logging"],
+                            focus: "Specialization"
+                        },
+                        { 
+                            title: "Advanced Stage (15+ months)", 
+                            duration: "15+ months",
+                            effort: 15,
+                            skills: ["Site Reliability Engineering (SRE)", "Advanced Cloud Architecture", "Security Best Practices (DevSecOps)", "Performance Tuning", "Disaster Recovery Strategies"],
+                            focus: "Mastery"
+                        }
+                    ]
                 },
                 mobileDeveloper: {
                     name: "Mobile Developer", 
@@ -407,17 +750,40 @@
                         collaborationStyle: { lead: 5, pair: 7, async: 8, team: 7 }, 
                         workEnvironment: { startup: 8, corporate: 6, remote: 8, hybrid: 8 },
                         learningStyle: { handsOn: 9, structured: 7, mentoring: 7, exploratory: 8 },
+                        workLifeBalance: { high: 7, medium: 8, low: 6 },
+                        riskTolerance: { low: 6, medium: 8, high: 7 },
+                        currentExperience: { student: 7, junior: 8, mid: 8, senior: 7 },
                         techFocus: { ux: 9, logic: 8, infrastructure: 5, security: 6 }, 
                         techSkills: ["swift", "kotlin", "java", "reactnative", "flutter", "javascript", "typescript"] 
                     },
-                    roadmap: [
-                        { title: "Foundational Stage", skills: ["Choose a Platform (iOS or Android)", "Learn Native Language (Swift/Kotlin)", "Mobile UI Design Principles", "Version Control (Git)", "Basic Debugging"] },
-                        { title: "Intermediate Stage", skills: ["Cross-Platform Development (React Native, Flutter)", "API Integration (REST, GraphQL)", "State Management", "Performance Optimization", "App Store Deployment"] },
-                        { title: "Advanced Stage", skills: ["Advanced Animations", "Offline Storage & Sync", "Security (Data Encryption)", "Continuous Integration for Mobile", "Advanced Architecture Patterns"] }
-                    ],
-                    salaryRange: "$80K - $150K",
+                    salaryRange: { min: 80000, max: 150000, median: 110000 },
                     growthOutlook: "High",
-                    companies: ["Apple", "Google", "Facebook", "Uber", "DoorDash"]
+                    workLifeBalance: "Good",
+                    companies: ["Apple", "Google", "Facebook", "Uber", "DoorDash"],
+                    industries: ["health", "fintech", "ecommerce", "gaming"],
+                    roadmap: [
+                        { 
+                            title: "Foundational Stage (3-6 months)", 
+                            duration: "3-6 months",
+                            effort: 40,
+                            skills: ["Choose a Platform (iOS or Android)", "Learn Native Language (Swift/Kotlin)", "Mobile UI Design Principles", "Version Control (Git)", "Basic Debugging"],
+                            focus: "Fundamentals"
+                        },
+                        { 
+                            title: "Intermediate Stage (6-12 months)", 
+                            duration: "6-12 months",
+                            effort: 45,
+                            skills: ["Cross-Platform Development (React Native, Flutter)", "API Integration (REST, GraphQL)", "State Management", "Performance Optimization", "App Store Deployment"],
+                            focus: "Specialization"
+                        },
+                        { 
+                            title: "Advanced Stage (12+ months)", 
+                            duration: "12+ months",
+                            effort: 15,
+                            skills: ["Advanced Animations", "Offline Storage & Sync", "Security (Data Encryption)", "Continuous Integration for Mobile", "Advanced Architecture Patterns"],
+                            focus: "Mastery"
+                        }
+                    ]
                 },
                 dataEngineer: {
                     name: "Data Engineer", 
@@ -429,17 +795,40 @@
                         collaborationStyle: { lead: 6, pair: 6, async: 9, team: 7 }, 
                         workEnvironment: { startup: 7, corporate: 8, remote: 8, hybrid: 7 },
                         learningStyle: { handsOn: 8, structured: 8, mentoring: 6, exploratory: 7 },
+                        workLifeBalance: { high: 6, medium: 8, low: 7 },
+                        riskTolerance: { low: 6, medium: 8, high: 7 },
+                        currentExperience: { student: 5, junior: 6, mid: 8, senior: 9 },
                         techFocus: { ux: 2, logic: 8, infrastructure: 9, security: 7 }, 
                         techSkills: ["python", "sql", "aws", "azure", "docker", "kubernetes", "apachespark", "kafka", "airflow"] 
                     },
-                    roadmap: [
-                        { title: "Foundational Stage", skills: ["SQL Mastery", "Python for Data Processing", "Database Design", "ETL Concepts", "Version Control (Git)"] },
-                        { title: "Intermediate Stage", skills: ["Big Data Tools (Spark, Hadoop)", "Data Warehousing (Redshift, BigQuery)", "Workflow Orchestration (Airflow)", "Stream Processing (Kafka)", "Cloud Data Services"] },
-                        { title: "Advanced Stage", skills: ["Data Lake Architecture", "Real-time Data Pipelines", "Data Governance", "MLOps Integration", "Cost Optimization for Data Systems"] }
-                    ],
-                    salaryRange: "$90K - $165K",
+                    salaryRange: { min: 90000, max: 165000, median: 125000 },
                     growthOutlook: "Very High",
-                    companies: ["Netflix", "Airbnb", "Uber", "LinkedIn", "Twitter"]
+                    workLifeBalance: "Good",
+                    companies: ["Netflix", "Airbnb", "Uber", "LinkedIn", "Twitter"],
+                    industries: ["fintech", "health", "ecommerce", "ai"],
+                    roadmap: [
+                        { 
+                            title: "Foundational Stage (3-6 months)", 
+                            duration: "3-6 months",
+                            effort: 35,
+                            skills: ["SQL Mastery", "Python for Data Processing", "Database Design", "ETL Concepts", "Version Control (Git)"],
+                            focus: "Fundamentals"
+                        },
+                        { 
+                            title: "Intermediate Stage (6-15 months)", 
+                            duration: "6-15 months",
+                            effort: 50,
+                            skills: ["Big Data Tools (Spark, Hadoop)", "Data Warehousing (Redshift, BigQuery)", "Workflow Orchestration (Airflow)", "Stream Processing (Kafka)", "Cloud Data Services"],
+                            focus: "Specialization"
+                        },
+                        { 
+                            title: "Advanced Stage (15+ months)", 
+                            duration: "15+ months",
+                            effort: 15,
+                            skills: ["Data Lake Architecture", "Real-time Data Pipelines", "Data Governance", "MLOps Integration", "Cost Optimization for Data Systems"],
+                            focus: "Mastery"
+                        }
+                    ]
                 },
                 machineLearningEngineer: {
                     name: "ML Engineer", 
@@ -451,17 +840,40 @@
                         collaborationStyle: { lead: 7, pair: 6, async: 9, team: 8 }, 
                         workEnvironment: { startup: 7, corporate: 8, remote: 8, hybrid: 7 },
                         learningStyle: { handsOn: 8, structured: 9, mentoring: 6, exploratory: 8 },
+                        workLifeBalance: { high: 5, medium: 8, low: 8 },
+                        riskTolerance: { low: 5, medium: 7, high: 9 },
+                        currentExperience: { student: 4, junior: 6, mid: 8, senior: 9 },
                         techFocus: { ux: 3, logic: 10, infrastructure: 7, security: 6 }, 
                         techSkills: ["python", "tensorflow", "pytorch", "scikitlearn", "docker", "kubernetes", "aws", "sql"] 
                     },
-                    roadmap: [
-                        { title: "Foundational Stage", skills: ["Python for ML (NumPy, Pandas)", "Statistics & Linear Algebra", "Machine Learning Fundamentals", "Data Visualization", "Git & Version Control"] },
-                        { title: "Intermediate Stage", skills: ["Deep Learning Frameworks (TensorFlow, PyTorch)", "Model Evaluation & Validation", "Feature Engineering", "ML Pipeline Design", "Cloud ML Services"] },
-                        { title: "Advanced Stage", skills: ["Natural Language Processing", "Computer Vision", "Reinforcement Learning", "ML System Design", "Model Deployment & Monitoring"] }
-                    ],
-                    salaryRange: "$110K - $200K",
+                    salaryRange: { min: 110000, max: 200000, median: 150000 },
                     growthOutlook: "Very High",
-                    companies: ["Google", "OpenAI", "Tesla", "Nvidia", "Microsoft"]
+                    workLifeBalance: "Moderate",
+                    companies: ["Google", "OpenAI", "Tesla", "Nvidia", "Microsoft"],
+                    industries: ["health", "fintech", "automotive", "ai"],
+                    roadmap: [
+                        { 
+                            title: "Foundational Stage (6-9 months)", 
+                            duration: "6-9 months",
+                            effort: 40,
+                            skills: ["Python for ML (NumPy, Pandas)", "Statistics & Linear Algebra", "Machine Learning Fundamentals", "Data Visualization", "Git & Version Control"],
+                            focus: "Fundamentals"
+                        },
+                        { 
+                            title: "Intermediate Stage (9-18 months)", 
+                            duration: "9-18 months",
+                            effort: 45,
+                            skills: ["Deep Learning Frameworks (TensorFlow, PyTorch)", "Model Evaluation & Validation", "Feature Engineering", "ML Pipeline Design", "Cloud ML Services"],
+                            focus: "Specialization"
+                        },
+                        { 
+                            title: "Advanced Stage (18+ months)", 
+                            duration: "18+ months",
+                            effort: 15,
+                            skills: ["Natural Language Processing", "Computer Vision", "Reinforcement Learning", "ML System Design", "Model Deployment & Monitoring"],
+                            focus: "Mastery"
+                        }
+                    ]
                 },
                 productManager: {
                     name: "Product Manager", 
@@ -473,17 +885,40 @@
                         collaborationStyle: { lead: 9, pair: 7, async: 6, team: 10 }, 
                         workEnvironment: { startup: 8, corporate: 7, remote: 7, hybrid: 8 },
                         learningStyle: { handsOn: 7, structured: 8, mentoring: 9, exploratory: 7 },
+                        workLifeBalance: { high: 5, medium: 8, low: 8 },
+                        riskTolerance: { low: 4, medium: 7, high: 10 },
+                        currentExperience: { student: 3, junior: 5, mid: 8, senior: 10 },
                         techFocus: { ux: 8, logic: 6, infrastructure: 4, security: 3 }, 
                         techSkills: ["sql", "python", "javascript", "html5", "figma"] 
                     },
-                    roadmap: [
-                        { title: "Foundational Stage", skills: ["Product Management Fundamentals", "Market Research", "User Personas & Stories", "Basic UX/UI Principles", "Agile Methodologies"] },
-                        { title: "Intermediate Stage", skills: ["Data Analysis (SQL, Excel)", "A/B Testing & Experimentation", "Roadmapping & Prioritization", "Stakeholder Management", "Product Metrics & KPIs"] },
-                        { title: "Advanced Stage", skills: ["Strategic Planning", "Go-to-Market Strategies", "Advanced Analytics (Python, R)", "Leadership & Team Management", "Product-Led Growth"] }
-                    ],
-                    salaryRange: "$100K - $220K",
+                    salaryRange: { min: 100000, max: 220000, median: 150000 },
                     growthOutlook: "High",
-                    companies: ["Google", "Amazon", "Microsoft", "Meta", "Apple"]
+                    workLifeBalance: "Challenging",
+                    companies: ["Google", "Amazon", "Microsoft", "Meta", "Apple"],
+                    industries: ["fintech", "health", "ecommerce", "education"],
+                    roadmap: [
+                        { 
+                            title: "Foundational Stage (6-12 months)", 
+                            duration: "6-12 months",
+                            effort: 40,
+                            skills: ["Product Management Fundamentals", "Market Research", "User Personas & Stories", "Basic UX/UI Principles", "Agile Methodologies"],
+                            focus: "Fundamentals"
+                        },
+                        { 
+                            title: "Intermediate Stage (12-24 months)", 
+                            duration: "12-24 months",
+                            effort: 45,
+                            skills: ["Data Analysis (SQL, Excel)", "A/B Testing & Experimentation", "Roadmapping & Prioritization", "Stakeholder Management", "Product Metrics & KPIs"],
+                            focus: "Specialization"
+                        },
+                        { 
+                            title: "Advanced Stage (24+ months)", 
+                            duration: "24+ months",
+                            effort: 15,
+                            skills: ["Strategic Planning", "Go-to-Market Strategies", "Advanced Analytics (Python, R)", "Leadership & Team Management", "Product-Led Growth"],
+                            focus: "Mastery"
+                        }
+                    ]
                 },
                 qaEngineer: {
                     name: "QA Engineer", 
@@ -495,17 +930,40 @@
                         collaborationStyle: { lead: 5, pair: 8, async: 7, team: 8 }, 
                         workEnvironment: { startup: 6, corporate: 8, remote: 7, hybrid: 7 },
                         learningStyle: { handsOn: 8, structured: 8, mentoring: 7, exploratory: 6 },
+                        workLifeBalance: { high: 8, medium: 7, low: 4 },
+                        riskTolerance: { low: 8, medium: 7, high: 4 },
+                        currentExperience: { student: 7, junior: 8, mid: 8, senior: 7 },
                         techFocus: { ux: 7, logic: 8, infrastructure: 5, security: 6 }, 
                         techSkills: ["python", "java", "javascript", "selenium", "cypress", "postman", "sql", "nosql"] 
                     },
-                    roadmap: [
-                        { title: "Foundational Stage", skills: ["Software Testing Fundamentals", "Test Case Design", "Bug Tracking Tools (JIRA)", "Basic SQL for Test Data", "Introduction to Automation"] },
-                        { title: "Intermediate Stage", skills: ["Automation Tools (Selenium, Cypress)", "API Testing (Postman, REST Assured)", "Performance Testing Basics", "Continuous Integration Basics", "Test Management"] },
-                        { title: "Advanced Stage", skills: ["Advanced Test Automation Frameworks", "Performance & Load Testing (JMeter)", "Security Testing", "Test Strategy & Planning", "QA Process Improvement"] }
-                    ],
-                    salaryRange: "$70K - $130K",
+                    salaryRange: { min: 70000, max: 130000, median: 95000 },
                     growthOutlook: "Medium",
-                    companies: ["Microsoft", "Oracle", "Salesforce", "Adobe", "Intuit"]
+                    workLifeBalance: "Good",
+                    companies: ["Microsoft", "Oracle", "Salesforce", "Adobe", "Intuit"],
+                    industries: ["fintech", "health", "ecommerce", "gaming"],
+                    roadmap: [
+                        { 
+                            title: "Foundational Stage (3-6 months)", 
+                            duration: "3-6 months",
+                            effort: 40,
+                            skills: ["Software Testing Fundamentals", "Test Case Design", "Bug Tracking Tools (JIRA)", "Basic SQL for Test Data", "Introduction to Automation"],
+                            focus: "Fundamentals"
+                        },
+                        { 
+                            title: "Intermediate Stage (6-12 months)", 
+                            duration: "6-12 months",
+                            effort: 45,
+                            skills: ["Automation Tools (Selenium, Cypress)", "API Testing (Postman, REST Assured)", "Performance Testing Basics", "Continuous Integration Basics", "Test Management"],
+                            focus: "Specialization"
+                        },
+                        { 
+                            title: "Advanced Stage (12+ months)", 
+                            duration: "12+ months",
+                            effort: 15,
+                            skills: ["Advanced Test Automation Frameworks", "Performance & Load Testing (JMeter)", "Security Testing", "Test Strategy & Planning", "QA Process Improvement"],
+                            focus: "Mastery"
+                        }
+                    ]
                 },
                 blockchainDeveloper: {
                     name: "Blockchain Developer", 
@@ -517,17 +975,40 @@
                         collaborationStyle: { lead: 7, pair: 6, async: 9, team: 7 }, 
                         workEnvironment: { startup: 9, corporate: 4, remote: 9, hybrid: 7 },
                         learningStyle: { handsOn: 9, structured: 6, mentoring: 5, exploratory: 10 },
+                        workLifeBalance: { high: 4, medium: 6, low: 9 },
+                        riskTolerance: { low: 3, medium: 6, high: 10 },
+                        currentExperience: { student: 6, junior: 7, mid: 8, senior: 8 },
                         techFocus: { ux: 5, logic: 9, infrastructure: 8, security: 9 }, 
                         techSkills: ["solidity", "javascript", "python", "rust", "go", "docker", "aws"] 
                     },
-                    roadmap: [
-                        { title: "Foundational Stage", skills: ["Blockchain Fundamentals", "Cryptography Basics", "Smart Contract Concepts", "Web3.js/Ethers.js", "Git & Version Control"] },
-                        { title: "Intermediate Stage", skills: ["Solidity Programming", "Truffle/Hardhat Development", "DeFi Protocols", "NFT Standards (ERC-721, ERC-1155)", "Testing Smart Contracts"] },
-                        { title: "Advanced Stage", skills: ["Layer 2 Solutions", "Cross-Chain Interoperability", "DAO Governance Models", "Zero-Knowledge Proofs", "Blockchain Security Auditing"] }
-                    ],
-                    salaryRange: "$90K - $180K",
+                    salaryRange: { min: 90000, max: 180000, median: 130000 },
                     growthOutlook: "High",
-                    companies: ["Coinbase", "ConsenSys", "Chainlink", "Polygon", "Uniswap"]
+                    workLifeBalance: "Challenging",
+                    companies: ["Coinbase", "ConsenSys", "Chainlink", "Polygon", "Uniswap"],
+                    industries: ["fintech", "gaming", "ai"],
+                    roadmap: [
+                        { 
+                            title: "Foundational Stage (3-6 months)", 
+                            duration: "3-6 months",
+                            effort: 40,
+                            skills: ["Blockchain Fundamentals", "Cryptography Basics", "Smart Contract Concepts", "Web3.js/Ethers.js", "Git & Version Control"],
+                            focus: "Fundamentals"
+                        },
+                        { 
+                            title: "Intermediate Stage (6-12 months)", 
+                            duration: "6-12 months",
+                            effort: 45,
+                            skills: ["Solidity Programming", "Truffle/Hardhat Development", "DeFi Protocols", "NFT Standards (ERC-721, ERC-1155)", "Testing Smart Contracts"],
+                            focus: "Specialization"
+                        },
+                        { 
+                            title: "Advanced Stage (12+ months)", 
+                            duration: "12+ months",
+                            effort: 15,
+                            skills: ["Layer 2 Solutions", "Cross-Chain Interoperability", "DAO Governance Models", "Zero-Knowledge Proofs", "Blockchain Security Auditing"],
+                            focus: "Mastery"
+                        }
+                    ]
                 }
             };
         }
@@ -572,6 +1053,15 @@
                 card.addEventListener('click', e => this.handleCardSelection(e.currentTarget));
             });
             document.getElementById('calculateBtn').addEventListener('click', () => this.runAnalysis());
+            
+            // Bind slider event
+            const salarySlider = document.getElementById('salaryExpectation');
+            if (salarySlider) {
+                salarySlider.addEventListener('input', (e) => {
+                    const value = e.target.value;
+                    document.getElementById('salaryValue').textContent = this.formatSalary(value);
+                });
+            }
         }
         
         bindTabEventListeners() {
@@ -590,18 +1080,30 @@
         renderProfileSections() {
             const container = document.getElementById('userProfileContainer');
             const sections = this.dataService.userProfileSections;
-            container.innerHTML = Object.entries(sections).map(([key, section]) => `
-                <div class="bg-light-card dark:bg-dark-card p-5 rounded-xl shadow-md">
-                    <h2 class="text-lg font-bold mb-2 text-slate-900 dark:text-white">${section.title}</h2>
-                    <p class="text-xs text-slate-500 dark:text-slate-400 mb-4">${section.description}</p>
-                    <div id="${key}" class="grid ${key === 'techSkills' ? 'grid-cols-3' : 'grid-cols-2'} gap-3" data-type="${section.type}">
-                        ${Object.entries(section.options).map(([optionKey, option]) => `
-                            <div class="selection-card bg-slate-100 dark:bg-gray-700 p-3 rounded-lg flex flex-col items-center justify-center text-center" data-value="${optionKey}">
-                                <i class="fas ${option.icon} text-2xl mb-2 ${option.icon === 'fa-code' ? 'text-blue-400' : 'text-primary-teal'}"></i>
-                                <span class="font-semibold text-xs md:text-sm">${option.text}</span>
-                            </div>`).join('')}
-                    </div>
-                </div>`).join('');
+            container.innerHTML = Object.entries(sections).map(([key, section]) => {
+                if (section.type === 'slider') {
+                    return `
+                    <div class="bg-light-card dark:bg-dark-card p-5 rounded-xl shadow-md">
+                        <h2 class="text-lg font-bold mb-2 text-slate-900 dark:text-white">${section.title}</h2>
+                        <p class="text-xs text-slate-500 dark:text-slate-400 mb-4">${section.description}</p>
+                        <input type="range" id="${key}" min="${section.min}" max="${section.max}" step="${section.step}" value="${section.default}" class="salary-slider">
+                        <div class="salary-value" id="salaryValue">${this.formatSalary(section.default)}</div>
+                    </div>`;
+                } else {
+                    return `
+                    <div class="bg-light-card dark:bg-dark-card p-5 rounded-xl shadow-md">
+                        <h2 class="text-lg font-bold mb-2 text-slate-900 dark:text-white">${section.title}</h2>
+                        <p class="text-xs text-slate-500 dark:text-slate-400 mb-4">${section.description}</p>
+                        <div id="${key}" class="grid ${key === 'techSkills' || key === 'industryInterest' ? 'grid-cols-2' : 'grid-cols-2'} gap-3" data-type="${section.type}">
+                            ${Object.entries(section.options).map(([optionKey, option]) => `
+                                <div class="selection-card bg-slate-100 dark:bg-gray-700 p-3 rounded-lg flex flex-col items-center justify-center text-center" data-value="${optionKey}">
+                                    <i class="fas ${option.icon} text-2xl mb-2 ${option.icon === 'fa-code' ? 'text-blue-400' : 'text-primary-teal'}"></i>
+                                    <span class="font-semibold text-xs md:text-sm">${option.text}</span>
+                                </div>`).join('')}
+                        </div>
+                    </div>`;
+                }
+            }).join('');
         }
 
         initializeUnifiedChart() {
@@ -664,12 +1166,17 @@
         getUserInputs() {
             const inputs = {};
             for (const key in this.dataService.userProfileSections) {
-                const container = document.getElementById(key);
-                if (container.dataset.type === 'single') {
-                    const activeCard = container.querySelector('.selection-card.active');
+                const section = this.dataService.userProfileSections[key];
+                if (section.type === 'slider') {
+                    const slider = document.getElementById(key);
+                    inputs[key] = slider ? parseInt(slider.value) : section.default;
+                } else if (section.type === 'single') {
+                    const container = document.getElementById(key);
+                    const activeCard = container ? container.querySelector('.selection-card.active') : null;
                     inputs[key] = activeCard ? activeCard.dataset.value : null;
                 } else {
-                    inputs[key] = Array.from(container.querySelectorAll('.selection-card.active')).map(card => card.dataset.value);
+                    const container = document.getElementById(key);
+                    inputs[key] = container ? Array.from(container.querySelectorAll('.selection-card.active')).map(card => card.dataset.value) : [];
                 }
             }
             return inputs;
@@ -678,7 +1185,10 @@
         runAnalysis() {
             const userInputs = this.getUserInputs();
             // Basic validation
-            if (!userInputs.problemSolving || !userInputs.collaborationStyle || !userInputs.workEnvironment || !userInputs.learningStyle) {
+            const requiredSections = ['problemSolving', 'collaborationStyle', 'workEnvironment', 'learningStyle', 'workLifeBalance', 'riskTolerance', 'currentExperience'];
+            const missingSections = requiredSections.filter(section => !userInputs[section]);
+            
+            if (missingSections.length > 0) {
                 alert("Please make a selection in all profile categories.");
                 return;
             }
@@ -713,6 +1223,37 @@
             this.unifiedChart.update();
         }
 
+        formatSalary(amount) {
+            return new Intl.NumberFormat('en-US', {
+                style: 'currency',
+                currency: 'USD',
+                maximumFractionDigits: 0
+            }).format(amount);
+        }
+
+        renderRoadmapTimeline(roadmap) {
+            // Calculate total effort for percentage calculation
+            const totalEffort = roadmap.reduce((sum, stage) => sum + stage.effort, 0);
+            
+            return `
+            <div class="roadmap-timeline">
+                ${roadmap.map((stage, index) => `
+                    <div class="roadmap-stage">
+                        <div class="roadmap-stage-content">
+                            <div class="roadmap-stage-title">${stage.title} (${stage.duration})</div>
+                            <div class="text-xs text-slate-500 dark:text-slate-400 mb-2">Focus: ${stage.focus}</div>
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: ${(stage.effort / totalEffort) * 100}%"></div>
+                            </div>
+                            <div class="roadmap-skills">
+                                ${stage.skills.map(skill => `<span class="skill-tag">${skill}</span>`).join('')}
+                            </div>
+                        </div>
+                    </div>
+                `).join('')}
+            </div>`;
+        }
+
         renderRecommendationDetails(results) {
             const container = document.getElementById('recommendationDetails');
             const topResults = results.slice(0, 5); // Show top 5 results
@@ -723,6 +1264,11 @@
             const careerCardsHtml = topResults.map((result, index) => {
                 const profile = this.dataService.careerProfiles[result.key];
                 const color = this.chartColors[index % this.chartColors.length];
+                
+                // Calculate salary compatibility
+                const userSalary = userInputs.salaryExpectation;
+                const salaryCompatibility = this.calculateSalaryCompatibility(userSalary, profile.salaryRange);
+                
                 return `
                 <div class="career-card bg-slate-50 dark:bg-gray-800 p-4 rounded-lg mb-4" style="border-left-color: ${color}">
                     <div class="flex justify-between items-start">
@@ -740,21 +1286,17 @@
                     </div>
                     <p class="text-sm mt-2 text-slate-600 dark:text-slate-300">${profile.explanation}</p>
                     <div class="mt-3 grid grid-cols-2 gap-2 text-xs">
-                        <div><i class="fas fa-money-bill-wave mr-1 text-green-500"></i> ${profile.salaryRange}</div>
+                        <div><i class="fas fa-money-bill-wave mr-1 text-green-500"></i> ${this.formatSalary(profile.salaryRange.min)} - ${this.formatSalary(profile.salaryRange.max)}</div>
                         <div><i class="fas fa-building mr-1 text-blue-500"></i> ${profile.companies.slice(0, 2).join(', ')}</div>
+                        <div><i class="fas fa-balance-scale mr-1 text-purple-500"></i> ${profile.workLifeBalance} Work-Life</div>
+                        <div><i class="fas fa-bullseye mr-1 text-amber-500"></i> ${salaryCompatibility}% Salary Match</div>
                     </div>
                 </div>`;
             }).join('');
 
             // Create roadmap for the top recommendation
             const topProfile = this.dataService.careerProfiles[topResults[0].key];
-            const roadmapHtml = topProfile.roadmap.map(stage => `
-                <div class="mb-4">
-                    <h4 class="font-bold text-primary-teal">${stage.title}</h4>
-                    <ul class="list-disc list-inside text-sm pl-4 space-y-1">
-                        ${stage.skills.map(skill => `<li>${skill}</li>`).join('')}
-                    </ul>
-                </div>`).join('');
+            const roadmapHtml = this.renderRoadmapTimeline(topProfile.roadmap);
 
             container.innerHTML = `
                 <h2 class="text-2xl font-bold text-center mb-2">Your Career Matches</h2>
@@ -797,14 +1339,23 @@
                     </div>
                     
                     <div class="bg-slate-100 dark:bg-gray-800 p-4 rounded-lg mb-4">
+                        <h4 class="font-bold mb-2 text-primary-teal">Salary Compatibility Analysis</h4>
+                        <p class="text-sm">We compare your salary expectations with typical salary ranges for each career, adjusting scores based on alignment.</p>
+                    </div>
+                    
+                    <div class="bg-slate-100 dark:bg-gray-800 p-4 rounded-lg mb-4">
                         <h4 class="font-bold mb-2 text-primary-teal">Weighted Scoring Model</h4>
                         <p class="text-sm">Each compatibility dimension is weighted according to its importance for career satisfaction:</p>
                         <ul class="list-disc list-inside text-sm mt-2 pl-4">
-                            <li><b>Problem Solving (25%):</b> How your approach to problems aligns with the role's demands</li>
-                            <li><b>Collaboration Style (20%):</b> How your preferred way of working matches the role's typical environment</li>
-                            <li><b>Work Environment (15%):</b> Alignment between your preferred setting and the role's typical context</li>
-                            <li><b>Learning Style (10%):</b> How you prefer to learn matches the role's skill development needs</li>
-                            <li><b>Technical Skills (30%):</b> Overlap between your skills and the role's requirements</li>
+                            <li><b>Problem Solving (20%):</b> How your approach to problems aligns with the role's demands</li>
+                            <li><b>Collaboration Style (15%):</b> How your preferred way of working matches the role's typical environment</li>
+                            <li><b>Work Environment (10%):</b> Alignment between your preferred setting and the role's typical context</li>
+                            <li><b>Learning Style (8%):</b> How you prefer to learn matches the role's skill development needs</li>
+                            <li><b>Work-Life Balance (7%):</b> Alignment between your balance priorities and the role's typical demands</li>
+                            <li><b>Risk Tolerance (5%):</b> Match between your comfort with uncertainty and the role's stability</li>
+                            <li><b>Experience Level (10%):</b> Alignment between your current level and the role's requirements</li>
+                            <li><b>Salary Expectations (10%):</b> Compatibility between your salary goals and the role's typical compensation</li>
+                            <li><b>Technical Skills (15%):</b> Overlap between your skills and the role's requirements</li>
                         </ul>
                     </div>
                     
@@ -818,17 +1369,53 @@
                                     <li><b>Collaboration:</b> ${sections.collaborationStyle.options[userInputs.collaborationStyle].text}</li>
                                     <li><b>Work Environment:</b> ${sections.workEnvironment.options[userInputs.workEnvironment].text}</li>
                                     <li><b>Learning Style:</b> ${sections.learningStyle.options[userInputs.learningStyle].text}</li>
+                                    <li><b>Work-Life Balance:</b> ${sections.workLifeBalance.options[userInputs.workLifeBalance].text}</li>
+                                    <li><b>Risk Tolerance:</b> ${sections.riskTolerance.options[userInputs.riskTolerance].text}</li>
+                                    <li><b>Current Experience:</b> ${sections.currentExperience.options[userInputs.currentExperience].text}</li>
+                                    <li><b>Salary Expectation:</b> ${this.formatSalary(userInputs.salaryExpectation)}</li>
                                 </ul>
                             </div>
                             <div>
-                                <h5 class="font-semibold">Technical Skills</h5>
-                                <p class="mt-1">${userInputs.techSkills.length} skills selected</p>
+                                <h5 class="font-semibold">Skills & Interests</h5>
+                                <p class="mt-1"><b>Technical Skills:</b> ${userInputs.techSkills.length} selected</p>
+                                <p class="mt-1"><b>Industry Interests:</b> ${userInputs.industryInterest.length} selected</p>
                             </div>
                         </div>
                     </div>
                 </div>`;
                 
             this.bindTabEventListeners();
+        }
+        
+        calculateSalaryCompatibility(userSalary, careerRange) {
+            // If user salary is within the career range, score is 100%
+            if (userSalary >= careerRange.min && userSalary <= careerRange.max) {
+                return 100;
+            }
+            
+            // If user salary is below the range, calculate how close it is
+            if (userSalary < careerRange.min) {
+                const distance = careerRange.min - userSalary;
+                const range = careerRange.max - careerRange.min;
+                // If within 20% of the range, still give a decent score
+                if (distance <= range * 0.2) {
+                    return 80 - (distance / (range * 0.2)) * 30;
+                }
+                return 50 - (distance / careerRange.min) * 40;
+            }
+            
+            // If user salary is above the range, calculate how close it is
+            if (userSalary > careerRange.max) {
+                const distance = userSalary - careerRange.max;
+                const range = careerRange.max - careerRange.min;
+                // If within 20% of the range, still give a decent score
+                if (distance <= range * 0.2) {
+                    return 80 - (distance / (range * 0.2)) * 30;
+                }
+                return 50 - (distance / careerRange.max) * 40;
+            }
+            
+            return 50; // Default score
         }
         
         toggleTheme() {
@@ -871,11 +1458,15 @@
         constructor(dataService) {
             this.dataService = dataService;
             this.weights = { 
-                problemSolving: 0.25, 
-                collaboration: 0.20, 
-                workEnvironment: 0.15,
-                learningStyle: 0.10,
-                techSkills: 0.30 
+                problemSolving: 0.20, 
+                collaboration: 0.15, 
+                workEnvironment: 0.10,
+                learningStyle: 0.08,
+                workLifeBalance: 0.07,
+                riskTolerance: 0.05,
+                currentExperience: 0.10,
+                salaryExpectation: 0.10,
+                techSkills: 0.15
             };
         }
 
@@ -887,7 +1478,10 @@
                     problemSolving: (profile.affinities.problemSolving[userInputs.problemSolving] || 0) * 10,
                     collaboration: (profile.affinities.collaborationStyle[userInputs.collaborationStyle] || 0) * 10,
                     workEnvironment: (profile.affinities.workEnvironment[userInputs.workEnvironment] || 0) * 10,
-                    learningStyle: (profile.affinities.learningStyle[userInputs.learningStyle] || 0) * 10
+                    learningStyle: (profile.affinities.learningStyle[userInputs.learningStyle] || 0) * 10,
+                    workLifeBalance: (profile.affinities.workLifeBalance[userInputs.workLifeBalance] || 0) * 10,
+                    riskTolerance: (profile.affinities.riskTolerance[userInputs.riskTolerance] || 0) * 10,
+                    currentExperience: (profile.affinities.currentExperience[userInputs.currentExperience] || 0) * 10
                 };
 
                 // Calculate tech skills compatibility
@@ -898,6 +1492,10 @@
                     techScore = (matches / profileSkills.size) * 100;
                 }
                 breakdown.techSkills = Math.min(techScore, 100); // Cap at 100
+                
+                // Calculate salary compatibility
+                const userSalary = userInputs.salaryExpectation;
+                breakdown.salaryExpectation = this.calculateSalaryCompatibility(userSalary, profile.salaryRange);
 
                 // Calculate weighted total score
                 const totalScore = (
@@ -905,6 +1503,10 @@
                     breakdown.collaboration * this.weights.collaboration +
                     breakdown.workEnvironment * this.weights.workEnvironment +
                     breakdown.learningStyle * this.weights.learningStyle +
+                    breakdown.workLifeBalance * this.weights.workLifeBalance +
+                    breakdown.riskTolerance * this.weights.riskTolerance +
+                    breakdown.currentExperience * this.weights.currentExperience +
+                    breakdown.salaryExpectation * this.weights.salaryExpectation +
                     breakdown.techSkills * this.weights.techSkills
                 );
                 
@@ -917,6 +1519,37 @@
             });
 
             return results.sort((a, b) => b.score - a.score);
+        }
+        
+        calculateSalaryCompatibility(userSalary, careerRange) {
+            // If user salary is within the career range, score is 100%
+            if (userSalary >= careerRange.min && userSalary <= careerRange.max) {
+                return 100;
+            }
+            
+            // If user salary is below the range, calculate how close it is
+            if (userSalary < careerRange.min) {
+                const distance = careerRange.min - userSalary;
+                const range = careerRange.max - careerRange.min;
+                // If within 20% of the range, still give a decent score
+                if (distance <= range * 0.2) {
+                    return 80 - (distance / (range * 0.2)) * 30;
+                }
+                return Math.max(0, 50 - (distance / careerRange.min) * 40);
+            }
+            
+            // If user salary is above the range, calculate how close it is
+            if (userSalary > careerRange.max) {
+                const distance = userSalary - careerRange.max;
+                const range = careerRange.max - careerRange.min;
+                // If within 20% of the range, still give a decent score
+                if (distance <= range * 0.2) {
+                    return 80 - (distance / (range * 0.2)) * 30;
+                }
+                return Math.max(0, 50 - (distance / careerRange.max) * 40);
+            }
+            
+            return 50; // Default score
         }
     }
 
