@@ -3307,7 +3307,7 @@
 
                 // Segmentos de Clientes
                 if (subaxisScores.mercado["Segmentação e ICP"] < 40) {
-                    annotations.customers.push("[REVISÃO CRÍTICA - ICP INDEFINIDO]");
+                    annotations.customers.push("[REVISÃO CRÍTICA - ICP INDEFINIDO/NÃO VALIDADO]");
                 }
 
                 // Canais
@@ -3344,22 +3344,24 @@
                 // Função helper para aplicar anotações
                 const applyAnnotations = (base, notes) => {
                     if (notes.length === 0) return base;
-                    return notes.join("\n") + "\n\n" + base;
+                    // Adiciona quebra de linha extra se base não for vazia
+                    const separator = base ? "\n\n" : ""; 
+                    return notes.join("\n") + separator + base;
                 };
 
                 // Estrutura de Custos (Dados Financeiros)
                 bmcData.costs = `DADOS REAIS (Mensal):\n` +
-                                `Custos Fixos: R$ ${financialResults.custosFixosMensais.toLocaleString('pt-BR', { maximumFractionDigits: 0 })}\n` +
-                                `Custos Variáveis (Total): R$ ${financialResults.custoVariavelMensal.toLocaleString('pt-BR', { maximumFractionDigits: 0 })}\n` +
-                                `Impostos: R$ ${financialResults.impostoMensal.toLocaleString('pt-BR', { maximumFractionDigits: 0 })}\n` +
+                                `- Custos Fixos: R$ ${financialResults.custosFixosMensais.toLocaleString('pt-BR', { maximumFractionDigits: 0 })}\n` +
+                                `- Custos Variáveis (Total): R$ ${financialResults.custoVariavelMensal.toLocaleString('pt-BR', { maximumFractionDigits: 0 })}\n` +
+                                `- Impostos: R$ ${financialResults.impostoMensal.toLocaleString('pt-BR', { maximumFractionDigits: 0 })}\n` +
                                 `\nTEMAS DO SEGMENTO:\n${bmcData.costs}`;
 
                 // Fontes de Receita (Dados Financeiros)
-                const units = (financialResults.receitaMensal / financialResults.unitPrice);
+                const units = (financialResults.unitPrice > 0) ? (financialResults.receitaMensal / financialResults.unitPrice) : 0;
                 bmcData.revenue = `DADOS REAIS (Mensal):\n` +
-                                  `Receita Bruta: R$ ${financialResults.receitaMensal.toLocaleString('pt-BR', { maximumFractionDigits: 0 })}\n` +
-                                  `Preço Unitário: R$ ${financialResults.unitPrice.toLocaleString('pt-BR', { maximumFractionDigits: 2 })}\n` +
-                                  `Unidades/Clientes: ~${units.toFixed(0)}\n` +
+                                  `- Receita Bruta: R$ ${financialResults.receitaMensal.toLocaleString('pt-BR', { maximumFractionDigits: 0 })}\n` +
+                                  `- Preço Unitário: R$ ${financialResults.unitPrice.toLocaleString('pt-BR', { maximumFractionDigits: 2 })}\n` +
+                                  `- Unidades/Clientes: ~${units.toFixed(0)}\n` +
                                   `\nTEMAS DO SEGMENTO:\n${bmcData.revenue}`;
 
                 // --- Renderizar no DOM ---
@@ -3394,7 +3396,7 @@
                 const prioritySubaxes = [];
                 for (const axis in subaxisScores) {
                     for (const subaxis in subaxisScores[axis]) {
-                        prioritySubaxes.push({ name: `${subaxis} (${axis})`, score: subaxisScores[axis][subaxis] });
+                        prioritySubaxes.push({ axis: axis, name: `${subaxis}`, score: subaxisScores[axis][subaxis] });
                     }
                 }
                 const lowSubaxes = prioritySubaxes.sort((a, b) => a.score - b.score).slice(0, 3);
@@ -3411,26 +3413,28 @@
                 fase1Items.push("<strong>Foco:</strong> Consolidar fundamentos e resolver pontos críticos.");
                 
                 // Prioridade 0.A: Caixa
-                if (runway < 6) {
+                if (runway !== Infinity && runway < 6) {
                     fase1Items.push(`<li style="color: var(--danger);"><strong>PRIORIDADE MÁXIMA: Garantir Runway. Buscar capital ponte/anjo ou cortar custos drasticamente.</strong></li>`);
-                } else if (runway < 12) {
-                    fase1Items.push(`<li style="color: var(--warning);"><strong>PRIORIDADE ALTA: Planejar captação (Seed) para os próximos 6 meses.</strong></li>`);
+                } else if (runway !== Infinity && runway < 12) {
+                    fase1Items.push(`<li style="color: var(--warning);"><strong>PRIORIDADE ALTA: Planejar captação (Seed) para os próximos 6 meses ou otimizar fluxo de caixa.</strong></li>`);
                 }
 
                 // Prioridade 0.B: PMF
                 if (pmfScore < 40) {
-                     fase1Items.push(`<li style="color: var(--danger);"><strong>PRIORIDADE MÁXIMA: Validar Product-Market Fit. (Pausar escala, focar em entrevistas e iteração).</strong></li>`);
+                     fase1Items.push(`<li style="color: var(--danger);"><strong>PRIORIDADE MÁXIMA: Validar Product-Market Fit. (Pausar escala, focar em entrevistas, MVPs e iteração).</strong></li>`);
                 }
                 
-                // Prioridade 1: Subeixos
-                lowSubaxes.forEach(sub => {
-                    if (sub.score < 40) {
-                        fase1Items.push(`<li>Resolver gargalo crítico em: <strong>${sub.name}</strong> (Score: ${sub.score.toFixed(1)})</li>`);
-                    }
-                });
+                // Prioridade 1: Subeixos (se não houver crise de caixa/PMF)
+                if (runway >= 6 && pmfScore >= 40) {
+                    lowSubaxes.forEach(sub => {
+                        if (sub.score < 40) {
+                            fase1Items.push(`<li>Resolver gargalo crítico em: <strong>${sub.name} (${sub.axis})</strong> (Score: ${sub.score.toFixed(1)})</li>`);
+                        }
+                    });
+                }
                 
                 if (subaxisScores.gestao["Processos e KPIs"] < 50) {
-                    fase1Items.push(`<li>Implementar sistema de métricas (KPIs) essenciais (ex: CAC, LTV, Churn).</li>`);
+                    fase1Items.push(`<li>Implementar sistema de métricas (KPIs) essenciais (ex: CAC, LTV, Churn, NPS).</li>`);
                 }
 
                 // --- Fase 2: Crescimento (6-18 meses) ---
@@ -3444,8 +3448,10 @@
                 if (subaxisScores.gestao["Cultura e Retenção de Talentos"] < 60) {
                     fase2Items.push(`<li>Estruturar processo de contratação (hiring) e fortalecer cultura.</li>`);
                 }
-                if (runway < 18) {
+                if (runway !== Infinity && runway < 18) {
                      fase2Items.push(`<li>Planejar Rodada de Investimento (Série A).</li>`);
+                } else if (runway === Infinity) {
+                    fase2Items.push(`<li>Reinvestir lucros em expansão e otimização.</li>`);
                 }
 
                 // --- Fase 3: Consolidação (18-36 meses) ---
@@ -3456,8 +3462,8 @@
                 if (subaxisScores.gestao["Liderança e Governança"] < 60) {
                     fase3Items.push(`<li>Implementar Governança Corporativa e conselho consultivo.</li>`);
                 }
-                fase3Items.push(`<li>Expandir para novos segmentos/regiões.</li>`);
-                fase3Items.push(`<li>Planejar próximas rodadas (Série B+) ou buscar M&A/IPO.</li>`);
+                fase3Items.push(`<li>Expandir para novos segmentos/regiões (se aplicável).</li>`);
+                fase3Items.push(`<li>Planejar próximas rodadas (Série B+) ou buscar M&A/IPO (se for o objetivo).</li>`);
 
                 
                 let timelineHTML = `
@@ -3709,85 +3715,238 @@
         }
 
         /**
-         * Exportação de PDF via html2canvas para alta fidelidade.
+         * NOVA Exportação de PDF baseada em texto usando jsPDF.
          */
         async function exportCompleteToPDF() {
             try {
-                if (!AppState.currentResults) {
+                if (!AppState.currentResults || !AppState.currentRawAnswers || !AppState.currentFinancialResults) {
                     alert('Nenhum resultado disponível para exportação.');
                     return;
                 }
 
-                if (typeof jspdf === 'undefined' || typeof html2canvas === 'undefined') {
-                    alert('Bibliotecas de PDF/Imagem não carregadas. Por favor, recarregue a página.');
+                if (typeof jspdf === 'undefined') {
+                    alert('Biblioteca jsPDF não carregada. Por favor, recarregue a página.');
                     return;
                 }
 
                 const { jsPDF } = jspdf;
-                const reportElement = document.getElementById('results-container');
-                
+                const doc = new jsPDF('p', 'mm', 'a4');
+                const margin = 15;
+                const pageWidth = doc.internal.pageSize.getWidth();
+                const pageHeight = doc.internal.pageSize.getHeight();
+                const maxWidth = pageWidth - 2 * margin;
+                let yPosition = 20; // Posição Y inicial
+                const lineHeight = 6; // Altura da linha para texto normal
+                const titleLineHeight = 8;
+                const sectionSpacing = 10;
+                const itemSpacing = 5;
+
+                const dataAtual = new Date().toLocaleString('pt-BR');
+
+                // --- Funções Auxiliares ---
+                const checkAddPage = (neededHeight = lineHeight * 2) => {
+                    if (yPosition + neededHeight > pageHeight - margin) { // Verifica se precisa de nova página (com margem inferior)
+                        addFooter(doc, dataAtual);
+                        doc.addPage();
+                        yPosition = margin; // Reset Y na nova página
+                        return true;
+                    }
+                    return false;
+                };
+
+                const addFooter = (docInstance, timestamp) => {
+                    const pageCount = docInstance.internal.getNumberOfPages();
+                    docInstance.setFontSize(8);
+                    docInstance.setTextColor(128, 128, 128);
+                    docInstance.text(`Página ${pageCount} | MaturityPro | Gerado em: ${timestamp}`, pageWidth / 2, pageHeight - 10, { align: 'center' });
+                    docInstance.setTextColor(0, 0, 0); // Reset color
+                };
+
+                const addSectionTitle = (title) => {
+                    checkAddPage(titleLineHeight + sectionSpacing);
+                    doc.setFontSize(14);
+                    doc.setFont(undefined, 'bold');
+                    doc.text(title, margin, yPosition);
+                    yPosition += titleLineHeight;
+                    doc.setLineWidth(0.5);
+                    doc.line(margin, yPosition, pageWidth - margin, yPosition);
+                    yPosition += sectionSpacing;
+                    doc.setFont(undefined, 'normal');
+                    doc.setFontSize(10);
+                };
+
+                const addText = (text, indent = 0) => {
+                    checkAddPage(lineHeight);
+                    const lines = doc.splitTextToSize(text, maxWidth - indent);
+                    doc.text(lines, margin + indent, yPosition);
+                    yPosition += lines.length * lineHeight;
+                    return lines.length * lineHeight; // Retorna a altura adicionada
+                };
+
+                 const addListItem = (text) => {
+                    checkAddPage(lineHeight);
+                    const itemIndent = 5;
+                    const lines = doc.splitTextToSize(`• ${text}`, maxWidth - itemIndent);
+                    doc.text(lines, margin + itemIndent, yPosition);
+                    yPosition += lines.length * (lineHeight * 0.9); // Espaçamento menor para listas
+                    yPosition += 2; // Espaço extra após item
+                };
+
+                // --- Construção do PDF ---
                 const btn = document.getElementById('export-pdf-complete');
                 const originalText = btn.innerHTML;
                 btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Gerando PDF...';
                 btn.disabled = true;
-                
-                const dataAtual = new Date().toLocaleString('pt-BR');
 
-                const canvas = await html2canvas(reportElement, {
-                    scale: 2, // Maior resolução
-                    useCORS: true,
-                    backgroundColor: '#ffffff', // Fundo branco
-                    onclone: (clonedDoc) => {
-                        // Força o tema claro no clone para garantir texto escuro
-                        clonedDoc.body.classList.add('light-mode');
-                        clonedDoc.body.classList.remove('dark-mode'); 
-                        
-                        // Garantir que o elemento esteja visível no clone
-                        clonedDoc.getElementById('results-container').style.display = 'block';
-                        clonedDoc.querySelectorAll('.analysis-container').forEach(c => c.style.display = 'block');
-                        
-                        // Adicionar um título com data ao clone
-                        const header = clonedDoc.createElement('div');
-                        header.style = "padding: 20px; border-bottom: 2px solid #6366f1; margin-bottom: 20px; text-align: center;";
-                        header.innerHTML = `<h1 style='color: #4f46e5;'>MaturityPro - Relatório de Diagnóstico</h1>
-                                            <p style='color: #1e293b; font-size: 1.1rem;'>Empresa: ${document.getElementById('companyName').value || 'Não Informada'}</p>
-                                            <p style='color: #475569; font-size: 0.9rem;'>Gerado em: ${dataAtual}</p>`;
-                        clonedDoc.getElementById('results-container').prepend(header);
+                // Cabeçalho
+                doc.setFontSize(18);
+                doc.setFont(undefined, 'bold');
+                doc.text('MaturityPro - Relatório de Diagnóstico', margin, yPosition);
+                yPosition += titleLineHeight + 2;
+                doc.setFontSize(10);
+                doc.setFont(undefined, 'normal');
+                addText(`Empresa: ${document.getElementById('companyName').value || 'Não Informada'}`);
+                addText(`Segmento: ${getSegmentDisplayName(document.getElementById('businessSegment').value)}`);
+                addText(`Gerado em: ${dataAtual}`);
+                yPosition += sectionSpacing;
+
+                // Dados da Empresa
+                addSectionTitle('Dados da Empresa');
+                addText(`Faturamento Mensal: R$ ${parseFloat(document.getElementById('monthlyRevenue').value || 0).toLocaleString('pt-BR')}`);
+                addText(`Funcionários: ${document.getElementById('employeeCount').value || 0}`);
+                addText(`Tempo de Operação: ${document.getElementById('companyAge').value || 0} meses`);
+                addText(`Custos Fixos Mensais: R$ ${parseFloat(document.getElementById('fixedCosts').value || 0).toLocaleString('pt-BR')}`);
+                addText(`Custos Variáveis Unit.: R$ ${parseFloat(document.getElementById('variableCosts').value || 0).toLocaleString('pt-BR')}`);
+                addText(`Preço Unitário: R$ ${parseFloat(document.getElementById('unitPrice').value || 0).toLocaleString('pt-BR')}`);
+                addText(`Reservas de Caixa: R$ ${parseFloat(document.getElementById('cashReserves').value || 0).toLocaleString('pt-BR')}`);
+                addText(`Massa Salarial Anual: R$ ${parseFloat(document.getElementById('salaryMass').value || 0).toLocaleString('pt-BR')}`);
+                yPosition += itemSpacing;
+
+                // Scores de Maturidade
+                addSectionTitle('Scores de Maturidade');
+                for (const axis in AppState.currentResults) {
+                    if (axis !== 'geral') {
+                        const axisName = axis.charAt(0).toUpperCase() + axis.slice(1);
+                        const score = AppState.currentResults[axis].toFixed(1);
+                        const classification = getMaturityLabel(AppState.currentResults[axis]);
+                        addText(`${axisName}: ${score} (${classification})`);
+                    }
+                }
+                doc.setFont(undefined, 'bold');
+                addText(`Score Geral: ${AppState.currentResults.geral.toFixed(1)} (${getMaturityLabel(AppState.currentResults.geral)})`);
+                doc.setFont(undefined, 'normal');
+                yPosition += itemSpacing;
+
+                // Análise Financeira
+                addSectionTitle('Análise Financeira');
+                const fin = AppState.currentFinancialResults;
+                addText(`Runway: ${fin.runwayMeses !== Infinity ? fin.runwayMeses.toFixed(1) + ' meses' : 'Lucrativo / Ilimitado'}`);
+                addText(`Fator R: ${(fin.fatorR * 100).toFixed(1)}%`);
+                addText(`Ponto de Equilíbrio (Receita): ${fin.peReceita !== Infinity ? `R$ ${fin.peReceita.toLocaleString('pt-BR', { maximumFractionDigits: 0 })}` : 'Inatingível (Margem Negativa)'}`);
+                addText(`Margem de Contribuição: ${(fin.margemContribuicao * 100).toFixed(1)}%`);
+                addText(`Burn Rate Líquido Mensal: R$ ${fin.burnRateLiquido.toLocaleString('pt-BR', { maximumFractionDigits: 0 })}`);
+                yPosition += itemSpacing;
+
+                // Análise Fiscal
+                addSectionTitle('Análise Fiscal (Simples Nacional Estimado)');
+                addText(`Enquadramento: ${fin.anexo}`);
+                addText(`Alíquota Efetiva: ${(fin.aliquotaEfetiva * 100).toFixed(2)}%`);
+                addText(`Imposto Mensal Estimado: R$ ${fin.impostoMensal.toLocaleString('pt-BR', { maximumFractionDigits: 2 })}`);
+                yPosition += itemSpacing;
+
+                // Análise SWOT
+                addSectionTitle('Análise SWOT');
+                const swotItems = document.querySelectorAll('#swot-analysis .swot-item');
+                swotItems.forEach(item => {
+                    const title = item.querySelector('h4').textContent.trim();
+                    checkAddPage(lineHeight * 2);
+                    doc.setFont(undefined, 'bold');
+                    yPosition += addText(title);
+                    doc.setFont(undefined, 'normal');
+                    const points = item.querySelectorAll('li');
+                    points.forEach(point => addListItem(point.textContent));
+                    yPosition += itemSpacing / 2;
+                });
+                yPosition += itemSpacing;
+
+                // Business Model Canvas
+                addSectionTitle('Business Model Canvas (Inteligente)');
+                const bmcItems = document.querySelectorAll('#bmc-canvas .bmc-item');
+                bmcItems.forEach(item => {
+                    const titleElement = item.querySelector('h4');
+                    if (titleElement) {
+                        const title = titleElement.textContent.trim();
+                        if (title !== "Modelo de Negócio") { // Ignora o item central
+                            const content = item.textContent.replace(title, '').trim();
+                            checkAddPage(lineHeight * 3);
+                            doc.setFont(undefined, 'bold');
+                            yPosition += addText(title);
+                            doc.setFont(undefined, 'normal');
+                            yPosition += addText(content || "(Não preenchido)", 5); // Indenta conteúdo
+                            yPosition += itemSpacing / 2;
+                        }
                     }
                 });
+                yPosition += itemSpacing;
 
-                const imgData = canvas.toDataURL('image/png');
-                
-                const imgWidth = 210; // A4 width in mm
-                const pageHeight = 297; // A4 height in mm
-                const imgHeight = canvas.height * imgWidth / canvas.width;
-                let heightLeft = imgHeight;
-                
-                const doc = new jsPDF('p', 'mm', 'a4');
-                let position = 0;
-                
-                doc.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight, undefined, 'FAST');
-                heightLeft -= pageHeight;
-                
-                while (heightLeft > 0) {
-                    position = -heightLeft;
-                    doc.addPage();
-                    doc.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight, undefined, 'FAST');
-                    heightLeft -= pageHeight;
-                }
-                
-                // Adicionar rodapé com data e página
-                const pageCount = doc.internal.getNumberOfPages();
-                for (let i = 1; i <= pageCount; i++) {
-                    doc.setPage(i);
-                    doc.setFontSize(8);
-                    doc.setTextColor(128, 128, 128);
-                    doc.text(`Página ${i} de ${pageCount} | MaturityPro | Gerado em: ${dataAtual}`, imgWidth / 2, pageHeight - 10, { align: 'center' });
-                }
 
+                // Roadmap
+                addSectionTitle('Roadmap Sugerido');
+                const roadmapItems = document.querySelectorAll('#roadmap-timeline .timeline-item .timeline-content');
+                roadmapItems.forEach(item => {
+                    const title = item.querySelector('h4').textContent.trim();
+                    checkAddPage(lineHeight * 3);
+                    doc.setFont(undefined, 'bold');
+                    yPosition += addText(title);
+                    doc.setFont(undefined, 'normal');
+                    const points = item.querySelectorAll('li');
+                    points.forEach(point => addListItem(point.innerHTML.replace(/<[^>]*>/g, ""))); // Remove HTML de 'li'
+                    const meta = item.querySelector('p:last-of-type');
+                    if(meta) yPosition += addText(meta.textContent.trim());
+                    yPosition += itemSpacing;
+                });
+
+                // Respostas Detalhadas
+                addSectionTitle('Respostas Detalhadas');
+                doc.setFontSize(8); // Fonte menor para esta seção longa
+                const detailLineHeight = 5; 
+                for (const axis in AppState.currentRawAnswers) {
+                    checkAddPage(detailLineHeight * 3);
+                    const axisName = axis.charAt(0).toUpperCase() + axis.slice(1);
+                    doc.setFont(undefined, 'bold');
+                    yPosition += addText(axisName, 0); // Altura é retornada
+                    doc.setFont(undefined, 'normal');
+                    
+                    const subaxes = Object.keys(SUB_EIXO_WEIGHTS[axis]);
+                    let currentSubaxisIndex = -1;
+
+                    AppState.currentRawAnswers[axis].forEach((answer, index) => {
+                         // Adiciona título do subeixo quando mudar
+                        if(answer.subaxisIndex !== currentSubaxisIndex){
+                            currentSubaxisIndex = answer.subaxisIndex;
+                            checkAddPage(detailLineHeight * 2);
+                            doc.setFont(undefined, 'italic');
+                            yPosition += addText(subaxes[currentSubaxisIndex], 5);
+                            doc.setFont(undefined, 'normal');
+                        }
+
+                        checkAddPage(detailLineHeight * 2); // Estima 2 linhas por pergunta
+                        const questionText = `${index + 1}. ${answer.question}`;
+                        const lines = doc.splitTextToSize(questionText, maxWidth - 15); // Largura menor para pergunta
+                        doc.text(lines, margin + 10, yPosition);
+                        doc.text(`[${answer.value}]`, margin + maxWidth - 10, yPosition, { align: 'right' }); // Resposta alinhada à direita
+                        yPosition += lines.length * detailLineHeight + 1;
+                    });
+                     yPosition += itemSpacing / 2;
+                }
+                doc.setFontSize(10); // Restaura fonte padrão
+
+
+                // Finalizar e salvar
+                addFooter(doc, dataAtual); // Adiciona footer na última página
                 const dataSimples = new Date().toISOString().slice(0,10);
                 doc.save(`maturitypro-relatorio-${dataSimples}.pdf`);
-                
+
                 // Restaurar botão
                 btn.innerHTML = originalText;
                 btn.disabled = false;
@@ -3946,30 +4105,44 @@
                 document.getElementById('companyAge').value = assessment.companyData.age || 0;
                 document.getElementById('fixedCosts').value = assessment.companyData.fixedCosts || 0;
                 document.getElementById('variableCosts').value = assessment.companyData.variableCosts || 0;
-                document.getElementById('unitPrice').value = assessment.companyData.unitPrice || 0;
+                document.getElementById('unitPrice').value = assessment.companyData.unitPrice || 1; // Default to 1 if missing
                 document.getElementById('cashReserves').value = assessment.companyData.cashReserves || 0;
                 document.getElementById('salaryMass').value = assessment.companyData.salaryMass || 0;
                 
                 // Carregar respostas (se existirem)
-                if(assessment.rawAnswers) {
+                 if(assessment.rawAnswers) {
+                    // Desmarcar todos primeiro
+                    document.querySelectorAll('input[type="radio"]').forEach(radio => radio.checked = false);
+                    // Marcar os salvos
                     for (const axis in assessment.rawAnswers) {
                         assessment.rawAnswers[axis].forEach((answer, i) => {
                             const radio = document.getElementById(`${axis}-q${i+1}-${answer.value}`);
                             if(radio) radio.checked = true;
                         });
                     }
+                } else {
+                     // Se não houver respostas salvas, desmarcar tudo
+                    document.querySelectorAll('input[type="radio"]').forEach(radio => radio.checked = false);
                 }
                 
                 // Recalcular e exibir
-                const subaxisScores = assessment.subaxisScores || AppState.currentSubaxisScores; // Use scores salvos ou recalcule
-                const rawAnswers = assessment.rawAnswers || AppState.currentRawAnswers;
-                
-                // Salvar no estado global
+                const rawAnswers = assessment.rawAnswers || collectAllAnswers(); // Usa salvas ou coleta atuais se faltar
+                const subaxisScores = assessment.subaxisScores || calculateSubaxisScores('tecnologia', rawAnswers); // Recalcula se faltar
+                 // Recalcula todos os subeixos se 'subaxisScores' não existir no histórico
+                const allSubaxisScores = assessment.subaxisScores || (() => {
+                    const scores = {};
+                    for (const axis in QUESTIONS) {
+                        scores[axis] = calculateSubaxisScores(axis, rawAnswers);
+                    }
+                    return scores;
+                })();
+
+                // Salvar no estado global ANTES de chamar displayResults
                 AppState.currentResults = assessment.results;
                 AppState.currentRawAnswers = rawAnswers;
-                AppState.currentSubaxisScores = subaxisScores;
+                AppState.currentSubaxisScores = allSubaxisScores;
                 
-                displayResults(assessment.results, subaxisScores, rawAnswers);
+                displayResults(assessment.results, allSubaxisScores, rawAnswers);
                 
                 switchSection('history-container', 'results-container');
             } catch (error) {
@@ -4086,6 +4259,25 @@
                 AppState.currentFinancialResults = null;
                 AppState.currentRawAnswers = null;
                 AppState.currentSubaxisScores = null;
+
+                 // Limpar gráficos
+                for (const chartKey in AppState.charts) {
+                    if (AppState.charts[chartKey]) {
+                        AppState.charts[chartKey].destroy();
+                        AppState.charts[chartKey] = null;
+                    }
+                }
+                 // Limpar conteúdo dinâmico dos resultados
+                 const dynamicResultIds = ['financial-analysis', 'tax-content', 'investment-content', 'global-benchmarks', 'swot-analysis', 'subaxis-analysis', 'roadmap-timeline'];
+                 dynamicResultIds.forEach(id => {
+                     const el = document.getElementById(id);
+                     if(el) el.innerHTML = '';
+                 });
+                 // Limpar scores
+                 document.querySelectorAll('.score-value[id^="score-"], .score-label[id^="label-"]').forEach(el => el.textContent = '-');
+                 document.getElementById('score-geral').textContent = '0.0';
+
+
             } catch (error) {
                 console.error('Erro ao iniciar nova avaliação:', error);
             }
