@@ -116,7 +116,7 @@
             overflow: hidden;
             position: relative;
             background-color: #f9fafb;
-            font-size: 0.75rem; /* Texto menor para a prévia */
+            font-size: 0.75rem;
             transition: all 0.3s ease;
         }
         .layout-preview > div, .layout-preview .preview-content > div {
@@ -283,6 +283,130 @@
         .priority-high { background-color: #fee2e2; color: #dc2626; }
         .priority-medium { background-color: #fef3c7; color: #d97706; }
         .priority-low { background-color: #d1fae5; color: #065f46; }
+        
+        /* Estilos para o seletor de cores avançado */
+        .color-palette {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .palette-option {
+            width: 100%;
+            aspect-ratio: 1;
+            border-radius: 8px;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: all 0.2s ease;
+        }
+        .palette-option:hover {
+            transform: scale(1.05);
+        }
+        .palette-option.active {
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3);
+        }
+        .color-input-group {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        .color-input-group label {
+            width: 150px;
+            font-weight: 500;
+        }
+        .color-input-wrapper {
+            display: flex;
+            align-items: center;
+            flex: 1;
+        }
+        .color-input-wrapper input[type="color"] {
+            width: 60px;
+            height: 40px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            margin-right: 10px;
+        }
+        .color-input-wrapper input[type="text"] {
+            flex: 1;
+            padding: 8px 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            font-family: monospace;
+        }
+
+        /* Novos estilos para melhorias */
+        .section-indicator {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+        .section-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background-color: #d1d5db;
+            margin: 0 5px;
+            transition: all 0.3s ease;
+        }
+        .section-dot.active {
+            background-color: #3b82f6;
+            transform: scale(1.2);
+        }
+        .export-options {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+            margin-top: 20px;
+        }
+        .export-btn {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        .export-json {
+            background-color: #10b981;
+            color: white;
+        }
+        .export-json:hover {
+            background-color: #059669;
+        }
+        .export-xml {
+            background-color: #8b5cf6;
+            color: white;
+        }
+        .export-xml:hover {
+            background-color: #7c3aed;
+        }
+        .export-md {
+            background-color: #3b82f6;
+            color: white;
+        }
+        .export-md:hover {
+            background-color: #2563eb;
+        }
+        .success-message {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background-color: #10b981;
+            color: white;
+            padding: 12px 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+            transform: translateX(150%);
+            transition: transform 0.3s ease;
+        }
+        .success-message.show {
+            transform: translateX(0);
+        }
     </style>
 </head>
 <body class="bg-gray-100 text-gray-800">
@@ -328,8 +452,10 @@
 
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
             <div class="lg:col-span-2">
+                <div class="section-indicator" id="sectionIndicator"></div>
                 <form id="briefingForm" class="space-y-12">
-                    </form>
+                    <!-- As seções serão renderizadas via JavaScript -->
+                </form>
 
                 <div id="validationMessage" class="text-center text-red-600 font-semibold mt-8 mb-4 hidden">
                     Por favor, preencha todas as seções destacadas para continuar.
@@ -342,7 +468,8 @@
                 </div>
 
                 <div id="resultsSection" class="mt-16 bg-white p-8 rounded-2xl shadow-xl border border-gray-200 hidden">
-                    </div>
+                    <!-- Resultados serão inseridos aqui via JavaScript -->
+                </div>
             </div>
 
             <div class="lg:col-span-1">
@@ -352,7 +479,8 @@
                     <div class="mb-6">
                         <h3 class="font-bold text-gray-700 mb-2">Layout Selecionado:</h3>
                         <div id="layoutPreview" class="layout-preview" data-layout="standard">
-                            </div>
+                            <!-- Layout será renderizado via JavaScript -->
+                        </div>
                     </div>
                     
                     <div class="mb-6">
@@ -402,6 +530,7 @@
 
     </div>
 
+    <!-- Modal de Privacidade -->
     <div id="privacyModal" class="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center p-4 z-50 hidden">
         <div class="bg-white rounded-2xl shadow-2xl p-8 max-w-lg w-full transform transition-all scale-95 opacity-0" id="privacyModalContent">
             <h2 class="text-2xl font-bold mb-4">Política de Privacidade e Uso de Dados</h2>
@@ -417,18 +546,70 @@
         </div>
     </div>
 
+    <!-- Mensagem de Sucesso -->
+    <div id="successMessage" class="success-message">
+        Arquivo exportado com sucesso!
+    </div>
+
     <script>
     document.addEventListener('DOMContentLoaded', function () {
         
         // --- CONFIGURAÇÕES E DADOS GLOBAIS ---
 
-        const DEV_DAILY_RATE_BRL = 350; // Valor/dia de um dev full stack júnior/pleno
-        const SPRINT_DAYS = 5; // Dias úteis por Sprint no SCRUM
+        const DEV_DAILY_RATE_BRL = 350;
+        const SPRINT_DAYS = 5;
 
+        // Paletas de cores pré-definidas para cada psicologia de cores
+        const colorPalettes = {
+            warm: {
+                primary: '#dc2626',
+                secondary: '#ea580c',
+                accent: '#d97706',
+                background: '#fef2f2',
+                text: '#1f2937'
+            },
+            cool: {
+                primary: '#1e40af',
+                secondary: '#0f766e',
+                accent: '#3b82f6',
+                background: '#f0f9ff',
+                text: '#1f2937'
+            },
+            earth: {
+                primary: '#92400e',
+                secondary: '#065f46',
+                accent: '#d97706',
+                background: '#fefce8',
+                text: '#1f2937'
+            },
+            mono: {
+                primary: '#4b5563',
+                secondary: '#6b7280',
+                accent: '#9ca3af',
+                background: '#ffffff',
+                text: '#1f2937'
+            },
+            pastel: {
+                primary: '#a78bfa',
+                secondary: '#67e8f9',
+                accent: '#f0abfc',
+                background: '#faf5ff',
+                text: '#1f2937'
+            },
+            neon: {
+                primary: '#db2777',
+                secondary: '#4f46e5',
+                accent: '#06b6d4',
+                background: '#ffffff',
+                text: '#1f2937'
+            }
+        };
+
+        // Estrutura de perguntas otimizada
         const questions = {
             "🧠 Identidade e Propósito": [
-                { id: 'companyName', text: 'Qual o nome da sua empresa?', type: 'text', placeholder: 'Ex: Soluções Digitais LTDA' },
-                { id: 'companyArea', text: 'Qual o ramo de atividade da empresa?', type: 'radio', options: [
+                { id: 'companyName', text: 'Qual o nome da sua empresa?', type: 'text', placeholder: 'Ex: Soluções Digitais LTDA', required: true },
+                { id: 'companyArea', text: 'Qual o ramo de atividade da empresa?', type: 'radio', required: true, options: [
                     { value: 'retail', label: 'Varejo', description: 'Venda de produtos para o consumidor final.' },
                     { value: 'services', label: 'Serviços', description: 'Oferece consultoria, mão de obra, etc.' },
                     { value: 'tech', label: 'Tecnologia / SaaS', description: 'Software, apps, soluções digitais.' },
@@ -440,13 +621,13 @@
                     { value: 'nonprofit', label: 'ONG / Sem Fins Lucrativos', description: 'Causas sociais, organizações sem fins lucrativos.' },
                     { value: 'realestate', label: 'Imobiliário', description: 'Corretores, incorporadoras, aluguel.' },
                 ]},
-                { id: 'companySize', text: 'Qual o porte da empresa?', type: 'radio', options: [
+                { id: 'companySize', text: 'Qual o porte da empresa?', type: 'radio', required: true, options: [
                     { value: 'micro', label: 'Microempresa', description: 'Até 9 funcionários.' },
                     { value: 'small', label: 'Pequena Empresa', description: '10 a 49 funcionários.' },
                     { value: 'medium', label: 'Média Empresa', description: '50 a 249 funcionários.' },
                     { value: 'large', label: 'Grande Empresa', description: 'Mais de 250 funcionários.' },
                 ]},
-                { id: 'primaryGoal', text: 'Qual é o objetivo principal e imediato do site?', type: 'radio', options: [
+                { id: 'primaryGoal', text: 'Qual é o objetivo principal e imediato do site?', type: 'radio', required: true, options: [
                     { value: 'sell', label: 'Vender Produtos/Serviços', description: 'Foco em e-commerce e conversão direta.' },
                     { value: 'leads', label: 'Gerar Leads (Contatos)', description: 'Capturar e qualificar potenciais clientes.' },
                     { value: 'inform', label: 'Fortalecer a Marca (Branding)', description: 'Ser uma fonte de autoridade e confiança.' },
@@ -465,13 +646,13 @@
             ],
             "🎯 Público-Alvo": [
                 { id: 'audience', text: 'Vamos atomizar o público-alvo:', type: 'title' },
-                { id: 'audienceGender', text: 'Gênero Predominante:', type: 'radio', options: [
+                { id: 'audienceGender', text: 'Gênero Predominante:', type: 'radio', required: true, options: [
                     { value: 'male', label: 'Masculino', description: 'Foco principal em homens.' },
                     { value: 'female', label: 'Feminino', description: 'Foco principal em mulheres.' },
                     { value: 'balanced', label: 'Equilibrado', description: 'Ambos os gêneros igualmente.' },
                     { value: 'not_applicable', label: 'Não se aplica', description: 'O gênero não é relevante.' },
                 ]},
-                { id: 'audienceDevice', text: 'Dispositivo Principal de Acesso:', type: 'radio', options: [
+                { id: 'audienceDevice', text: 'Dispositivo Principal de Acesso:', type: 'radio', required: true, options: [
                     { value: 'mobile', label: 'Mobile (Celular)', description: 'A maioria acessa pelo celular.' },
                     { value: 'desktop', label: 'Desktop (Computador)', description: 'A maioria acessa pelo computador.' },
                     { value: 'both', label: 'Ambos', description: 'Uso dividido entre celular e computador.' },
@@ -498,7 +679,7 @@
                 { id: 'localGlobal', text: 'Alcance:', type: 'slider', labels: ['Local/Regional', 'Global/Internacional'] }
             ],
             "🎨 Estilo Visual": [
-                { id: 'inspirationStyle', text: 'Qual arquétipo de design te inspira mais?', type: 'radio', options: [
+                { id: 'inspirationStyle', text: 'Qual arquétipo de design te inspira mais?', type: 'radio', required: true, options: [
                     { value: 'minimalist', label: 'O Purista (Apple)', description: 'Elegância, espaços em branco, foco no essencial.' },
                     { value: 'vibrant', label: 'O Artista (Spotify)', description: 'Cores ousadas, energia, microinterações.' },
                     { value: 'corporate', label: 'O Confiável (Microsoft)', description: 'Confiança, seriedade, estrutura clara.' },
@@ -506,7 +687,7 @@
                     { value: 'handcrafted', label: 'O Artesão (Etsy)', description: 'Texturas orgânicas, detalhes manuais, autenticidade.' },
                     { value: 'futuristic', label: 'O Futurista (Tesla)', description: 'Tecnologia, inovação, design arrojado.' },
                 ]},
-                { id: 'colorPalette', text: 'Qual psicologia de cores você prefere?', type: 'radio', options: [
+                { id: 'colorPalette', text: 'Qual psicologia de cores você prefere?', type: 'radio', required: true, options: [
                     { value: 'warm', label: 'Tons Quentes (Vermelhos, Laranjas)', description: 'Energia, paixão, urgência.' },
                     { value: 'cool', label: 'Tons Frios (Azuis, Verdes)', description: 'Calma, confiança, profissionalismo.' },
                     { value: 'earth', label: 'Tons Terrosos (Marrons, Beges)', description: 'Orgânico, conforto, natureza.' },
@@ -528,7 +709,7 @@
                 { id: 'animationLevel', text: 'Nível de Animações:', type: 'slider', labels: ['Estático e Sóbrio', 'Dinâmico e Interativo'] }
             ],
             "🛠️ Funcionalidades e Escopo": [
-                { id: 'layoutType', text: 'Qual estrutura de layout você prefere?', type: 'radio', options: [
+                { id: 'layoutType', text: 'Qual estrutura de layout você prefere?', type: 'radio', required: true, options: [
                     { value: 'standard', label: 'Layout Padrão', description: 'Cabeçalho, conteúdo principal, rodapé.' },
                     { value: 'sidebar', label: 'Com Sidebar', description: 'Navegação lateral além do cabeçalho.' },
                     { value: 'fullscreen', label: 'Tela Cheia', description: 'Conteúdo que ocupa toda a tela.' },
@@ -569,12 +750,12 @@
                  { id: 'constraints', text: 'Defina as restrições do projeto.', type: 'title' },
                  { id: 'budget', text: 'Qual o nível de investimento disponível?', type: 'slider', labels: ['Essencial (até R$2k)', 'Intermediário (R$2k-R$5k)', 'Avançado (+R$5k)'] },
                  { id: 'deadline', text: 'Qual a urgência do projeto?', type: 'slider', labels: ['Flexível (sem pressa)', 'Normal (~2-3 meses)', 'Urgente (até 1 mês)'] },
-                 { id: 'maintenance', text: 'Precisa de manutenção contínua?', type: 'radio', options: [
+                 { id: 'maintenance', text: 'Precisa de manutenção contínua?', type: 'radio', required: true, options: [
                     { value: 'none', label: 'Não, apenas o desenvolvimento', description: 'Apenas a criação do site.' },
                     { value: 'basic', label: 'Básica (atualizações ocasionais)', description: 'Pequenas correções e atualizações.' },
                     { value: 'full', label: 'Completa (suporte contínuo)', description: 'Manutenção regular e suporte técnico.' },
                  ]},
-                 { id: 'hosting', text: 'Precisa de hospedagem e domínio?', type: 'radio', options: [
+                 { id: 'hosting', text: 'Precisa de hospedagem e domínio?', type: 'radio', required: true, options: [
                     { value: 'no', label: 'Não, já tenho', description: 'Já possuo domínio e hospedagem.' },
                     { value: 'yes', label: 'Sim, preciso', description: 'Preciso de domínio e hospedagem incluídos.' },
                     { value: 'advice', label: 'Preciso de orientação', description: 'Não sei como funciona e preciso de ajuda.' },
@@ -595,6 +776,8 @@
         const presetCards = document.querySelectorAll('.preset-card');
         const layoutPreview = document.getElementById('layoutPreview');
         const progressBar = document.getElementById('progressBar');
+        const sectionIndicator = document.getElementById('sectionIndicator');
+        const successMessage = document.getElementById('successMessage');
 
         // --- VARIÁVEIS GLOBAIS ---
         let currentSection = 0;
@@ -602,6 +785,15 @@
 
         // --- RENDERIZAÇÃO DO FORMULÁRIO ---
         function renderForm() {
+            // Criar indicador de seções
+            sectionIndicator.innerHTML = '';
+            Object.keys(questions).forEach((_, index) => {
+                const dot = document.createElement('div');
+                dot.className = `section-dot ${index === 0 ? 'active' : ''}`;
+                dot.dataset.section = index;
+                sectionIndicator.appendChild(dot);
+            });
+
             Object.keys(questions).forEach((sectionTitle, sectionIndex) => {
                 const sectionEl = document.createElement('div');
                 sectionEl.className = `section bg-white p-6 md:p-8 rounded-2xl shadow-lg border-2 border-transparent card-hover ${sectionIndex === 0 ? 'active' : ''}`;
@@ -625,8 +817,8 @@
                         questionWrapper.appendChild(subtitle);
                     } else if (q.type === 'text') {
                         questionWrapper.innerHTML = `
-                            <label class="block font-medium text-gray-700 mb-2">${q.text}</label>
-                            <input type="text" id="${q.id}" name="${q.id}" placeholder="${q.placeholder}" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                            <label class="block font-medium text-gray-700 mb-2">${q.text} ${q.required ? '<span class="text-red-500">*</span>' : ''}</label>
+                            <input type="text" id="${q.id}" name="${q.id}" placeholder="${q.placeholder}" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" ${q.required ? 'required' : ''}>
                         `;
                     } else if (q.type === 'textarea') {
                         questionWrapper.innerHTML = `
@@ -644,10 +836,12 @@
                         `;
                     } else if (q.type === 'color') {
                         questionWrapper.innerHTML = `
-                            <label class="block font-medium text-gray-700 mb-2">${q.text}</label>
-                            <div class="flex items-center space-x-4">
-                                <input type="color" id="${q.id}" name="${q.id}" value="${q.value}" class="w-16 h-10 rounded border border-gray-300">
-                                <span id="${q.id}Value" class="text-sm text-gray-600">${q.value}</span>
+                            <div class="color-input-group">
+                                <label class="font-medium text-gray-700">${q.text}</label>
+                                <div class="color-input-wrapper">
+                                    <input type="color" id="${q.id}" name="${q.id}" value="${q.value}" class="rounded border border-gray-300">
+                                    <input type="text" id="${q.id}Text" value="${q.value}" class="rounded border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                </div>
                             </div>
                         `;
                     } else if (q.type === 'radio' || q.type === 'checkbox') {
@@ -655,9 +849,41 @@
                          fieldset.id = q.id;
                          const legend = document.createElement('legend');
                          legend.className = 'block font-medium text-gray-700 mb-4';
-                         legend.textContent = q.text;
+                         legend.innerHTML = `${q.text} ${q.required ? '<span class="text-red-500">*</span>' : ''}`;
                          fieldset.appendChild(legend);
 
+                         // Adicionar paleta de cores para a pergunta de psicologia de cores
+                         if (q.id === 'colorPalette') {
+                            const paletteContainer = document.createElement('div');
+                            paletteContainer.className = 'color-palette mb-6';
+                            
+                            q.options.forEach(opt => {
+                                const paletteOption = document.createElement('div');
+                                paletteOption.className = 'palette-option';
+                                paletteOption.dataset.value = opt.value;
+                                paletteOption.style.backgroundColor = colorPalettes[opt.value].primary;
+                                paletteOption.title = opt.label;
+                                
+                                paletteOption.addEventListener('click', function() {
+                                    document.querySelectorAll('.palette-option').forEach(el => {
+                                        el.classList.remove('active');
+                                    });
+                                    this.classList.add('active');
+                                    
+                                    const radio = document.querySelector(`input[name="colorPalette"][value="${this.dataset.value}"]`);
+                                    if (radio) {
+                                        radio.checked = true;
+                                        applyColorPalette(this.dataset.value);
+                                        updatePreview();
+                                    }
+                                });
+                                
+                                paletteContainer.appendChild(paletteOption);
+                            });
+                            
+                            fieldset.appendChild(paletteContainer);
+                         }
+                         
                          const container = document.createElement('div');
                          let gridCols = 'md:grid-cols-2';
                          if (q.id === 'audienceInterests') {
@@ -747,6 +973,12 @@
                 section.classList.remove('active');
             });
             document.getElementById(`section-${sectionNumber}`).classList.add('active');
+            
+            // Atualizar indicador de seções
+            document.querySelectorAll('.section-dot').forEach((dot, index) => {
+                dot.classList.toggle('active', index === sectionNumber);
+            });
+            
             currentSection = sectionNumber;
             updateProgress();
         }
@@ -774,7 +1006,7 @@
 
             for (const section in questions) {
                 for (const q of questions[section]) {
-                    if (q.type === 'radio') {
+                    if (q.required && q.type === 'radio') {
                         const selected = form.querySelector(`input[name="${q.id}"]:checked`);
                         if (!selected) {
                             isValid = false;
@@ -785,6 +1017,15 @@
                                 if (!firstInvalidElement) {
                                     firstInvalidElement = parentCard;
                                 }
+                            }
+                        }
+                    } else if (q.required && q.type === 'text') {
+                        const input = document.getElementById(q.id);
+                        if (input && !input.value.trim()) {
+                            isValid = false;
+                            input.classList.add('needs-validation');
+                            if (!firstInvalidElement) {
+                                firstInvalidElement = input;
                             }
                         }
                     }
@@ -816,6 +1057,14 @@
             answers.extrasList = Array.from(form.querySelectorAll('input[name="extrasList"]:checked')).map(cb => cb.value);
             answers.secondaryGoal = Array.from(form.querySelectorAll('input[name="secondaryGoal"]:checked')).map(cb => cb.value);
             answers.audienceInterests = Array.from(form.querySelectorAll('input[name="audienceInterests"]:checked')).map(cb => cb.value);
+            
+            // Coletar cores
+            answers.primaryColor = document.getElementById('primaryColor').value;
+            answers.secondaryColor = document.getElementById('secondaryColor').value;
+            answers.accentColor = document.getElementById('accentColor').value;
+            answers.backgroundColor = document.getElementById('backgroundColor').value;
+            answers.textColor = document.getElementById('textColor').value;
+            
             return answers;
         }
         
@@ -837,6 +1086,23 @@
             if (val <= 55) return `um equilíbrio entre "${labels[0]}" e "${labels[1]}"`;
             if (val <= 80) return `com preferência por "${labels[1]}"`;
             return `fortemente inclinado para "${labels[1]}"`;
+        }
+        
+        // Aplicar paleta de cores baseada na psicologia selecionada
+        function applyColorPalette(paletteKey) {
+            const palette = colorPalettes[paletteKey];
+            if (!palette) return;
+            
+            document.getElementById('primaryColor').value = palette.primary;
+            document.getElementById('primaryColorText').value = palette.primary;
+            document.getElementById('secondaryColor').value = palette.secondary;
+            document.getElementById('secondaryColorText').value = palette.secondary;
+            document.getElementById('accentColor').value = palette.accent;
+            document.getElementById('accentColorText').value = palette.accent;
+            document.getElementById('backgroundColor').value = palette.background;
+            document.getElementById('backgroundColorText').value = palette.background;
+            document.getElementById('textColor').value = palette.text;
+            document.getElementById('textColorText').value = palette.text;
         }
         
         // --- ATUALIZAÇÃO DA PRÉVIA EM TEMPO REAL ---
@@ -918,11 +1184,11 @@
             renderLayoutPreview(answers.layoutType);
             
             // 2. Coletar cores e textos
-            const primaryColor = document.getElementById('primaryColor').value;
-            const secondaryColor = document.getElementById('secondaryColor').value;
-            const accentColor = document.getElementById('accentColor').value;
-            const backgroundColor = document.getElementById('backgroundColor').value;
-            const textColor = document.getElementById('textColor').value;
+            const primaryColor = answers.primaryColor || '#3b82f6';
+            const secondaryColor = answers.secondaryColor || '#1e40af';
+            const accentColor = answers.accentColor || '#60a5fa';
+            const backgroundColor = answers.backgroundColor || '#ffffff';
+            const textColor = answers.textColor || '#1f2937';
             
             const companyName = answers.companyName || 'Sua Empresa';
             const goalLabel = getSelectedOptionLabel('primaryGoal', answers.primaryGoal);
@@ -1011,6 +1277,9 @@
             // Gerar prompt inteligente
             const llmPrompt = generateIntelligentPrompt(answers, complexityAnalysis);
             
+            // Gerar XML para draw.io
+            const drawIoXml = generateDrawIoXml(answers, complexityAnalysis);
+            
             const companyAreaLabel = getSelectedOptionLabel('companyArea', answers.companyArea);
             const primaryGoalLabel = getSelectedOptionLabel('primaryGoal', answers.primaryGoal);
             const inspirationLabel = getSelectedOptionLabel('inspirationStyle', answers.inspirationStyle);
@@ -1022,7 +1291,8 @@
                 summary, 
                 complexityAnalysis,
                 roadmap, 
-                llmPrompt 
+                llmPrompt,
+                drawIoXml
             };
             
             displayResults(analysisData);
@@ -1054,7 +1324,7 @@
                 return null;
             }).filter(Boolean);
 
-            // Cálculo de incerteza baseado na MUSE (Maxim of Uncertainty in Software Engineering)
+            // Cálculo de incerteza
             const uncertaintyScore = calculateUncertaintyScore(answers);
             
             // Aplicar lógica fuzzy para estimativa de esforço
@@ -1086,16 +1356,20 @@
             };
         }
 
-        // Cálculo de incerteza baseado no modelo MUSE
+        // Cálculo de incerteza
         function calculateUncertaintyScore(answers) {
             let uncertainty = 0;
-            const maxUncertainty = 0.5; // Máximo de 50% de incerteza
+            const maxUncertainty = 0.5;
             
             // Verificar se há campos não preenchidos
-            const totalRequiredQuestions = Object.values(questions).flat().filter(q => q.type === 'radio').length;
+            const totalRequiredQuestions = Object.values(questions).flat().filter(q => q.required).length;
             const answeredRequiredQuestions = Object.values(questions).flat().filter(q => {
-                if (q.type === 'radio') {
-                    return form.querySelector(`input[name="${q.id}"]:checked`);
+                if (q.required) {
+                    if (q.type === 'radio') {
+                        return form.querySelector(`input[name="${q.id}"]:checked`);
+                    } else if (q.type === 'text') {
+                        return document.getElementById(q.id) && document.getElementById(q.id).value.trim();
+                    }
                 }
                 return false;
             }).length;
@@ -1123,7 +1397,7 @@
             
             // Considerar urgência do projeto
             const deadlineValue = parseInt(answers.deadline, 10);
-            if (deadlineValue > 80) { // Projetos muito urgentes têm mais incerteza
+            if (deadlineValue > 80) {
                 uncertainty += 0.2;
             }
             
@@ -1133,9 +1407,9 @@
         // Multiplicador baseado no orçamento
         function calculateBudgetMultiplier(budgetValue) {
             const budget = parseInt(budgetValue, 10);
-            if (budget < 33) return 0.8; // Orçamento baixo
-            if (budget < 66) return 1.0; // Orçamento médio
-            return 1.2; // Orçamento alto
+            if (budget < 33) return 0.8;
+            if (budget < 66) return 1.0;
+            return 1.2;
         }
 
         // Multiplicador baseado na complexidade
@@ -1243,7 +1517,7 @@
                 });
                 
                 currentDate = new Date(endDate);
-                currentDate.setDate(currentDate.getDate() + 1); // Próximo dia
+                currentDate.setDate(currentDate.getDate() + 1);
             });
             
             return roadmap;
@@ -1271,6 +1545,7 @@
             const requirementsAnalysis = analyzeRequirements(answers, complexityAnalysis);
             
             return {
+                instruction: "Crie o código completo em um único arquivo HTML para um site responsivo usando HTML, CSS e JavaScript. O design deve materializar todas as diretrizes acima, sendo coeso e profissional. Use imagens de placeholder (placehold.co) onde necessário. O código deve ser limpo e bem comentado, respeitando a arquitetura MVC mesmo em um único arquivo, separando claramente a estrutura HTML, os estilos CSS e a lógica JavaScript.",
                 projectContext: {
                     company: {
                         name: answers.companyName || 'Não informado',
@@ -1380,7 +1655,7 @@
                 });
             }
             
-            if (parseInt(answers.audienceDevice, 10) === 'mobile') {
+            if (answers.audienceDevice === 'mobile') {
                 nonFunctionalReqs.push({
                     type: 'Usability',
                     requirement: 'Design totalmente responsivo para dispositivos móveis',
@@ -1400,6 +1675,74 @@
                 functional: functionalReqs,
                 nonFunctional: nonFunctionalReqs
             };
+        }
+
+        // Gerar XML para draw.io
+        function generateDrawIoXml(answers, complexityAnalysis) {
+            const companyName = answers.companyName || 'Projeto Web';
+            const layoutType = answers.layoutType || 'standard';
+            
+            // Mapeamento de layout para estrutura XML
+            const layoutStructures = {
+                standard: [
+                    { id: '1', value: 'Cabeçalho', style: 'rounded=1;whiteSpace=wrap;html=1;', x: 100, y: 50, width: 600, height: 60 },
+                    { id: '2', value: 'Navegação', style: 'rounded=1;whiteSpace=wrap;html=1;', x: 100, y: 130, width: 600, height: 40 },
+                    { id: '3', value: 'Conteúdo Principal', style: 'rounded=1;whiteSpace=wrap;html=1;', x: 100, y: 190, width: 600, height: 300 },
+                    { id: '4', value: 'Rodapé', style: 'rounded=1;whiteSpace=wrap;html=1;', x: 100, y: 510, width: 600, height: 60 }
+                ],
+                sidebar: [
+                    { id: '1', value: 'Cabeçalho', style: 'rounded=1;whiteSpace=wrap;html=1;', x: 100, y: 50, width: 600, height: 60 },
+                    { id: '2', value: 'Navegação', style: 'rounded=1;whiteSpace=wrap;html=1;', x: 100, y: 130, width: 600, height: 40 },
+                    { id: '3', value: 'Conteúdo Principal', style: 'rounded=1;whiteSpace=wrap;html=1;', x: 250, y: 190, width: 450, height: 300 },
+                    { id: '4', value: 'Sidebar', style: 'rounded=1;whiteSpace=wrap;html=1;', x: 100, y: 190, width: 130, height: 300 },
+                    { id: '5', value: 'Rodapé', style: 'rounded=1;whiteSpace=wrap;html=1;', x: 100, y: 510, width: 600, height: 60 }
+                ],
+                fullscreen: [
+                    { id: '1', value: 'Conteúdo em Tela Cheia', style: 'rounded=1;whiteSpace=wrap;html=1;', x: 100, y: 50, width: 600, height: 520 }
+                ],
+                magazine: [
+                    { id: '1', value: 'Cabeçalho', style: 'rounded=1;whiteSpace=wrap;html=1;', x: 100, y: 50, width: 600, height: 60 },
+                    { id: '2', value: 'Navegação', style: 'rounded=1;whiteSpace=wrap;html=1;', x: 100, y: 130, width: 600, height: 40 },
+                    { id: '3', value: 'Destaque', style: 'rounded=1;whiteSpace=wrap;html=1;', x: 100, y: 190, width: 600, height: 100 },
+                    { id: '4', value: 'Conteúdo Principal', style: 'rounded=1;whiteSpace=wrap;html=1;', x: 100, y: 310, width: 350, height: 200 },
+                    { id: '5', value: 'Conteúdo Secundário', style: 'rounded=1;whiteSpace=wrap;html=1;', x: 470, y: 310, width: 230, height: 200 },
+                    { id: '6', value: 'Rodapé', style: 'rounded=1;whiteSpace=wrap;html=1;', x: 100, y: 530, width: 600, height: 60 }
+                ]
+            };
+            
+            const structure = layoutStructures[layoutType] || layoutStructures.standard;
+            
+            // Gerar XML
+            let xml = `<?xml version="1.0" encoding="UTF-8"?>
+<mxfile host="app.diagrams.net">
+    <diagram name="${companyName}" id="layout-diagram">
+        <mxGraphModel dx="1426" dy="881" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+            <root>
+                <mxCell id="0" />
+                <mxCell id="1" parent="0" />`;
+                
+            structure.forEach(item => {
+                xml += `
+                <mxCell id="${item.id}" value="${item.value}" style="${item.style}" vertex="1" parent="1">
+                    <mxGeometry x="${item.x}" y="${item.y}" width="${item.width}" height="${item.height}" as="geometry" />
+                </mxCell>`;
+            });
+                
+            xml += `
+            </root>
+        </mxGraphModel>
+    </diagram>
+</mxfile>`;
+            
+            return xml;
+        }
+
+        // Mostrar mensagem de sucesso
+        function showSuccessMessage() {
+            successMessage.classList.add('show');
+            setTimeout(() => {
+                successMessage.classList.remove('show');
+            }, 3000);
         }
 
         // --- RENDERIZAÇÃO DOS RESULTADOS ---
@@ -1550,15 +1893,30 @@
                     <div>
                         <h3 class="text-xl font-semibold text-blue-600 mb-2">Prompt Estratégico para LLM</h3>
                         <div class="bg-gray-100 p-4 rounded-lg">
+                            <div class="mb-4 p-3 bg-blue-50 rounded-lg">
+                                <h4 class="font-bold text-blue-700 mb-2">Instrução Principal:</h4>
+                                <p class="text-sm">${data.llmPrompt.instruction}</p>
+                            </div>
                             <pre class="text-sm whitespace-pre-wrap overflow-x-auto">${JSON.stringify(data.llmPrompt, null, 2)}</pre>
                         </div>
                     </div>
                 </div>
                 <div class="text-center mt-10">
-                    <button type="button" id="exportJsonBtn" class="bg-green-600 text-white font-bold py-3 px-8 rounded-full shadow-lg hover:bg-green-700 transition-all duration-300 transform hover:scale-105">
-                        Exportar Análise Completa (JSON)
-                    </button>
-                    <button type="button" id="editBtn" class="bg-gray-600 text-white font-bold py-3 px-8 rounded-full shadow-lg hover:bg-gray-700 transition-all duration-300 transform hover:scale-105 ml-4">
+                    <div class="export-options">
+                        <button type="button" id="exportJsonBtn" class="export-btn export-json">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                            Exportar JSON
+                        </button>
+                        <button type="button" id="exportXmlBtn" class="export-btn export-xml">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                            Exportar XML (draw.io)
+                        </button>
+                        <button type="button" id="exportMarkdownBtn" class="export-btn export-md">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                            Exportar Markdown
+                        </button>
+                    </div>
+                    <button type="button" id="editBtn" class="bg-gray-600 text-white font-bold py-3 px-8 rounded-full shadow-lg hover:bg-gray-700 transition-all duration-300 transform hover:scale-105 mt-4">
                         Editar Respostas
                     </button>
                 </div>
@@ -1566,25 +1924,80 @@
             resultsSection.classList.remove('hidden');
             resultsSection.scrollIntoView({ behavior: 'smooth' });
             
+            // Event listeners para exportação
             document.getElementById('exportJsonBtn').onclick = () => {
                 const dataStr = JSON.stringify(data, null, 2);
-                const dataBlob = new Blob([dataStr], { type: 'application/json' });
-                const url = URL.createObjectURL(dataBlob);
-                const link = document.createElement('a');
-                link.href = url;
-                const area = getSelectedOptionLabel('companyArea', data.answers.companyArea).toLowerCase().replace(/\s/g, '_');
-                const name = (data.answers.companyName || 'projeto').toLowerCase().replace(/\s/g, '_');
-                link.download = `briefing_${name}_${area}.json`;
-                document.body.appendChild(link);
-                link.click();
-                document.body.removeChild(link);
-                URL.revokeObjectURL(url);
+                downloadFile(dataStr, 'briefing.json', 'application/json');
+                showSuccessMessage();
+            };
+
+            document.getElementById('exportXmlBtn').onclick = () => {
+                downloadFile(data.drawIoXml, 'layout-diagram.drawio', 'application/xml');
+                showSuccessMessage();
+            };
+
+            document.getElementById('exportMarkdownBtn').onclick = () => {
+                const markdown = generateMarkdownReport(data);
+                downloadFile(markdown, 'briefing-report.md', 'text/markdown');
+                showSuccessMessage();
             };
 
             document.getElementById('editBtn').onclick = () => {
                 resultsSection.classList.add('hidden');
                 showSection(0);
             };
+        }
+
+        // Função para gerar relatório em Markdown
+        function generateMarkdownReport(data) {
+            const answers = data.answers;
+            
+            let markdown = `# Briefing do Projeto: ${answers.companyName || 'Projeto Web'}\n\n`;
+            markdown += `**Data:** ${new Date().toLocaleDateString('pt-BR')}\n\n`;
+            
+            markdown += `## Sumário Executivo\n\n`;
+            markdown += `${data.summary}\n\n`;
+            
+            markdown += `## Detalhes do Projeto\n\n`;
+            markdown += `- **Empresa:** ${answers.companyName || 'Não informado'}\n`;
+            markdown += `- **Ramo:** ${getSelectedOptionLabel('companyArea', answers.companyArea)}\n`;
+            markdown += `- **Porte:** ${getSelectedOptionLabel('companySize', answers.companySize)}\n`;
+            markdown += `- **Objetivo Principal:** ${getSelectedOptionLabel('primaryGoal', answers.primaryGoal)}\n\n`;
+            
+            markdown += `## Análise de Complexidade\n\n`;
+            markdown += `- **Nível de Complexidade:** ${data.complexityAnalysis.complexityLevel}\n`;
+            markdown += `- **Pontuação Total:** ${data.complexityAnalysis.totalWeight} pontos\n`;
+            markdown += `- **Prazo Estimado:** ${data.complexityAnalysis.estimatedWeeks} semanas\n`;
+            markdown += `- **Custo Estimado:** R$ ${data.complexityAnalysis.cost.toFixed(2)}\n`;
+            markdown += `- **Nível de Risco:** ${data.complexityAnalysis.riskLevel}\n\n`;
+            
+            markdown += `## Funcionalidades Priorizadas\n\n`;
+            data.complexityAnalysis.prioritizedFeatures.forEach(feature => {
+                const priorityIcon = feature.priority === 'high' ? '🔴' : feature.priority === 'medium' ? '🟡' : '🟢';
+                markdown += `- ${priorityIcon} **${feature.name}** (Peso: ${feature.weight}) - ${feature.description}\n`;
+            });
+            
+            markdown += `\n## Roadmap de Desenvolvimento\n\n`;
+            data.roadmap.forEach(item => {
+                const startDate = item.start.toLocaleDateString('pt-BR');
+                const endDate = item.end.toLocaleDateString('pt-BR');
+                markdown += `- **${item.phase}** (${item.duration} dias): ${startDate} - ${endDate}\n`;
+            });
+            
+            return markdown;
+        }
+
+        // Função para download de arquivo
+        function downloadFile(content, fileName, contentType) {
+            const blob = new Blob([content], { type: contentType });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = fileName;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
         }
 
         // --- PRESETS PRÉ-DEFINIDOS ---
@@ -1601,11 +2014,14 @@
                     document.querySelector('input[name="primaryGoal"][value="leads"]').checked = true;
                     document.querySelector('input[name="audienceDevice"][value="mobile"]').checked = true;
                     document.querySelector('input[name="inspirationStyle"][value="minimalist"]').checked = true;
+                    document.querySelector('input[name="colorPalette"][value="cool"]').checked = true;
                     document.querySelector('input[name="layoutType"][value="standard"]').checked = true;
                     document.querySelector('input[name="featureList"][value="home"]').checked = true;
                     document.querySelector('input[name="featureList"][value="contact"]').checked = true;
                     document.getElementById('budget').value = 40;
                     document.getElementById('deadline').value = 70;
+                    // Aplicar paleta de cores
+                    applyColorPalette('cool');
                     break;
                     
                 case 'ecommerce':
@@ -1613,12 +2029,15 @@
                     document.querySelector('input[name="primaryGoal"][value="sell"]').checked = true;
                     document.querySelector('input[name="audienceDevice"][value="mobile"]').checked = true;
                     document.querySelector('input[name="inspirationStyle"][value="vibrant"]').checked = true;
+                    document.querySelector('input[name="colorPalette"][value="warm"]').checked = true;
                     document.querySelector('input[name="layoutType"][value="standard"]').checked = true;
                     document.querySelectorAll('input[name="featureList"]').forEach(cb => {
                         if(['home', 'services', 'ecommerce', 'contact'].includes(cb.value)) cb.checked = true;
                     });
                     document.getElementById('budget').value = 80;
                     document.getElementById('deadline').value = 60;
+                    // Aplicar paleta de cores
+                    applyColorPalette('warm');
                     break;
                     
                 case 'portfolio':
@@ -1626,12 +2045,15 @@
                     document.querySelector('input[name="primaryGoal"][value="showcase"]').checked = true;
                     document.querySelector('input[name="audienceDevice"][value="desktop"]').checked = true;
                     document.querySelector('input[name="inspirationStyle"][value="editorial"]').checked = true;
+                    document.querySelector('input[name="colorPalette"][value="mono"]').checked = true;
                     document.querySelector('input[name="layoutType"][value="magazine"]').checked = true;
                     document.querySelectorAll('input[name="featureList"]').forEach(cb => {
                         if(['home', 'about', 'portfolio', 'contact'].includes(cb.value)) cb.checked = true;
                     });
                     document.getElementById('budget').value = 30;
                     document.getElementById('deadline').value = 40;
+                    // Aplicar paleta de cores
+                    applyColorPalette('mono');
                     break;
                     
                 case 'corporate':
@@ -1639,12 +2061,15 @@
                     document.querySelector('input[name="primaryGoal"][value="inform"]').checked = true;
                     document.querySelector('input[name="audienceDevice"][value="desktop"]').checked = true;
                     document.querySelector('input[name="inspirationStyle"][value="corporate"]').checked = true;
+                    document.querySelector('input[name="colorPalette"][value="cool"]').checked = true;
                     document.querySelector('input[name="layoutType"][value="sidebar"]').checked = true;
                     document.querySelectorAll('input[name="featureList"]').forEach(cb => {
                         if(['home', 'about', 'services', 'blog', 'contact'].includes(cb.value)) cb.checked = true;
                     });
                     document.getElementById('budget').value = 60;
                     document.getElementById('deadline').value = 50;
+                    // Aplicar paleta de cores
+                    applyColorPalette('cool');
                     break;
             }
             
@@ -1663,9 +2088,30 @@
         form.addEventListener('input', (e) => {
             if (e.target.type === 'range') updateSliderLabels();
             if (e.target.type === 'color') {
-                document.getElementById(`${e.target.id}Value`).textContent = e.target.value;
+                // Atualizar o campo de texto correspondente
+                const textInput = document.getElementById(`${e.target.id}Text`);
+                if (textInput) {
+                    textInput.value = e.target.value;
+                }
+                updatePreview();
+            }
+            if (e.target.type === 'text' && e.target.id.includes('ColorText')) {
+                // Atualizar o campo de cor correspondente
+                const colorInput = document.getElementById(e.target.id.replace('Text', ''));
+                if (colorInput && /^#[0-9A-F]{6}$/i.test(e.target.value)) {
+                    colorInput.value = e.target.value;
+                    updatePreview();
+                }
             }
             updatePreview();
+        });
+
+        // Event listener para a pergunta de psicologia de cores
+        document.addEventListener('change', (e) => {
+            if (e.target.name === 'colorPalette') {
+                applyColorPalette(e.target.value);
+                updatePreview();
+            }
         });
 
         // Navegação entre seções
