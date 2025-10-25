@@ -2468,17 +2468,29 @@
             }
             
             downloadFile(filename, content, mimeType = 'text/plain') {
+                const blob =
+                    typeof content === 'string' && content.startsWith('data:')
+                        ? this._dataURLToBlob(content)
+                        : new Blob([content], { type: mimeType });
+
+                const url = URL.createObjectURL(blob);
                 const element = document.createElement('a');
-                if (mimeType === 'text/plain') {
-                    element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(content));
-                } else {
-                    element.setAttribute('href', content);
-                }
-                element.setAttribute('download', filename);
+                element.href = url;
+                element.download = filename;
                 element.style.display = 'none';
                 document.body.appendChild(element);
                 element.click();
                 document.body.removeChild(element);
+                URL.revokeObjectURL(url);
+            }
+
+            _dataURLToBlob(dataURL) {
+                const [meta, data] = dataURL.split(',');
+                const mime = meta.match(/:(.*?);/)[1];
+                const binary = atob(data);
+                const array = new Uint8Array(binary.length);
+                for (let i = 0; i < binary.length; i++) array[i] = binary.charCodeAt(i);
+                return new Blob([array], { type: mime });
             }
         }
         

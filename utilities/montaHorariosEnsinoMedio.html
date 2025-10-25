@@ -1,0 +1,2420 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Planejador de Horários - Novo Ensino Médio MG</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        :root {
+            --azul-bebe: #87CEEB;
+            --amarelo-suave: #F0E68C;
+            --cinza-suave: #F5F5F5;
+            --preto-suave: #2C3E50;
+            --primary: var(--azul-bebe);
+            --secondary: #4A90E2;
+            --accent: var(--amarelo-suave);
+            --background: var(--cinza-suave);
+            --text: var(--preto-suave);
+            --white: #FFFFFF;
+            --success: #27AE60;
+            --error: #E74C3C;
+            --warning: #F39C12;
+            --border-radius: 12px;
+            --cell-height: 70px;
+            --sidebar-width: 350px;
+            --header-height: 60px;
+            --shadow-light: 0 2px 8px rgba(0,0,0,0.1);
+            --shadow-medium: 0 4px 16px rgba(0,0,0,0.15);
+            --shadow-heavy: 0 8px 32px rgba(0,0,0,0.2);
+            --transition-fast: 0.2s ease;
+            --transition-medium: 0.3s ease;
+            --transition-slow: 0.5s ease;
+        }
+
+        [data-theme="dark"] {
+            --background: #1A1A1A;
+            --white: #2D2D2D;
+            --text: #E0E0E0;
+            --primary: #5DADE2;
+            --secondary: #3498DB;
+            --cinza-suave: #2D2D2D;
+        }
+
+        body {
+            background: var(--background);
+            color: var(--text);
+            min-height: 100vh;
+            overflow-x: hidden;
+            transition: all var(--transition-medium);
+        }
+
+        .app-container {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            position: relative;
+        }
+
+        .header {
+            background: var(--white);
+            height: var(--header-height);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 20px;
+            box-shadow: var(--shadow-light);
+            z-index: 100;
+            position: relative;
+        }
+
+        .header h1 {
+            color: var(--primary);
+            font-size: 1.5rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .header-stats {
+            display: flex;
+            gap: 20px;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .stat-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            color: var(--text);
+        }
+
+        .menu-toggle {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            width: 56px;
+            height: 56px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border: none;
+            border-radius: 50%;
+            color: white;
+            font-size: 1.2rem;
+            cursor: pointer;
+            z-index: 1001;
+            box-shadow: var(--shadow-medium);
+            transition: all var(--transition-medium);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .menu-toggle:hover {
+            transform: scale(1.1);
+            box-shadow: var(--shadow-heavy);
+        }
+
+        .menu-toggle.active {
+            background: linear-gradient(135deg, var(--error), #C0392B);
+            transform: rotate(90deg);
+        }
+
+        .sidebar {
+            position: fixed;
+            top: 0;
+            right: 0;
+            width: var(--sidebar-width);
+            height: 100vh;
+            background: var(--white);
+            transform: translateX(100%);
+            transition: transform var(--transition-medium);
+            z-index: 1000;
+            box-shadow: var(--shadow-heavy);
+            overflow-y: auto;
+            padding: 80px 20px 20px;
+        }
+
+        .sidebar.open {
+            transform: translateX(0);
+        }
+
+        .sidebar-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0,0,0,0.5);
+            z-index: 999;
+            opacity: 0;
+            visibility: hidden;
+            transition: all var(--transition-medium);
+        }
+
+        .sidebar-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .menu-section {
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid rgba(0,0,0,0.1);
+        }
+
+        .menu-section:last-child {
+            border-bottom: none;
+        }
+
+        .menu-section h3 {
+            color: var(--secondary);
+            font-size: 1.1rem;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .input-group {
+            margin-bottom: 15px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+            color: var(--text);
+            font-size: 0.9rem;
+        }
+
+        .input-group input,
+        .input-group select {
+            width: 100%;
+            padding: 10px 12px;
+            border: 2px solid rgba(0,0,0,0.1);
+            border-radius: var(--border-radius);
+            background: var(--background);
+            color: var(--text);
+            font-size: 0.9rem;
+            transition: all var(--transition-fast);
+        }
+
+        .input-group input:focus,
+        .input-group select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(135, 206, 235, 0.2);
+        }
+
+        .btn {
+            padding: 12px 20px;
+            border: none;
+            border-radius: var(--border-radius);
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all var(--transition-fast);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            text-decoration: none;
+            width: 100%;
+            margin-bottom: 10px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-medium);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, var(--success), #229954);
+            color: white;
+        }
+
+        .btn-success:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-medium);
+        }
+
+        .btn-warning {
+            background: linear-gradient(135deg, var(--warning), #E67E22);
+            color: white;
+        }
+
+        .btn-warning:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-medium);
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 2px solid var(--primary);
+            color: var(--primary);
+        }
+
+        .btn-outline:hover {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none !important;
+            box-shadow: none !important;
+        }
+
+        .quick-actions {
+            position: fixed;
+            left: 20px;
+            bottom: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            z-index: 100;
+        }
+
+        .quick-btn {
+            width: 56px;
+            height: 56px;
+            border: none;
+            border-radius: 50%;
+            color: white;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: all var(--transition-medium);
+            box-shadow: var(--shadow-medium);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .quick-btn:hover {
+            transform: scale(1.1);
+            box-shadow: var(--shadow-heavy);
+        }
+
+        .quick-btn.optimize {
+            background: linear-gradient(135deg, var(--success), #229954);
+        }
+
+        .quick-btn.clear {
+            background: linear-gradient(135deg, var(--error), #C0392B);
+        }
+
+        .quick-btn.export {
+            background: linear-gradient(135deg, var(--warning), #E67E22);
+        }
+
+        .quick-btn.theme {
+            background: linear-gradient(135deg, var(--text), #34495E);
+        }
+
+        .quick-btn::before {
+            content: attr(data-tooltip);
+            position: absolute;
+            right: 70px;
+            background: var(--text);
+            color: white;
+            padding: 8px 12px;
+            border-radius: var(--border-radius);
+            font-size: 0.8rem;
+            white-space: nowrap;
+            opacity: 0;
+            visibility: hidden;
+            transition: all var(--transition-fast);
+            pointer-events: none;
+        }
+
+        .quick-btn:hover::before {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .main-content {
+            flex: 1;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .schedule-container {
+            background: var(--white);
+            border-radius: var(--border-radius);
+            padding: 20px;
+            box-shadow: var(--shadow-light);
+            flex: 1;
+            overflow: auto;
+        }
+
+        .schedule-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .schedule-header h2 {
+            color: var(--secondary);
+            font-size: 1.3rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .schedule-grid {
+            display: grid;
+            grid-template-columns: 100px repeat(5, 1fr);
+            border: 2px solid rgba(0,0,0,0.1);
+            border-radius: var(--border-radius);
+            overflow: hidden;
+            min-width: 800px;
+            background: var(--white);
+        }
+
+        .time-header,
+        .day-header {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            padding: 15px 10px;
+            text-align: center;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .time-slot {
+            padding: 10px;
+            text-align: center;
+            border-bottom: 1px solid rgba(0,0,0,0.1);
+            border-right: 1px solid rgba(0,0,0,0.1);
+            height: var(--cell-height);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(135, 206, 235, 0.05);
+            font-weight: 500;
+            font-size: 0.85rem;
+        }
+
+        .schedule-cell {
+            min-height: var(--cell-height);
+            border-bottom: 1px solid rgba(0,0,0,0.1);
+            border-right: 1px solid rgba(0,0,0,0.1);
+            padding: 5px;
+            position: relative;
+            transition: all var(--transition-fast);
+            background: var(--background);
+        }
+
+        .schedule-cell:last-child,
+        .time-slot:last-child {
+            border-right: none;
+        }
+
+        .schedule-cell.empty {
+            background: var(--background);
+            cursor: pointer;
+        }
+
+        .schedule-cell.empty:hover {
+            background: rgba(135, 206, 235, 0.1);
+        }
+
+        .schedule-cell.drag-over {
+            background: rgba(39, 174, 96, 0.2);
+            border: 2px dashed var(--success);
+            animation: pulse 1s infinite;
+        }
+
+        .schedule-cell.drag-invalid {
+            background: rgba(231, 76, 60, 0.2);
+            border: 2px dashed var(--error);
+            animation: shake 0.5s;
+        }
+
+        .schedule-cell.swap-source {
+            background: rgba(243, 156, 18, 0.3);
+            border: 2px solid var(--warning);
+        }
+
+        .schedule-cell.swap-target {
+            background: rgba(52, 152, 219, 0.3);
+            border: 2px solid var(--secondary);
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.02); }
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-3px); }
+            75% { transform: translateX(3px); }
+        }
+
+        .subject-in-cell {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            padding: 8px;
+            border-radius: calc(var(--border-radius) - 2px);
+            font-size: 0.8rem;
+            font-weight: 500;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            cursor: grab;
+            transition: all var(--transition-fast);
+            box-shadow: var(--shadow-light);
+            position: relative;
+            user-select: none;
+        }
+
+        .subject-in-cell:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-medium);
+        }
+
+        .subject-in-cell:active {
+            cursor: grabbing;
+        }
+
+        .subject-in-cell.dragging {
+            opacity: 0.5;
+            transform: scale(0.95);
+        }
+
+        .subject-name {
+            font-weight: 600;
+            margin-bottom: 2px;
+        }
+
+        .subject-teacher {
+            font-size: 0.7rem;
+            opacity: 0.9;
+        }
+
+        .delete-btn {
+            position: absolute;
+            top: 2px;
+            right: 2px;
+            width: 16px;
+            height: 16px;
+            background: rgba(231, 76, 60, 0.8);
+            border: none;
+            border-radius: 50%;
+            color: white;
+            font-size: 0.6rem;
+            cursor: pointer;
+            opacity: 0;
+            transition: all var(--transition-fast);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .subject-in-cell:hover .delete-btn {
+            opacity: 1;
+        }
+
+        .delete-btn:hover {
+            background: var(--error);
+            transform: scale(1.1);
+        }
+
+        .subjects-panel {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--white);
+            border-radius: var(--border-radius);
+            padding: 15px 20px;
+            box-shadow: var(--shadow-heavy);
+            z-index: 100;
+            max-width: 90vw;
+            overflow-x: auto;
+        }
+
+        .subjects-grid {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .subject-item {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            padding: 8px 12px;
+            border-radius: var(--border-radius);
+            font-size: 0.8rem;
+            font-weight: 500;
+            cursor: grab;
+            transition: all var(--transition-fast);
+            white-space: nowrap;
+            user-select: none;
+            box-shadow: var(--shadow-light);
+        }
+
+        .subject-item:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-medium);
+        }
+
+        .subject-item:active {
+            cursor: grabbing;
+        }
+
+        .subject-item.dragging {
+            opacity: 0.5;
+            transform: scale(0.95);
+        }
+
+        .break-cell {
+            background: linear-gradient(135deg, var(--accent), var(--warning)) !important;
+            color: var(--text);
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            grid-column: 1 / -1;
+            padding: 15px;
+            font-size: 0.9rem;
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%) translateY(-100px);
+            background: var(--success);
+            color: white;
+            padding: 15px 25px;
+            border-radius: var(--border-radius);
+            font-weight: 500;
+            box-shadow: var(--shadow-heavy);
+            z-index: 2000;
+            transition: all var(--transition-medium);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .notification.show {
+            transform: translateX(-50%) translateY(0);
+        }
+
+        .notification.error {
+            background: var(--error);
+        }
+
+        .notification.warning {
+            background: var(--warning);
+        }
+
+        .status-indicator {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: var(--white);
+            border-radius: var(--border-radius);
+            padding: 15px;
+            box-shadow: var(--shadow-medium);
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            font-size: 0.8rem;
+        }
+
+        .status-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+        }
+
+        .status-dot.success { background: var(--success); }
+        .status-dot.warning { background: var(--warning); }
+        .status-dot.error { background: var(--error); }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.7);
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .modal-content {
+            background: var(--white);
+            border-radius: var(--border-radius);
+            padding: 25px;
+            width: 90%;
+            max-width: 700px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: var(--shadow-heavy);
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid rgba(0,0,0,0.1);
+        }
+        
+        .modal-title {
+            font-size: 1.4rem;
+            color: var(--secondary);
+            font-weight: 600;
+        }
+        
+        .close-modal {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--text);
+        }
+        
+        .workload-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        
+        .workload-table th,
+        .workload-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid rgba(0,0,0,0.1);
+        }
+        
+        .workload-table th {
+            background: rgba(135, 206, 235, 0.1);
+            font-weight: 600;
+        }
+        
+        .workload-table tr:last-child td {
+            border-bottom: none;
+        }
+        
+        .workload-table input {
+            width: 60px;
+            padding: 8px;
+            border: 1px solid rgba(0,0,0,0.1);
+            border-radius: 4px;
+            text-align: center;
+        }
+        
+        .area-title {
+            background: var(--primary);
+            color: white;
+            padding: 10px;
+            border-radius: 4px;
+            margin: 20px 0 10px;
+            font-weight: 600;
+        }
+
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.7);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 3000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all var(--transition-medium);
+        }
+
+        .loading-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid rgba(255,255,255,0.3);
+            border-radius: 50%;
+            border-top-color: var(--primary);
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .validation-error {
+            color: var(--error);
+            font-size: 0.8rem;
+            margin-top: 5px;
+            display: none;
+        }
+
+        .validation-error.show {
+            display: block;
+        }
+
+        @media (max-width: 1024px) {
+            .sidebar {
+                width: 300px;
+            }
+            
+            .schedule-grid {
+                min-width: 700px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 1.2rem;
+            }
+            
+            .header-stats {
+                font-size: 0.8rem;
+                gap: 10px;
+            }
+            
+            .sidebar {
+                width: 280px;
+            }
+            
+            .schedule-grid {
+                min-width: 600px;
+                font-size: 0.8rem;
+            }
+            
+            .subjects-panel {
+                bottom: 10px;
+                left: 10px;
+                right: 10px;
+                transform: none;
+                max-width: none;
+            }
+            
+            .quick-actions {
+                left: 10px;
+                bottom: 80px;
+            }
+            
+            .status-indicator {
+                bottom: 80px;
+                right: 10px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .main-content {
+                padding: 10px;
+            }
+            
+            .schedule-container {
+                padding: 15px;
+            }
+            
+            .menu-toggle {
+                top: 15px;
+                right: 15px;
+                width: 48px;
+                height: 48px;
+            }
+            
+            .quick-btn {
+                width: 48px;
+                height: 48px;
+            }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeInRight {
+            from {
+                opacity: 0;
+                transform: translateX(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .schedule-container {
+            animation: fadeInUp 0.6s ease;
+        }
+
+        .subjects-panel {
+            animation: fadeInUp 0.8s ease;
+        }
+
+        .quick-actions {
+            animation: fadeInRight 1s ease;
+        }
+    </style>
+</head>
+<body>
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+    
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-spinner"></div>
+    </div>
+
+    <button class="menu-toggle" id="menuToggle" aria-label="Abrir menu">
+        <i class="fas fa-bars"></i>
+    </button>
+
+    <div class="sidebar" id="sidebar">
+        <div class="menu-section">
+            <h3><i class="fas fa-clock"></i> Configurações de Horário</h3>
+            <div class="input-group">
+                <label for="classDuration">Duração da Aula (min)</label>
+                <input type="number" id="classDuration" value="50" min="30" max="120">
+                <div class="validation-error" id="classDurationError">Duração deve ser entre 30 e 120 minutos</div>
+            </div>
+            <div class="input-group">
+                <label for="startTime">Horário de Início</label>
+                <input type="time" id="startTime" value="07:00">
+            </div>
+            <div class="input-group">
+                <label for="endTimeMorning">Fim da Manhã</label>
+                <input type="time" id="endTimeMorning" value="12:00">
+            </div>
+            <div class="input-group">
+                <label for="startTimeAfternoon">Início da Tarde</label>
+                <input type="time" id="startTimeAfternoon" value="13:00">
+            </div>
+            <div class="input-group">
+                <label for="endTimeAfternoon">Fim da Tarde</label>
+                <input type="time" id="endTimeAfternoon" value="17:00">
+            </div>
+            <button class="btn btn-primary" id="applySettings">
+                <i class="fas fa-check"></i> Aplicar Configurações
+            </button>
+        </div>
+
+        <div class="menu-section">
+            <h3><i class="fas fa-coffee"></i> Intervalos</h3>
+            <div class="input-group">
+                <label for="morningBreak">Recreio da Manhã</label>
+                <input type="time" id="morningBreak" value="09:30">
+            </div>
+            <div class="input-group">
+                <label for="afternoonBreak">Recreio da Tarde</label>
+                <input type="time" id="afternoonBreak" value="15:30">
+            </div>
+            <div class="input-group">
+                <label for="breakDuration">Duração do Recreio (min)</label>
+                <input type="number" id="breakDuration" value="20" min="10" max="60">
+                <div class="validation-error" id="breakDurationError">Duração deve ser entre 10 e 60 minutos</div>
+            </div>
+        </div>
+
+        <div class="menu-section">
+            <h3><i class="fas fa-book"></i> Gerenciar Disciplinas</h3>
+            <div class="input-group">
+                <label for="newSubject">Nova Disciplina</label>
+                <input type="text" id="newSubject" placeholder="Nome da disciplina">
+                <div class="validation-error" id="subjectNameError">Nome da disciplina é obrigatório</div>
+            </div>
+            <div class="input-group">
+                <label for="newTeacher">Professor</label>
+                <input type="text" id="newTeacher" placeholder="Nome do professor">
+                <div class="validation-error" id="teacherNameError">Nome do professor é obrigatório</div>
+            </div>
+            <button class="btn btn-primary" id="addSubject">
+                <i class="fas fa-plus"></i> Adicionar Disciplina
+            </button>
+        </div>
+
+        <div class="menu-section">
+            <h3><i class="fas fa-brain"></i> Otimização Inteligente</h3>
+            <div class="input-group">
+                <label for="optimizationLevel">Nível de Otimização</label>
+                <select id="optimizationLevel">
+                    <option value="basic">Básico</option>
+                    <option value="advanced" selected>Avançado (Neurociência)</option>
+                    <option value="custom">Personalizado</option>
+                </select>
+            </div>
+            <button class="btn btn-success" id="optimizeAdvanced">
+                <i class="fas fa-magic"></i> Otimizar Distribuição
+            </button>
+        </div>
+
+        <div class="menu-section">
+            <h3><i class="fas fa-download"></i> Exportação</h3>
+            <button class="btn btn-warning" id="exportPdf">
+                <i class="fas fa-file-pdf"></i> Exportar PDF
+            </button>
+            <button class="btn btn-outline" id="exportData">
+                <i class="fas fa-download"></i> Exportar Dados
+            </button>
+            <button class="btn btn-outline" id="importData">
+                <i class="fas fa-upload"></i> Importar Dados
+            </button>
+        </div>
+
+        <div class="menu-section">
+            <h3><i class="fas fa-cog"></i> Preferências</h3>
+            <button class="btn btn-outline" id="toggleTheme">
+                <i class="fas fa-moon"></i> Alternar Tema
+            </button>
+            <button class="btn btn-outline" id="resetAll">
+                <i class="fas fa-undo"></i> Resetar Tudo
+            </button>
+        </div>
+        
+        <div class="menu-section">
+            <h3><i class="fas fa-chart-bar"></i> Cargas Horárias</h3>
+            <button class="btn btn-outline" id="showWorkload">
+                <i class="fas fa-table"></i> Visualizar/Editar Cargas
+            </button>
+        </div>
+    </div>
+
+    <div class="app-container">
+        <header class="header">
+            <h1>
+                <i class="fas fa-calendar-alt"></i>
+                Grade de Horários Escolares
+            </h1>
+            <div class="header-stats">
+                <div class="stat-item">
+                    <i class="fas fa-book"></i>
+                    <span id="subjectCount">17</span> disciplinas
+                </div>
+                <div class="stat-item">
+                    <i class="fas fa-clock"></i>
+                    <span id="classCount">0</span> aulas
+                </div>
+                <div class="stat-item">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <span id="conflictCount">0</span> conflitos
+                </div>
+            </div>
+        </header>
+
+        <main class="main-content">
+            <div class="schedule-container">
+                <div class="schedule-header">
+                    <h2>
+                        <i class="fas fa-table"></i>
+                        Grade de Horários Semanal
+                    </h2>
+                </div>
+                <div class="schedule-grid" id="scheduleGrid">
+                    <!-- Grade será gerada dinamicamente -->
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <div class="subjects-panel">
+        <div class="subjects-grid" id="subjectsGrid">
+            <!-- Disciplinas serão geradas dinamicamente -->
+        </div>
+    </div>
+
+    <div class="quick-actions">
+        <button class="quick-btn optimize" id="quickOptimize" data-tooltip="Otimizar Distribuição" aria-label="Otimizar distribuição">
+            <i class="fas fa-brain"></i>
+        </button>
+        <button class="quick-btn clear" id="quickClear" data-tooltip="Limpar Grade" aria-label="Limpar grade">
+            <i class="fas fa-trash"></i>
+        </button>
+        <button class="quick-btn export" id="quickExport" data-tooltip="Exportar PDF" aria-label="Exportar PDF">
+            <i class="fas fa-file-pdf"></i>
+        </button>
+        <button class="quick-btn theme" id="quickTheme" data-tooltip="Alternar Tema" aria-label="Alternar tema">
+            <i class="fas fa-moon"></i>
+        </button>
+    </div>
+
+    <div class="status-indicator">
+        <div class="status-item">
+            <div class="status-dot success"></div>
+            <span id="statusText">Sistema pronto</span>
+        </div>
+        <div class="status-item">
+            <div class="status-dot" id="conflictDot"></div>
+            <span id="conflictText">Sem conflitos</span>
+        </div>
+    </div>
+
+    <div class="notification" id="notification" role="alert" aria-live="polite">
+        <i class="fas fa-check"></i>
+        <span id="notificationText">Operação realizada com sucesso!</span>
+    </div>
+
+    <div class="modal" id="workloadModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Cargas Horárias - Novo Ensino Médio MG</h3>
+                <button class="close-modal" id="closeModal" aria-label="Fechar modal">&times;</button>
+            </div>
+            
+            <div class="modal-body">
+                <table class="workload-table">
+                    <thead>
+                        <tr>
+                            <th>Componente Curricular</th>
+                            <th>Aulas/Semana</th>
+                            <th>Horas/Semana</th>
+                        </tr>
+                    </thead>
+                    <tbody id="workloadTableBody">
+                        <!-- Conteúdo será gerado dinamicamente -->
+                    </tbody>
+                </table>
+                
+                <button class="btn btn-success" id="saveWorkload">
+                    <i class="fas fa-save"></i> Salvar Cargas Horárias
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <input type="file" id="importFile" accept=".json" style="display: none;">
+
+    <script>
+        class PlanejadorHorarios {
+            constructor() {
+                // Definir disciplinas conforme Novo Ensino Médio MG
+                this.disciplinas = [
+                    // Formação Geral Básica (FGB)
+                    { nome: "Língua Portuguesa", professor: "Prof. Português", tipo: "linguagem", aulasSemana: 4 },
+                    { nome: "Inglês", professor: "Prof. Inglês", tipo: "linguagem", aulasSemana: 2 },
+                    { nome: "Artes", professor: "Prof. Artes", tipo: "pratica", aulasSemana: 2 },
+                    { nome: "Educação Física", professor: "Prof. Ed. Física", tipo: "pratica", aulasSemana: 2 },
+                    { nome: "Matemática", professor: "Prof. Matemática", tipo: "exata", aulasSemana: 6 },
+                    { nome: "Biologia", professor: "Prof. Biologia", tipo: "exata", aulasSemana: 2 },
+                    { nome: "Física", professor: "Prof. Física", tipo: "exata", aulasSemana: 2 },
+                    { nome: "Química", professor: "Prof. Química", tipo: "exata", aulasSemana: 3 },
+                    { nome: "História", professor: "Prof. História", tipo: "humana", aulasSemana: 2 },
+                    { nome: "Geografia", professor: "Prof. Geografia", tipo: "humana", aulasSemana: 2 },
+                    { nome: "Filosofia", professor: "Prof. Filosofia", tipo: "humana", aulasSemana: 2 },
+                    { nome: "Sociologia", professor: "Prof. Sociologia", tipo: "humana", aulasSemana: 1 },
+                    
+                    // Itinerários Formativos (IF)
+                    { nome: "Aprofundamento", professor: "Prof. Aprofundamento", tipo: "especial", aulasSemana: 4 },
+                    { nome: "Formação Técnica", professor: "Prof. Formação Técnica", tipo: "especial", aulasSemana: 4 },
+                    { nome: "Projeto de Vida", professor: "Prof. Projeto de Vida", tipo: "especial", aulasSemana: 2 },
+                    { nome: "Eletivas", professor: "Prof. Eletivas", tipo: "especial", aulasSemana: 2 },
+                    { nome: "Estudo Orientado", professor: "Prof. Estudo Orientado", tipo: "especial", aulasSemana: 2 },
+                    
+                    // Atividades Integradoras
+                    { nome: "Atividades Integradoras", professor: "Prof. Integradoras", tipo: "especial", aulasSemana: 1 }
+                ];
+
+                this.diasSemana = ["Segunda", "Terça", "Quarta", "Quinta", "Sexta"];
+                this.gradeHorarios = {};
+                this.configuracoes = {
+                    duracaoAula: 50,
+                    horarioInicio: "07:00",
+                    fimManha: "12:00",
+                    inicioTarde: "13:00",
+                    fimTarde: "17:00",
+                    recreioManha: "09:30",
+                    recreioTarde: "15:30",
+                    duracaoRecreiro: 20
+                };
+
+                this.elementoArrastado = null;
+                this.celulaOrigem = null;
+                this.modoTroca = false;
+                this.isLoading = false;
+
+                this.inicializar();
+            }
+
+            inicializar() {
+                this.configurarEventos();
+                this.gerarGrade();
+                this.gerarDisciplinas();
+                this.atualizarEstatisticas();
+                this.carregarDados();
+                this.gerarTabelaCargasHorarias();
+            }
+
+            configurarEventos() {
+                document.getElementById('menuToggle').addEventListener('click', () => {
+                    this.alternarMenu();
+                });
+
+                document.getElementById('sidebarOverlay').addEventListener('click', () => {
+                    this.fecharMenu();
+                });
+
+                document.getElementById('applySettings').addEventListener('click', () => {
+                    this.aplicarConfiguracoes();
+                });
+
+                document.getElementById('addSubject').addEventListener('click', () => {
+                    this.adicionarDisciplina();
+                });
+
+                document.getElementById('optimizeAdvanced').addEventListener('click', () => {
+                    this.otimizarDistribuicaoAvancada();
+                });
+
+                document.getElementById('quickOptimize').addEventListener('click', () => {
+                    this.otimizarDistribuicaoAvancada();
+                });
+
+                document.getElementById('quickClear').addEventListener('click', () => {
+                    this.limparGrade();
+                });
+
+                document.getElementById('exportPdf').addEventListener('click', () => {
+                    this.exportarPDF();
+                });
+
+                document.getElementById('quickExport').addEventListener('click', () => {
+                    this.exportarPDF();
+                });
+
+                document.getElementById('exportData').addEventListener('click', () => {
+                    this.exportarDados();
+                });
+
+                document.getElementById('importData').addEventListener('click', () => {
+                    document.getElementById('importFile').click();
+                });
+
+                document.getElementById('importFile').addEventListener('change', (e) => {
+                    this.importarDados(e);
+                });
+
+                document.getElementById('toggleTheme').addEventListener('click', () => {
+                    this.alternarTema();
+                });
+
+                document.getElementById('quickTheme').addEventListener('click', () => {
+                    this.alternarTema();
+                });
+
+                document.getElementById('resetAll').addEventListener('click', () => {
+                    this.resetarTudo();
+                });
+
+                document.getElementById('showWorkload').addEventListener('click', () => {
+                    this.mostrarModalCargas();
+                });
+
+                document.getElementById('closeModal').addEventListener('click', () => {
+                    this.fecharModalCargas();
+                });
+
+                document.getElementById('saveWorkload').addEventListener('click', () => {
+                    this.salvarCargasHorarias();
+                });
+
+                // Validação em tempo real
+                document.getElementById('classDuration').addEventListener('input', (e) => {
+                    this.validarCampo(e.target, 30, 120, 'classDurationError');
+                });
+
+                document.getElementById('breakDuration').addEventListener('input', (e) => {
+                    this.validarCampo(e.target, 10, 60, 'breakDurationError');
+                });
+
+                document.getElementById('newSubject').addEventListener('input', (e) => {
+                    this.validarCampoTexto(e.target, 'subjectNameError');
+                });
+
+                document.getElementById('newTeacher').addEventListener('input', (e) => {
+                    this.validarCampoTexto(e.target, 'teacherNameError');
+                });
+
+                // Atalhos de teclado
+                document.addEventListener('keydown', (e) => {
+                    if (e.ctrlKey) {
+                        switch(e.key) {
+                            case 'o':
+                                e.preventDefault();
+                                this.otimizarDistribuicaoAvancada();
+                                break;
+                            case 's':
+                                e.preventDefault();
+                                this.salvarDados();
+                                break;
+                            case 'e':
+                                e.preventDefault();
+                                this.exportarPDF();
+                                break;
+                            case 'i':
+                                e.preventDefault();
+                                document.getElementById('importFile').click();
+                                break;
+                        }
+                    }
+                    
+                    // ESC fecha modais
+                    if (e.key === 'Escape') {
+                        this.fecharModalCargas();
+                        this.fecharMenu();
+                    }
+                });
+            }
+
+            validarCampo(campo, min, max, errorId) {
+                const valor = parseInt(campo.value);
+                const errorElement = document.getElementById(errorId);
+                
+                if (isNaN(valor) || valor < min || valor > max) {
+                    campo.style.borderColor = 'var(--error)';
+                    errorElement.classList.add('show');
+                    return false;
+                } else {
+                    campo.style.borderColor = '';
+                    errorElement.classList.remove('show');
+                    return true;
+                }
+            }
+
+            validarCampoTexto(campo, errorId) {
+                const valor = campo.value.trim();
+                const errorElement = document.getElementById(errorId);
+                
+                if (!valor) {
+                    campo.style.borderColor = 'var(--error)';
+                    errorElement.classList.add('show');
+                    return false;
+                } else {
+                    campo.style.borderColor = '';
+                    errorElement.classList.remove('show');
+                    return true;
+                }
+            }
+
+            alternarMenu() {
+                const sidebar = document.getElementById('sidebar');
+                const overlay = document.getElementById('sidebarOverlay');
+                const toggle = document.getElementById('menuToggle');
+
+                const isOpen = sidebar.classList.contains('open');
+
+                if (isOpen) {
+                    this.fecharMenu();
+                } else {
+                    this.abrirMenu();
+                }
+            }
+
+            abrirMenu() {
+                const sidebar = document.getElementById('sidebar');
+                const overlay = document.getElementById('sidebarOverlay');
+                const toggle = document.getElementById('menuToggle');
+
+                sidebar.classList.add('open');
+                overlay.classList.add('active');
+                toggle.classList.add('active');
+                toggle.querySelector('i').className = 'fas fa-times';
+            }
+
+            fecharMenu() {
+                const sidebar = document.getElementById('sidebar');
+                const overlay = document.getElementById('sidebarOverlay');
+                const toggle = document.getElementById('menuToggle');
+
+                sidebar.classList.remove('open');
+                overlay.classList.remove('active');
+                toggle.classList.remove('active');
+                toggle.querySelector('i').className = 'fas fa-bars';
+            }
+
+            gerarGrade() {
+                const grid = document.getElementById('scheduleGrid');
+                grid.innerHTML = '';
+
+                // Cabeçalho vazio
+                const cornerHeader = document.createElement('div');
+                cornerHeader.className = 'time-header';
+                grid.appendChild(cornerHeader);
+
+                // Cabeçalhos dos dias
+                this.diasSemana.forEach(dia => {
+                    const dayHeader = document.createElement('div');
+                    dayHeader.className = 'day-header';
+                    dayHeader.textContent = dia;
+                    grid.appendChild(dayHeader);
+                });
+
+                // Gerar horários
+                const horarios = this.gerarHorarios();
+
+                horarios.forEach(horario => {
+                    // Célula de tempo
+                    const timeCell = document.createElement('div');
+                    timeCell.className = 'time-slot';
+                    timeCell.textContent = horario;
+                    grid.appendChild(timeCell);
+
+                    // Células para cada dia
+                    this.diasSemana.forEach(dia => {
+                        const cellId = `${dia}-${horario}`;
+                        const cell = document.createElement('div');
+                        cell.className = 'schedule-cell empty';
+                        cell.id = cellId;
+                        cell.dataset.dia = dia;
+                        cell.dataset.horario = horario;
+                        cell.setAttribute('aria-label', `Célula para ${dia} às ${horario}`);
+
+                        // Verificar se é intervalo
+                        if (horario === this.configuracoes.recreioManha || 
+                            horario === this.configuracoes.recreioTarde) {
+                            cell.className = 'break-cell';
+                            cell.textContent = 'RECREIO';
+                            cell.style.gridColumn = '1 / -1';
+                            if (dia !== 'Segunda') return; // Só adiciona uma vez
+                        } else {
+                            this.configurarEventosCelula(cell);
+                        }
+
+                        grid.appendChild(cell);
+
+                        // Inicializar dados
+                        if (!this.gradeHorarios[dia]) this.gradeHorarios[dia] = {};
+                        this.gradeHorarios[dia][horario] = null;
+                    });
+                });
+            }
+
+            gerarHorarios() {
+                const horarios = [];
+                const duracao = this.configuracoes.duracaoAula;
+
+                function timeToMinutes(time) {
+                    const [hours, minutes] = time.split(':').map(Number);
+                    return hours * 60 + minutes;
+                }
+
+                function minutesToTime(totalMinutes) {
+                    const hours = Math.floor(totalMinutes / 60);
+                    const minutes = totalMinutes % 60;
+                    return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
+                }
+
+                const startMorning = timeToMinutes(this.configuracoes.horarioInicio);
+                const endMorning = timeToMinutes(this.configuracoes.fimManha);
+                const startAfternoon = timeToMinutes(this.configuracoes.inicioTarde);
+                const endAfternoon = timeToMinutes(this.configuracoes.fimTarde);
+                const morningBreak = timeToMinutes(this.configuracoes.recreioManha);
+                const afternoonBreak = timeToMinutes(this.configuracoes.recreioTarde);
+
+                // Manhã
+                let current = startMorning;
+                while (current < endMorning) {
+                    if (current === morningBreak) {
+                        horarios.push(this.configuracoes.recreioManha);
+                        current += this.configuracoes.duracaoRecreiro;
+                        continue;
+                    }
+                    horarios.push(minutesToTime(current));
+                    current += duracao;
+                }
+
+                // Tarde
+                current = startAfternoon;
+                while (current < endAfternoon) {
+                    if (current === afternoonBreak) {
+                        horarios.push(this.configuracoes.recreioTarde);
+                        current += this.configuracoes.duracaoRecreiro;
+                        continue;
+                    }
+                    horarios.push(minutesToTime(current));
+                    current += duracao;
+                }
+
+                return horarios;
+            }
+
+            configurarEventosCelula(cell) {
+                // Drag and drop
+                cell.addEventListener('dragover', (e) => this.permitirDrop(e));
+                cell.addEventListener('dragenter', (e) => this.entrarDrag(e));
+                cell.addEventListener('dragleave', (e) => this.sairDrag(e));
+                cell.addEventListener('drop', (e) => this.soltarElemento(e));
+                
+                // Acessibilidade - permitir adicionar com teclado
+                cell.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        this.abrirSelecaoDisciplina(cell);
+                    }
+                });
+                
+                cell.setAttribute('tabindex', '0');
+            }
+
+            abrirSelecaoDisciplina(cell) {
+                // Implementação simplificada para adicionar disciplina via teclado
+                const dia = cell.dataset.dia;
+                const horario = cell.dataset.horario;
+                
+                // Verificar se é intervalo
+                if (horario === this.configuracoes.recreioManha || 
+                    horario === this.configuracoes.recreioTarde) {
+                    this.mostrarNotificacao('Não é possível adicionar disciplinas durante o recreio!', 'error');
+                    return;
+                }
+                
+                // Selecionar a primeira disciplina disponível (poderia ser um modal de seleção)
+                if (this.disciplinas.length > 0) {
+                    const disciplina = this.disciplinas[0];
+                    this.adicionarDisciplinaCelula(dia, horario, disciplina.nome);
+                }
+            }
+
+            gerarDisciplinas() {
+                const grid = document.getElementById('subjectsGrid');
+                grid.innerHTML = '';
+
+                this.disciplinas.forEach(disciplina => {
+                    const item = document.createElement('div');
+                    item.className = 'subject-item';
+                    item.textContent = disciplina.nome;
+                    item.draggable = true;
+                    item.dataset.disciplina = disciplina.nome;
+                    item.dataset.professor = disciplina.professor;
+                    item.dataset.tipo = disciplina.tipo;
+                    item.setAttribute('aria-label', `Arrastar disciplina ${disciplina.nome}`);
+
+                    item.addEventListener('dragstart', (e) => this.iniciarDrag(e));
+                    item.addEventListener('dragend', (e) => this.finalizarDrag(e));
+                    
+                    // Acessibilidade - permitir adicionar com teclado
+                    item.addEventListener('keydown', (e) => {
+                        if (e.key === 'Enter' || e.key === ' ') {
+                            e.preventDefault();
+                            this.iniciarDragKeyboard(e, item);
+                        }
+                    });
+                    
+                    item.setAttribute('tabindex', '0');
+
+                    grid.appendChild(item);
+                });
+
+                document.getElementById('subjectCount').textContent = this.disciplinas.length;
+            }
+
+            iniciarDragKeyboard(e, item) {
+                // Implementação para iniciar arrasto via teclado
+                this.elementoArrastado = item;
+                this.celulaOrigem = null;
+                this.modoTroca = false;
+                
+                item.classList.add('dragging');
+                
+                this.mostrarNotificacao('Use as teclas de direção para navegar e Enter para soltar a disciplina', 'info');
+                
+                // Navegação por teclado
+                const handleKeyDown = (e) => {
+                    if (e.key === 'Escape') {
+                        this.finalizarDrag({ target: item });
+                        document.removeEventListener('keydown', handleKeyDown);
+                    }
+                };
+                
+                document.addEventListener('keydown', handleKeyDown);
+            }
+
+            gerarTabelaCargasHorarias() {
+                const tableBody = document.getElementById('workloadTableBody');
+                tableBody.innerHTML = '';
+                
+                // Agrupar disciplinas por área do conhecimento
+                const areas = {
+                    "Linguagens e suas Tecnologias": ["Língua Portuguesa", "Inglês", "Artes", "Educação Física"],
+                    "Matemática e suas Tecnologias": ["Matemática"],
+                    "Ciências da Natureza e suas Tecnologias": ["Biologia", "Física", "Química"],
+                    "Ciências Humanas e Sociais Aplicadas": ["História", "Geografia", "Filosofia", "Sociologia"],
+                    "Itinerários Formativos": ["Aprofundamento", "Formação Técnica", "Projeto de Vida", "Eletivas", "Estudo Orientado"],
+                    "Atividades Integradoras": ["Atividades Integradoras"]
+                };
+                
+                // Calcular totais
+                const totalAulas = this.disciplinas.reduce((total, disc) => total + disc.aulasSemana, 0);
+                const totalHoras = totalAulas * (this.configuracoes.duracaoAula / 60);
+                
+                // Adicionar cabeçalho com totais
+                let html = `
+                    <tr>
+                        <td colspan="3" style="text-align: center; font-weight: bold; background-color: #f0f0f0;">
+                            Total: ${totalAulas} aulas/semana (${totalHoras.toFixed(1)} horas)
+                        </td>
+                    </tr>
+                `;
+                
+                // Adicionar disciplinas por área
+                for (const [area, disciplinas] of Object.entries(areas)) {
+                    html += `
+                        <tr>
+                            <td colspan="3" class="area-title">${area}</td>
+                        </tr>
+                    `;
+                    
+                    for (const nomeDisc of disciplinas) {
+                        const disciplina = this.disciplinas.find(d => d.nome === nomeDisc);
+                        if (disciplina) {
+                            const horas = disciplina.aulasSemana * (this.configuracoes.duracaoAula / 60);
+                            html += `
+                                <tr>
+                                    <td>${disciplina.nome}</td>
+                                    <td>
+                                        <input type="number" min="1" max="10" 
+                                            value="${disciplina.aulasSemana}" 
+                                            data-disciplina="${disciplina.nome}">
+                                    </td>
+                                    <td>${horas.toFixed(1)} horas</td>
+                                </tr>
+                            `;
+                        }
+                    }
+                }
+                
+                tableBody.innerHTML = html;
+            }
+
+            mostrarModalCargas() {
+                document.getElementById('workloadModal').style.display = 'flex';
+                this.gerarTabelaCargasHorarias();
+            }
+
+            fecharModalCargas() {
+                document.getElementById('workloadModal').style.display = 'none';
+            }
+
+            salvarCargasHorarias() {
+                const inputs = document.querySelectorAll('#workloadTableBody input');
+                inputs.forEach(input => {
+                    const nome = input.dataset.disciplina;
+                    const aulas = parseInt(input.value) || 1;
+                    
+                    const disciplina = this.disciplinas.find(d => d.nome === nome);
+                    if (disciplina) {
+                        disciplina.aulasSemana = aulas;
+                    }
+                });
+                
+                this.mostrarNotificacao('Cargas horárias atualizadas com sucesso!', 'success');
+                this.gerarDisciplinas();
+                this.fecharModalCargas();
+                this.salvarDados();
+            }
+
+            iniciarDrag(e) {
+                this.elementoArrastado = e.target;
+                this.celulaOrigem = null;
+                this.modoTroca = false;
+                
+                e.target.classList.add('dragging');
+                e.dataTransfer.effectAllowed = 'move';
+                e.dataTransfer.setData('text/plain', e.target.dataset.disciplina);
+                
+                this.mostrarNotificacao('Arraste para uma célula da grade', 'info');
+            }
+
+            finalizarDrag(e) {
+                if (this.elementoArrastado) {
+                    this.elementoArrastado.classList.remove('dragging');
+                }
+                this.elementoArrastado = null;
+                this.celulaOrigem = null;
+                this.modoTroca = false;
+                
+                // Remover classes de destaque
+                document.querySelectorAll('.schedule-cell').forEach(cell => {
+                    cell.classList.remove('drag-over', 'drag-invalid', 'swap-source', 'swap-target');
+                });
+            }
+
+            permitirDrop(e) {
+                e.preventDefault();
+                return false;
+            }
+
+            entrarDrag(e) {
+                if (!this.elementoArrastado) return;
+                
+                const cell = e.target.closest('.schedule-cell');
+                if (!cell) return;
+                
+                const horario = cell.dataset.horario;
+                
+                // Verificar se é intervalo
+                if (horario === this.configuracoes.recreioManha || 
+                    horario === this.configuracoes.recreioTarde) {
+                    cell.classList.add('drag-invalid');
+                    return;
+                }
+                
+                // Verificar se já tem disciplina (modo troca)
+                const dia = cell.dataset.dia;
+                if (this.gradeHorarios[dia] && this.gradeHorarios[dia][horario]) {
+                    cell.classList.add('swap-target');
+                    this.modoTroca = true;
+                } else {
+                    cell.classList.add('drag-over');
+                }
+            }
+
+            sairDrag(e) {
+                const cell = e.target.closest('.schedule-cell');
+                if (!cell) return;
+                
+                cell.classList.remove('drag-over', 'drag-invalid', 'swap-target');
+            }
+
+            soltarElemento(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                
+                const cell = e.target.closest('.schedule-cell');
+                if (!cell) return;
+                
+                const dia = cell.dataset.dia;
+                const horario = cell.dataset.horario;
+                
+                // Verificar se é intervalo
+                if (horario === this.configuracoes.recreioManha || 
+                    horario === this.configuracoes.recreioTarde) {
+                    this.mostrarNotificacao('Não é possível adicionar disciplinas durante o recreio!', 'error');
+                    return;
+                }
+                
+                const disciplinaNome = e.dataTransfer.getData('text/plain') || 
+                                     this.elementoArrastado?.dataset.disciplina;
+                
+                if (!disciplinaNome) return;
+                
+                // Verificar se é uma troca
+                if (this.gradeHorarios[dia] && this.gradeHorarios[dia][horario]) {
+                    this.trocarDisciplinas(dia, horario, disciplinaNome);
+                } else {
+                    this.adicionarDisciplinaCelula(dia, horario, disciplinaNome);
+                }
+                
+                this.finalizarDrag({ target: this.elementoArrastado || e.target });
+            }
+
+            trocarDisciplinas(dia, horario, novaDisciplina) {
+                const disciplinaAtual = this.gradeHorarios[dia][horario];
+                
+                if (this.celulaOrigem) {
+                    // Troca entre duas células da grade
+                    const diaOrigem = this.celulaOrigem.dataset.dia;
+                    const horarioOrigem = this.celulaOrigem.dataset.horario;
+                    
+                    // Fazer a troca
+                    this.gradeHorarios[diaOrigem][horarioOrigem] = disciplinaAtual;
+                    this.gradeHorarios[dia][horario] = this.gradeHorarios[diaOrigem][horarioOrigem];
+                    
+                    // Atualizar UI
+                    this.atualizarCelulaUI(diaOrigem, horarioOrigem, disciplinaAtual);
+                    this.atualizarCelulaUI(dia, horario, novaDisciplina);
+                    
+                    this.mostrarNotificacao('Disciplinas trocadas com sucesso!', 'success');
+                } else {
+                    // Substituir disciplina
+                    const disciplina = this.disciplinas.find(d => d.nome === novaDisciplina);
+                    this.gradeHorarios[dia][horario] = disciplina;
+                    this.atualizarCelulaUI(dia, horario, disciplina);
+                    
+                    this.mostrarNotificacao(`${novaDisciplina} substituída em ${dia} às ${horario}`, 'success');
+                }
+                
+                this.atualizarEstatisticas();
+                this.validarConflitos();
+                this.salvarDados();
+            }
+
+            adicionarDisciplinaCelula(dia, horario, disciplinaNome) {
+                const disciplina = this.disciplinas.find(d => d.nome === disciplinaNome);
+                if (!disciplina) return;
+                
+                this.gradeHorarios[dia][horario] = disciplina;
+                this.atualizarCelulaUI(dia, horario, disciplina);
+                
+                this.mostrarNotificacao(`${disciplinaNome} adicionada em ${dia} às ${horario}`, 'success');
+                this.atualizarEstatisticas();
+                this.validarConflitos();
+                this.salvarDados();
+            }
+
+            atualizarCelulaUI(dia, horario, disciplina) {
+                const cellId = `${dia}-${horario}`;
+                const cell = document.getElementById(cellId);
+                if (!cell) return;
+                
+                cell.innerHTML = '';
+                cell.classList.remove('empty');
+                
+                if (disciplina) {
+                    const subjectEl = document.createElement('div');
+                    subjectEl.className = 'subject-in-cell';
+                    subjectEl.draggable = true;
+                    subjectEl.dataset.disciplina = disciplina.nome;
+                    subjectEl.dataset.professor = disciplina.professor;
+                    subjectEl.setAttribute('aria-label', `Disciplina ${disciplina.nome} com professor ${disciplina.professor}`);
+                    
+                    subjectEl.innerHTML = `
+                        <div class="subject-name">${disciplina.nome || 'Disciplina'}</div>
+                        <div class="subject-teacher">${disciplina.professor || 'Professor'}</div>
+                        <button class="delete-btn" title="Remover" aria-label="Remover disciplina">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    `;
+                    
+                    // Eventos
+                    subjectEl.addEventListener('dragstart', (e) => {
+                        this.elementoArrastado = e.target;
+                        this.celulaOrigem = cell;
+                        this.iniciarDrag(e);
+                    });
+                    
+                    subjectEl.addEventListener('dragend', (e) => this.finalizarDrag(e));
+                    
+                    subjectEl.querySelector('.delete-btn').addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        this.removerDisciplina(dia, horario);
+                    });
+                    
+                    // Acessibilidade - permitir remover com teclado
+                    subjectEl.addEventListener('keydown', (e) => {
+                        if (e.key === 'Delete' || e.key === 'Backspace') {
+                            e.preventDefault();
+                            this.removerDisciplina(dia, horario);
+                        }
+                    });
+                    
+                    subjectEl.setAttribute('tabindex', '0');
+                    
+                    cell.appendChild(subjectEl);
+                } else {
+                    cell.classList.add('empty');
+                    cell.setAttribute('tabindex', '0');
+                }
+            }
+
+            removerDisciplina(dia, horario) {
+                const disciplina = this.gradeHorarios[dia][horario];
+                this.gradeHorarios[dia][horario] = null;
+                this.atualizarCelulaUI(dia, horario, null);
+                
+                this.mostrarNotificacao(`${disciplina.nome} removida de ${dia} às ${horario}`, 'success');
+                this.atualizarEstatisticas();
+                this.validarConflitos();
+                this.salvarDados();
+            }
+
+            otimizarDistribuicaoAvancada() {
+                this.mostrarLoading(true);
+                
+                // Simular processamento assíncrono para não travar a UI
+                setTimeout(() => {
+                    this.limparGrade();
+                    
+                    // Categorização baseada em neurociência
+                    const categoriasNeurociencia = {
+                        altaConcentracao: ['Matemática', 'Física', 'Química'],
+                        mediaConcentracao: ['Língua Portuguesa', 'Inglês', 'Biologia', 'História', 'Geografia', 'Filosofia', 'Sociologia'],
+                        baixaConcentracao: ['Artes', 'Educação Física', 'Projeto de Vida', 'Eletivas', 'Estudo Orientado', 'Atividades Integradoras', 'Aprofundamento', 'Formação Técnica']
+                    };
+                    
+                    // Horários ideais baseados em cronobiologia
+                    const horariosIdeais = {
+                        picoMatutino: ['07:00', '08:00', '09:00'], // Melhor para concentração
+                        medioMatutino: ['10:00', '11:00'],
+                        inicioTarde: ['13:00', '14:00'],
+                        fimTarde: ['15:00', '16:00', '17:00'] // Melhor para atividades práticas
+                    };
+                    
+                    const horarios = this.gerarHorarios().filter(h => 
+                        h !== this.configuracoes.recreioManha && 
+                        h !== this.configuracoes.recreioTarde
+                    );
+                    
+                    // Agrupar disciplinas por carga horária
+                    const disciplinasPorCarga = {};
+                    this.disciplinas.forEach(disciplina => {
+                        if (!disciplinasPorCarga[disciplina.aulasSemana]) {
+                            disciplinasPorCarga[disciplina.aulasSemana] = [];
+                        }
+                        disciplinasPorCarga[disciplina.aulasSemana].push(disciplina);
+                    });
+                    
+                    // Ordenar por carga horária (maiores primeiras)
+                    const cargasOrdenadas = Object.keys(disciplinasPorCarga).sort((a, b) => b - a);
+                    
+                    // Distribuir disciplinas de acordo com a carga horária e neurociência
+                    cargasOrdenadas.forEach(carga => {
+                        disciplinasPorCarga[carga].forEach(disciplina => {
+                            const aulasSemana = parseInt(carga);
+                            
+                            for (let i = 0; i < aulasSemana; i++) {
+                                let encontrou = false;
+                                
+                                // Tentar encontrar horário ideal
+                                const categoria = this.obterCategoria(disciplina, categoriasNeurociencia);
+                                const horariosCategoria = this.obterHorariosCategoria(categoria, horariosIdeais);
+                                
+                                for (let tentativa = 0; tentativa < 5; tentativa++) {
+                                    const dia = this.diasSemana[Math.floor(Math.random() * this.diasSemana.length)];
+                                    const horario = this.obterHorarioIdeal(horariosCategoria, horarios);
+                                    
+                                    if (horario && this.gradeHorarios[dia] && !this.gradeHorarios[dia][horario]) {
+                                        this.gradeHorarios[dia][horario] = disciplina;
+                                        this.atualizarCelulaUI(dia, horario, disciplina);
+                                        encontrou = true;
+                                        break;
+                                    }
+                                }
+                                
+                                // Se não encontrou horário ideal, tentar qualquer horário disponível
+                                if (!encontrou) {
+                                    for (let tentativa = 0; tentativa < 10; tentativa++) {
+                                        const dia = this.diasSemana[Math.floor(Math.random() * this.diasSemana.length)];
+                                        const horario = horarios[Math.floor(Math.random() * horarios.length)];
+                                        
+                                        if (this.gradeHorarios[dia] && !this.gradeHorarios[dia][horario]) {
+                                            this.gradeHorarios[dia][horario] = disciplina;
+                                            this.atualizarCelulaUI(dia, horario, disciplina);
+                                            encontrou = true;
+                                            break;
+                                        }
+                                    }
+                                }
+                            }
+                        });
+                    });
+                    
+                    this.mostrarLoading(false);
+                    this.mostrarNotificacao('Distribuição otimizada com base em neurociência e cargas horárias!', 'success');
+                    this.atualizarEstatisticas();
+                    this.validarConflitos();
+                    this.salvarDados();
+                    this.fecharMenu();
+                }, 500); // Simular um processamento de 500ms
+            }
+
+            obterCategoria(disciplina, categorias) {
+                if (categorias.altaConcentracao.includes(disciplina.nome)) return 'altaConcentracao';
+                if (categorias.mediaConcentracao.includes(disciplina.nome)) return 'mediaConcentracao';
+                return 'baixaConcentracao';
+            }
+
+            obterHorariosCategoria(categoria, horariosIdeais) {
+                switch(categoria) {
+                    case 'altaConcentracao': 
+                        return [...horariosIdeais.picoMatutino];
+                    case 'mediaConcentracao':
+                        return [...horariosIdeais.medioMatutino, ...horariosIdeais.inicioTarde];
+                    case 'baixaConcentracao':
+                        return [...horariosIdeais.fimTarde];
+                    default:
+                        return Object.values(horariosIdeais).flat();
+                }
+            }
+
+            obterHorarioIdeal(horariosCategoria, todosHorarios) {
+                // Filtrar apenas horários que existem na grade
+                const horariosDisponiveis = horariosCategoria.filter(h => todosHorarios.includes(h));
+                
+                if (horariosDisponiveis.length > 0) {
+                    return horariosDisponiveis[Math.floor(Math.random() * horariosDisponiveis.length)];
+                }
+                
+                // Se não houver horários ideais disponíveis, retornar qualquer horário
+                return todosHorarios[Math.floor(Math.random() * todosHorarios.length)];
+            }
+
+            limparGrade() {
+                this.diasSemana.forEach(dia => {
+                    Object.keys(this.gradeHorarios[dia] || {}).forEach(horario => {
+                        this.gradeHorarios[dia][horario] = null;
+                        this.atualizarCelulaUI(dia, horario, null);
+                    });
+                });
+                
+                this.mostrarNotificacao('Grade limpa com sucesso!', 'success');
+                this.atualizarEstatisticas();
+                this.salvarDados();
+            }
+
+            validarConflitos() {
+                let conflitos = 0;
+                const professoresHorarios = {};
+                
+                this.diasSemana.forEach(dia => {
+                    Object.entries(this.gradeHorarios[dia] || {}).forEach(([horario, disciplina]) => {
+                        if (!disciplina) return;
+                        
+                        const chave = `${disciplina.professor}-${horario}`;
+                        if (professoresHorarios[chave]) {
+                            conflitos++;
+                        } else {
+                            professoresHorarios[chave] = true;
+                        }
+                    });
+                });
+                
+                document.getElementById('conflictCount').textContent = conflitos;
+                
+                const conflictDot = document.getElementById('conflictDot');
+                const conflictText = document.getElementById('conflictText');
+                
+                if (conflitos > 0) {
+                    conflictDot.className = 'status-dot error';
+                    conflictText.textContent = `${conflitos} conflito(s)`;
+                } else {
+                    conflictDot.className = 'status-dot success';
+                    conflictText.textContent = 'Sem conflitos';
+                }
+            }
+
+            atualizarEstatisticas() {
+                let totalAulas = 0;
+                
+                this.diasSemana.forEach(dia => {
+                    Object.values(this.gradeHorarios[dia] || {}).forEach(disciplina => {
+                        if (disciplina) totalAulas++;
+                    });
+                });
+                
+                document.getElementById('classCount').textContent = totalAulas;
+                
+                // Atualizar status
+                const statusText = document.getElementById('statusText');
+                if (totalAulas === 0) {
+                    statusText.textContent = 'Grade vazia';
+                } else if (totalAulas < 10) {
+                    statusText.textContent = 'Poucas aulas';
+                } else {
+                    statusText.textContent = 'Grade preenchida';
+                }
+            }
+
+            aplicarConfiguracoes() {
+                // Validar campos antes de aplicar
+                const classDurationValid = this.validarCampo(
+                    document.getElementById('classDuration'), 30, 120, 'classDurationError'
+                );
+                
+                const breakDurationValid = this.validarCampo(
+                    document.getElementById('breakDuration'), 10, 60, 'breakDurationError'
+                );
+                
+                if (!classDurationValid || !breakDurationValid) {
+                    this.mostrarNotificacao('Corrija os erros de validação antes de aplicar as configurações', 'error');
+                    return;
+                }
+                
+                this.configuracoes.duracaoAula = parseInt(document.getElementById('classDuration').value) || 50;
+                this.configuracoes.horarioInicio = document.getElementById('startTime').value || '07:00';
+                this.configuracoes.fimManha = document.getElementById('endTimeMorning').value || '12:00';
+                this.configuracoes.inicioTarde = document.getElementById('startTimeAfternoon').value || '13:00';
+                this.configuracoes.fimTarde = document.getElementById('endTimeAfternoon').value || '17:00';
+                this.configuracoes.recreioManha = document.getElementById('morningBreak').value || '09:30';
+                this.configuracoes.recreioTarde = document.getElementById('afternoonBreak').value || '15:30';
+                this.configuracoes.duracaoRecreiro = parseInt(document.getElementById('breakDuration').value) || 20;
+                
+                this.gerarGrade();
+                this.mostrarNotificacao('Configurações aplicadas! Grade reconstruída.', 'success');
+                this.salvarDados();
+                this.fecharMenu();
+            }
+
+            adicionarDisciplina() {
+                const nome = document.getElementById('newSubject').value.trim();
+                const professor = document.getElementById('newTeacher').value.trim();
+                
+                // Validar campos
+                const nomeValido = this.validarCampoTexto(document.getElementById('newSubject'), 'subjectNameError');
+                const professorValido = this.validarCampoTexto(document.getElementById('newTeacher'), 'teacherNameError');
+                
+                if (!nomeValido || !professorValido) {
+                    this.mostrarNotificacao('Preencha todos os campos obrigatórios!', 'error');
+                    return;
+                }
+                
+                // Verificar se já existe
+                if (this.disciplinas.find(d => d.nome === nome)) {
+                    this.mostrarNotificacao('Disciplina já existe!', 'error');
+                    return;
+                }
+                
+                this.disciplinas.push({
+                    nome: nome,
+                    professor: professor,
+                    tipo: 'personalizada',
+                    aulasSemana: 2 // Valor padrão
+                });
+                
+                this.gerarDisciplinas();
+                this.mostrarNotificacao(`Disciplina "${nome}" adicionada!`, 'success');
+                
+                // Limpar campos
+                document.getElementById('newSubject').value = '';
+                document.getElementById('newTeacher').value = '';
+                
+                this.salvarDados();
+            }
+
+            alternarTema() {
+                const body = document.body;
+                const currentTheme = body.getAttribute('data-theme');
+                const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+                
+                body.setAttribute('data-theme', newTheme);
+                
+                // Atualizar ícone
+                const themeIcons = document.querySelectorAll('#toggleTheme i, #quickTheme i');
+                themeIcons.forEach(icon => {
+                    icon.className = newTheme === 'dark' ? 'fas fa-sun' : 'fas fa-moon';
+                });
+                
+                this.mostrarNotificacao(`Tema ${newTheme === 'dark' ? 'escuro' : 'claro'} ativado!`, 'success');
+                localStorage.setItem('theme', newTheme);
+            }
+
+            exportarPDF() {
+                this.mostrarLoading(true);
+                
+                const scheduleGrid = document.getElementById('scheduleGrid');
+                
+                // Configurar para impressão
+                const originalStyle = scheduleGrid.style.cssText;
+                scheduleGrid.style.transform = 'scale(0.8)';
+                scheduleGrid.style.transformOrigin = 'top left';
+                
+                html2canvas(scheduleGrid, {
+                    scale: 2,
+                    backgroundColor: "#FFFFFF",
+                    logging: false,
+                    useCORS: true,
+                    width: scheduleGrid.scrollWidth,
+                    height: scheduleGrid.scrollHeight
+                }).then(canvas => {
+                    const imgData = canvas.toDataURL('image/png');
+                    const pdf = new jspdf.jsPDF({
+                        orientation: 'landscape',
+                        unit: 'mm',
+                        format: 'a4'
+                    });
+                    
+                    const imgWidth = 280;
+                    const pageHeight = pdf.internal.pageSize.getHeight();
+                    const imgHeight = canvas.height * imgWidth / canvas.width;
+                    
+                    let finalHeight = imgHeight;
+                    let finalWidth = imgWidth;
+                    
+                    if (imgHeight > pageHeight - 20) {
+                        finalHeight = pageHeight - 20;
+                        finalWidth = imgWidth * (finalHeight / imgHeight);
+                    }
+                    
+                    const marginX = (pdf.internal.pageSize.getWidth() - finalWidth) / 2;
+                    const marginY = (pageHeight - finalHeight) / 2;
+                    
+                    pdf.addImage(imgData, 'PNG', marginX, marginY, finalWidth, finalHeight);
+                    
+                    // Adicionar estatísticas no rodapé
+                    pdf.setFontSize(10);
+                    pdf.text(`Gerado em: ${new Date().toLocaleString('pt-BR')}`, 15, pageHeight - 10);
+                    pdf.text(`Total de aulas: ${document.getElementById('classCount').textContent}`, 150, pageHeight - 10);
+                    pdf.text(`Conflitos: ${document.getElementById('conflictCount').textContent}`, 220, pageHeight - 10);
+                    
+                    pdf.save('grade_horarios_otimizada.pdf');
+                    
+                    // Restaurar estilo
+                    scheduleGrid.style.cssText = originalStyle;
+                    
+                    this.mostrarLoading(false);
+                    this.mostrarNotificacao('PDF exportado com sucesso!', 'success');
+                }).catch(error => {
+                    this.mostrarLoading(false);
+                    this.mostrarNotificacao('Erro ao exportar PDF. Tente novamente.', 'error');
+                    console.error('Erro ao exportar PDF:', error);
+                });
+            }
+
+            exportarDados() {
+                const dados = {
+                    gradeHorarios: this.gradeHorarios,
+                    configuracoes: this.configuracoes,
+                    disciplinas: this.disciplinas,
+                    timestamp: Date.now(),
+                    version: '1.0'
+                };
+                
+                const dadosJson = JSON.stringify(dados, null, 2);
+                const blob = new Blob([dadosJson], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `grade_horarios_${new Date().toISOString().split('T')[0]}.json`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                
+                this.mostrarNotificacao('Dados exportados com sucesso!', 'success');
+            }
+
+            importarDados(event) {
+                const file = event.target.files[0];
+                if (!file) return;
+                
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    try {
+                        const dados = JSON.parse(e.target.result);
+                        
+                        // Validar estrutura básica
+                        if (!dados.gradeHorarios || !dados.configuracoes || !dados.disciplinas) {
+                            throw new Error('Arquivo inválido: estrutura de dados incorreta');
+                        }
+                        
+                        // Aplicar dados
+                        this.gradeHorarios = dados.gradeHorarios;
+                        this.configuracoes = { ...this.configuracoes, ...dados.configuracoes };
+                        this.disciplinas = dados.disciplinas;
+                        
+                        // Atualizar UI
+                        this.gerarGrade();
+                        this.gerarDisciplinas();
+                        this.atualizarEstatisticas();
+                        this.validarConflitos();
+                        
+                        // Atualizar campos de configuração
+                        document.getElementById('classDuration').value = this.configuracoes.duracaoAula;
+                        document.getElementById('startTime').value = this.configuracoes.horarioInicio;
+                        document.getElementById('endTimeMorning').value = this.configuracoes.fimManha;
+                        document.getElementById('startTimeAfternoon').value = this.configuracoes.inicioTarde;
+                        document.getElementById('endTimeAfternoon').value = this.configuracoes.fimTarde;
+                        document.getElementById('morningBreak').value = this.configuracoes.recreioManha;
+                        document.getElementById('afternoonBreak').value = this.configuracoes.recreioTarde;
+                        document.getElementById('breakDuration').value = this.configuracoes.duracaoRecreiro;
+                        
+                        this.mostrarNotificacao('Dados importados com sucesso!', 'success');
+                        this.salvarDados();
+                        
+                    } catch (error) {
+                        console.error('Erro ao importar dados:', error);
+                        this.mostrarNotificacao('Erro ao importar dados. Verifique se o arquivo é válido.', 'error');
+                    }
+                    
+                    // Limpar input de arquivo
+                    event.target.value = '';
+                };
+                
+                reader.readAsText(file);
+            }
+
+            resetarTudo() {
+                if (confirm('Tem certeza que deseja resetar todas as configurações e dados? Esta ação não pode ser desfeita.')) {
+                    // Criar backup antes de resetar
+                    this.criarBackup();
+                    
+                    localStorage.clear();
+                    location.reload();
+                }
+            }
+
+            criarBackup() {
+                const dados = {
+                    gradeHorarios: this.gradeHorarios,
+                    configuracoes: this.configuracoes,
+                    disciplinas: this.disciplinas,
+                    timestamp: Date.now(),
+                    backup: true
+                };
+                
+                localStorage.setItem('planejadorHorarios_backup', JSON.stringify(dados));
+            }
+
+            salvarDados() {
+                const dados = {
+                    gradeHorarios: this.gradeHorarios,
+                    configuracoes: this.configuracoes,
+                    disciplinas: this.disciplinas,
+                    timestamp: Date.now()
+                };
+                
+                localStorage.setItem('planejadorHorarios', JSON.stringify(dados));
+            }
+
+            carregarDados() {
+                // Tentar carregar dados principais
+                let dados = localStorage.getItem('planejadorHorarios');
+                
+                // Se não houver dados principais, tentar carregar backup
+                if (!dados) {
+                    dados = localStorage.getItem('planejadorHorarios_backup');
+                    if (dados) {
+                        this.mostrarNotificacao('Dados restaurados do backup automático', 'warning');
+                    }
+                }
+                
+                if (!dados) return;
+                
+                try {
+                    const parsed = JSON.parse(dados);
+                    
+                    if (parsed.gradeHorarios) {
+                        this.gradeHorarios = parsed.gradeHorarios;
+                        
+                        // Reconstruir UI
+                        this.diasSemana.forEach(dia => {
+                            Object.entries(this.gradeHorarios[dia] || {}).forEach(([horario, disciplina]) => {
+                                if (disciplina) {
+                                    this.atualizarCelulaUI(dia, horario, disciplina);
+                                }
+                            });
+                        });
+                    }
+                    
+                    if (parsed.configuracoes) {
+                        this.configuracoes = { ...this.configuracoes, ...parsed.configuracoes };
+                        
+                        // Atualizar campos
+                        document.getElementById('classDuration').value = this.configuracoes.duracaoAula;
+                        document.getElementById('startTime').value = this.configuracoes.horarioInicio;
+                        document.getElementById('endTimeMorning').value = this.configuracoes.fimManha;
+                        document.getElementById('startTimeAfternoon').value = this.configuracoes.inicioTarde;
+                        document.getElementById('endTimeAfternoon').value = this.configuracoes.fimTarde;
+                        document.getElementById('morningBreak').value = this.configuracoes.recreioManha;
+                        document.getElementById('afternoonBreak').value = this.configuracoes.recreioTarde;
+                        document.getElementById('breakDuration').value = this.configuracoes.duracaoRecreiro;
+                    }
+                    
+                    if (parsed.disciplinas) {
+                        this.disciplinas = parsed.disciplinas;
+                        this.gerarDisciplinas();
+                    }
+                    
+                    // Carregar tema
+                    const theme = localStorage.getItem('theme');
+                    if (theme) {
+                        document.body.setAttribute('data-theme', theme);
+                        const themeIcons = document.querySelectorAll('#toggleTheme i, #quickTheme i');
+                        themeIcons.forEach(icon => {
+                            icon.className = theme === 'dark' ? 'fas fa-sun' : 'fas fa-moon';
+                        });
+                    }
+                    
+                    this.atualizarEstatisticas();
+                    this.validarConflitos();
+                    
+                } catch (error) {
+                    console.error('Erro ao carregar dados:', error);
+                    this.mostrarNotificacao('Erro ao carregar dados salvos. Usando configurações padrão.', 'error');
+                }
+            }
+
+            mostrarLoading(mostrar) {
+                const overlay = document.getElementById('loadingOverlay');
+                if (mostrar) {
+                    overlay.classList.add('active');
+                    this.isLoading = true;
+                } else {
+                    overlay.classList.remove('active');
+                    this.isLoading = false;
+                }
+            }
+
+            mostrarNotificacao(mensagem, tipo = 'success') {
+                if (this.isLoading) return; // Não mostrar notificações durante o carregamento
+                
+                const notification = document.getElementById('notification');
+                const notificationText = document.getElementById('notificationText');
+                
+                notificationText.textContent = mensagem;
+                notification.className = `notification ${tipo}`;
+                
+                // Atualizar ícone
+                const icon = notification.querySelector('i');
+                switch(tipo) {
+                    case 'success':
+                        icon.className = 'fas fa-check';
+                        break;
+                    case 'error':
+                        icon.className = 'fas fa-exclamation-triangle';
+                        break;
+                    case 'warning':
+                        icon.className = 'fas fa-exclamation';
+                        break;
+                    case 'info':
+                        icon.className = 'fas fa-info';
+                        break;
+                }
+                
+                notification.classList.add('show');
+                
+                setTimeout(() => {
+                    notification.classList.remove('show');
+                }, 3000);
+            }
+        }
+
+        // Inicializar aplicação
+        let planejador;
+        document.addEventListener('DOMContentLoaded', () => {
+            planejador = new PlanejadorHorarios();
+        });
+    </script>
+</body>
+</html>
