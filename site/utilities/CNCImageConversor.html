@@ -3,7 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Generative Path Laser CO2 Ruida CAM</title>
+    <title>Generative Path Laser CO2 CAM</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
     <style>
         :root {
             --primary-color: #2c3e50;
@@ -11,21 +13,22 @@
             --accent-color: #e74c3c;
             --success-color: #27ae60;
             --warning-color: #f39c12;
-            --light-bg: #ecf0f1;
-            --dark-bg: #34495e;
-            --border-color: #bdc3c7;
-            --text-color: #2c3e50;
-            --light-text: #ecf0f1;
-            --shadow: 0 2px 10px rgba(0,0,0,0.1);
+            --light-bg: #f4f7f9;
+            --dark-bg: #ffffff;
+            --border-color: #e0e6ed;
+            --text-color: #34495e;
+            --light-text: #ffffff;
+            --shadow: 0 4px 12px rgba(0,0,0,0.08);
+            --radius: 8px;
         }
-        
+
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Inter', sans-serif;
         }
-        
+
         body {
             background-color: var(--light-bg);
             color: var(--text-color);
@@ -34,74 +37,136 @@
             flex-direction: column;
             height: 100vh;
         }
-        
+
         .container {
             display: grid;
             grid-template-rows: auto 1fr auto;
             height: 100vh;
         }
-        
+
         /* Header Styles */
         header {
-            background-color: var(--primary-color);
-            color: var(--light-text);
-            padding: 10px 20px;
+            background-color: var(--dark-bg);
+            border-bottom: 1px solid var(--border-color);
+            padding: 12px 20px;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        .logo h1 {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: var(--secondary-color);
+        }
+
+        .logo span {
+            color: var(--primary-color);
+            font-weight: 300;
+        }
+
+        .toolbar {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn {
+            padding: 10px 18px;
+            border: none;
+            border-radius: var(--radius);
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.9rem;
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .btn-primary {
+            background-color: var(--secondary-color);
+            color: var(--light-text);
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            background-color: #2980b9;
+        }
+
+        .btn-success {
+            background-color: var(--success-color);
+            color: var(--light-text);
+        }
+
+        .btn-success:hover:not(:disabled) {
+            background-color: #219653;
+        }
+
+        .btn-warning {
+            background-color: var(--warning-color);
+            color: var(--light-text);
+        }
+
+        .btn-warning:hover:not(:disabled) {
+            background-color: #e67e22;
+        }
+
+        .btn-danger {
+            background-color: var(--accent-color);
+            color: var(--light-text);
+        }
+
+        .btn-danger:hover:not(:disabled) {
+            background-color: #c0392b;
+        }
+
+        .btn:hover:not(:disabled) {
+            transform: translateY(-1px);
             box-shadow: var(--shadow);
         }
-        
-        .logo h1 { 
-            font-size: 1.5rem; 
-            font-weight: 600; 
+
+        .dropdown {
+            position: relative;
+            display: inline-block;
         }
-        
-        .toolbar { 
-            display: flex; 
-            gap: 10px; 
+
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            background-color: var(--dark-bg);
+            min-width: 160px;
+            box-shadow: var(--shadow);
+            z-index: 100;
+            border-radius: var(--radius);
+            overflow: hidden;
+            top: 100%;
+            right: 0;
         }
-        
-        .btn { 
-            padding: 8px 16px; 
-            border: none; 
-            border-radius: 4px; 
-            cursor: pointer; 
-            font-weight: 500; 
-            transition: all 0.2s; 
+
+        .dropdown-content button {
+            width: 100%;
+            text-align: left;
+            border: none;
+            padding: 10px 15px;
+            background: none;
+            cursor: pointer;
+            font-size: 0.9rem;
+            color: var(--text-color);
         }
-        
-        .btn:disabled { 
-            opacity: 0.5; 
-            cursor: not-allowed; 
+
+        .dropdown-content button:hover {
+            background-color: var(--light-bg);
         }
-        
-        .btn-primary { 
-            background-color: var(--secondary-color); 
-            color: white; 
+
+        .dropdown:hover .dropdown-content {
+            display: block;
         }
-        
-        .btn-success { 
-            background-color: var(--success-color); 
-            color: white; 
-        }
-        
-        .btn-warning { 
-            background-color: var(--warning-color); 
-            color: white; 
-        }
-        
-        .btn-danger { 
-            background-color: var(--accent-color); 
-            color: white; 
-        }
-        
-        .btn:hover:not(:disabled) { 
-            opacity: 0.9; 
-            transform: translateY(-1px); 
-            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-        }
-        
+
         /* Main Content Styles */
         .main-content {
             display: grid;
@@ -109,10 +174,10 @@
             height: 100%;
             overflow: hidden;
         }
-        
+
         /* Control Panel Styles */
         .control-panel {
-            background-color: white;
+            background-color: var(--dark-bg);
             border-right: 1px solid var(--border-color);
             overflow-y: auto;
             padding: 15px;
@@ -120,189 +185,203 @@
             flex-direction: column;
             gap: 15px;
         }
-        
+
         .section {
-            border: 1px solid var(--border-color);
-            border-radius: 5px;
+            background-color: var(--light-bg);
+            border-radius: var(--radius);
             overflow: hidden;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            border: 1px solid var(--border-color);
         }
-        
+
         .section-header {
             background-color: var(--dark-bg);
-            color: var(--light-text);
+            border-bottom: 1px solid var(--border-color);
+            padding: 12px 15px;
+            cursor: pointer;
             display: flex;
             justify-content: space-between;
             align-items: center;
         }
-        
-        .section-header button {
-            flex-grow: 1; 
-            background: none; 
-            border: none; 
-            color: inherit; 
-            font: inherit;
-            font-size: 1rem; 
-            font-weight: 600; 
-            padding: 10px; 
-            cursor: pointer;
-            display: flex; 
-            justify-content: space-between; 
-            align-items: center; 
-            text-align: left;
+
+        .section-header:hover {
+            background-color: #f0f3f6;
         }
 
-        .toggle-icon { 
-            transition: transform 0.2s ease-in-out; 
-            font-size: 0.8rem;
+        .toggle-icon {
+            transition: transform 0.2s ease-in-out;
         }
-        
-        .section-header button.collapsed .toggle-icon { 
-            transform: rotate(-90deg); 
+
+        .section-header.collapsed .toggle-icon {
+            transform: rotate(-90deg);
         }
-        
-        .section-content { 
-            padding: 15px; 
+
+        .section-content {
+            padding: 12px;
             display: flex;
             flex-direction: column;
             gap: 10px;
         }
-        
-        .section-content.collapsed { 
-            display: none; 
-        }
-        
-        .section-btn {
-            width: 100%; 
-            margin-bottom: 0; 
-            text-align: left; 
-            padding: 10px;
-            background-color: var(--light-bg); 
-            border: 1px solid var(--border-color);
-            border-radius: 4px; 
-            cursor: pointer; 
-            transition: all 0.2s;
-        }
-        
-        .section-btn:hover:not(:disabled) { 
-            background-color: #dfe6e9; 
-        }
-        
-        .slider-container { 
-            margin-bottom: 15px; 
-        }
-        
-        .slider-container label { 
-            display: block; 
-            margin-bottom: 5px; 
-            font-weight: 500; 
-        }
-        
-        .slider-value { 
-            float: right; 
-            font-weight: normal; 
-        }
-        
-        input[type="range"] { 
-            width: 100%; 
+
+        .section-content.collapsed {
+            display: none;
         }
 
-        .form-group { 
-            margin-bottom: 15px; 
+        .form-group {
+            margin-bottom: 10px;
         }
-        
-        .form-group label { 
-            display: block; 
-            margin-bottom: 5px; 
-            font-weight: 500; 
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+            font-size: 0.85rem;
+            color: var(--primary-color);
         }
-        
-        .form-group select, .form-group input {
-            width: 100%; 
-            padding: 8px; 
-            border: 1px solid var(--border-color); 
-            border-radius: 4px;
+
+        .form-group select,
+        .form-group input:not([type="range"]) {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius);
+            background-color: var(--dark-bg);
+            font-size: 0.9rem;
         }
-        
+
+        .slider-container {
+            margin-bottom: 8px;
+        }
+
+        .slider-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 5px;
+        }
+
+        .slider-header label {
+            font-weight: 500;
+            font-size: 0.85rem;
+            color: var(--primary-color);
+        }
+
+        .slider-value {
+            font-weight: 600;
+            font-size: 0.85rem;
+            color: var(--secondary-color);
+        }
+
+        input[type="range"] {
+            width: 100%;
+            height: 6px;
+            background: var(--border-color);
+            border-radius: 5px;
+            -webkit-appearance: none;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: var(--secondary-color);
+            cursor: pointer;
+        }
+
+        .section-btn {
+            width: 100%;
+            text-align: left;
+            padding: 10px;
+            background-color: var(--dark-bg);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius);
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 0.9rem;
+        }
+
+        .section-btn:hover:not(:disabled) {
+            background-color: #e8f4fd;
+        }
+
         /* Content Area Styles */
         .content-area {
             display: grid;
             grid-template-rows: 1fr auto;
             overflow: hidden;
         }
-        
+
         .tab-container {
             display: grid;
             grid-template-rows: auto 1fr;
             height: 100%;
             overflow: hidden;
+            background-color: var(--dark-bg);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            margin: 15px;
         }
-        
-        .tab-headers { 
-            display: flex; 
-            background-color: var(--dark-bg); 
+
+        .tab-headers {
+            display: flex;
+            background-color: var(--primary-color);
         }
-        
-        .tab-header { 
-            padding: 10px 20px; 
-            color: var(--light-text); 
-            cursor: pointer; 
-            border-bottom: 3px solid transparent; 
-            transition: all 0.2s;
+
+        .tab-header {
+            padding: 12px 18px;
+            color: rgba(255, 255, 255, 0.7);
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.9rem;
         }
-        
-        .tab-header.active { 
-            border-bottom-color: var(--secondary-color); 
-            background-color: rgba(255,255,255,0.1); 
+
+        .tab-header.active {
+            border-bottom-color: var(--secondary-color);
+            color: var(--light-text);
         }
-        
+
         .tab-header:hover:not(.active) {
-            background-color: rgba(255,255,255,0.05);
+            background-color: rgba(255, 255, 255, 0.05);
         }
-        
-        .tab-content-wrapper { 
-            position: relative; 
-            height: 100%; 
-            background-color: #2c3e50;
+
+        .tab-content-wrapper {
+            position: relative;
+            height: 100%;
+            background-color: #1c2833;
         }
-        
+
         .tab-content {
             display: none;
             overflow: hidden;
             position: absolute;
-            top: 0; 
-            left: 0; 
-            right: 0; 
+            top: 0;
+            left: 0;
+            right: 0;
             bottom: 0;
             padding: 10px;
             flex-direction: column;
         }
-        
-        .tab-content.active { 
-            display: flex; 
-        }
-        
-        #previewTab.active { 
-            padding: 15px; 
+
+        .tab-content.active {
+            display: flex;
         }
 
-        .sim-controls { 
-            display: flex; 
-            gap: 5px; 
-            align-items: center; 
-            padding: 10px; 
-            background-color: rgba(255,255,255,0.9);
-            border-radius: 4px;
+        .image-info {
+            background-color: var(--dark-bg);
+            padding: 10px;
             margin-bottom: 10px;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            font-size: 0.9rem;
         }
-        
-        .sim-controls input[type="range"] { 
-            flex-grow: 1; 
-        }
-        
+
         /* Viewport Pan/Zoom Styling */
         .image-container {
-            background-color: #2c3e50;
+            background-color: #1c2833;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -311,212 +390,224 @@
             min-height: 0;
             position: relative;
             cursor: grab;
-            border-radius: 4px;
+            border-radius: var(--radius);
         }
-        
-        .image-container:active { 
-            cursor: grabbing; 
+
+        .image-container:active {
+            cursor: grabbing;
         }
-        
+
         #imageCanvas, #simulationCanvas {
             position: absolute;
-            box-shadow: 0 0 10px rgba(0,0,0,0.3);
             background-color: #fff;
+            box-shadow: 0 0 10px rgba(0,0,0,0.3);
         }
-        
+
         #simulationCanvas {
             background-color: #101010;
         }
 
         #laserHead {
             position: absolute;
-            width: 12px;
-            height: 12px;
+            width: 16px;
+            height: 16px;
             background-color: rgba(255, 0, 0, 0.9);
-            border: 2px solid white;
+            border: 3px solid white;
             border-radius: 50%;
             transform: translate(-50%, -50%);
             display: none;
             pointer-events: none;
-            box-shadow: 0 0 10px rgba(255, 0, 0, 0.7);
+            box-shadow: 0 0 15px rgba(255, 0, 0, 0.8);
             z-index: 10;
         }
-        
-        .image-info {
-            background-color: white; 
-            padding: 10px; 
+
+        .sim-controls {
+            display: flex;
+            gap: 5px;
+            align-items: center;
+            padding: 10px;
+            background-color: rgba(255,255,255,0.9);
+            border-radius: var(--radius);
             margin-bottom: 10px;
-            border-radius: 4px; 
-            box-shadow: var(--shadow);
-            font-size: 0.9rem;
         }
-        
+
+        .sim-controls input[type="range"] {
+            flex-grow: 1;
+        }
+
         /* Footer Styles */
         footer {
-            background-color: var(--primary-color); 
-            color: var(--light-text);
-            padding: 8px 20px; 
+            background-color: var(--primary-color);
+            color: rgba(255, 255, 255, 0.8);
+            padding: 8px 20px;
             font-size: 0.9rem;
-            display: flex; 
-            justify-content: space-between; 
+            display: flex;
+            justify-content: space-between;
             align-items: center;
         }
-        
-        #jobTimeLabel { 
-            font-weight: bold; 
+
+        #jobTimeLabel {
+            font-weight: 600;
+            color: var(--success-color);
         }
-        
+
         /* Modal Styles */
         .modal {
-            display: none; 
-            position: fixed; 
-            top: 0; 
-            left: 0; 
-            width: 100%; 
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
             height: 100%;
-            background-color: rgba(0,0,0,0.5); 
+            background-color: rgba(0,0,0,0.5);
             z-index: 1000;
-            justify-content: center; 
+            justify-content: center;
             align-items: center;
         }
-        
-        .modal-content { 
-            background-color: white; 
-            padding: 20px; 
-            border-radius: 5px; 
-            max-width: 95%; 
+
+        .modal-content {
+            background-color: var(--dark-bg);
+            padding: 25px;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            max-width: 95%;
             max-height: 95%;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.15); 
             display: flex;
             flex-direction: column;
         }
-        
-        .modal-header { 
-            display: flex; 
-            justify-content: space-between; 
-            align-items: center; 
-            margin-bottom: 15px; 
-            padding-bottom: 10px; 
-            border-bottom: 1px solid var(--border-color); 
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 10px;
         }
-        
-        .modal-close { 
-            background: none; 
-            border: none; 
-            font-size: 1.5rem; 
-            cursor: pointer; 
-            color: var(--text-color); 
+
+        .modal-header h2 {
+            font-size: 1.5rem;
+            color: var(--primary-color);
         }
-        
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--text-color);
+        }
+
         .modal-body {
             flex: 1;
             overflow: auto;
             min-height: 200px;
         }
-        
-        .modal-footer { 
-            display: flex; 
-            justify-content: flex-end; 
-            gap: 10px; 
-            margin-top: 20px; 
+
+        .modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 20px;
         }
-        
+
         /* Layer Panel Styles in Modal */
         .layer-panel-modal .modal-content {
             width: 90%;
             max-width: 1200px;
             height: 80%;
         }
-        
+
         .layer-header {
-            padding: 10px 15px; 
-            background-color: var(--dark-bg); 
+            padding: 10px 15px;
+            background-color: var(--primary-color);
             color: var(--light-text);
-            display: flex; 
-            justify-content: space-between; 
+            display: flex;
+            justify-content: space-between;
             align-items: center;
             margin-bottom: 10px;
+            border-radius: var(--radius);
         }
-        
+
         .layer-toolbar {
-            display: flex; 
-            gap: 5px; 
+            display: flex;
+            gap: 5px;
             padding: 5px 0;
-            background-color: #f8f9fa; 
+            background-color: #f8f9fa;
             border-bottom: 1px solid var(--border-color);
             margin-bottom: 10px;
         }
-        
-        .layer-table-container { 
-            overflow: auto; 
+
+        .layer-table-container {
+            overflow: auto;
             flex: 1;
         }
-        
-        table { 
-            width: 100%; 
-            border-collapse: collapse; 
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
             font-size: 0.85rem;
         }
-        
-        th, td { 
-            padding: 8px 12px; 
-            text-align: left; 
-            border-bottom: 1px solid var(--border-color); 
+
+        th, td {
+            padding: 8px 12px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
         }
-        
-        th { 
-            background-color: #f1f2f6; 
-            position: sticky; 
-            top: 0; 
+
+        th {
+            background-color: #f1f2f6;
+            position: sticky;
+            top: 0;
             font-weight: 600;
         }
-        
-        tr:hover { 
-            background-color: #f8f9fa; 
+
+        tr:hover {
+            background-color: #f8f9fa;
         }
-        
-        tr.selected { 
-            background-color: var(--secondary-color) !important; 
-            color: white; 
+
+        tr.selected {
+            background-color: var(--secondary-color) !important;
+            color: white;
         }
-        
-        tr.selected input, tr.selected select { 
-            color: var(--text-color); 
+
+        tr.selected input, tr.selected select {
+            color: var(--text-color);
             background-color: white;
         }
-        
+
         input[type="text"], input[type="number"], select {
-            width: 100%; 
-            padding: 5px; 
-            border: 1px solid var(--border-color); 
+            width: 100%;
+            padding: 5px;
+            border: 1px solid var(--border-color);
             border-radius: 3px;
             font-size: 0.85rem;
         }
-        
+
         input[type="color"] {
-            width: 40px; 
-            height: 25px; 
+            width: 40px;
+            height: 25px;
             border: 1px solid var(--border-color);
-            border-radius: 3px; 
-            cursor: pointer; 
-            padding: 2px; 
+            border-radius: 3px;
+            cursor: pointer;
+            padding: 2px;
             background-color: white;
         }
-        
-        input[type="color"]::-webkit-color-swatch-wrapper { 
-            padding: 0; 
+
+        input[type="color"]::-webkit-color-swatch-wrapper {
+            padding: 0;
         }
-        
-        input[type="color"]::-webkit-color-swatch { 
-            border: none; 
-            border-radius: 2px; 
+
+        input[type="color"]::-webkit-color-swatch {
+            border: none;
+            border-radius: 2px;
         }
-        
-        input[type="color"]::-moz-color-swatch { 
-            border: none; 
-            border-radius: 2px; 
+
+        input[type="color"]::-moz-color-swatch {
+            border: none;
+            border-radius: 2px;
         }
-        
+
         /* Loading indicator */
         .loading {
             display: none;
@@ -526,52 +617,59 @@
             transform: translate(-50%, -50%);
             background: rgba(255, 255, 255, 0.9);
             padding: 15px 20px;
-            border-radius: 4px;
+            border-radius: var(--radius);
             box-shadow: var(--shadow);
             z-index: 100;
         }
-        
+
         /* Responsive adjustments */
         @media (max-width: 1024px) {
             .main-content {
                 grid-template-columns: 280px 1fr;
             }
-            
+
             .control-panel {
                 padding: 10px;
             }
         }
-        
+
         @media (max-width: 768px) {
-            .container {
-                min-width: auto;
-            }
-            
             .main-content {
                 grid-template-columns: 1fr;
                 grid-template-rows: auto 1fr;
             }
-            
+
             .control-panel {
                 max-height: 300px;
                 border-right: none;
                 border-bottom: 1px solid var(--border-color);
             }
-            
+
             header {
                 flex-direction: column;
                 align-items: flex-start;
+                gap: 10px;
             }
-            
+
             .toolbar {
                 width: 100%;
                 justify-content: space-between;
                 flex-wrap: wrap;
             }
-            
+
             .btn {
                 padding: 6px 12px;
                 font-size: 0.9rem;
+            }
+
+            .dropdown-content {
+                position: fixed;
+                top: auto;
+                left: 10px;
+                right: 10px;
+                bottom: 10px;
+                max-height: 200px;
+                overflow-y: auto;
             }
         }
     </style>
@@ -580,34 +678,33 @@
     <div class="container">
         <header>
             <div class="logo">
-                <h1>Generative Path Laser CO2 Ruida CAM</h1>
+                <h1>Generative Path <span>Laser CO2 CAM</span></h1>
             </div>
             <div class="toolbar">
-                <button id="uploadBtn" class="btn btn-primary">Carregar Imagem</button>
-                <button id="magicBtn" class="btn btn-success">Aplicar Preset</button>
-                <button id="layersBtn" class="btn btn-primary">Gerenciar Camadas</button>
-                <button id="exportGcodeBtn" class="btn btn-warning">Exportar G-Code</button>
-                <button id="exportJpgBtn" class="btn btn-warning">Exportar JPG</button>
+                <button id="uploadBtn" class="btn btn-primary"><i class="fas fa-upload"></i> Carregar Imagem</button>
+                <button id="magicBtn" class="btn btn-success"><i class="fas fa-magic"></i> Aplicar Preset</button>
+                <button id="layersBtn" class="btn btn-primary"><i class="fas fa-layer-group"></i> Gerenciar Camadas</button>
+                <button id="exportGcodeBtn" class="btn btn-warning"><i class="fas fa-code"></i> Exportar G-Code</button>
                 <div class="dropdown">
-                    <button id="exportMoreBtn" class="btn btn-warning">Exportar Mais ▽</button>
+                    <button id="exportMoreBtn" class="btn btn-warning"><i class="fas fa-download"></i> Exportar Mais ▽</button>
                     <div class="dropdown-content">
-                        <button id="exportDxfBtn">DXF</button>
-                        <button id="exportPltBtn">PLT</button>
-                        <button id="exportRldBtn">RLD</button>
-                        <button id="exportSvgBtn">SVG</button>
+                        <button id="exportJpgBtn"><i class="fas fa-file-image"></i> JPG</button>
+                        <button id="exportPngBtn"><i class="fas fa-file-image"></i> PNG</button>
+                        <button id="exportDxfBtn"><i class="fas fa-drafting-compass"></i> DXF</button>
+                        <button id="exportPltBtn"><i class="fas fa-pen-fancy"></i> PLT</button>
+                        <button id="exportRldBtn"><i class="fas fa-microchip"></i> RLD</button>
+                        <button id="exportSvgBtn"><i class="fas fa-project-diagram"></i> SVG</button>
                     </div>
                 </div>
             </div>
         </header>
-        
+
         <div class="main-content">
             <div class="control-panel">
                 <div class="section">
                     <div class="section-header">
-                        <button>
-                            <span>1. Material (Preset 100W CO2)</span>
-                            <span class="toggle-icon">▼</span>
-                        </button>
+                        <span><i class="fas fa-cube"></i> Material (Preset 100W CO2)</span>
+                        <span class="toggle-icon"><i class="fas fa-chevron-down"></i></span>
                     </div>
                     <div class="section-content">
                         <div class="form-group">
@@ -626,76 +723,92 @@
 
                 <div class="section">
                     <div class="section-header">
-                        <button>
-                            <span>2. Ajustes Finos (Pipeline)</span>
-                            <span class="toggle-icon">▼</span>
-                        </button>
+                        <span><i class="fas fa-sliders-h"></i> Ajustes Finos (Pipeline)</span>
+                        <span class="toggle-icon"><i class="fas fa-chevron-down"></i></span>
                     </div>
                     <div class="section-content">
                         <div class="slider-container">
-                            <label for="edgeDetailSlider">Detalhe da Borda: <span id="edgeDetailValue" class="slider-value">1.5</span></label>
+                            <div class="slider-header">
+                                <label for="edgeDetailSlider">Detalhe da Borda</label>
+                                <span id="edgeDetailValue" class="slider-value">1.5</span>
+                            </div>
                             <input type="range" id="edgeDetailSlider" min="0.5" max="5.0" step="0.1" value="1.5">
                         </div>
                         <div class="slider-container">
-                            <label for="fillGroupingSlider">Agrupar Cores (Fill): <span id="fillGroupingValue" class="slider-value">8</span></label>
+                            <div class="slider-header">
+                                <label for="fillGroupingSlider">Agrupar Cores (Fill)</label>
+                                <span id="fillGroupingValue" class="slider-value">8</span>
+                            </div>
                             <input type="range" id="fillGroupingSlider" min="2" max="32" step="1" value="8">
                         </div>
-                    </div>
-                </div>
-                
-                <div class="section">
-                    <div class="section-header">
-                        <button class="collapsed">
-                            <span>3. Pré-Processamento Manual</span>
-                            <span class="toggle-icon">▼</span>
-                        </button>
-                    </div>
-                    <div class="section-content collapsed">
-                        <button class="section-btn" data-action="removeBackground">Remover Fundo</button>
-                        <button class="section-btn" data-action="binarize">Binarizar (Alto Contraste)</button>
-                        <button class="section-btn" data-action="edgeDetect">Detectar Bordas</button>
-                        <button class="section-btn" data-action="negative">Negativo</button>
-                        <button class="section-btn" data-action="resetImage">Resetar Imagem</button>
+                        <div class="slider-container">
+                            <div class="slider-header">
+                                <label for="noiseReductionSlider">Redução de Ruído</label>
+                                <span id="noiseReductionValue" class="slider-value">3</span>
+                            </div>
+                            <input type="range" id="noiseReductionSlider" min="0" max="10" step="1" value="3">
+                        </div>
+                        <div class="slider-container">
+                            <div class="slider-header">
+                                <label for="pathOptimizationSlider">Otimização de Caminhos</label>
+                                <span id="pathOptimizationValue" class="slider-value">85</span>
+                            </div>
+                            <input type="range" id="pathOptimizationSlider" min="0" max="100" step="1" value="85">
+                        </div>
                     </div>
                 </div>
 
                 <div class="section">
-                    <div class="section-header">
-                        <button class="collapsed">
-                            <span>4. Configurações da Máquina</span>
-                            <span class="toggle-icon">▼</span>
-                        </button>
+                    <div class="section-header collapsed">
+                        <span><i class="fas fa-hand-paper"></i> Pré-Processamento Manual</span>
+                        <span class="toggle-icon"><i class="fas fa-chevron-down"></i></span>
                     </div>
                     <div class="section-content collapsed">
-                        <button class="section-btn" id="settingsBtn">Configurações Globais CNC</button>
+                        <button class="section-btn" data-action="removeBackground"><i class="fas fa-eraser"></i> Remover Fundo</button>
+                        <button class="section-btn" data-action="binarize"><i class="fas fa-adjust"></i> Binarizar (Alto Contraste)</button>
+                        <button class="section-btn" data-action="edgeDetect"><i class="fas fa-border-style"></i> Detectar Bordas</button>
+                        <button class="section-btn" data-action="negative"><i class="fas fa-moon"></i> Negativo</button>
+                        <button class="section-btn" data-action="enhanceDetails"><i class="fas fa-search-plus"></i> Melhorar Detalhes</button>
+                        <button class="section-btn" data-action="reduceNoise"><i class="fas fa-wave-square"></i> Reduzir Ruído</button>
+                        <button class="section-btn" data-action="resetImage"><i class="fas fa-undo"></i> Resetar Imagem</button>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <div class="section-header collapsed">
+                        <span><i class="fas fa-cogs"></i> Configurações da Máquina</span>
+                        <span class="toggle-icon"><i class="fas fa-chevron-down"></i></span>
+                    </div>
+                    <div class="section-content collapsed">
+                        <button class="section-btn" id="settingsBtn"><i class="fas fa-tools"></i> Configurações Globais CNC</button>
                     </div>
                 </div>
             </div>
-            
+
             <div class="content-area">
                 <div class="tab-container">
                     <div class="tab-headers">
-                        <div class="tab-header active" data-tab="preview">Pré-visualização</div>
-                        <div class="tab-header" data-tab="simulation">Simulação de Percurso</div>
+                        <div class="tab-header active" data-tab="preview"><i class="fas fa-eye"></i> Pré-visualização</div>
+                        <div class="tab-header" data-tab="simulation"><i class="fas fa-running"></i> Simulação de Percurso</div>
                     </div>
-                    
+
                     <div class="tab-content-wrapper">
                         <div class="loading" id="loadingIndicator">
-                            Processando imagem...
+                            <i class="fas fa-spinner fa-spin"></i> Processando imagem...
                         </div>
-                        
+
                         <div class="tab-content active" id="previewTab">
                             <div class="image-info" id="imageInfo">Nenhuma imagem carregada.</div>
                             <div class="image-container" id="previewContainer">
                                 <canvas id="imageCanvas"></canvas>
                             </div>
                         </div>
-                        
+
                         <div class="tab-content" id="simulationTab">
                             <div class="sim-controls">
-                                <button id="simPlayBtn" class="btn btn-primary">▶ Play</button>
-                                <button id="simPauseBtn" class="btn btn-primary" disabled>|| Pause</button>
-                                <button id="simStopBtn" class="btn btn-primary">■ Stop</button>
+                                <button id="simPlayBtn" class="btn btn-primary"><i class="fas fa-play"></i> Play</button>
+                                <button id="simPauseBtn" class="btn btn-primary" disabled><i class="fas fa-pause"></i> Pause</button>
+                                <button id="simStopBtn" class="btn btn-primary"><i class="fas fa-stop"></i> Stop</button>
                                 <input type="range" id="simPlaybackSlider" min="0" max="1" step="0.001" value="0">
                                 <span id="simProgressText">0%</span>
                             </div>
@@ -706,7 +819,7 @@
                         </div>
                     </div>
                 </div>
-                
+
                 <footer>
                     <div id="statusLabel">Pronto. Carregue uma imagem para começar.</div>
                     <div id="jobTimeLabel">Tempo de Job: N/A</div>
@@ -714,13 +827,13 @@
             </div>
         </div>
     </div>
-    
-    <!-- Modal de Configurações -->
+
+    <!-- Settings Modal -->
     <div id="settingsModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
                 <h2>Configurações Globais CNC</h2>
-                <button type="button" class="modal-close">&times;</button>
+                <button type="button" class="modal-close"><i class="fas fa-times"></i></button>
             </div>
             <div class="modal-body">
                 <div class="form-group">
@@ -738,17 +851,17 @@
             </div>
             <div class="modal-footer">
                 <button type="button" id="saveSettingsBtn" class="btn btn-primary">Salvar</button>
-                <button type="button" id="cancelSettingsBtn" class="btn">Cancelar</button>
+                <button type="button" id="cancelSettingsBtn" class="btn btn-secondary">Cancelar</button>
             </div>
         </div>
     </div>
 
-    <!-- Modal de Camadas -->
+    <!-- Layers Modal -->
     <div id="layersModal" class="modal layer-panel-modal">
         <div class="modal-content">
             <div class="modal-header">
                 <h2>Gerenciamento de Camadas</h2>
-                <button type="button" class="modal-close">&times;</button>
+                <button type="button" class="modal-close"><i class="fas fa-times"></i></button>
             </div>
             <div class="modal-body">
                 <div class="layer-header">
@@ -756,11 +869,11 @@
                     <span id="layerCount">0 camadas</span>
                 </div>
                 <div class="layer-toolbar">
-                    <button id="addLayerBtn" class="btn btn-primary">Adicionar</button>
-                    <button id="removeLayerBtn" class="btn btn-danger">Remover</button>
-                    <button id="moveUpBtn" class="btn btn-primary">Mover para Cima</button>
-                    <button id="moveDownBtn" class="btn btn-primary">Mover para Baixo</button>
-                    <button id="toggleAllBtn" class="btn btn-primary">Ativar/Desativar Todas</button>
+                    <button id="addLayerBtn" class="btn btn-primary"><i class="fas fa-plus"></i> Adicionar</button>
+                    <button id="removeLayerBtn" class="btn btn-danger"><i class="fas fa-minus"></i> Remover</button>
+                    <button id="moveUpBtn" class="btn btn-primary"><i class="fas fa-arrow-up"></i> Mover para Cima</button>
+                    <button id="moveDownBtn" class="btn btn-primary"><i class="fas fa-arrow-down"></i> Mover para Baixo</button>
+                    <button id="toggleAllBtn" class="btn btn-primary"><i class="fas fa-eye"></i> Ativar/Desativar Todas</button>
                 </div>
                 <div class="layer-table-container">
                     <table id="layerTable">
@@ -780,8 +893,8 @@
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" id="saveLayersBtn" class="btn btn-primary">Salvar e Fechar</button>
-                <button type="button" id="cancelLayersBtn" class="btn">Cancelar</button>
+                <button type="button" id="saveLayersBtn" class="btn btn-primary">Salvar & Fechar</button>
+                <button type="button" id="cancelLayersBtn" class="btn btn-secondary">Cancelar</button>
             </div>
         </div>
     </div>
@@ -795,42 +908,42 @@
 
         class GCodeMove {
             constructor(x, y, isCut, sValue, speed) {
-                this.x = x; 
-                this.y = y; 
-                this.isCut = isCut; 
-                this.sValue = sValue; 
+                this.x = x;
+                this.y = y;
+                this.isCut = isCut;
+                this.sValue = sValue;
                 this.speed = speed;
             }
         }
 
         class PathSegment {
             constructor(x1, y1, x2, y2, speed, sValue, op) {
-                this.x1 = x1; 
-                this.y1 = y1; 
-                this.x2 = x2; 
+                this.x1 = x1;
+                this.y1 = y1;
+                this.x2 = x2;
                 this.y2 = y2;
-                this.speed = speed; 
-                this.sValue = sValue; 
+                this.speed = speed;
+                this.sValue = sValue;
                 this.op = op;
             }
-            
+
             distanceToStart(x, y) {
                 return Math.sqrt(Math.pow(this.x1 - x, 2) + Math.pow(this.y1 - y, 2));
             }
         }
-        
+
         const OperationType = {
             CUT: "Cut",
             SCAN: "Scan",
             RASTER: "Raster"
         };
-        
+
         const OperationTypeOptions = Object.values(OperationType);
 
         const PRESETS = {
             'mdf_3mm_corte': {
                 name: "MDF 3mm - Corte",
-                analysis: { edgeDetail: 2.0, colorGrouping: 2 },
+                analysis: { edgeDetail: 2.0, colorGrouping: 2, noiseReduction: 3, pathOptimization: 85 },
                 layers: [
                     { op: OperationType.CUT, speed: 1500, power: 85, interval: 0.1 },
                     { op: OperationType.SCAN, speed: 12000, power: 30, interval: 0.1 }
@@ -838,7 +951,7 @@
             },
             'mdf_3mm_scan': {
                 name: "MDF 3mm - Gravação (Scan)",
-                analysis: { edgeDetail: 1.0, colorGrouping: 8 },
+                analysis: { edgeDetail: 1.0, colorGrouping: 8, noiseReduction: 5, pathOptimization: 75 },
                 layers: [
                     { op: OperationType.CUT, speed: 1500, power: 85, interval: 0.1 },
                     { op: OperationType.SCAN, speed: 18000, power: 25, interval: 0.08 }
@@ -846,14 +959,14 @@
             },
             'mdf_3mm_raster': {
                 name: "MDF 3mm - Foto (Raster)",
-                analysis: { edgeDetail: 1.0, colorGrouping: 32 },
+                analysis: { edgeDetail: 1.0, colorGrouping: 32, noiseReduction: 7, pathOptimization: 90 },
                 layers: [
                     { op: OperationType.RASTER, speed: 18000, power: 20, interval: 0.1 }
                 ]
             },
             'acrilico_3mm_corte': {
                 name: "Acrílico 3mm - Corte",
-                analysis: { edgeDetail: 2.5, colorGrouping: 2 },
+                analysis: { edgeDetail: 2.5, colorGrouping: 2, noiseReduction: 2, pathOptimization: 80 },
                 layers: [
                     { op: OperationType.CUT, speed: 900, power: 75, interval: 0.1 },
                     { op: OperationType.SCAN, speed: 12000, power: 40, interval: 0.1 }
@@ -861,7 +974,7 @@
             },
             'acrilico_3mm_scan': {
                 name: "Acrílico 3mm - Gravação (Scan)",
-                analysis: { edgeDetail: 1.0, colorGrouping: 8 },
+                analysis: { edgeDetail: 1.0, colorGrouping: 8, noiseReduction: 4, pathOptimization: 70 },
                 layers: [
                     { op: OperationType.CUT, speed: 900, power: 75, interval: 0.1 },
                     { op: OperationType.SCAN, speed: 24000, power: 35, interval: 0.07 }
@@ -869,7 +982,7 @@
             },
             'papelao_corte': {
                 name: "Papelão - Corte Rápido",
-                analysis: { edgeDetail: 1.5, colorGrouping: 2 },
+                analysis: { edgeDetail: 1.5, colorGrouping: 2, noiseReduction: 6, pathOptimization: 95 },
                 layers: [
                     { op: OperationType.CUT, speed: 6000, power: 30, interval: 0.1 },
                     { op: OperationType.SCAN, speed: 24000, power: 15, interval: 0.2 }
@@ -887,7 +1000,7 @@
                 this.container = container;
                 this.laserHead = laserHead;
                 this.redraw = redrawCallback;
-                
+
                 this.transform = new DOMMatrix();
                 this.isPanning = false;
                 this.lastPan = { x: 0, y: 0 };
@@ -902,7 +1015,7 @@
                 container.addEventListener('mousemove', (e) => this.onMouseMove(e));
                 container.addEventListener('mouseup', () => this.onMouseUp());
                 container.addEventListener('mouseleave', () => this.onMouseUp());
-                
+
                 // Suporte a toque para dispositivos móveis
                 container.addEventListener('touchstart', (e) => this.onTouchStart(e));
                 container.addEventListener('touchmove', (e) => this.onTouchMove(e));
@@ -926,9 +1039,9 @@
                 e.preventDefault();
                 const dx = e.clientX - this.lastPan.x;
                 const dy = e.clientY - this.lastPan.y;
-                
+
                 this.transform.translateSelf(dx / this.transform.a, dy / this.transform.d);
-                
+
                 this.lastPan = { x: e.clientX, y: e.clientY };
                 this.redraw();
             }
@@ -943,15 +1056,15 @@
             onWheel(e) {
                 e.preventDefault();
                 const { x, y } = this.getMousePos(e);
-                
+
                 const scale = e.deltaY < 0 ? this.zoomFactor : (1 / this.zoomFactor);
-                
+
                 // Ponto antes do zoom
                 const p1 = this.transform.inverse().transformPoint({x, y});
-                
+
                 // Aplicar zoom
                 this.transform.scaleSelf(scale, scale, 1, p1.x, p1.y, 0);
-                
+
                 this.redraw();
             }
 
@@ -968,9 +1081,9 @@
                 e.preventDefault();
                 const dx = e.touches[0].clientX - this.lastPan.x;
                 const dy = e.touches[0].clientY - this.lastPan.y;
-                
+
                 this.transform.translateSelf(dx / this.transform.a, dy / this.transform.d);
-                
+
                 this.lastPan = { x: e.touches[0].clientX, y: e.touches[0].clientY };
                 this.redraw();
             }
@@ -993,7 +1106,7 @@
             // Centraliza a imagem no viewport
             centerImage(imageWidth, imageHeight) {
                 if (!imageWidth || !imageHeight) return;
-                
+
                 const cw = this.container.clientWidth;
                 const ch = this.container.clientHeight;
                 const iw = imageWidth;
@@ -1002,7 +1115,7 @@
                 const scale = Math.min(cw / iw, ch / ih) * 0.9;
                 const x = (cw - iw * scale) / 2;
                 const y = (ch - ih * scale) / 2;
-                
+
                 this.transform = new DOMMatrix([scale, 0, 0, scale, x, y]);
                 this.redraw();
             }
@@ -1015,18 +1128,18 @@
                 this.laserHead.style.top = `${p.y}px`;
                 this.laserHead.style.display = 'block';
             }
-            
+
             // Reseta o viewport para a visualização padrão
             resetView() {
                 this.transform = new DOMMatrix();
                 this.redraw();
             }
         }
-        
+
         // ========================================================================
-        // --- MÓDULO 2: PROCESSADOR DE IMAGEM ---
+        // --- MÓDULO 2: PROCESSADOR DE IMAGEM AVANÇADO ---
         // ========================================================================
-        class ImageProcessor {
+        class AdvancedImageProcessor {
             constructor() {
                 this.processingCanvas = document.createElement('canvas');
                 this.processingCtx = this.processingCanvas.getContext('2d', { willReadFrequently: true });
@@ -1092,14 +1205,14 @@
                 const imageData = this._prepareProcessingCanvas(image);
                 const data = imageData.data;
                 for (let i = 0; i < data.length; i += 4) {
-                    data[i] = 255 - data[i]; 
-                    data[i+1] = 255 - data[i+1]; 
+                    data[i] = 255 - data[i];
+                    data[i+1] = 255 - data[i+1];
                     data[i+2] = 255 - data[i+2];
                 }
                 this.processingCtx.putImageData(imageData, 0, 0);
                 return this._getImageFromProcessingCanvas();
             }
-            
+
             async binarize(image, threshold) {
                 const imageData = this._prepareProcessingCanvas(image);
                 const data = imageData.data;
@@ -1111,7 +1224,7 @@
                 this.processingCtx.putImageData(imageData, 0, 0);
                 return this._getImageFromProcessingCanvas();
             }
-            
+
             async edgeDetect(image, sensitivity) {
                 const imageData = this._prepareProcessingCanvas(image);
                 const width = imageData.width, height = imageData.height;
@@ -1149,13 +1262,13 @@
                 this.processingCtx.putImageData(new ImageData(resultData, width, height), 0, 0);
                 return this._getImageFromProcessingCanvas();
             }
-            
+
             async quantizeColors(image, k) {
                 const imageData = this._prepareProcessingCanvas(image);
                 const width = imageData.width, height = imageData.height;
                 const data = imageData.data;
                 let pixels = [];
-                const step = Math.max(1, Math.floor((width * height) / 50000)); 
+                const step = Math.max(1, Math.floor((width * height) / 50000));
                 for (let i = 0; i < data.length; i += (4 * step)) {
                     const r = data[i], g = data[i+1], b = data[i+2], a = data[i+3];
                     const brightness = (r * 0.299 + g * 0.587 + b * 0.114);
@@ -1189,16 +1302,121 @@
                 return this._getImageFromProcessingCanvas();
             }
 
-            _rgbToHex(r, g, b) { 
-                return "#" + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1).toUpperCase(); 
+            async enhanceDetails(image, strength = 1.0) {
+                const imageData = this._prepareProcessingCanvas(image);
+                const width = imageData.width, height = imageData.height;
+                const data = imageData.data;
+                
+                // Aplicar um filtro de nitidez
+                const sharpenKernel = [
+                    0, -1, 0,
+                    -1, 5, -1,
+                    0, -1, 0
+                ];
+                
+                const resultData = new Uint8ClampedArray(data.length);
+                
+                for (let y = 0; y < height; y++) {
+                    for (let x = 0; x < width; x++) {
+                        const i = (y * width + x) * 4;
+                        
+                        if (x === 0 || x === width - 1 || y === 0 || y === height - 1) {
+                            resultData[i] = data[i];
+                            resultData[i+1] = data[i+1];
+                            resultData[i+2] = data[i+2];
+                            resultData[i+3] = data[i+3];
+                        } else {
+                            let r = 0, g = 0, b = 0;
+                            
+                            for (let ky = -1; ky <= 1; ky++) {
+                                for (let kx = -1; kx <= 1; kx++) {
+                                    const kernelIdx = (ky + 1) * 3 + (kx + 1);
+                                    const weight = sharpenKernel[kernelIdx];
+                                    
+                                    const pixelIdx = ((y + ky) * width + (x + kx)) * 4;
+                                    
+                                    r += data[pixelIdx] * weight;
+                                    g += data[pixelIdx+1] * weight;
+                                    b += data[pixelIdx+2] * weight;
+                                }
+                            }
+                            
+                            // Aplicar força do filtro
+                            r = data[i] + (r - data[i]) * strength;
+                            g = data[i+1] + (g - data[i+1]) * strength;
+                            b = data[i+2] + (b - data[i+2]) * strength;
+                            
+                            resultData[i] = Math.max(0, Math.min(255, r));
+                            resultData[i+1] = Math.max(0, Math.min(255, g));
+                            resultData[i+2] = Math.max(0, Math.min(255, b));
+                            resultData[i+3] = data[i+3];
+                        }
+                    }
+                }
+                
+                this.processingCtx.putImageData(new ImageData(resultData, width, height), 0, 0);
+                return this._getImageFromProcessingCanvas();
             }
-            
+
+            async reduceNoise(image, strength = 3) {
+                const imageData = this._prepareProcessingCanvas(image);
+                const width = imageData.width, height = imageData.height;
+                const data = imageData.data;
+                
+                const resultData = new Uint8ClampedArray(data.length);
+                const kernelSize = Math.max(1, Math.floor(strength / 2));
+                
+                for (let y = 0; y < height; y++) {
+                    for (let x = 0; x < width; x++) {
+                        const i = (y * width + x) * 4;
+                        
+                        let rValues = [], gValues = [], bValues = [];
+                        
+                        for (let ky = -kernelSize; ky <= kernelSize; ky++) {
+                            for (let kx = -kernelSize; kx <= kernelSize; kx++) {
+                                const ny = Math.max(0, Math.min(height - 1, y + ky));
+                                const nx = Math.max(0, Math.min(width - 1, x + kx));
+                                const pixelIdx = (ny * width + nx) * 4;
+                                
+                                rValues.push(data[pixelIdx]);
+                                gValues.push(data[pixelIdx+1]);
+                                bValues.push(data[pixelIdx+2]);
+                            }
+                        }
+                        
+                        // Usar mediana para reduzir ruído
+                        resultData[i] = this._median(rValues);
+                        resultData[i+1] = this._median(gValues);
+                        resultData[i+2] = this._median(bValues);
+                        resultData[i+3] = data[i+3];
+                    }
+                }
+                
+                this.processingCtx.putImageData(new ImageData(resultData, width, height), 0, 0);
+                return this._getImageFromProcessingCanvas();
+            }
+
+            _median(values) {
+                values.sort((a, b) => a - b);
+                const half = Math.floor(values.length / 2);
+                
+                if (values.length % 2) {
+                    return values[half];
+                }
+                
+                return (values[half - 1] + values[half]) / 2.0;
+            }
+
+            _rgbToHex(r, g, b) {
+                return "#" + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1).toUpperCase();
+            }
+
             _hexToRgb(hex) {
                 const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
-                return result ? { 
-                    r: parseInt(result[1], 16), 
-                    g: parseInt(result[2], 16), 
-                    b: parseInt(result[3], 16) 
+                return result ? {
+                    r: parseInt(result[1], 16),
+                    g: parseInt(result[2], 16),
+                    b: parseInt(result[3], 16)
                 } : null;
             }
 
@@ -1211,7 +1429,7 @@
                 const distSqr = this._colorDistanceSqr(r1, g1, b1, r2, g2, b2);
                 return distSqr < (tolerance * tolerance * 255*255*3);
             }
-            
+
             isColorSimilarHex(hex1, hex2, tolerance) {
                 const c1 = this._hexToRgb(hex1), c2 = this._hexToRgb(hex2);
                 if (!c1 || !c2) return false;
@@ -1220,16 +1438,16 @@
         }
 
         // ========================================================================
-        // --- MÓDULO 3: GERADOR DE CAMINHO (G-Code) ---
+        // --- MÓDULO 3: GERADOR DE CAMINHO AVANÇADO (G-Code) ---
         // ========================================================================
-        class PathGenerator {
+        class AdvancedPathGenerator {
             constructor(settingsProvider) {
                 this.getSettings = settingsProvider;
                 this.df = new Intl.NumberFormat('en-US', { minimumFractionDigits: 3, maximumFractionDigits: 3, useGrouping: false });
                 this.pf = new Intl.NumberFormat('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0, useGrouping: false });
             }
 
-            async generatePaths(layers, processedImage, originalImage, processor) {
+            async generatePaths(layers, processedImage, originalImage, processor, optimizationLevel = 85) {
                 const settings = this.getSettings();
                 const pixelMap = await this._buildPixelMap(layers, processedImage, originalImage, processor, settings);
                 
@@ -1246,7 +1464,7 @@
                     
                     // Otimizar APENAS camadas de corte
                     if (layer.operation === OperationType.CUT) {
-                        layerPaths = this._optimizeCutPaths(layerPaths, lastX, lastY);
+                        layerPaths = this._optimizeCutPaths(layerPaths, lastX, lastY, optimizationLevel);
                     }
                     
                     allPaths.push(...layerPaths); 
@@ -1399,14 +1617,43 @@
                 return paths;
             }
             
-            _optimizeCutPaths(paths, startX, startY) {
+            _optimizeCutPaths(paths, startX, startY, optimizationLevel) {
                 if (paths.length === 0) return [];
+                
+                // Aplicar diferentes níveis de otimização baseado no parâmetro
+                let optimizedPaths = [];
+                
+                if (optimizationLevel >= 80) {
+                    // Otimização avançada: Nearest Neighbor com clustering
+                    optimizedPaths = this._advancedOptimization(paths, startX, startY);
+                } else if (optimizationLevel >= 50) {
+                    // Otimização média: Nearest Neighbor simples
+                    optimizedPaths = this._nearestNeighborOptimization(paths, startX, startY);
+                } else {
+                    // Sem otimização
+                    optimizedPaths = paths;
+                }
+                
+                // Remover segmentos muito curtos (se otimização alta)
+                if (optimizationLevel >= 70) {
+                    optimizedPaths = optimizedPaths.filter(path => {
+                        const length = Math.sqrt(Math.pow(path.x2 - path.x1, 2) + Math.pow(path.y2 - path.y1, 2));
+                        return length >= 0.05; // Remover segmentos menores que 0.05mm
+                    });
+                }
+                
+                return optimizedPaths;
+            }
+
+            _nearestNeighborOptimization(paths, startX, startY) {
                 let sortedPaths = [];
                 let remainingPaths = new Set(paths);
                 let currentX = startX, currentY = startY;
+                
                 while (remainingPaths.size > 0) {
                     let bestPath = null;
                     let minDistance = Infinity;
+                    
                     for (const path of remainingPaths) {
                         const distToStart = path.distanceToStart(currentX, currentY);
                         if (distToStart < minDistance) {
@@ -1414,12 +1661,99 @@
                             bestPath = path;
                         }
                     }
+                    
                     sortedPaths.push(bestPath);
                     remainingPaths.delete(bestPath);
                     currentX = bestPath.x2;
                     currentY = bestPath.y2;
                 }
+                
                 return sortedPaths;
+            }
+
+            _advancedOptimization(paths, startX, startY) {
+                // Agrupar caminhos por proximidade
+                const clusters = this._clusterPaths(paths);
+                let sortedPaths = [];
+                let currentX = startX, currentY = startY;
+                
+                // Ordenar clusters por proximidade
+                clusters.sort((a, b) => {
+                    const distA = this._distanceToCluster(a, currentX, currentY);
+                    const distB = this._distanceToCluster(b, currentX, currentY);
+                    return distA - distB;
+                });
+                
+                // Processar cada cluster
+                for (const cluster of clusters) {
+                    // Ordenar caminhos dentro do cluster
+                    const clusterPaths = this._nearestNeighborOptimization(cluster, currentX, currentY);
+                    sortedPaths.push(...clusterPaths);
+                    
+                    if (clusterPaths.length > 0) {
+                        const lastPath = clusterPaths[clusterPaths.length - 1];
+                        currentX = lastPath.x2;
+                        currentY = lastPath.y2;
+                    }
+                }
+                
+                return sortedPaths;
+            }
+
+            _clusterPaths(paths, maxClusterDistance = 5.0) {
+                if (paths.length === 0) return [];
+                
+                const clusters = [];
+                const used = new Set();
+                
+                for (let i = 0; i < paths.length; i++) {
+                    if (used.has(i)) continue;
+                    
+                    const cluster = [paths[i]];
+                    used.add(i);
+                    
+                    for (let j = i + 1; j < paths.length; j++) {
+                        if (used.has(j)) continue;
+                        
+                        const path = paths[j];
+                        let isClose = false;
+                        
+                        // Verificar se o caminho está próximo de algum caminho no cluster
+                        for (const clusterPath of cluster) {
+                            const dist = Math.min(
+                                path.distanceToStart(clusterPath.x1, clusterPath.y1),
+                                path.distanceToStart(clusterPath.x2, clusterPath.y2)
+                            );
+                            
+                            if (dist <= maxClusterDistance) {
+                                isClose = true;
+                                break;
+                            }
+                        }
+                        
+                        if (isClose) {
+                            cluster.push(path);
+                            used.add(j);
+                        }
+                    }
+                    
+                    clusters.push(cluster);
+                }
+                
+                return clusters;
+            }
+
+            _distanceToCluster(cluster, x, y) {
+                let minDistance = Infinity;
+                
+                for (const path of cluster) {
+                    const dist = path.distanceToStart(x, y);
+                    if (dist < minDistance) {
+                        minDistance = dist;
+                    }
+                }
+                
+                return minDistance;
             }
 
             _convertPathsToMoves(paths, lastX, lastY, settings, time, cumulativeTimes, isCutting = true) {
@@ -1451,7 +1785,7 @@
 
             writeGcodeFromMoves(moves) {
                 let gcode = [
-                    "; G-code de Laser - Gerado por Generative CAM v2.2",
+                    "; G-code de Laser - Gerado por Generative CAM v3.0",
                     "; Caminho Otimizado Atomicamente",
                     "G90 ; Posicionamento absoluto", "G21 ; Unidades em milímetros",
                     "M5 S0 ; Laser desligado"
@@ -1551,7 +1885,7 @@
                 return svg;
             }
         }
-        
+
         // ========================================================================
         // --- MÓDULO 4: SIMULADOR (Estado de Playback) ---
         // ========================================================================
@@ -1675,9 +2009,9 @@
                     (progress) => this.redrawViewports(this.simulator.slider.value)
                 );
                 
-                this.imageProcessor = new ImageProcessor();
+                this.imageProcessor = new AdvancedImageProcessor();
 
-                this.pathGenerator = new PathGenerator(() => ({
+                this.pathGenerator = new AdvancedPathGenerator(() => ({
                     scaleFactor: this.scaleFactor,
                     travelSpeed: this.travelSpeed,
                     laserMaxSValue: this.laserMaxSValue,
@@ -1720,6 +2054,8 @@
                 this.materialPreset = document.getElementById('materialPreset');
                 this.edgeDetailSlider = document.getElementById('edgeDetailSlider');
                 this.fillGroupingSlider = document.getElementById('fillGroupingSlider');
+                this.noiseReductionSlider = document.getElementById('noiseReductionSlider');
+                this.pathOptimizationSlider = document.getElementById('pathOptimizationSlider');
                 
                 this.settingsModal = document.getElementById('settingsModal');
                 this.layersModal = document.getElementById('layersModal');
@@ -1739,6 +2075,7 @@
                 document.getElementById('layersBtn').addEventListener('click', () => this.showLayersModal());
                 document.getElementById('exportGcodeBtn').addEventListener('click', () => this.exportGcode());
                 document.getElementById('exportJpgBtn').addEventListener('click', () => this.exportJpg());
+                document.getElementById('exportPngBtn').addEventListener('click', () => this.exportPng());
                 document.getElementById('exportDxfBtn').addEventListener('click', () => this.exportDxf());
                 document.getElementById('exportPltBtn').addEventListener('click', () => this.exportPlt());
                 document.getElementById('exportRldBtn').addEventListener('click', () => this.exportRld());
@@ -1754,6 +2091,14 @@
                 
                 this.fillGroupingSlider.addEventListener('input', (e) => {
                     document.getElementById('fillGroupingValue').textContent = e.target.value;
+                });
+
+                this.noiseReductionSlider.addEventListener('input', (e) => {
+                    document.getElementById('noiseReductionValue').textContent = e.target.value;
+                });
+
+                this.pathOptimizationSlider.addEventListener('input', (e) => {
+                    document.getElementById('pathOptimizationValue').textContent = e.target.value;
                 });
 
                 document.getElementById('addLayerBtn').addEventListener('click', () => this.addLayer());
@@ -1780,10 +2125,10 @@
                 document.getElementById('cancelSettingsBtn').addEventListener('click', () => this.hideSettingsModal());
                 document.getElementById('saveSettingsBtn').addEventListener('click', () => this.saveSettings());
 
-                document.querySelectorAll('.section-header button').forEach(button => {
-                    button.addEventListener('click', () => {
-                        const content = button.parentElement.nextElementSibling;
-                        button.classList.toggle('collapsed');
+                document.querySelectorAll('.section-header').forEach(header => {
+                    header.addEventListener('click', () => {
+                        const content = header.nextElementSibling;
+                        header.classList.toggle('collapsed');
                         content.classList.toggle('collapsed');
                     });
                 });
@@ -1817,7 +2162,7 @@
             collapseSectionsByDefault() {
                 document.querySelectorAll('.section').forEach((section, index) => {
                     if (index > 1) {
-                        section.querySelector('.section-header button').classList.add('collapsed');
+                        section.querySelector('.section-header').classList.add('collapsed');
                         section.querySelector('.section-content').classList.add('collapsed');
                     }
                 });
@@ -1873,7 +2218,7 @@
                     ctx.save();
                     ctx.setTransform(1, 0, 0, 1, 0, 0);
                     ctx.fillStyle = '#666';
-                    ctx.font = '16px Arial';
+                    ctx.font = '16px Inter';
                     ctx.textAlign = 'center';
                     ctx.fillText('Nenhuma simulação. Gere o G-code primeiro.', ctx.canvas.width / 2, 50);
                     ctx.restore();
@@ -2082,6 +2427,12 @@
                         case 'negative': 
                             newImage = await this.imageProcessor.applyNegative(this.processedImage); 
                             break;
+                        case 'enhanceDetails':
+                            newImage = await this.imageProcessor.enhanceDetails(this.processedImage, 1.5);
+                            break;
+                        case 'reduceNoise':
+                            newImage = await this.imageProcessor.reduceNoise(this.processedImage, parseInt(this.noiseReductionSlider.value));
+                            break;
                         case 'resetImage':
                             this.processedImage = this.originalImage;
                             this.updateStatus('Imagem resetada para o original');
@@ -2129,6 +2480,10 @@
                     document.getElementById('edgeDetailValue').textContent = preset.analysis.edgeDetail;
                     this.fillGroupingSlider.value = preset.analysis.colorGrouping;
                     document.getElementById('fillGroupingValue').textContent = preset.analysis.colorGrouping;
+                    this.noiseReductionSlider.value = preset.analysis.noiseReduction;
+                    document.getElementById('noiseReductionValue').textContent = preset.analysis.noiseReduction;
+                    this.pathOptimizationSlider.value = preset.analysis.pathOptimization;
+                    document.getElementById('pathOptimizationValue').textContent = preset.analysis.pathOptimization;
 
                     await this.runMagicPipeline();
 
@@ -2171,9 +2526,12 @@
                 
                 try {
                     let processedImage = await this.imageProcessor.removeBackground(this.originalImage);
+                    processedImage = await this.imageProcessor.reduceNoise(processedImage, parseInt(this.noiseReductionSlider.value));
+                    processedImage = await this.imageProcessor.enhanceDetails(processedImage, 1.2);
+                    
                     const numColors = parseInt(this.fillGroupingSlider.value);
                     processedImage = await this.imageProcessor.quantizeColors(processedImage, numColors);
-                    
+
                     const edgeSensitivity = parseFloat(this.edgeDetailSlider.value);
                     const edgeImage = await this.imageProcessor.edgeDetect(processedImage, edgeSensitivity);
 
@@ -2383,8 +2741,9 @@
                 this.showLoading("Gerando G-code...");
                 
                 try {
+                    const optimizationLevel = parseInt(this.pathOptimizationSlider.value);
                     const result = await this.pathGenerator.generatePaths(
-                        this.layers, this.processedImage, this.originalImage, this.imageProcessor
+                        this.layers, this.processedImage, this.originalImage, this.imageProcessor, optimizationLevel
                     );
                     
                     this.simulationMoves = result.moves;
@@ -2421,6 +2780,18 @@
                 const dataURL = await this.imageProcessor.getImageAsJpg(0.9);
                 this.downloadFile('imagem_processada.jpg', dataURL);
                 this.updateStatus("Imagem JPG exportada.");
+            }
+
+            async exportPng() {
+                if (!this.processedImage) {
+                    this.updateStatus("Nenhuma imagem para exportar!");
+                    return;
+                }
+                this.updateStatus("Gerando PNG...");
+                this.imageProcessor._prepareProcessingCanvas(this.processedImage);
+                const dataURL = await this.imageProcessor.getImageAsPng();
+                this.downloadFile('imagem_processada.png', dataURL);
+                this.updateStatus("Imagem PNG exportada.");
             }
 
             async exportDxf() {
