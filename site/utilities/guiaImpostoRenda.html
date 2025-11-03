@@ -356,7 +356,7 @@
             height: 100%;
             background: linear-gradient(90deg, var(--primary) 0%, #5c9bf5 100%);
             border-radius: 4px;
-            width: 10%;
+            width: 5%;
             transition: width 0.5s ease;
         }
 
@@ -400,6 +400,7 @@
             box-shadow: var(--shadow);
             text-align: center;
             color: var(--dark);
+            position: relative;
         }
 
         .question-header {
@@ -408,6 +409,7 @@
             justify-content: center;
             gap: 8px;
             margin-bottom: 16px;
+            position: relative;
         }
 
         .question-text {
@@ -437,19 +439,39 @@
             color: var(--primary);
             cursor: help;
             font-size: 16px;
+            position: relative;
         }
 
         .tooltip {
             position: absolute;
             background-color: var(--dark);
             color: var(--light);
-            padding: 8px 12px;
+            padding: 12px;
             border-radius: 8px;
             font-size: 14px;
-            max-width: 250px;
+            max-width: 280px;
             z-index: 100;
             box-shadow: 0 4px 12px rgba(0,0,0,0.2);
             display: none;
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            margin-top: 10px;
+        }
+
+        .tooltip:after {
+            content: '';
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            border-width: 6px;
+            border-style: solid;
+            border-color: transparent transparent var(--dark) transparent;
+        }
+
+        .tooltip-icon:hover .tooltip {
+            display: block;
         }
 
         .options-container {
@@ -979,28 +1001,6 @@
             display: none;
         }
 
-        /* Níveis de Linguagem */
-        .language-level {
-            display: none;
-            position: fixed;
-            top: 20px;
-            left: 20px;
-            background-color: var(--light);
-            border-radius: 50px;
-            padding: 8px 16px;
-            box-shadow: var(--shadow);
-            font-size: 12px;
-            color: var(--gray);
-            z-index: 100;
-        }
-
-        .language-toggle {
-            color: var(--primary);
-            cursor: pointer;
-            margin-left: 8px;
-            font-weight: 500;
-        }
-
         /* Responsive */
         @media (max-width: 480px) {
             .app-container {
@@ -1153,7 +1153,10 @@
                 <div class="question-number">1/20</div>
                 <div class="question-header">
                     <div class="question-text">Qual é o seu nível de familiaridade com o Imposto de Renda?</div>
-                    <i class="fas fa-info-circle tooltip-icon" data-tooltip="Esta pergunta ajuda a personalizar o nível de detalhe das próximas explicações"></i>
+                    <div class="tooltip-icon">
+                        <i class="fas fa-info-circle"></i>
+                        <div class="tooltip">Esta pergunta ajuda a personalizar o nível de detalhe das próximas explicações</div>
+                    </div>
                 </div>
                 <div class="options-container">
                     <button class="option-btn" data-next="section-rendimentos-totais" data-value="beginner">Primeira vez declarando ou com pouca experiência</button>
@@ -1168,7 +1171,10 @@
                 <div class="question-number">2/20</div>
                 <div class="question-header">
                     <div class="question-text">Em 2024, seus rendimentos totais (salários, aluguéis, etc.) foram superiores a R$ 33.888,00?</div>
-                    <i class="fas fa-info-circle tooltip-icon" data-tooltip="Inclui salários, aluguéis, pró-labore, pensões, aposentadorias e outros rendimentos tributáveis. Valor atualizado pela Receita Federal para 2025."></i>
+                    <div class="tooltip-icon">
+                        <i class="fas fa-info-circle"></i>
+                        <div class="tooltip">Inclui salários, aluguéis, pró-labore, pensões, aposentadorias e outros rendimentos tributáveis. Valor atualizado pela Receita Federal para 2025.</div>
+                    </div>
                 </div>
                 <div class="options-container">
                     <button class="option-btn" data-next="section-rendimentos-isentos" data-value="yes">Sim</button>
@@ -1182,7 +1188,10 @@
                 <div class="question-number">3/20</div>
                 <div class="question-header">
                     <div class="question-text">Teve rendimentos isentos (como lucros de ações até R$ 20.000/mês) ou tributados na fonte que, somados, passaram de R$ 200.000 em 2024?</div>
-                    <i class="fas fa-info-circle tooltip-icon" data-tooltip="Rendimentos isentos: lucros de ações até R$ 20.000/mês, indenizações trabalhistas, heranças, doações. Rendimentos tributados na fonte: aplicações financeiras com retenção, aluguéis com retenção, etc."></i>
+                    <div class="tooltip-icon">
+                        <i class="fas fa-info-circle"></i>
+                        <div class="tooltip">Rendimentos isentos: lucros de ações até R$ 20.000/mês, indenizações trabalhistas, heranças, doações. Rendimentos tributados na fonte: aplicações financeiras com retenção, aluguéis com retenção, etc.</div>
+                    </div>
                 </div>
                 <div class="options-container">
                     <button class="option-btn" data-next="section-bens" data-value="yes">Sim</button>
@@ -1196,7 +1205,10 @@
                 <div class="question-number">4/20</div>
                 <div class="question-header">
                     <div class="question-text">A soma de todos os seus bens (imóveis, veículos, investimentos) em 31/12/2024 ultrapassou R$ 800.000?</div>
-                    <i class="fas fa-info-circle tooltip-icon" data-tooltip="Inclui imóveis (valor de mercado), veículos, aplicações financeiras, investimentos, saldos em contas bancárias, direitos e créditos. Não inclui bens de uso pessoal como roupas e eletrodomésticos."></i>
+                    <div class="tooltip-icon">
+                        <i class="fas fa-info-circle"></i>
+                        <div class="tooltip">Inclui imóveis (valor de mercado), veículos, aplicações financeiras, investimentos, saldos em contas bancárias, direitos e créditos. Não inclui bens de uso pessoal como roupas e eletrodomésticos.</div>
+                    </div>
                 </div>
                 <div class="options-container">
                     <button class="option-btn" data-next="section-atividade-rural" data-value="yes">Sim</button>
@@ -1210,7 +1222,10 @@
                 <div class="question-number">5/20</div>
                 <div class="question-header">
                     <div class="question-text">Exerce atividade rural com receita bruta anual superior a R$ 169.440,00?</div>
-                    <i class="fas fa-info-circle tooltip-icon" data-tooltip="Atividade rural: agricultura, pecuária, extrativismo vegetal, pesca, etc. Receita bruta: total das vendas sem dedução de custos. Valor atualizado para 2025."></i>
+                    <div class="tooltip-icon">
+                        <i class="fas fa-info-circle"></i>
+                        <div class="tooltip">Atividade rural: agricultura, pecuária, extrativismo vegetal, pesca, etc. Receita bruta: total das vendas sem dedução de custos. Valor atualizado para 2025.</div>
+                    </div>
                 </div>
                 <div class="options-container">
                     <button class="option-btn" data-next="section-perfil" data-value="yes">Sim</button>
@@ -1224,7 +1239,10 @@
                 <div class="question-number">6/20</div>
                 <div class="question-header">
                     <div class="question-text">Você é Microempreendedor Individual (MEI)?</div>
-                    <i class="fas fa-info-circle tooltip-icon" data-tooltip="MEI: Microempreendedor Individual, modalidade do Simples Nacional para pequenos negócios com faturamento anual de até R$ 81.000,00."></i>
+                    <div class="tooltip-icon">
+                        <i class="fas fa-info-circle"></i>
+                        <div class="tooltip">MEI: Microempreendedor Individual, modalidade do Simples Nacional para pequenos negócios com faturamento anual de até R$ 81.000,00.</div>
+                    </div>
                 </div>
                 <div class="options-container">
                     <button class="option-btn" data-next="section-mei" data-value="yes">Sim</button>
@@ -1238,7 +1256,10 @@
                 <div class="question-number">7/20</div>
                 <div class="question-header">
                     <div class="question-text">Qual sua atividade principal como MEI?</div>
-                    <i class="fas fa-info-circle tooltip-icon" data-tooltip="Serviços: consultorias, manutenção, beleza, etc. Comércio/Indústria: venda de produtos, fabricação, etc. O percentual isento varia conforme a atividade."></i>
+                    <div class="tooltip-icon">
+                        <i class="fas fa-info-circle"></i>
+                        <div class="tooltip">Serviços: consultorias, manutenção, beleza, etc. Comércio/Indústria: venda de produtos, fabricação, etc. O percentual isento varia conforme a atividade.</div>
+                    </div>
                 </div>
                 <div class="options-container">
                     <button class="option-btn" data-next="section-rendimentos-exterior" data-value="services">Serviços</button>
@@ -1252,7 +1273,10 @@
                 <div class="question-number">8/20</div>
                 <div class="question-header">
                     <div class="question-text">Teve rendimentos ou possui bens no exterior em 2024?</div>
-                    <i class="fas fa-info-circle tooltip-icon" data-tooltip="Rendimentos no exterior: salários, investimentos, aluguéis, lucros, dividendos recebidos do exterior. Bens no exterior: imóveis, veículos, contas bancárias, investimentos."></i>
+                    <div class="tooltip-icon">
+                        <i class="fas fa-info-circle"></i>
+                        <div class="tooltip">Rendimentos no exterior: salários, investimentos, aluguéis, lucros, dividendos recebidos do exterior. Bens no exterior: imóveis, veículos, contas bancárias, investimentos.</div>
+                    </div>
                 </div>
                 <div class="options-container">
                     <button class="option-btn" data-next="section-despesas-saude" data-value="yes">Sim</button>
@@ -1266,7 +1290,10 @@
                 <div class="question-number">9/20</div>
                 <div class="question-header">
                     <div class="question-text">Teve despesas médicas ou odontológicas significativas em 2024?</div>
-                    <i class="fas fa-info-circle tooltip-icon" data-tooltip="Despesas médicas: consultas, exames, tratamentos, internações, medicamentos com receita. Odontológicas: tratamentos, próteses, ortodontia. Não inclui despesas estéticas."></i>
+                    <div class="tooltip-icon">
+                        <i class="fas fa-info-circle"></i>
+                        <div class="tooltip">Despesas médicas: consultas, exames, tratamentos, internações, medicamentos com receita. Odontológicas: tratamentos, próteses, ortodontia. Não inclui despesas estéticas.</div>
+                    </div>
                 </div>
                 <div class="options-container">
                     <button class="option-btn" data-next="section-despesas-educacao" data-value="yes">Sim</button>
@@ -1280,7 +1307,10 @@
                 <div class="question-number">10/20</div>
                 <div class="question-header">
                     <div class="question-text">Teve despesas com educação (mensalidades escolares, faculdade, cursos técnicos) em 2024?</div>
-                    <i class="fas fa-info-circle tooltip-icon" data-tooltip="Inclui mensalidades de ensino fundamental, médio, superior, técnico e tecnológico. Não inclui cursos livres, preparatórios ou material escolar."></i>
+                    <div class="tooltip-icon">
+                        <i class="fas fa-info-circle"></i>
+                        <div class="tooltip">Inclui mensalidades de ensino fundamental, médio, superior, técnico e tecnológico. Não inclui cursos livres, preparatórios ou material escolar.</div>
+                    </div>
                 </div>
                 <div class="options-container">
                     <button class="option-btn" data-next="section-previdencia" data-value="yes">Sim</button>
@@ -1294,7 +1324,10 @@
                 <div class="question-number">11/20</div>
                 <div class="question-header">
                     <div class="question-text">Fez contribuições para previdência privada (PGBL) em 2024?</div>
-                    <i class="fas fa-info-circle tooltip-icon" data-tooltip="PGBL: Plano Gerador de Benefício Livre. Permite dedução de até 12% dos rendimentos tributáveis. VGBL não permite dedução."></i>
+                    <div class="tooltip-icon">
+                        <i class="fas fa-info-circle"></i>
+                        <div class="tooltip">PGBL: Plano Gerador de Benefício Livre. Permite dedução de até 12% dos rendimentos tributáveis. VGBL não permite dedução.</div>
+                    </div>
                 </div>
                 <div class="options-container">
                     <button class="option-btn" data-next="section-dependentes" data-value="yes">Sim</button>
@@ -1308,7 +1341,10 @@
                 <div class="question-number">12/20</div>
                 <div class="question-header">
                     <div class="question-text">Tem dependentes para declarar no IR?</div>
-                    <i class="fas fa-info-circle tooltip-icon" data-tooltip="Dependentes: filhos até 21 anos (ou até 24 se estudante), cônjuge/companheiro, pais, avós, bisavós, netos, irmãos (sob guarda judicial ou tutela)."></i>
+                    <div class="tooltip-icon">
+                        <i class="fas fa-info-circle"></i>
+                        <div class="tooltip">Dependentes: filhos até 21 anos (ou até 24 se estudante), cônjuge/companheiro, pais, avós, bisavós, netos, irmãos (sob guarda judicial ou tutela).</div>
+                    </div>
                 </div>
                 <div class="options-container">
                     <button class="option-btn" data-next="section-investimentos" data-value="yes">Sim</button>
@@ -1322,7 +1358,10 @@
                 <div class="question-number">13/20</div>
                 <div class="question-header">
                     <div class="question-text">Teve ganhos com investimentos (ações, fundos, criptomoedas) em 2024?</div>
-                    <i class="fas fa-info-circle tooltip-icon" data-tooltip="Inclui lucros com ações (acima de R$ 20.000/mês), fundos de investimento, criptomoedas, dividendos, juros sobre capital próprio."></i>
+                    <div class="tooltip-icon">
+                        <i class="fas fa-info-circle"></i>
+                        <div class="tooltip">Inclui lucros com ações (acima de R$ 20.000/mês), fundos de investimento, criptomoedas, dividendos, juros sobre capital próprio.</div>
+                    </div>
                 </div>
                 <div class="options-container">
                     <button class="option-btn" data-next="section-operacoes-imoveis" data-value="yes">Sim</button>
@@ -1336,7 +1375,10 @@
                 <div class="question-number">14/20</div>
                 <div class="question-header">
                     <div class="question-text">Vendeu ou comprou imóveis em 2024?</div>
-                    <i class="fas fa-info-circle tooltip-icon" data-tooltip="Venda de imóveis pode gerar ganho de capital tributável. Compra deve ser declarada como bem."></i>
+                    <div class="tooltip-icon">
+                        <i class="fas fa-info-circle"></i>
+                        <div class="tooltip">Venda de imóveis pode gerar ganho de capital tributável. Compra deve ser declarada como bem.</div>
+                    </div>
                 </div>
                 <div class="options-container">
                     <button class="option-btn" data-next="section-desconto-simplificado" data-value="yes">Sim</button>
@@ -1350,7 +1392,10 @@
                 <div class="question-number">15/20</div>
                 <div class="question-header">
                     <div class="question-text">Prefere usar o desconto simplificado ou declarar despesas detalhadas?</div>
-                    <i class="fas fa-info-circle tooltip-icon" data-tooltip="Desconto simplificado: 20% da renda tributável, limitado a R$ 16.754,34. Declaração detalhada: permite deduzir despesas médicas, educacionais, previdência privada."></i>
+                    <div class="tooltip-icon">
+                        <i class="fas fa-info-circle"></i>
+                        <div class="tooltip">Desconto simplificado: 20% da renda tributável, limitado a R$ 16.754,34. Declaração detalhada: permite deduzir despesas médicas, educacionais, previdência privada.</div>
+                    </div>
                 </div>
                 <div class="options-container">
                     <button class="option-btn" data-next="section-plataforma" data-value="simplified">Prefiro o desconto simplificado</button>
@@ -1364,7 +1409,10 @@
                 <div class="question-number">16/20</div>
                 <div class="question-header">
                     <div class="question-text">Como prefere fazer sua declaração?</div>
-                    <i class="fas fa-info-circle tooltip-icon" data-tooltip="Meu Imposto de Renda: plataforma online, não precisa instalar, disponível desde 1º de abril. PGD IRPF: programa para computador, mais recursos avançados."></i>
+                    <div class="tooltip-icon">
+                        <i class="fas fa-info-circle"></i>
+                        <div class="tooltip">Meu Imposto de Renda: plataforma online, não precisa instalar, disponível desde 1º de abril. PGD IRPF: programa para computador, mais recursos avançados.</div>
+                    </div>
                 </div>
                 <div class="options-container">
                     <button class="option-btn" data-next="section-restituicao" data-value="mobile">Pelo celular (Meu Imposto de Renda)</button>
@@ -1378,7 +1426,10 @@
                 <div class="question-number">17/20</div>
                 <div class="question-header">
                     <div class="question-text">Prefere receber restituição via Pix ou conta bancária?</div>
-                    <i class="fas fa-info-circle tooltip-icon" data-tooltip="Pix: processamento mais rápido, prioridade na restituição. Conta bancária: depósito tradicional."></i>
+                    <div class="tooltip-icon">
+                        <i class="fas fa-info-circle"></i>
+                        <div class="tooltip">Pix: processamento mais rápido, prioridade na restituição. Conta bancária: depósito tradicional.</div>
+                    </div>
                 </div>
                 <div class="options-container">
                     <button class="option-btn" data-next="section-prazo" data-value="pix">Pix (mais rápido)</button>
@@ -1392,7 +1443,10 @@
                 <div class="question-number">18/20</div>
                 <div class="question-header">
                     <div class="question-text">Você costuma declarar próximo ao prazo final?</div>
-                    <i class="fas fa-info-circle tooltip-icon" data-tooltip="Prazo final: 30 de maio de 2025. Declarar com antecedência evita congestionamento do sistema e permite correção de eventuais erros."></i>
+                    <div class="tooltip-icon">
+                        <i class="fas fa-info-circle"></i>
+                        <div class="tooltip">Prazo final: 30 de maio de 2025. Declarar com antecedência evita congestionamento do sistema e permite correção de eventuais erros.</div>
+                    </div>
                 </div>
                 <div class="options-container">
                     <button class="option-btn" data-next="section-conhecimento" data-value="yes">Sim, costumo deixar para a última hora</button>
@@ -1406,7 +1460,10 @@
                 <div class="question-number">19/20</div>
                 <div class="question-header">
                     <div class="question-text">Você já conhecia as principais mudanças do IRPF 2025?</div>
-                    <i class="fas fa-info-circle tooltip-icon" data-tooltip="Principais mudanças: novos limites de obrigatoriedade, atualização da tabela progressiva, declaração pré-preenchida mais completa, regras para bens no exterior."></i>
+                    <div class="tooltip-icon">
+                        <i class="fas fa-info-circle"></i>
+                        <div class="tooltip">Principais mudanças: novos limites de obrigatoriedade, atualização da tabela progressiva, declaração pré-preenchida mais completa, regras para bens no exterior.</div>
+                    </div>
                 </div>
                 <div class="options-container">
                     <button class="option-btn" data-next="section-final" data-value="yes">Sim, estou atualizado</button>
@@ -1419,12 +1476,15 @@
             <div class="question-card">
                 <div class="question-number">20/20</div>
                 <div class="question-header">
-                    <div class="question-text">Você gostaria de receber lembretes sobre prazos e novidades do IR?</div>
-                    <i class="fas fa-info-circle tooltip-icon" data-tooltip="Enviaremos apenas informações relevantes sobre prazos, mudanças na legislação e dicas para otimizar sua declaração."></i>
+                    <div class="question-text">Mesmo não sendo obrigado, você tem interesse em declarar IR para restituição ou outros benefícios?</div>
+                    <div class="tooltip-icon">
+                        <i class="fas fa-info-circle"></i>
+                        <div class="tooltip">Mesmo que você não seja obrigado a declarar, pode ser vantajoso fazer a declaração para receber restituição de imposto retido na fonte ou para comprovar renda.</div>
+                    </div>
                 </div>
                 <div class="options-container">
-                    <button class="option-btn" data-next="section-recomendacao" data-value="yes">Sim, quero receber lembretes</button>
-                    <button class="option-btn" data-next="section-recomendacao" data-value="no">Não, obrigado</button>
+                    <button class="option-btn" data-next="section-recomendacao" data-value="yes">Sim, quero declarar mesmo não sendo obrigado</button>
+                    <button class="option-btn" data-next="section-recomendacao" data-value="no">Não, só declaro se for obrigatório</button>
                 </div>
             </div>
         </section>
@@ -1567,7 +1627,6 @@
                         id: this.generateId(),
                         createdAt: new Date().toISOString(),
                         consentDate: new Date().toISOString(),
-                        languageLevel: 'simple',
                         progress: 0,
                         responses: {},
                         profile: {},
@@ -1633,7 +1692,7 @@
                     'section-restituicao': 'preferenciaRestituicao',
                     'section-prazo': 'habitoPrazo',
                     'section-conhecimento': 'conhecimentoNovidades',
-                    'section-final': 'receberLembretes'
+                    'section-final': 'interesseDeclarar'
                 };
                 
                 if (profileMap[questionId]) {
@@ -1663,7 +1722,6 @@
                 
                 // Adicionar informações básicas
                 message += "📅 Data da análise: " + new Date().toLocaleDateString('pt-BR') + "\n";
-                message += "📈 Progresso: " + (userData.progress || 0) + "%\n\n";
                 
                 // Adicionar perfil fiscal
                 message += "💡 *Meu Perfil Fiscal:*\n";
@@ -1724,6 +1782,11 @@
                     message += "• *Você precisa declarar IR em 2025!*\n";
                 } else {
                     message += "• *Você não é obrigado a declarar IR em 2025*\n";
+                    
+                    // Verificar se tem interesse em declarar mesmo não sendo obrigado
+                    if (userData.profile.interesseDeclarar === 'yes') {
+                        message += "• Você tem interesse em declarar mesmo não sendo obrigado\n";
+                    }
                 }
                 
                 // Recomendações específicas
@@ -1980,51 +2043,11 @@
                     UIManager.enableExportEditing();
                 });
                 
-                // Tooltips
-                this.setupTooltips();
-                
                 // Fechar menus ao clicar fora
                 document.addEventListener('click', (e) => {
                     if (!e.target.closest('#accessibility-menu') && !e.target.closest('#accessibility-btn')) {
                         document.getElementById('accessibility-menu').style.display = 'none';
                     }
-                    
-                    if (!e.target.closest('.tooltip-icon')) {
-                        document.querySelectorAll('.tooltip').forEach(tooltip => {
-                            tooltip.style.display = 'none';
-                        });
-                    }
-                });
-            },
-            
-            // Configurar tooltips
-            setupTooltips: function() {
-                document.querySelectorAll('.tooltip-icon').forEach(icon => {
-                    icon.addEventListener('click', function(e) {
-                        e.stopPropagation();
-                        
-                        // Remover tooltips existentes
-                        document.querySelectorAll('.tooltip').forEach(tooltip => {
-                            if (tooltip !== this.nextElementSibling) {
-                                tooltip.style.display = 'none';
-                            }
-                        });
-                        
-                        // Criar ou mostrar tooltip
-                        let tooltip = this.nextElementSibling;
-                        if (!tooltip || !tooltip.classList.contains('tooltip')) {
-                            tooltip = document.createElement('div');
-                            tooltip.className = 'tooltip';
-                            tooltip.textContent = this.getAttribute('data-tooltip');
-                            this.parentNode.insertBefore(tooltip, this.nextSibling);
-                        }
-                        
-                        // Posicionar tooltip
-                        const rect = this.getBoundingClientRect();
-                        tooltip.style.top = (rect.top + window.scrollY - tooltip.offsetHeight - 10) + 'px';
-                        tooltip.style.left = (rect.left + window.scrollX) + 'px';
-                        tooltip.style.display = 'block';
-                    });
                 });
             },
             
@@ -2227,7 +2250,7 @@
                     'section-restituicao': 'Prefere receber restituição via Pix ou conta bancária?',
                     'section-prazo': 'Costuma declarar próximo ao prazo final?',
                     'section-conhecimento': 'Já conhecia as principais mudanças do IRPF 2025?',
-                    'section-final': 'Última pergunta! Gostaria de receber lembretes?',
+                    'section-final': 'Última pergunta! Mesmo não sendo obrigado, você tem interesse em declarar?',
                     'section-recomendacao': 'Parabéns! Com base nas suas respostas, criei um perfil completo do seu cenário fiscal.'
                 };
                 
