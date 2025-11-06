@@ -1,0 +1,1165 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BrailleTouch - Conversor com Feedback Tátil</title>
+    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+    <style>
+        :root {
+            --bg-color: #0f172a;
+            --text-color: #f1f5f9;
+            --input-bg: #1e293b;
+            --output-bg: #334155;
+            --primary: #0ea5e9;
+            --secondary: #8b5cf6;
+            --highlight: rgba(14, 165, 233, 0.3);
+            --border: #475569;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #0c1226, #1a2a4a);
+            color: var(--text-color);
+            line-height: 1.6;
+            padding: 20px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            overflow-x: hidden;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            max-width: 900px;
+            width: 100%;
+            animation: fadeIn 1s ease-out;
+            position: relative;
+            padding-top: 20px;
+        }
+
+        .logo-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .logo {
+            width: 70px;
+            height: 70px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 40px;
+            font-weight: bold;
+            box-shadow: 0 5px 20px rgba(14, 165, 233, 0.5);
+        }
+
+        h1 {
+            font-size: 2.8rem;
+            margin-bottom: 10px;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+        }
+
+        .tagline {
+            font-size: 1.4rem;
+            margin-bottom: 10px;
+            color: var(--primary);
+            font-weight: 600;
+        }
+
+        .description {
+            font-size: 1.2rem;
+            margin-bottom: 20px;
+            opacity: 0.85;
+            max-width: 700px;
+            margin: 0 auto 25px;
+            line-height: 1.7;
+        }
+
+        .features {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            flex-wrap: wrap;
+            margin: 20px 0 30px;
+        }
+
+        .feature {
+            background: rgba(14, 165, 233, 0.15);
+            padding: 12px 20px;
+            border-radius: 50px;
+            font-size: 0.95rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .main-container {
+            display: flex;
+            gap: 30px;
+            max-width: 1400px;
+            width: 100%;
+            margin-bottom: 30px;
+        }
+
+        .input-section, .output-section {
+            flex: 1;
+            min-width: 300px;
+            display: flex;
+            flex-direction: column;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            transition: transform 0.3s ease;
+            background: var(--input-bg);
+            border: 1px solid var(--border);
+        }
+
+        .input-section:hover, .output-section:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
+        }
+
+        .section-header {
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            padding: 15px 20px;
+            font-weight: 600;
+            font-size: 1.2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .output-section .section-header {
+            background: linear-gradient(90deg, var(--secondary), #c084fc);
+        }
+
+        .section-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .page-controls {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .page-btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+
+        .page-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: scale(1.1);
+        }
+
+        .page-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .page-counter {
+            font-size: 0.9rem;
+            min-width: 120px;
+            text-align: center;
+        }
+
+        textarea {
+            flex: 1;
+            padding: 20px;
+            background-color: var(--input-bg);
+            color: var(--text-color);
+            border: none;
+            resize: none;
+            font-size: 1.2rem;
+            line-height: 1.7;
+        }
+
+        textarea:focus {
+            outline: 2px solid var(--primary);
+        }
+
+        .output-content {
+            flex: 1;
+            padding: 20px;
+            background-color: var(--output-bg);
+            font-family: 'Segoe UI Symbol', sans-serif;
+            font-size: 2.4rem;
+            line-height: 1.8;
+            overflow-y: auto;
+            overflow-wrap: break-word;
+            user-select: text;
+            max-height: 60vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .braille-page {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .braille-line {
+            min-height: 60px;
+            display: flex;
+            align-items: center;
+        }
+
+        .braille-char {
+            position: relative;
+            display: inline-block;
+            margin: 0 3px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .braille-char:hover {
+            transform: scale(1.2);
+            background: rgba(14, 165, 233, 0.2);
+            border-radius: 4px;
+        }
+
+        .braille-char.active {
+            background: rgba(14, 165, 233, 0.4);
+            border-radius: 4px;
+            transform: scale(1.3);
+        }
+
+        .controls {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+            justify-content: center;
+            max-width: 1000px;
+        }
+
+        .control-btn {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 14px 25px;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s;
+            color: white;
+            font-weight: 600;
+            font-size: 1.1rem;
+            border: none;
+            min-width: 200px;
+            justify-content: center;
+        }
+
+        .primary-btn {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            box-shadow: 0 5px 15px rgba(14, 165, 233, 0.4);
+        }
+
+        .primary-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(14, 165, 233, 0.6);
+        }
+
+        .secondary-btn {
+            background: rgba(30, 41, 59, 0.8);
+            border: 1px solid var(--primary);
+        }
+
+        .secondary-btn:hover {
+            background: rgba(30, 41, 59, 1);
+            transform: translateY(-3px);
+        }
+
+        .tactile-btn {
+            background: linear-gradient(135deg, #f59e0b, #f97316);
+            box-shadow: 0 5px 15px rgba(245, 158, 11, 0.4);
+        }
+
+        .tactile-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(245, 158, 11, 0.6);
+        }
+
+        .control-btn:active {
+            transform: translateY(0);
+        }
+
+        .listening-indicator {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            width: 24px;
+            height: 24px;
+            background-color: var(--danger);
+            border-radius: 50%;
+            display: none;
+            animation: pulse 1.5s infinite;
+            z-index: 100;
+            box-shadow: 0 0 15px rgba(239, 68, 68, 0.7);
+        }
+
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(15, 23, 42, 0.95);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            display: none;
+        }
+
+        .spinner {
+            border: 5px solid rgba(255, 255, 255, 0.1);
+            border-top: 5px solid var(--primary);
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            animation: spin 1s linear infinite;
+        }
+
+        .loading-text {
+            margin-top: 25px;
+            font-size: 1.4rem;
+            font-weight: 600;
+            text-align: center;
+            max-width: 80%;
+        }
+
+        .highlight {
+            background-color: var(--highlight);
+            border-radius: 4px;
+            transition: background-color 0.3s;
+            padding: 2px 0;
+        }
+
+        .sync-indicator {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.9rem;
+            color: var(--primary);
+            opacity: 0.8;
+            background: rgba(14, 165, 233, 0.1);
+            padding: 6px 12px;
+            border-radius: 20px;
+        }
+
+        .sync-dot {
+            width: 10px;
+            height: 10px;
+            background-color: var(--primary);
+            border-radius: 50%;
+            animation: pulse 1.5s infinite;
+        }
+
+        .status-bar {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            max-width: 1400px;
+            margin-bottom: 15px;
+        }
+
+        .status-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.9rem;
+            padding: 6px 15px;
+            border-radius: 20px;
+            background: rgba(14, 165, 233, 0.1);
+        }
+
+        .char-count {
+            color: var(--primary);
+        }
+
+        .word-count {
+            color: var(--secondary);
+        }
+
+        .page-count {
+            color: #10b981;
+        }
+
+        .tactile-info {
+            background: rgba(245, 158, 11, 0.15);
+            color: #f59e0b;
+            padding: 15px;
+            border-radius: 12px;
+            margin-top: 20px;
+            max-width: 800px;
+            text-align: center;
+        }
+
+        .tactile-info h3 {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .footer {
+            margin-top: 30px;
+            text-align: center;
+            font-size: 0.9rem;
+            opacity: 0.7;
+            padding: 20px 0;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(0.95); opacity: 0.7; }
+            50% { transform: scale(1.05); opacity: 1; }
+            100% { transform: scale(0.95); opacity: 0.7; }
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @keyframes vibrate {
+            0% { transform: translateX(0); }
+            25% { transform: translateX(-2px); }
+            50% { transform: translateX(2px); }
+            75% { transform: translateX(-2px); }
+            100% { transform: translateX(0); }
+        }
+
+        @media (max-width: 900px) {
+            .main-container {
+                flex-direction: column;
+            }
+            
+            h1 {
+                font-size: 2.2rem;
+            }
+            
+            .features {
+                gap: 10px;
+            }
+            
+            .feature {
+                font-size: 0.85rem;
+                padding: 8px 15px;
+            }
+            
+            .controls {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .control-btn {
+                width: 100%;
+                max-width: 300px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="listening-indicator" id="listeningIndicator"></div>
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="spinner"></div>
+        <div class="loading-text" id="loadingText">Gerando documento Braille...</div>
+    </div>
+    
+    <div class="header">
+        <div class="sync-indicator">
+            <div class="sync-dot"></div>
+            <span>Sincronização ativada</span>
+        </div>
+        
+        <div class="logo-container">
+            <div>
+                <h1>BrailleTouch</h1>
+                <div class="tagline">Seu assistente virtual com feedback tátil</div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="status-bar">
+        <div class="status-item char-count" id="charCount">Caracteres: 0</div>
+        <div class="status-item word-count" id="wordCount">Palavras: 0</div>
+        <div class="status-item page-count" id="pageCount">Páginas: 1/1</div>
+    </div>
+
+    <div class="main-container">
+        <div class="input-section">
+            <div class="section-header">
+                <div class="section-title">
+                    <span>📝</span> Texto original
+                </div>
+            </div>
+            <textarea 
+                id="inputText" 
+                placeholder="Comece a digitar ou fale..."
+                aria-label="Campo de texto para conversão"
+            >Bem-vindo ao BrailleTouch! Digite ou fale o texto que deseja converter para Braille. Este assistente virtual oferece conversão em tempo real, paginação inteligente e feedback tátil inovador.</textarea>
+        </div>
+        
+        <div class="output-section">
+            <div class="section-header">
+                <div class="section-title">
+                    <span>🔤</span> Texto em Braille
+                </div>
+                <div class="page-controls">
+                    <button class="page-btn" id="prevPage" title="Página anterior" disabled>←</button>
+                    <div class="page-counter">Página 1 de 1</div>
+                    <button class="page-btn" id="nextPage" title="Próxima página" disabled>→</button>
+                </div>
+            </div>
+            <div id="outputText" class="output-content"></div>
+        </div>
+    </div>
+
+    <div class="controls">
+        <button class="control-btn primary-btn" id="speakBtn">
+            <span>🔊</span> Ler
+        </button>
+        <button class="control-btn secondary-btn" id="clearBtn">
+            <span>×</span> Limpar
+        </button>
+        <button class="control-btn primary-btn" id="exportBtn">
+            <span>💾</span> Exportar
+        </button>
+        <button class="control-btn tactile-btn" id="tactileBtn">
+            <span>🖐️</span> Ativar feedback tátil
+        </button>
+    </div>
+    
+    <div class="tactile-info">
+        <h3><span>💡</span> Dica de uso</h3>
+        <p>Passe o dedo sobre os caracteres em Braille para sentir diferentes vibrações. Cada letra tem um padrão de vibração único que corresponde aos pontos em relevo no Braille físico.</p>
+    </div>
+
+    <!-- Container para exportação - escondido -->
+    <div id="exportContainer" style="position: absolute; left: -9999px; top: -9999px; width: 794px; height: 1123px; padding: 72px; background: white; color: black; font-family: 'Segoe UI Symbol', sans-serif; font-size: 32px; line-height: 1.8;"></div>
+
+    <script>
+        // Mapeamento completo para Braille Unicode
+        const brailleMap = {
+            'a': '⠁', 'b': '⠃', 'c': '⠉', 'd': '⠙', 'e': '⠑', 
+            'f': '⠋', 'g': '⠛', 'h': '⠓', 'i': '⠊', 'j': '⠚', 
+            'k': '⠅', 'l': '⠇', 'm': '⠍', 'n': '⠝', 'o': '⠕', 
+            'p': '⠏', 'q': '⠟', 'r': '⠗', 's': '⠎', 't': '⠞', 
+            'u': '⠥', 'v': '⠧', 'w': '⠺', 'x': '⠭', 'y': '⠽', 
+            'z': '⠵',
+            'A': '⠠⠁', 'B': '⠠⠃', 'C': '⠠⠉', 'D': '⠠⠙', 'E': '⠠⠑', 
+            'F': '⠠⠋', 'G': '⠠⠛', 'H': '⠠⠓', 'I': '⠠⠊', 'J': '⠠⠚', 
+            'K': '⠠⠅', 'L': '⠠⠇', 'M': '⠠⠍', 'N': '⠠⠝', 'O': '⠠⠕', 
+            'P': '⠠⠏', 'Q': '⠠⠟', 'R': '⠠⠗', 'S': '⠠⠎', 'T': '⠠⠞', 
+            'U': '⠠⠥', 'V': '⠠⠧', 'W': '⠠⠺', 'X': '⠠⠭', 'Y': '⠠⠽', 
+            'Z': '⠠⠵',
+            '0': '⠼⠚', '1': '⠼⠁', '2': '⠼⠃', '3': '⠼⠉', '4': '⠼⠙', 
+            '5': '⠼⠑', '6': '⠼⠋', '7': '⠼⠛', '8': '⠼⠓', '9': '⠼⠊',
+            ' ': '⠀', '.': '⠲', ',': '⠂', ';': '⠆', ':': '⠒', 
+            '?': '⠦', '!': '⠖', '(': '⠶', ')': '⠶', '-': '⠤', 
+            '"': '⠐⠦', "'": '⠄', '@': '⠈⠁', '\n': '\n',
+            'á': '⠁', 'à': '⠁', 'â': '⠁', 'ã': '⠁', 'ä': '⠁',
+            'é': '⠑', 'è': '⠑', 'ê': '⠑', 'ë': '⠑',
+            'í': '⠊', 'ì': '⠊', 'î': '⠊', 'ï': '⠊',
+            'ó': '⠕', 'ò': '⠕', 'ô': '⠕', 'õ': '⠕', 'ö': '⠕',
+            'ú': '⠥', 'ù': '⠥', 'û': '⠥', 'ü': '⠥',
+            'ç': '⠉',
+            'Á': '⠠⠁', 'À': '⠠⠁', 'Â': '⠠⠁', 'Ã': '⠠⠁', 'Ä': '⠠⠁',
+            'É': '⠠⠑', 'È': '⠠⠑', 'Ê': '⠠⠑', 'Ë': '⠠⠑',
+            'Í': '⠠⠊', 'Ì': '⠠⠊', 'Î': '⠠⠊', 'Ï': '⠠⠊',
+            'Ó': '⠠⠕', 'Ò': '⠠⠕', 'Ô': '⠠⠕', 'Õ': '⠠⠕', 'Ö': '⠠⠕',
+            'Ú': '⠠⠥', 'Ù': '⠠⠥', 'Û': '⠠⠥', 'Ü': '⠠⠥',
+            'Ç': '⠠⠉',
+            '&': '⠈⠯', '<': '⠐⠣', '>': '⠐⠜', 
+            '[': '⠨⠣', ']': '⠨⠜', '{': '⠸⠣', '}': '⠸⠜',
+            '#': '⠼', '$': '⠈⠎', '%': '⠨⠴', '*': '⠐⠔',
+            '+': '⠐⠖', '/': '⠸⠌', '\\': '⠸⠡', '|': '⠸⠳',
+            '=': '⠐⠶', '_': '⠸⠤', '`': '⠘', '~': '⠘',
+            '^': '⠘', '€': '⠈⠑', '£': '⠈⠇', '¥': '⠈⠽',
+            '©': '⠘⠉', '®': '⠘⠗', '™': '⠘⠞'
+        };
+
+        // Elementos DOM
+        const inputText = document.getElementById('inputText');
+        const outputText = document.getElementById('outputText');
+        const speakBtn = document.getElementById('speakBtn');
+        const clearBtn = document.getElementById('clearBtn');
+        const exportBtn = document.getElementById('exportBtn');
+        const tactileBtn = document.getElementById('tactileBtn');
+        const prevPageBtn = document.getElementById('prevPage');
+        const nextPageBtn = document.getElementById('nextPage');
+        const listeningIndicator = document.getElementById('listeningIndicator');
+        const loadingOverlay = document.getElementById('loadingOverlay');
+        const loadingText = document.getElementById('loadingText');
+        const exportContainer = document.getElementById('exportContainer');
+        const charCount = document.getElementById('charCount');
+        const wordCount = document.getElementById('wordCount');
+        const pageCount = document.getElementById('pageCount');
+        const pageCounter = document.querySelector('.page-counter');
+
+        // Variáveis de estado
+        let recognition = null;
+        let speechActive = false;
+        let originalToBrailleMap = [];
+        let currentPage = 1;
+        let braillePages = [];
+        let voiceEnabled = true;
+        let tactileEnabled = true;
+
+        // Padrões de vibração para diferentes caracteres
+        const vibrationPatterns = {
+            'a': [100, 50, 100],
+            'b': [100, 50, 100, 50, 100],
+            'c': [100, 50, 100, 100],
+            'd': [100, 50, 100, 100, 50, 100],
+            'e': [100, 50, 100, 100, 50],
+            'f': [100, 50, 100, 100, 100],
+            'g': [100, 50, 100, 100, 100, 50, 100],
+            'h': [100, 50, 100, 100, 100, 50],
+            'i': [100, 50, 100, 100, 100, 100],
+            'j': [100, 50, 100, 100, 100, 100, 50, 100],
+            'k': [100, 100, 50, 100],
+            'l': [100, 100, 50, 100, 50, 100],
+            'm': [100, 100, 50, 100, 100],
+            'n': [100, 100, 50, 100, 100, 50, 100],
+            'o': [100, 100, 50, 100, 100, 50],
+            'p': [100, 100, 50, 100, 100, 100],
+            'q': [100, 100, 50, 100, 100, 100, 50, 100],
+            'r': [100, 100, 50, 100, 100, 100, 50],
+            's': [100, 100, 50, 100, 100, 100, 100],
+            't': [100, 100, 50, 100, 100, 100, 100, 50, 100],
+            'u': [100, 100, 100, 50, 100],
+            'v': [100, 100, 100, 50, 100, 50, 100],
+            'w': [100, 100, 100, 50, 100, 100],
+            'x': [100, 100, 100, 50, 100, 100, 50, 100],
+            'y': [100, 100, 100, 50, 100, 100, 50],
+            'z': [100, 100, 100, 50, 100, 100, 100],
+            ' ': [0, 100],
+            '.': [100, 100, 100, 100],
+            ',': [100, 100],
+            'default': [50, 50, 50]
+        };
+
+        // Inicialização
+        init();
+
+        function init() {
+            // Configurar listeners
+            inputText.addEventListener('input', convertToBraille);
+            speakBtn.addEventListener('click', speakText);
+            clearBtn.addEventListener('click', clearAll);
+            exportBtn.addEventListener('click', exportAsPNG);
+            tactileBtn.addEventListener('click', toggleTactile);
+            prevPageBtn.addEventListener('click', () => navigatePage('prev'));
+            nextPageBtn.addEventListener('click', () => navigatePage('next'));
+            
+            // Eventos para highlight bidirecional
+            inputText.addEventListener('select', handleInputSelection);
+            outputText.addEventListener('mouseup', handleOutputSelection);
+            
+            // Iniciar reconhecimento de voz
+            startSpeechRecognition();
+            
+            // Processar texto inicial
+            convertToBraille();
+            
+            // Dar instruções iniciais
+            setTimeout(() => {
+                if (voiceEnabled) {
+                    speak("Bem-vindo ao BrailleTouch! Digite ou fale o texto que deseja converter para Braille. Passe o dedo sobre os caracteres em Braille para sentir diferentes vibrações.");
+                }
+            }, 1000);
+        }
+
+        // Ativar/desativar feedback tátil
+        function toggleTactile() {
+            tactileEnabled = !tactileEnabled;
+            tactileBtn.innerHTML = tactileEnabled ? 
+                '<span>✋</span> Desativar tátil' : 
+                '<span>🖐️</span> Ativar tátil';
+            
+            if (voiceEnabled) {
+                speak(tactileEnabled ? "Feedback tátil ativado." : "Feedback tátil desativado.");
+            }
+        }
+
+        // Atualizar contadores
+        function updateCounters() {
+            const text = inputText.value;
+            const charLength = text.length;
+            const wordLength = text.trim() ? text.trim().split(/\s+/).length : 0;
+            
+            charCount.textContent = `Caracteres: ${charLength}`;
+            wordCount.textContent = `Palavras: ${wordLength}`;
+            pageCount.textContent = `Páginas: ${currentPage}/${braillePages.length || 1}`;
+        }
+
+        // Função para converter texto para Braille com paginação
+        function convertToBraille() {
+            const text = inputText.value;
+            let brailleResult = '';
+            originalToBrailleMap = [];
+            braillePages = [];
+            currentPage = 1;
+            
+            // Gerar Braille e mapeamento
+            for (let i = 0; i < text.length; i++) {
+                const char = text[i];
+                let brailleChar = '';
+                
+                if (brailleMap[char]) {
+                    brailleChar = brailleMap[char];
+                } else {
+                    const normalizedChar = char.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+                    if (normalizedChar !== char && brailleMap[normalizedChar]) {
+                        brailleChar = brailleMap[normalizedChar];
+                    } else {
+                        brailleChar = char;
+                    }
+                }
+                
+                brailleResult += brailleChar;
+                originalToBrailleMap.push({
+                    start: brailleResult.length - brailleChar.length,
+                    end: brailleResult.length
+                });
+            }
+
+            // Paginação inteligente (aproximadamente 40 caracteres por linha, 25 linhas por página)
+            const lines = [];
+            let currentLine = '';
+            
+            // Quebrar em linhas
+            for (let i = 0; i < brailleResult.length; i++) {
+                if (currentLine.length >= 40 || brailleResult[i] === '\n') {
+                    lines.push(currentLine);
+                    currentLine = '';
+                    if (brailleResult[i] === '\n') continue;
+                }
+                
+                if (brailleResult[i] === ' ') {
+                    // Quebrar em palavras completas quando possível
+                    const nextSpace = brailleResult.indexOf(' ', i + 1);
+                    const nextWord = nextSpace !== -1 ? brailleResult.substring(i, nextSpace) : brailleResult.substring(i);
+                    
+                    if (currentLine.length + nextWord.length > 40 && currentLine.length > 0) {
+                        lines.push(currentLine);
+                        currentLine = '';
+                    }
+                }
+                
+                currentLine += brailleResult[i];
+            }
+            
+            if (currentLine) lines.push(currentLine);
+            
+            // Agrupar linhas em páginas
+            const maxLinesPerPage = 25;
+            let pageLines = [];
+            
+            for (let i = 0; i < lines.length; i++) {
+                pageLines.push(lines[i]);
+                
+                if (pageLines.length >= maxLinesPerPage || i === lines.length - 1) {
+                    braillePages.push(pageLines.join('\n'));
+                    pageLines = [];
+                }
+            }
+            
+            // Atualizar exibição
+            displayCurrentPage();
+            updatePageCounter();
+            updateCounters();
+            updateNavigationButtons();
+        }
+
+        // Exibir página atual
+        function displayCurrentPage() {
+            const currentContent = braillePages[currentPage - 1] || '';
+            
+            // Formatar com divs para melhor layout
+            outputText.innerHTML = '';
+            const pageDiv = document.createElement('div');
+            pageDiv.className = 'braille-page';
+            
+            if (currentContent) {
+                const lines = currentContent.split('\n');
+                lines.forEach(line => {
+                    const lineDiv = document.createElement('div');
+                    lineDiv.className = 'braille-line';
+                    
+                    for (let i = 0; i < line.length; i++) {
+                        const charSpan = document.createElement('span');
+                        charSpan.className = 'braille-char';
+                        charSpan.textContent = line[i];
+                        charSpan.dataset.char = line[i];
+                        
+                        // Adicionar eventos para feedback tátil
+                        charSpan.addEventListener('mouseenter', handleTactileFeedback);
+                        charSpan.addEventListener('touchstart', handleTactileFeedback);
+                        charSpan.addEventListener('mouseleave', () => {
+                            charSpan.classList.remove('active');
+                        });
+                        
+                        lineDiv.appendChild(charSpan);
+                    }
+                    
+                    pageDiv.appendChild(lineDiv);
+                });
+            } else {
+                const emptyDiv = document.createElement('div');
+                emptyDiv.className = 'braille-line';
+                emptyDiv.textContent = '⠀'; // Espaço Braille
+                emptyDiv.style.opacity = '0.5';
+                pageDiv.appendChild(emptyDiv);
+            }
+            
+            outputText.appendChild(pageDiv);
+        }
+
+        // Função para feedback tátil
+        function handleTactileFeedback(event) {
+            if (!tactileEnabled) return;
+            
+            const charSpan = event.target;
+            const char = charSpan.dataset.char;
+            
+            // Adicionar classe ativa para feedback visual
+            charSpan.classList.add('active');
+            
+            // Obter padrão de vibração
+            const charKey = char.toLowerCase();
+            let pattern = vibrationPatterns.default;
+            
+            if (vibrationPatterns[charKey]) {
+                pattern = vibrationPatterns[charKey];
+            } else if (char === ' ') {
+                pattern = vibrationPatterns[' '];
+            } else if (char === '.') {
+                pattern = vibrationPatterns['.'];
+            } else if (char === ',') {
+                pattern = vibrationPatterns[','];
+            }
+            
+            // Simular vibração visualmente
+            charSpan.style.animation = 'vibrate 0.3s linear';
+            setTimeout(() => {
+                charSpan.style.animation = '';
+            }, 300);
+            
+            // Ativar vibração física se disponível
+            if (navigator.vibrate) {
+                navigator.vibrate(pattern);
+            }
+            
+            if (voiceEnabled) {
+                // Falar o caractere para feedback adicional
+                const utterance = new SpeechSynthesisUtterance(char);
+                utterance.lang = 'pt-BR';
+                utterance.rate = 0.8;
+                speechSynthesis.speak(utterance);
+            }
+        }
+
+        // Atualizar contador de páginas
+        function updatePageCounter() {
+            pageCounter.textContent = `Página ${currentPage} de ${braillePages.length || 1}`;
+        }
+
+        // Atualizar botões de navegação
+        function updateNavigationButtons() {
+            prevPageBtn.disabled = currentPage <= 1;
+            nextPageBtn.disabled = currentPage >= braillePages.length;
+        }
+
+        // Navegar entre páginas
+        function navigatePage(direction) {
+            if (direction === 'prev' && currentPage > 1) {
+                currentPage--;
+            } else if (direction === 'next' && currentPage < braillePages.length) {
+                currentPage++;
+            } else {
+                return;
+            }
+            
+            displayCurrentPage();
+            updatePageCounter();
+            updateCounters();
+            updateNavigationButtons();
+            
+            // Rolagem para o topo
+            outputText.scrollTop = 0;
+            
+            if (voiceEnabled) {
+                speak(`Página ${currentPage}`);
+            }
+        }
+
+        // Repetir a leitura do texto
+        function speakText() {
+            const text = inputText.value;
+            if (text) {
+                speak(text);
+            } else if (voiceEnabled) {
+                speak("Não há texto para ler.");
+            }
+        }
+
+        // Função para Limpar
+        function clearAll() {
+            inputText.value = '';
+            outputText.innerHTML = '';
+            originalToBrailleMap = [];
+            braillePages = [];
+            currentPage = 1;
+            updatePageCounter();
+            updateCounters();
+            updateNavigationButtons();
+            
+            if (voiceEnabled) {
+                speak("Campos limpos.");
+            }
+        }
+
+        // Reconhecimento de voz
+        function startSpeechRecognition() {
+            if (!('webkitSpeechRecognition' in window)) {
+                return;
+            }
+
+            recognition = new webkitSpeechRecognition();
+            recognition.continuous = true;
+            recognition.interimResults = false;
+            recognition.lang = 'pt-BR';
+
+            recognition.onstart = () => {
+                listeningIndicator.style.display = 'block';
+                if (voiceEnabled) speak("Ouvindo...");
+            };
+
+            recognition.onresult = (event) => {
+                const transcript = event.results[event.results.length - 1][0].transcript;
+                inputText.value += transcript + ' ';
+                convertToBraille();
+            };
+
+            recognition.onerror = (event) => {
+                console.error("Erro de reconhecimento:", event.error);
+                listeningIndicator.style.display = 'none';
+                setTimeout(() => recognition.start(), 1000);
+            };
+
+            recognition.onend = () => {
+                listeningIndicator.style.display = 'none';
+                setTimeout(() => recognition.start(), 500);
+            };
+
+            recognition.start();
+        }
+
+        // Exportar em formato A4 com paginação
+        async function exportAsPNG() {
+            const brailleContent = outputText.textContent;
+            if (!brailleContent) {
+                if (voiceEnabled) speak("Não há texto em Braille para exportar.");
+                return;
+            }
+            
+            loadingText.textContent = "Preparando documento...";
+            loadingOverlay.style.display = 'flex';
+            
+            try {
+                const zip = new JSZip();
+                const totalPages = braillePages.length || 1;
+                
+                for (let i = 0; i < totalPages; i++) {
+                    loadingText.textContent = `Gerando página ${i+1} de ${totalPages}...`;
+                    
+                    // Atualizar container de exportação
+                    exportContainer.innerHTML = `
+                        <div style="text-align: center; margin-bottom: 40px; padding-top: 20px;">
+                            <h1 style="font-size: 36px; margin-bottom: 10px; color: #1e3a8a;">BrailleTouch</h1>
+                            <div style="font-size: 18px; color: #475569; margin-bottom: 10px;">Documento em Braille</div>
+                            <div style="font-size: 16px; color: #64748b;">Página ${i+1} de ${totalPages} - Gerado em ${new Date().toLocaleDateString()}</div>
+                        </div>
+                        <div style="font-size: 32px; line-height: 1.8; text-align: justify; margin-top: 20px; font-family: 'Segoe UI Symbol', sans-serif;">
+                            ${braillePages[i] || brailleContent}
+                        </div>
+                        <div style="position: absolute; bottom: 40px; left: 0; right: 0; text-align: center; font-size: 16px; color: #64748b;">
+                            Gerado pelo BrailleTouch - Assistente virtual para conversão Braille
+                        </div>
+                    `;
+                    
+                    // Gerar imagem
+                    const canvas = await html2canvas(exportContainer, {
+                        scale: 2,
+                        useCORS: true,
+                        backgroundColor: "#ffffff",
+                        logging: false
+                    });
+                    
+                    // Adicionar ao ZIP
+                    const imageData = canvas.toDataURL('image/png').split(',')[1];
+                    zip.file(`braille-pagina-${i+1}.png`, imageData, { base64: true });
+                }
+                
+                // Gerar e baixar o ZIP
+                const content = await zip.generateAsync({ type: "blob" });
+                saveAs(content, "BrailleTouch-documento.zip");
+                
+                loadingOverlay.style.display = 'none';
+                if (voiceEnabled) speak(`Documento exportado com sucesso em ${totalPages} páginas.`);
+            } catch (err) {
+                console.error("Erro ao exportar:", err);
+                loadingOverlay.style.display = 'none';
+                if (voiceEnabled) speak("Ocorreu um erro ao exportar o documento.");
+            }
+        }
+
+        // Síntese de fala
+        function speak(text) {
+            if (!voiceEnabled || !('speechSynthesis' in window)) return;
+
+            speechSynthesis.cancel();
+            speechActive = true;
+            
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.lang = 'pt-BR';
+            utterance.rate = 1.0;
+            utterance.pitch = 1.0;
+            
+            utterance.onend = () => speechActive = false;
+            utterance.onerror = () => speechActive = false;
+            
+            speechSynthesis.speak(utterance);
+        }
+
+        // Highlight: ao selecionar no campo de entrada
+        function handleInputSelection() {
+            const start = inputText.selectionStart;
+            const end = inputText.selectionEnd;
+            
+            if (start === end) {
+                removeHighlights(outputText);
+                return;
+            }
+            
+            // Encontrar o intervalo correspondente em Braille
+            const brailleStart = originalToBrailleMap[start]?.start;
+            const brailleEnd = originalToBrailleMap[end-1]?.end;
+            
+            if (brailleStart !== undefined && brailleEnd !== undefined) {
+                highlightText(outputText, brailleStart, brailleEnd);
+            }
+        }
+
+        // Highlight: ao selecionar no campo de saída
+        function handleOutputSelection() {
+            const selection = window.getSelection();
+            if (!selection.rangeCount) return;
+            
+            const range = selection.getRangeAt(0);
+            const preSelectionRange = range.cloneRange();
+            preSelectionRange.selectNodeContents(outputText);
+            preSelectionRange.setEnd(range.startContainer, range.startOffset);
+            const start = preSelectionRange.toString().length;
+            const end = start + range.toString().length;
+            
+            // Encontrar o intervalo correspondente no texto original
+            for (let i = 0; i < originalToBrailleMap.length; i++) {
+                const map = originalToBrailleMap[i];
+                if (map && start >= map.start && end <= map.end) {
+                    highlightText(inputText, i, i + 1);
+                    break;
+                }
+            }
+        }
+
+        // Função para destacar texto em um elemento
+        function highlightText(element, start, end) {
+            const text = element.textContent || element.value;
+            if (start < 0 || end > text.length) return;
+            
+            // Criar elemento com highlight
+            const highlight = document.createElement('span');
+            highlight.className = 'highlight';
+            highlight.textContent = text.substring(start, end);
+            
+            // Substituir o texto selecionado pelo elemento highlight
+            const before = text.substring(0, start);
+            const after = text.substring(end);
+            
+            if (element === outputText) {
+                // Para o output, precisamos preservar a estrutura de linhas
+                const pageDiv = outputText.querySelector('.braille-page');
+                if (pageDiv) {
+                    const newContent = before + highlight.outerHTML + after;
+                    pageDiv.innerHTML = newContent;
+                }
+            } else {
+                // Para textarea, não podemos usar HTML, então usamos seleção nativa
+                inputText.focus();
+                inputText.setSelectionRange(start, end);
+            }
+        }
+
+        // Remover destaques
+        function removeHighlights(element) {
+            if (element === outputText) {
+                const pageDiv = outputText.querySelector('.braille-page');
+                if (pageDiv) {
+                    pageDiv.innerHTML = pageDiv.textContent;
+                }
+            }
+        }
+    </script>
+</body>
+</html>
