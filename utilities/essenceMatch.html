@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ESSENCE MATCH - Perfil de Contribuição em Times Ágeis</title>
+    <title>ESSENCE MATCH - Classificador Comportamental PMBOK 7 & Belbin</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
@@ -174,10 +174,6 @@
             display: block;
         }
 
-        .question-section {
-            margin-bottom: 2rem;
-        }
-
         .section-header {
             display: flex;
             align-items: center;
@@ -200,6 +196,58 @@
             font-weight: 700;
             color: var(--dark);
             flex: 1;
+        }
+
+        .progress-container {
+            background: var(--light);
+            border-radius: var(--border-radius);
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .progress-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .progress-steps {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 1.5rem;
+        }
+
+        .step {
+            flex: 1;
+            height: 8px;
+            background: #E9ECEF;
+            border-radius: 4px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .step.active {
+            background: var(--primary);
+        }
+
+        .step.completed {
+            background: var(--success);
+        }
+
+        .step-label {
+            position: absolute;
+            top: -25px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 0.8rem;
+            color: var(--gray);
+            white-space: nowrap;
+        }
+
+        .step.active .step-label {
+            color: var(--primary);
+            font-weight: 600;
         }
 
         .question-grid {
@@ -414,19 +462,26 @@
             position: relative;
         }
 
-        .pseudo-group {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        .squad-classification {
+            background: linear-gradient(135deg, #4CC9F0 0%, #4361EE 100%);
             border-radius: var(--border-radius);
             padding: 2rem;
             color: white;
             margin: 2rem 0;
             position: relative;
             overflow: hidden;
+            border: 3px solid transparent;
+            animation: borderPulse 3s infinite;
         }
 
-        .pseudo-group.highlighted {
+        @keyframes borderPulse {
+            0% { border-color: rgba(76, 201, 240, 0.3); }
+            50% { border-color: rgba(67, 97, 238, 0.7); }
+            100% { border-color: rgba(76, 201, 240, 0.3); }
+        }
+
+        .squad-classification.highlighted {
             animation: highlightPulse 2s infinite;
-            border: 3px solid #F72585;
         }
 
         @keyframes highlightPulse {
@@ -435,14 +490,75 @@
             100% { box-shadow: 0 0 0 0 rgba(247, 37, 133, 0); }
         }
 
-        .pseudo-group::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0,0,0,0.1);
+        .squad-header {
+            position: relative;
+            z-index: 2;
+            text-align: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .squad-name {
+            font-size: 2rem;
+            font-weight: 800;
+            margin-bottom: 0.5rem;
+        }
+
+        .squad-tagline {
+            opacity: 0.9;
+            font-size: 1.1rem;
+        }
+
+        .squad-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-top: 2rem;
+            position: relative;
+            z-index: 2;
+        }
+
+        .squad-card {
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            border-radius: var(--border-radius);
+            padding: 1.5rem;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .squad-card-title {
+            font-weight: 700;
+            margin-bottom: 1rem;
+            font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .squad-card-content {
+            line-height: 1.5;
+        }
+
+        .pseudo-group {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: var(--border-radius);
+            padding: 2rem;
+            color: white;
+            margin: 2rem 0;
+            position: relative;
+            overflow: hidden;
+            opacity: 0.7;
+            transition: var(--transition);
+        }
+
+        .pseudo-group:hover {
+            opacity: 1;
+            transform: translateY(-5px);
+        }
+
+        .pseudo-group.matched {
+            opacity: 1;
+            border: 3px solid #F72585;
+            animation: highlightPulse 2s infinite;
         }
 
         .group-header {
@@ -453,44 +569,14 @@
         }
 
         .group-name {
-            font-size: 2rem;
+            font-size: 1.5rem;
             font-weight: 800;
             margin-bottom: 0.5rem;
         }
 
         .group-tagline {
             opacity: 0.9;
-            font-size: 1.1rem;
-        }
-
-        .group-details {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 1.5rem;
-            margin-top: 2rem;
-            position: relative;
-            z-index: 2;
-        }
-
-        .group-card {
-            background: rgba(255,255,255,0.1);
-            backdrop-filter: blur(10px);
-            border-radius: var(--border-radius);
-            padding: 1.5rem;
-            border: 1px solid rgba(255,255,255,0.2);
-        }
-
-        .group-card-title {
-            font-weight: 700;
-            margin-bottom: 1rem;
-            font-size: 1.1rem;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .group-card-content {
-            line-height: 1.5;
+            font-size: 1rem;
         }
 
         .export-section {
@@ -638,13 +724,6 @@
             justify-content: center;
         }
 
-        .form-row {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 1.5rem;
-            margin-bottom: 1.5rem;
-        }
-
         .form-group {
             margin-bottom: 1.5rem;
         }
@@ -673,58 +752,6 @@
             outline: none;
             border-color: var(--primary);
             box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.1);
-        }
-
-        .progress-container {
-            background: var(--light);
-            border-radius: var(--border-radius);
-            padding: 1.5rem;
-            margin-bottom: 2rem;
-        }
-
-        .progress-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 1rem;
-        }
-
-        .progress-steps {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 1.5rem;
-        }
-
-        .step {
-            flex: 1;
-            height: 8px;
-            background: #E9ECEF;
-            border-radius: 4px;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .step.active {
-            background: var(--primary);
-        }
-
-        .step.completed {
-            background: var(--success);
-        }
-
-        .step-label {
-            position: absolute;
-            top: -25px;
-            left: 50%;
-            transform: translateX(-50%);
-            font-size: 0.8rem;
-            color: var(--gray);
-            white-space: nowrap;
-        }
-
-        .step.active .step-label {
-            color: var(--primary);
-            font-weight: 600;
         }
 
         .footer {
@@ -766,6 +793,20 @@
 
         .notification.error {
             background: var(--warning);
+        }
+
+        .validation-error {
+            border-color: var(--warning) !important;
+            background: rgba(247, 37, 133, 0.05) !important;
+        }
+
+        .validation-message {
+            color: var(--warning);
+            font-size: 0.85rem;
+            margin-top: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 5px;
         }
 
         @media (max-width: 768px) {
@@ -816,7 +857,7 @@
                 font-size: 1.5rem;
             }
             
-            .group-details {
+            .squad-details {
                 grid-template-columns: 1fr;
             }
             
@@ -847,6 +888,41 @@
         ::-webkit-scrollbar-thumb:hover {
             background: var(--secondary);
         }
+
+        .dimension-bar {
+            margin-bottom: 1rem;
+        }
+
+        .dimension-label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.3rem;
+        }
+
+        .dimension-name {
+            font-weight: 600;
+            color: var(--dark);
+        }
+
+        .dimension-value {
+            color: var(--primary);
+            font-weight: 600;
+        }
+
+        .dimension-track {
+            height: 8px;
+            background: var(--light);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .dimension-fill {
+            height: 100%;
+            background: linear-gradient(to right, var(--primary), var(--accent));
+            border-radius: 4px;
+            width: 0%;
+            transition: width 1s ease-out;
+        }
     </style>
 </head>
 <body>
@@ -858,7 +934,7 @@
                     <i class="fas fa-user-astronaut"></i>
                 </div>
                 <div>
-                    <h1>ESSENCE <span>MATCH</span></h1>
+                    <h1>ESSENCE <span>MATCH</span> <small style="font-size: 0.5em; vertical-align: middle;">v2.0 PRO</small></h1>
                     <div class="tagline">
                         Sistema de Classificação Comportamental para Squads - Baseado em PMBOK 7, Belbin e Similaridade de Vetores
                     </div>
@@ -902,9 +978,12 @@
                     
                     <div class="form-group">
                         <label class="form-label">
-                            <i class="fas fa-signature"></i> Nome Completo
+                            <i class="fas fa-signature"></i> Nome Completo *
                         </label>
-                        <input type="text" class="form-input" id="userName" placeholder="Seu nome ou como prefere ser chamado">
+                        <input type="text" class="form-input" id="userName" placeholder="Seu nome ou como prefere ser chamado" required>
+                        <div class="validation-message" id="nameError" style="display: none;">
+                            <i class="fas fa-exclamation-circle"></i> Por favor, insira seu nome
+                        </div>
                     </div>
                     
                     <div class="form-group">
@@ -916,9 +995,12 @@
                     
                     <div class="form-group">
                         <label class="form-label">
-                            <i class="fas fa-graduation-cap"></i> Matrícula/RA
+                            <i class="fas fa-graduation-cap"></i> Matrícula/RA *
                         </label>
-                        <input type="text" class="form-input" id="userRA" placeholder="Para identificação na turma">
+                        <input type="text" class="form-input" id="userRA" placeholder="Para identificação na turma" required>
+                        <div class="validation-message" id="raError" style="display: none;">
+                            <i class="fas fa-exclamation-circle"></i> Por favor, insira sua matrícula
+                        </div>
                     </div>
                 </div>
 
@@ -930,16 +1012,22 @@
                     
                     <div class="form-group">
                         <label class="form-label">
-                            <i class="fas fa-users"></i> Turma/Disciplina
+                            <i class="fas fa-users"></i> Turma/Disciplina *
                         </label>
-                        <input type="text" class="form-input" id="userClass" placeholder="Ex: Gestão de Projetos - Computação" value="Gestão de Projetos e Desenvolvimento de Software">
+                        <input type="text" class="form-input" id="userClass" placeholder="Ex: Gestão de Projetos - Computação" value="Gestão de Projetos e Desenvolvimento de Software" required>
+                        <div class="validation-message" id="classError" style="display: none;">
+                            <i class="fas fa-exclamation-circle"></i> Por favor, insira a turma/disciplina
+                        </div>
                     </div>
                     
                     <div class="form-group">
                         <label class="form-label">
-                            <i class="fas fa-calendar"></i> Semestre/Ano
+                            <i class="fas fa-calendar"></i> Semestre/Ano *
                         </label>
-                        <input type="text" class="form-input" id="userSemester" placeholder="Ex: 1/2026">
+                        <input type="text" class="form-input" id="userSemester" placeholder="Ex: 1/2026" required>
+                        <div class="validation-message" id="semesterError" style="display: none;">
+                            <i class="fas fa-exclamation-circle"></i> Por favor, insira o semestre/ano
+                        </div>
                     </div>
                     
                     <div class="form-group">
@@ -1004,295 +1092,8 @@
                 </div>
             </div>
 
-            <!-- Question 1: Project Focus -->
-            <div class="question-section" data-question="1">
-                <div class="question-card active">
-                    <div class="question-number">1</div>
-                    <div class="question-text">
-                        Em um projeto de desenvolvimento de software, onde você naturalmente coloca seu foco principal?
-                    </div>
-                    
-                    <div class="slider-container">
-                        <div class="slider-header">
-                            <div class="slider-label">Foco nas Pessoas ↔ Foco no Produto</div>
-                            <div class="slider-value" id="sliderValue1">50%</div>
-                        </div>
-                        <div class="slider-track" id="sliderTrack1">
-                            <div class="slider-fill" id="sliderFill1" style="width: 50%"></div>
-                            <div class="slider-thumb" id="sliderThumb1" style="left: 50%"></div>
-                        </div>
-                        <div class="slider-labels">
-                            <div class="slider-label-left">
-                                <i class="fas fa-users"></i> Relacionamentos, comunicação, dinâmica de equipe
-                            </div>
-                            <div class="slider-label-right">
-                                <i class="fas fa-cube"></i> Tecnologia, código, arquitetura, funcionalidades
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Question 2: Work Style -->
-            <div class="question-section" data-question="2" style="display: none;">
-                <div class="question-card">
-                    <div class="question-number">2</div>
-                    <div class="question-text">
-                        Qual estilo de trabalho mais combina com você em projetos ágeis?
-                    </div>
-                    
-                    <div class="slider-container">
-                        <div class="slider-header">
-                            <div class="slider-label">Estruturado ↔ Adaptável</div>
-                            <div class="slider-value" id="sliderValue2">50%</div>
-                        </div>
-                        <div class="slider-track" id="sliderTrack2">
-                            <div class="slider-fill" id="sliderFill2" style="width: 50%"></div>
-                            <div class="slider-thumb" id="sliderThumb2" style="left: 50%"></div>
-                        </div>
-                        <div class="slider-labels">
-                            <div class="slider-label-left">
-                                <i class="fas fa-tasks"></i> Planejado, documentado, com processos claros
-                            </div>
-                            <div class="slider-label-right">
-                                <i class="fas fa-wind"></i> Flexível, iterativo, responde a mudanças
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Question 3: Problem Solving -->
-            <div class="question-section" data-question="3" style="display: none;">
-                <div class="question-card">
-                    <div class="question-number">3</div>
-                    <div class="question-text">
-                        Como você aborda a resolução de problemas complexos?
-                    </div>
-                    
-                    <div class="slider-container">
-                        <div class="slider-header">
-                            <div class="slider-label">Analítico ↔ Criativo</div>
-                            <div class="slider-value" id="sliderValue3">50%</div>
-                        </div>
-                        <div class="slider-track" id="sliderTrack3">
-                            <div class="slider-fill" id="sliderFill3" style="width: 50%"></div>
-                            <div class="slider-thumb" id="sliderThumb3" style="left: 50%"></div>
-                        </div>
-                        <div class="slider-labels">
-                            <div class="slider-label-left">
-                                <i class="fas fa-search"></i> Metódico, baseado em dados, análise detalhada
-                            </div>
-                            <div class="slider-label-right">
-                                <i class="fas fa-lightbulb"></i> Intuitivo, "fora da caixa", experimentação
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Question 4: Communication -->
-            <div class="question-section" data-question="4" style="display: none;">
-                <div class="question-card">
-                    <div class="question-number">4</div>
-                    <div class="question-text">
-                        Qual é seu estilo predominante de comunicação em equipe?
-                    </div>
-                    
-                    <div class="slider-container">
-                        <div class="slider-header">
-                            <div class="slider-label">Direto ↔ Diplomático</div>
-                            <div class="slider-value" id="sliderValue4">50%</div>
-                        </div>
-                        <div class="slider-track" id="sliderTrack4">
-                            <div class="slider-fill" id="sliderFill4" style="width: 50%"></div>
-                            <div class="slider-thumb" id="sliderThumb4" style="left: 50%"></div>
-                        </div>
-                        <div class="slider-labels">
-                            <div class="slider-label-left">
-                                <i class="fas fa-bullseye"></i> Objetivo, claro, vai direto ao ponto
-                            </div>
-                            <div class="slider-label-right">
-                                <i class="fas fa-dove"></i> Considera relações, contexto, busca consenso
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Question 5: Learning Style -->
-            <div class="question-section" data-question="5" style="display: none;">
-                <div class="question-card">
-                    <div class="question-number">5</div>
-                    <div class="question-text">
-                        Como você prefere aprender novas tecnologias ou metodologias?
-                    </div>
-                    
-                    <div class="slider-container">
-                        <div class="slider-header">
-                            <div class="slider-label">Teórico ↔ Prático</div>
-                            <div class="slider-value" id="sliderValue5">50%</div>
-                        </div>
-                        <div class="slider-track" id="sliderTrack5">
-                            <div class="slider-fill" id="sliderFill5" style="width: 50%"></div>
-                            <div class="slider-thumb" id="sliderThumb5" style="left: 50%"></div>
-                        </div>
-                        <div class="slider-labels">
-                            <div class="slider-label-left">
-                                <i class="fas fa-book"></i> Estudo teórico, documentação, conceitos primeiro
-                            </div>
-                            <div class="slider-label-right">
-                                <i class="fas fa-flask"></i> Aprendo fazendo, prototipando, erro e acerto
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Question 6: Value Orientation -->
-            <div class="question-section" data-question="6" style="display: none;">
-                <div class="question-card">
-                    <div class="question-number">6</div>
-                    <div class="question-text">
-                        O que você mais valoriza em um projeto bem-sucedido?
-                    </div>
-                    
-                    <div class="slider-container">
-                        <div class="slider-header">
-                            <div class="slider-label">Processo ↔ Resultado</div>
-                            <div class="slider-value" id="sliderValue6">50%</div>
-                        </div>
-                        <div class="slider-track" id="sliderTrack6">
-                            <div class="slider-fill" id="sliderFill6" style="width: 50%"></div>
-                            <div class="slider-thumb" id="sliderThumb6" style="left: 50%"></div>
-                        </div>
-                        <div class="slider-labels">
-                            <div class="slider-label-left">
-                                <i class="fas fa-cogs"></i> Metodologia consistente, boas práticas, qualidade
-                            </div>
-                            <div class="slider-label-right">
-                                <i class="fas fa-trophy"></i> Entrega no prazo, valor gerado, impacto real
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Question 7: PMBOK Area Preference -->
-            <div class="question-section" data-question="7" style="display: none;">
-                <div class="question-card">
-                    <div class="question-number">7</div>
-                    <div class="question-text">
-                        Considerando as áreas do PMBOK, onde você se vê contribuindo mais?
-                    </div>
-                    
-                    <div class="slider-container">
-                        <div class="slider-header">
-                            <div class="slider-label">Soft Skills ↔ Hard Skills</div>
-                            <div class="slider-value" id="sliderValue7">50%</div>
-                        </div>
-                        <div class="slider-track" id="sliderTrack7">
-                            <div class="slider-fill" id="sliderFill7" style="width: 50%"></div>
-                            <div class="slider-thumb" id="sliderThumb7" style="left: 50%"></div>
-                        </div>
-                        <div class="slider-labels">
-                            <div class="slider-label-left">
-                                <i class="fas fa-handshake"></i> Partes interessadas, comunicação, gestão de pessoas
-                            </div>
-                            <div class="slider-label-right">
-                                <i class="fas fa-calculator"></i> Escopo, tempo, custo, riscos, qualidade técnica
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Question 8: Pressure Handling -->
-            <div class="question-section" data-question="8" style="display: none;">
-                <div class="question-card">
-                    <div class="question-number">8</div>
-                    <div class="question-text">
-                        Como você lida com prazos apertados e situações de alta pressão?
-                    </div>
-                    
-                    <div class="slider-container">
-                        <div class="slider-header">
-                            <div class="slider-label">Metódico ↔ Reativo</div>
-                            <div class="slider-value" id="sliderValue8">50%</div>
-                        </div>
-                        <div class="slider-track" id="sliderTrack8">
-                            <div class="slider-fill" id="sliderFill8" style="width: 50%"></div>
-                            <div class="slider-thumb" id="sliderThumb8" style="left: 50%"></div>
-                        </div>
-                        <div class="slider-labels">
-                            <div class="slider-label-left">
-                                <i class="fas fa-hourglass-half"></i> Mantém processos, prioriza qualidade, evita atalhos
-                            </div>
-                            <div class="slider-label-right">
-                                <i class="fas fa-bolt"></i> Foca na entrega, se adapta rápido, faz o necessário
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Question 9: Innovation Approach -->
-            <div class="question-section" data-question="9" style="display: none;">
-                <div class="question-card">
-                    <div class="question-number">9</div>
-                    <div class="question-text">
-                        Qual sua abordagem em relação a inovação e mudanças tecnológicas?
-                    </div>
-                    
-                    <div class="slider-container">
-                        <div class="slider-header">
-                            <div class="slider-label">Conservador ↔ Inovador</div>
-                            <div class="slider-value" id="sliderValue9">50%</div>
-                        </div>
-                        <div class="slider-track" id="sliderTrack9">
-                            <div class="slider-fill" id="sliderFill9" style="width: 50%"></div>
-                            <div class="slider-thumb" id="sliderThumb9" style="left: 50%"></div>
-                        </div>
-                        <div class="slider-labels">
-                            <div class="slider-label-left">
-                                <i class="fas fa-shield-alt"></i> Prefere tecnologias consolidadas, evita riscos desnecessários
-                            </div>
-                            <div class="slider-label-right">
-                                <i class="fas fa-rocket"></i> Adota novas tecnologias, experimenta, assume riscos calculados
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Question 10: Leadership Style -->
-            <div class="question-section" data-question="10" style="display: none;">
-                <div class="question-card">
-                    <div class="question-number">10</div>
-                    <div class="question-text">
-                        Como você exerce liderança em contextos de projeto?
-                    </div>
-                    
-                    <div class="slider-container">
-                        <div class="slider-header">
-                            <div class="slider-label">Facilitador ↔ Decisor</div>
-                            <div class="slider-value" id="sliderValue10">50%</div>
-                        </div>
-                        <div class="slider-track" id="sliderTrack10">
-                            <div class="slider-fill" id="sliderFill10" style="width: 50%"></div>
-                            <div class="slider-thumb" id="sliderThumb10" style="left: 50%"></div>
-                        </div>
-                        <div class="slider-labels">
-                            <div class="slider-label-left">
-                                <i class="fas fa-hands-helping"></i> Empodera a equipe, busca consenso, facilita decisões
-                            </div>
-                            <div class="slider-label-right">
-                                <i class="fas fa-gavel"></i> Assume responsabilidade, toma decisões difíceis, direciona
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+            <!-- Questions will be dynamically loaded here -->
+            <div id="questionsContainer"></div>
 
             <div class="btn-group">
                 <button class="btn btn-outline" id="prevQuestion" style="display: none;">
@@ -1348,98 +1149,108 @@
             </div>
 
             <!-- Squad Classification Result -->
-            <div class="pseudo-group highlighted" id="squadResult" style="background: linear-gradient(135deg, #4CC9F0 0%, #4361EE 100%);">
-                <div class="group-header">
-                    <div class="group-name" id="squadName">Squad de Inovação</div>
-                    <div class="group-tagline" id="squadTagline">
+            <div class="squad-classification highlighted" id="squadResult">
+                <div class="squad-header">
+                    <div class="squad-name" id="squadName">Squad de Inovação</div>
+                    <div class="squad-tagline" id="squadTagline">
                         Classificação baseada em PMBOK 7, Belbin e similaridade de cosseno
                     </div>
+                    <div style="margin-top: 1rem; padding: 0.5rem 1rem; background: rgba(255,255,255,0.2); 
+                    border-radius: 20px; display: inline-block; font-size: 0.9rem;">
+                        <i class="fas fa-robot"></i> CLASSIFICAÇÃO DE SQUAD
+                    </div>
                 </div>
-                <div class="group-details">
-                    <div class="group-card">
-                        <div class="group-card-title">
-                            <i class="fas fa-robot"></i> Tipo de Squad
+                <div class="squad-details">
+                    <div class="squad-card">
+                        <div class="squad-card-title">
+                            <i class="fas fa-bullseye"></i> Tipo de Squad
                         </div>
-                        <div class="group-card-content" id="squadType">
+                        <div class="squad-card-content" id="squadType">
                             INNOVATION
                         </div>
                     </div>
-                    <div class="group-card">
-                        <div class="group-card-title">
-                            <i class="fas fa-bullseye"></i> Foco Principal
+                    <div class="squad-card">
+                        <div class="squad-card-title">
+                            <i class="fas fa-crosshairs"></i> Foco Principal
                         </div>
-                        <div class="group-card-content" id="squadFocus">
+                        <div class="squad-card-content" id="squadFocus">
                             Inovação, Criação e Abordagens Adaptativas
                         </div>
                     </div>
-                    <div class="group-card">
-                        <div class="group-card-title">
+                    <div class="squad-card">
+                        <div class="squad-card-title">
                             <i class="fas fa-percentage"></i> Acurácia do Match
                         </div>
-                        <div class="group-card-content" id="squadAccuracy">
+                        <div class="squad-card-content" id="squadAccuracy">
                             95.45%
                         </div>
                     </div>
-                    <div class="group-card">
-                        <div class="group-card-title">
+                    <div class="squad-card">
+                        <div class="squad-card-title">
                             <i class="fas fa-user-circle"></i> Flexibilidade (Flexer)
                         </div>
-                        <div class="group-card-content" id="squadFlexer">
+                        <div class="squad-card-content" id="squadFlexer">
                             Índice: 0.85 | Candidato a Flexer: Sim
                         </div>
                     </div>
                 </div>
+
+                <!-- Dimension Bars -->
+                <div style="margin-top: 2rem; padding: 1.5rem; background: rgba(255,255,255,0.1); border-radius: var(--border-radius);">
+                    <div style="font-weight: 700; margin-bottom: 1rem; text-align: center;">Seu Perfil Detalhado</div>
+                    <div id="dimensionBars"></div>
+                </div>
             </div>
 
             <!-- Matched Pseudo Group -->
-            <div class="pseudo-group highlighted" id="matchedGroup">
+            <div class="pseudo-group matched" id="matchedGroup">
                 <div class="group-header">
                     <div class="group-name" id="pseudoGroupName">Squad de Inovação</div>
                     <div class="group-tagline" id="pseudoGroupTagline">
                         Grupo #7 de 13 | Foco em projetos disruptivos e alta criatividade
                     </div>
-                    <div style="margin-top: 1rem; padding: 0.5rem 1rem; background: rgba(255,255,255,0.2); 
+                    <div style="margin-top: 1rem; padding: 0.5rem 1rem; background: rgba(247, 37, 133, 0.3); 
                     border-radius: 20px; display: inline-block; font-size: 0.9rem;">
                         <i class="fas fa-star"></i> SEU GRUPO COMBINADO
                     </div>
                 </div>
                 
-                <div class="group-details">
-                    <div class="group-card">
-                        <div class="group-card-title">
+                <div class="squad-details">
+                    <div class="squad-card">
+                        <div class="squad-card-title">
                             <i class="fas fa-crown"></i> Como Você Contribui
                         </div>
-                        <div class="group-card-content" id="contributionHow">
+                        <div class="squad-card-content" id="contributionHow">
                             Traz visão de futuro e estratégias inovadoras. Capacidade de conectar ideias aparentemente
                             desconexas em soluções coerentes.
                         </div>
                     </div>
                     
-                    <div class="group-card">
-                        <div class="group-card-title">
+                    <div class="squad-card">
+                        <div class="squad-card-title">
                             <i class="fas fa-puzzle-piece"></i> Papéis Sugeridos
                         </div>
-                        <div class="group-card-content" id="suggestedRoles">
+                        <div class="squad-card-content" id="suggestedRoles">
                             Product Owner Visionário, Arquiteto de Soluções, Estrategista de Inovação, 
                             Líder de Pesquisa Tecnológica
                         </div>
                     </div>
                     
-                    <div class="group-card">
-                        <div class="group-card-title">
+                    <div class="squad-card">
+                        <div class="squad-card-title">
                             <i class="fas fa-project-diagram"></i> Áreas PMBOK Fortes
                         </div>
-                        <div class="group-card-content" id="pmbokStrengths">
+                        <div class="squad-card-content" id="pmbokStrengths">
                             Gestão de Escopo, Gestão de Partes Interessadas, Gestão de Integração, 
                             Gestão de Comunicações
                         </div>
                     </div>
                     
-                    <div class="group-card">
-                        <div class="group-card-title">
+                    <div class="squad-card">
+                        <div class="squad-card-title">
                             <i class="fas fa-rocket"></i> Projetos Ideais
                         </div>
-                        <div class="group-card-content" id="idealProjects">
+                        <div class="squad-card-content" id="idealProjects">
                             Novos produtos/serviços, transformação digital, pesquisa e desenvolvimento, 
                             projetos com alta incerteza e inovação
                         </div>
@@ -1507,6 +1318,13 @@
                 </div>
                 
                 <div style="text-align: left; margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px solid var(--light);">
+                    <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 1rem;">
+                        <i class="fas fa-robot" style="color: var(--primary);"></i>
+                        <div style="font-weight: 600; color: var(--dark);" id="exportSquad">
+                            Squad: Inovação | Acurácia: 95.45%
+                        </div>
+                    </div>
+                    
                     <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 1rem;">
                         <i class="fas fa-users" style="color: var(--primary);"></i>
                         <div style="font-weight: 600; color: var(--dark);" id="exportGroup">
@@ -1591,143 +1409,334 @@
 
     <script>
         /**
-         * Classificador Comportamental de Alta Precisão para Formação de Squads
-         * Baseado em PMBOK 7, Belbin e Similaridade de Vetores (Cosseno)
+         * ESSENCE MATCH - Sistema Avançado de Classificação Comportamental
+         * @description Sistema completo com PMBOK 7, Belbin, Similaridade de Cosseno e Lógica Fuzzy
+         * @version 2.0 PRO
+         */
+
+        // Questions data
+        const questions = [
+            {
+                id: 1,
+                text: "Em um projeto de desenvolvimento de software, onde você naturalmente coloca seu foco principal?",
+                leftLabel: "Relacionamentos, comunicação, dinâmica de equipe",
+                rightLabel: "Tecnologia, código, arquitetura, funcionalidades",
+                leftIcon: "fas fa-users",
+                rightIcon: "fas fa-cube"
+            },
+            {
+                id: 2,
+                text: "Qual estilo de trabalho mais combina com você em projetos ágeis?",
+                leftLabel: "Planejado, documentado, com processos claros",
+                rightLabel: "Flexível, iterativo, responde a mudanças",
+                leftIcon: "fas fa-tasks",
+                rightIcon: "fas fa-wind"
+            },
+            {
+                id: 3,
+                text: "Como você aborda a resolução de problemas complexos?",
+                leftLabel: "Metódico, baseado em dados, análise detalhada",
+                rightLabel: "Intuitivo, 'fora da caixa', experimentação",
+                leftIcon: "fas fa-search",
+                rightIcon: "fas fa-lightbulb"
+            },
+            {
+                id: 4,
+                text: "Qual é seu estilo predominante de comunicação em equipe?",
+                leftLabel: "Objetivo, claro, vai direto ao ponto",
+                rightLabel: "Considera relações, contexto, busca consenso",
+                leftIcon: "fas fa-bullseye",
+                rightIcon: "fas fa-dove"
+            },
+            {
+                id: 5,
+                text: "Como você prefere aprender novas tecnologias ou metodologias?",
+                leftLabel: "Estudo teórico, documentação, conceitos primeiro",
+                rightLabel: "Aprendo fazendo, prototipando, erro e acerto",
+                leftIcon: "fas fa-book",
+                rightIcon: "fas fa-flask"
+            },
+            {
+                id: 6,
+                text: "O que você mais valoriza em um projeto bem-sucedido?",
+                leftLabel: "Metodologia consistente, boas práticas, qualidade",
+                rightLabel: "Entrega no prazo, valor gerado, impacto real",
+                leftIcon: "fas fa-cogs",
+                rightIcon: "fas fa-trophy"
+            },
+            {
+                id: 7,
+                text: "Considerando as áreas do PMBOK, onde você se vê contribuindo mais?",
+                leftLabel: "Partes interessadas, comunicação, gestão de pessoas",
+                rightLabel: "Escopo, tempo, custo, riscos, qualidade técnica",
+                leftIcon: "fas fa-handshake",
+                rightIcon: "fas fa-calculator"
+            },
+            {
+                id: 8,
+                text: "Como você lida com prazos apertados e situações de alta pressão?",
+                leftLabel: "Mantém processos, prioriza qualidade, evita atalhos",
+                rightLabel: "Foca na entrega, se adapta rápido, faz o necessário",
+                leftIcon: "fas fa-hourglass-half",
+                rightIcon: "fas fa-bolt"
+            },
+            {
+                id: 9,
+                text: "Qual sua abordagem em relação a inovação e mudanças tecnológicas?",
+                leftLabel: "Prefere tecnologias consolidadas, evita riscos desnecessários",
+                rightLabel: "Adota novas tecnologias, experimenta, assume riscos calculados",
+                leftIcon: "fas fa-shield-alt",
+                rightIcon: "fas fa-rocket"
+            },
+            {
+                id: 10,
+                text: "Como você exerce liderança em contextos de projeto?",
+                leftLabel: "Empodera a equipe, busca consenso, facilita decisões",
+                rightLabel: "Assume responsabilidade, toma decisões difíceis, direciona",
+                leftIcon: "fas fa-hands-helping",
+                rightIcon: "fas fa-gavel"
+            }
+        ];
+
+        /**
+         * Classificador Comportamental de Alta Precisão
+         * Integração: PMBOK 7 + Belbin + Similaridade de Cosseno
          */
         class SquadClassifier {
             constructor() {
-                // Definição de Pesos Ideais para cada tipo de Squad (Arquétipos)
-                // Ordem do Vetor: [Criativo, Comunicador, Analítico, Prático, Especialista]
+                // Vetores Ideais (Arquétipos) - Normalizados
+                // Ordem: [Criativo, Comunicador, Analítico, Prático, Especialista]
                 this.archetypes = {
                     INNOVATION: {
+                        name: "Squad de Inovação",
                         vec: [0.5, 0.2, 0.1, 0.1, 0.1],
-                        focus: "Inovação, Criação e Abordagens Adaptativas"
+                        focus: "Inovação, Criação e Abordagens Adaptativas",
+                        description: "Especialistas em pensar fora da caixa e criar soluções inovadoras para problemas complexos.",
+                        justification: "Perfil com alta criatividade e capacidade de adaptação, ideal para projetos disruptivos."
                     },
                     QUALITY_QA: {
+                        name: "Squad de Qualidade/QA",
                         vec: [0.1, 0.1, 0.5, 0.2, 0.1],
-                        focus: "Refinamento, Testes e Medição de Desempenho"
+                        focus: "Refinamento, Testes e Medição de Desempenho",
+                        description: "Especialistas em garantir qualidade, identificar riscos e criar processos replicáveis.",
+                        justification: "Perfil analítico e metódico, focado em precisão e qualidade dos entregáveis."
                     },
                     DELIVERY: {
+                        name: "Squad de Delivery",
                         vec: [0.1, 0.1, 0.1, 0.5, 0.2],
-                        focus: "Execução, Implementação e Resultados Concretos"
+                        focus: "Execução, Implementação e Resultados Concretos",
+                        description: "Especialistas em transformar ideias em realidade com velocidade e eficiência.",
+                        justification: "Perfil prático e orientado a resultados, excelente para implementação ágil."
                     },
                     STRATEGIC_PLAN: {
+                        name: "Squad Estratégico",
                         vec: [0.2, 0.4, 0.2, 0.1, 0.1],
-                        focus: "Stakeholders, Planejamento e Coordenação"
+                        focus: "Stakeholders, Planejamento e Coordenação",
+                        description: "Especialistas em estratégia, visão de longo prazo e alinhamento organizacional.",
+                        justification: "Perfil comunicativo e estratégico, ideal para planejamento e coordenação."
                     },
                     TECH_CORE: {
+                        name: "Squad Tech Core",
                         vec: [0.1, 0.1, 0.2, 0.2, 0.4],
-                        focus: "Trabalho Técnico, Arquitetura e Especialidade"
+                        focus: "Trabalho Técnico, Arquitetura e Especialidade",
+                        description: "Especialistas em expertise técnica profunda e soluções tecnológicas robustas.",
+                        justification: "Perfil especializado e técnico, essencial para arquitetura e desenvolvimento complexo."
                     }
                 };
             }
 
             /**
-             * Calcula a similaridade de cosseno entre dois vetores.
-             * Melhora a precisão ao focar no alinhamento de perfil em vez de valores brutos.
+             * Calcula similaridade de cosseno com suavização para evitar divisão por zero
+             * @param {Array} vecA - Vetor do usuário
+             * @param {Array} vecB - Vetor do arquétipo
+             * @returns {number} Similaridade (0-1)
              */
             cosineSimilarity(vecA, vecB) {
+                // Adiciona epsilon para evitar vetores nulos
+                const epsilon = 1e-10;
+                const a = vecA.map(v => v + epsilon);
+                const b = vecB.map(v => v + epsilon);
+                
                 let dotProduct = 0;
                 let normA = 0;
                 let normB = 0;
-                for (let i = 0; i < vecA.length; i++) {
-                    dotProduct += vecA[i] * vecB[i];
-                    normA += vecA[i] ** 2;
-                    normB += vecB[i] ** 2;
+                
+                for (let i = 0; i < a.length; i++) {
+                    dotProduct += a[i] * b[i];
+                    normA += a[i] ** 2;
+                    normB += b[i] ** 2;
                 }
+                
                 if (normA === 0 || normB === 0) return 0;
                 return dotProduct / (Math.sqrt(normA) * Math.sqrt(normB));
             }
 
             /**
-             * Calcula o Índice de Entropia Comportamental.
-             * Identifica indivíduos 'Flexers' que possuem equilíbrio entre os papéis.
+             * Calcula índice de entropia (Flexer) com tratamento para valores extremos
+             * @param {Array} vector - Vetor normalizado
+             * @returns {number} Índice de entropia (0-1)
              */
             calculateFlexerIndex(vector) {
+                // Adiciona epsilon para evitar log(0)
+                const epsilon = 1e-10;
                 const sum = vector.reduce((a, b) => a + b, 0);
                 if (sum === 0) return 0;
-                const probs = vector.map(v => v / sum);
-                const entropy = -probs.reduce((acc, p) => p > 0 ? acc + p * Math.log2(p) : acc, 0);
-                // Normaliza entre 0 e 1 (onde 1 é equilíbrio perfeito)
-                return (entropy / Math.log2(vector.length)).toFixed(4);
+                
+                const probs = vector.map(v => (v + epsilon) / (sum + epsilon * vector.length));
+                const entropy = -probs.reduce((acc, p) => acc + p * Math.log2(p), 0);
+                
+                // Normaliza entre 0 e 1
+                const maxEntropy = Math.log2(vector.length);
+                return Math.min(1, Math.max(0, entropy / maxEntropy));
             }
 
             /**
-             * Crivo de Classificação Melhorado: Mapeia o indivíduo para o squad mais adequado.
+             * Classifica membro em squad com justificativa detalhada
+             * @param {Array} memberScores - Scores do usuário (0-10)
+             * @returns {Object} Resultado da classificação
              */
             matchMemberToSquad(memberScores) {
+                // Validação de entrada
+                if (!memberScores || memberScores.length !== 5) {
+                    console.error("Vetor de scores inválido:", memberScores);
+                    return this.getDefaultResult();
+                }
+
+                // Normaliza para 0-1 com suavização
+                const normalizedScores = memberScores.map(s => {
+                    const clamped = Math.max(0, Math.min(10, s));
+                    return clamped / 10;
+                });
+
                 let bestMatch = null;
                 let maxSimilarity = -1;
 
-                // Normalização interna para escala 0-1
-                const normalizedScores = memberScores.map(s => s / 10);
-
-                for (const [squadName, archetype] of Object.entries(this.archetypes)) {
+                // Calcula similaridade com todos os arquétipos
+                for (const [key, archetype] of Object.entries(this.archetypes)) {
                     const similarity = this.cosineSimilarity(normalizedScores, archetype.vec);
                     
-                    if (similarity > maxSimilarity) {
-                        maxSimilarity = similarity;
+                    // Bonus para perfis equilibrados (Flexers)
+                    const balanceBonus = this.calculateFlexerIndex(normalizedScores) * 0.1;
+                    const finalSimilarity = similarity + balanceBonus;
+                    
+                    if (finalSimilarity > maxSimilarity) {
+                        maxSimilarity = finalSimilarity;
                         bestMatch = {
-                            squad: squadName,
-                            fitAccuracy: (similarity * 100).toFixed(2) + "%",
-                            mission: archetype.focus
+                            id: key,
+                            name: archetype.name,
+                            fitAccuracy: Math.min(100, Math.round(finalSimilarity * 10000) / 100),
+                            mission: archetype.focus,
+                            description: archetype.description,
+                            justification: archetype.justification,
+                            similarity: finalSimilarity
                         };
                     }
                 }
 
+                // Calcula índice Flexer
                 const flexerIndex = this.calculateFlexerIndex(normalizedScores);
+                const isFlexerCandidate = flexerIndex > 0.75;
+
+                // Ajusta acurácia para perfis extremos
+                let adjustedAccuracy = bestMatch.fitAccuracy;
+                const hasExtremeValues = normalizedScores.some(s => s < 0.1 || s > 0.9);
+                if (hasExtremeValues) {
+                    // Reduz confiança em perfis muito extremos
+                    adjustedAccuracy = Math.round(adjustedAccuracy * 0.9);
+                }
 
                 return {
-                   ...bestMatch,
-                    isFlexerCandidate: flexerIndex > 0.8,
-                    flexerIndex: flexerIndex
+                    ...bestMatch,
+                    fitAccuracy: adjustedAccuracy,
+                    isFlexerCandidate,
+                    flexerIndex: flexerIndex.toFixed(4),
+                    normalizedScores,
+                    dimensionScores: normalizedScores.map((s, i) => ({
+                        name: ['Criativo', 'Comunicador', 'Analítico', 'Prático', 'Especialista'][i],
+                        value: Math.round(s * 100)
+                    }))
+                };
+            }
+
+            getDefaultResult() {
+                return {
+                    id: "INNOVATION",
+                    name: "Squad de Inovação",
+                    fitAccuracy: "0%",
+                    mission: "Inovação, Criação e Abordagens Adaptativas",
+                    description: "Perfil padrão para dados incompletos",
+                    justification: "Dados insuficientes para classificação precisa",
+                    isFlexerCandidate: false,
+                    flexerIndex: "0.0000",
+                    normalizedScores: [0.2, 0.2, 0.2, 0.2, 0.2],
+                    dimensionScores: []
                 };
             }
         }
 
         /**
-         * ESSENCE MATCH - Agile Contribution Profile System
-         * @description Generates individual profile with 2 adjectives, visual spectrum and project direction
-         * Fully client-side - no data sent to server
-         * @author ESSENCE MATCH Team
-         * @version 2.0
+         * Sistema Principal ESSENCE MATCH
          */
-
         class EssenceMatchApp {
-            /**
-             * Initialize the application
-             * @brief Sets up initial state, sliders and event listeners
-             */
             constructor() {
                 this.currentQuestion = 1;
-                this.totalQuestions = 10;
+                this.totalQuestions = questions.length;
                 this.sliderValues = Array(this.totalQuestions).fill(50);
                 this.userProfile = null;
                 this.chart = null;
                 this.allPseudoGroups = [];
                 this.squadClassifier = new SquadClassifier();
                 
+                this.initQuestions();
                 this.initSliders();
                 this.initEventListeners();
-                this.loadDemoData();
                 this.initializePseudoGroups();
+                this.loadDemoData();
             }
             
-            /**
-             * Initialize all fuzzy logic sliders
-             * @brief Sets up interactive sliders for all questions
-             */
+            initQuestions() {
+                const container = document.getElementById('questionsContainer');
+                container.innerHTML = '';
+                
+                questions.forEach((q, index) => {
+                    const questionNum = index + 1;
+                    const questionHTML = `
+                        <div class="question-section" data-question="${questionNum}" style="display: ${questionNum === 1 ? 'block' : 'none'}">
+                            <div class="question-card ${questionNum === 1 ? 'active' : ''}">
+                                <div class="question-number">${questionNum}</div>
+                                <div class="question-text">${q.text}</div>
+                                
+                                <div class="slider-container">
+                                    <div class="slider-header">
+                                        <div class="slider-label">${q.leftLabel.split(' ')[0]} ↔ ${q.rightLabel.split(' ')[0]}</div>
+                                        <div class="slider-value" id="sliderValue${questionNum}">50%</div>
+                                    </div>
+                                    <div class="slider-track" id="sliderTrack${questionNum}">
+                                        <div class="slider-fill" id="sliderFill${questionNum}" style="width: 50%"></div>
+                                        <div class="slider-thumb" id="sliderThumb${questionNum}" style="left: 50%"></div>
+                                    </div>
+                                    <div class="slider-labels">
+                                        <div class="slider-label-left">
+                                            <i class="${q.leftIcon}"></i> ${q.leftLabel}
+                                        </div>
+                                        <div class="slider-label-right">
+                                            <i class="${q.rightIcon}"></i> ${q.rightLabel}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    container.innerHTML += questionHTML;
+                });
+            }
+            
             initSliders() {
                 for (let i = 1; i <= this.totalQuestions; i++) {
                     this.setupSlider(i);
                 }
             }
             
-            /**
-             * Setup individual slider
-             * @brief Configures slider behavior and event listeners
-             * @param {number} sliderNum - Slider identifier (1-10)
-             */
             setupSlider(sliderNum) {
                 const track = document.getElementById(`sliderTrack${sliderNum}`);
                 const thumb = document.getElementById(`sliderThumb${sliderNum}`);
@@ -1747,38 +1756,50 @@
                     thumb.style.left = `${percentage}%`;
                     fill.style.width = `${percentage}%`;
                     valueDisplay.textContent = `${percentage}%`;
+                    
+                    // Atualiza visualmente a questão ativa
+                    document.querySelectorAll('.question-card').forEach(card => {
+                        card.classList.remove('active');
+                    });
+                    event.target.closest('.question-card').classList.add('active');
                 };
                 
                 // Mouse events
                 track.addEventListener('mousedown', (e) => {
                     updateSlider(e);
-                    document.addEventListener('mousemove', updateSlider);
-                    document.addEventListener('mouseup', () => {
-                        document.removeEventListener('mousemove', updateSlider);
-                    });
+                    const mouseMoveHandler = (e) => updateSlider(e);
+                    const mouseUpHandler = () => {
+                        document.removeEventListener('mousemove', mouseMoveHandler);
+                        document.removeEventListener('mouseup', mouseUpHandler);
+                    };
+                    
+                    document.addEventListener('mousemove', mouseMoveHandler);
+                    document.addEventListener('mouseup', mouseUpHandler);
                 });
                 
-                // Touch events for mobile
+                // Touch events
                 track.addEventListener('touchstart', (e) => {
                     e.preventDefault();
                     updateSlider(e.touches[0]);
-                    document.addEventListener('touchmove', (e) => {
+                    
+                    const touchMoveHandler = (e) => {
                         e.preventDefault();
                         updateSlider(e.touches[0]);
-                    });
-                    document.addEventListener('touchend', () => {
-                        document.removeEventListener('touchmove', updateSlider);
-                    });
+                    };
+                    
+                    const touchEndHandler = () => {
+                        document.removeEventListener('touchmove', touchMoveHandler);
+                        document.removeEventListener('touchend', touchEndHandler);
+                    };
+                    
+                    document.addEventListener('touchmove', touchMoveHandler, { passive: false });
+                    document.addEventListener('touchend', touchEndHandler);
                 });
                 
-                // Click to set position
+                // Click to set
                 track.addEventListener('click', updateSlider);
             }
             
-            /**
-             * Initialize all event listeners
-             * @brief Sets up UI interactions and navigation
-             */
             initEventListeners() {
                 // Tab switching
                 document.querySelectorAll('.tab').forEach(tab => {
@@ -1787,7 +1808,9 @@
                 
                 // Navigation buttons
                 document.getElementById('startQuestionnaire').addEventListener('click', () => {
-                    this.handleTabSwitch({ target: document.querySelector('[data-tab="questions"]') });
+                    if (this.validateProfileForm()) {
+                        this.handleTabSwitch({ target: document.querySelector('[data-tab="questions"]') });
+                    }
                 });
                 
                 document.getElementById('nextQuestion').addEventListener('click', () => this.nextQuestion());
@@ -1807,11 +1830,45 @@
                 document.getElementById('downloadJSON').addEventListener('click', () => this.downloadJSON());
             }
             
-            /**
-             * Handle tab switching
-             * @brief Manages tab navigation and content display
-             * @param {Event} e - Click event
-             */
+            validateProfileForm() {
+                let isValid = true;
+                
+                // Reset errors
+                document.querySelectorAll('.validation-message').forEach(msg => msg.style.display = 'none');
+                document.querySelectorAll('.form-input').forEach(input => input.classList.remove('validation-error'));
+                
+                // Validate required fields
+                const requiredFields = [
+                    { id: 'userName', errorId: 'nameError', message: 'Por favor, insira seu nome' },
+                    { id: 'userRA', errorId: 'raError', message: 'Por favor, insira sua matrícula' },
+                    { id: 'userClass', errorId: 'classError', message: 'Por favor, insira a turma/disciplina' },
+                    { id: 'userSemester', errorId: 'semesterError', message: 'Por favor, insira o semestre/ano' }
+                ];
+                
+                requiredFields.forEach(field => {
+                    const input = document.getElementById(field.id);
+                    const error = document.getElementById(field.errorId);
+                    
+                    if (!input.value.trim()) {
+                        input.classList.add('validation-error');
+                        error.style.display = 'flex';
+                        isValid = false;
+                        
+                        // Scroll to first error
+                        if (isValid === false) {
+                            input.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                            input.focus();
+                        }
+                    }
+                });
+                
+                if (!isValid) {
+                    this.showNotification('Preencha todos os campos obrigatórios (*)', 'error');
+                }
+                
+                return isValid;
+            }
+            
             handleTabSwitch(e) {
                 const tabName = e.target.getAttribute('data-tab');
                 
@@ -1838,23 +1895,14 @@
                 }
             }
             
-            /**
-             * Navigate to next question
-             * @brief Advances questionnaire progress
-             */
             nextQuestion() {
                 if (this.currentQuestion < this.totalQuestions) {
-                    // Hide current question
                     document.querySelector(`[data-question="${this.currentQuestion}"]`).style.display = 'none';
-                    
-                    // Show next question
                     this.currentQuestion++;
                     document.querySelector(`[data-question="${this.currentQuestion}"]`).style.display = 'block';
                     
-                    // Update progress
                     this.updateProgress();
                     
-                    // Show/hide buttons
                     document.getElementById('prevQuestion').style.display = 'inline-flex';
                     if (this.currentQuestion === this.totalQuestions) {
                         document.getElementById('nextQuestion').style.display = 'none';
@@ -1863,23 +1911,14 @@
                 }
             }
             
-            /**
-             * Navigate to previous question
-             * @brief Goes back in questionnaire
-             */
             prevQuestion() {
                 if (this.currentQuestion > 1) {
-                    // Hide current question
                     document.querySelector(`[data-question="${this.currentQuestion}"]`).style.display = 'none';
-                    
-                    // Show previous question
                     this.currentQuestion--;
                     document.querySelector(`[data-question="${this.currentQuestion}"]`).style.display = 'block';
                     
-                    // Update progress
                     this.updateProgress();
                     
-                    // Show/hide buttons
                     document.getElementById('nextQuestion').style.display = 'inline-flex';
                     document.getElementById('calculateResults').style.display = 'none';
                     if (this.currentQuestion === 1) {
@@ -1888,16 +1927,10 @@
                 }
             }
             
-            /**
-             * Update progress indicator
-             * @brief Updates progress bar and step indicators
-             */
             updateProgress() {
-                // Update progress text
                 document.getElementById('progressText').textContent = 
                     `Questão ${this.currentQuestion} de ${this.totalQuestions}`;
                 
-                // Update progress steps
                 document.querySelectorAll('.step').forEach((step, index) => {
                     const stepNum = index + 1;
                     if (stepNum < this.currentQuestion) {
@@ -1912,10 +1945,6 @@
                 });
             }
             
-            /**
-             * Calculate essence profile results
-             * @brief Processes slider values using fuzzy logic
-             */
             calculateResults() {
                 // Get user info
                 const name = document.getElementById('userName').value.trim();
@@ -1928,10 +1957,16 @@
                     return;
                 }
                 
-                // Calculate essence profile using fuzzy logic
+                // Calculate squad vector from 10 questions
+                const squadVector = this.calculateSquadVector();
+                
+                // Get squad classification
+                const squadResult = this.squadClassifier.matchMemberToSquad(squadVector);
+                
+                // Calculate essence profile
                 this.userProfile = this.calculateEssenceProfile();
                 
-                // Add user info
+                // Add all data to profile
                 this.userProfile.userInfo = {
                     name,
                     email,
@@ -1941,6 +1976,9 @@
                     professor: document.getElementById('userProfessor').value.trim(),
                     generatedAt: new Date().toISOString()
                 };
+                
+                this.userProfile.squadResult = squadResult;
+                this.userProfile.squadVector = squadVector;
                 
                 // Update results display
                 this.updateResultsDisplay();
@@ -1953,16 +1991,77 @@
                 this.showNotification('Essência descoberta! Veja seu perfil completo.');
             }
             
-            /**
-             * Calculate essence profile from slider values
-             * @brief Uses fuzzy logic to determine profile characteristics
-             * @returns {Object} Complete user profile
-             */
-            calculateEssenceProfile() {
-                // Normalize slider values (0-100 to 0-1)
-                const normalizedValues = this.sliderValues.map(v => v / 100);
+            calculateSquadVector() {
+                // Mapeamento otimizado das 10 questões para 5 dimensões do Belbin
+                // [Criativo, Comunicador, Analítico, Prático, Especialista]
                 
-                // Calculate dimensions for radar chart with enhanced weights for 10 questions
+                // Inicializa vetor
+                const vector = [0, 0, 0, 0, 0];
+                
+                // Pesos ajustados para precisão fuzzy
+                const weights = [
+                    // Q1: People vs Product
+                    { creative: 0, communicator: 0.7, analytical: 0, practical: 0, specialist: 0.3 },
+                    // Q2: Structured vs Adaptable
+                    { creative: 0.4, communicator: 0, analytical: 0.1, practical: 0.5, specialist: 0 },
+                    // Q3: Analytical vs Creative
+                    { creative: 0.5, communicator: 0, analytical: 0.5, practical: 0, specialist: 0 },
+                    // Q4: Direct vs Diplomatic
+                    { creative: 0, communicator: 0.6, analytical: 0, practical: 0.4, specialist: 0 },
+                    // Q5: Theoretical vs Practical
+                    { creative: 0, communicator: 0, analytical: 0.6, practical: 0.4, specialist: 0 },
+                    // Q6: Process vs Result
+                    { creative: 0, communicator: 0, analytical: 0.5, practical: 0.5, specialist: 0 },
+                    // Q7: Soft vs Hard Skills
+                    { creative: 0, communicator: 0.6, analytical: 0, practical: 0, specialist: 0.4 },
+                    // Q8: Methodical vs Reactive
+                    { creative: 0.3, communicator: 0, analytical: 0.7, practical: 0, specialist: 0 },
+                    // Q9: Conservative vs Innovative
+                    { creative: 0.7, communicator: 0, analytical: 0, practical: 0.3, specialist: 0 },
+                    // Q10: Facilitator vs Decisor
+                    { creative: 0, communicator: 0.5, analytical: 0, practical: 0.5, specialist: 0 }
+                ];
+                
+                // Aplica transformação fuzzy para suavizar valores extremos
+                this.sliderValues.forEach((value, index) => {
+                    const normalizedValue = value / 100;
+                    
+                    // Suavização fuzzy: transforma valores extremos
+                    let fuzzyValue;
+                    if (normalizedValue < 0.1) {
+                        // Valores muito baixos: comprime ainda mais
+                        fuzzyValue = normalizedValue * normalizedValue;
+                    } else if (normalizedValue > 0.9) {
+                        // Valores muito altos: também comprime
+                        fuzzyValue = 1 - (1 - normalizedValue) * (1 - normalizedValue);
+                    } else {
+                        // Valores médios: mantém linear
+                        fuzzyValue = normalizedValue;
+                    }
+                    
+                    // Aplica pesos
+                    const weight = weights[index];
+                    vector[0] += weight.creative * fuzzyValue;
+                    vector[1] += weight.communicator * fuzzyValue;
+                    vector[2] += weight.analytical * fuzzyValue;
+                    vector[3] += weight.practical * fuzzyValue;
+                    vector[4] += weight.specialist * fuzzyValue;
+                });
+                
+                // Normaliza para escala 0-10
+                const maxPossible = 3.0; // Máximo teórico baseado nos pesos
+                return vector.map(v => (v / maxPossible) * 10);
+            }
+            
+            calculateEssenceProfile() {
+                // Normalize slider values com suavização fuzzy
+                const normalizedValues = this.sliderValues.map(v => {
+                    const raw = v / 100;
+                    // Aplica função sigmoide para suavizar extremos
+                    return 1 / (1 + Math.exp(-10 * (raw - 0.5)));
+                });
+                
+                // Calcula dimensões para radar chart
                 const dimensions = {
                     lideranca: this.calculateDimension(normalizedValues, [0.7, 0.3, 0.5, 0.8, 0.4, 0.6, 0.3, 0.6, 0.5, 0.8]),
                     execucao: this.calculateDimension(normalizedValues, [0.3, 0.8, 0.6, 0.2, 0.9, 0.7, 0.8, 0.7, 0.6, 0.4]),
@@ -1972,83 +2071,25 @@
                     colaboracao: this.calculateDimension(normalizedValues, [0.9, 0.4, 0.3, 0.7, 0.2, 0.4, 0.7, 0.5, 0.6, 0.9])
                 };
                 
-                // Calculate primary and secondary essence words
+                // Calcula palavras de essência
                 const essenceWords = this.calculateEssenceWords(dimensions);
                 
-                // Calculate project direction
+                // Calcula direção de projeto
                 const projectDirection = this.calculateProjectDirection(dimensions);
                 
-                // Determine pseudo-group (1-13)
+                // Determina pseudo-grupo
                 const pseudoGroup = this.determinePseudoGroup(dimensions);
-                
-                // Calculate squad classification
-                const squadVector = this.calculateSquadVector();
-                const squadResult = this.squadClassifier.matchMemberToSquad(squadVector);
                 
                 return {
                     dimensions,
                     essenceWords,
                     projectDirection,
                     pseudoGroup,
-                    squadResult,
                     sliderValues: [...this.sliderValues]
                 };
             }
             
-            /**
-             * Calculate squad vector from slider values
-             * @returns {Array} Vector of 5 dimensions for squad classification
-             */
-            calculateSquadVector() {
-                // Map 10 questions to 5 dimensions: [Criativo, Comunicador, Analítico, Prático, Especialista]
-                // This mapping is based on the correlation between questions and Belbin roles
-                const vector = [0, 0, 0, 0, 0];
-                
-                // Question weights for each dimension
-                const weights = [
-                    // Q1: People vs Product -> Comunicador vs Especialista
-                    [0, 0.7, 0, 0, 0.3],
-                    // Q2: Structured vs Adaptable -> Prático vs Criativo
-                    [0.4, 0, 0.1, 0.5, 0],
-                    // Q3: Analytical vs Creative -> Analítico vs Criativo
-                    [0.5, 0, 0.5, 0, 0],
-                    // Q4: Direct vs Diplomatic -> Prático vs Comunicador
-                    [0, 0.6, 0, 0.4, 0],
-                    // Q5: Theoretical vs Practical -> Analítico vs Prático
-                    [0, 0, 0.6, 0.4, 0],
-                    // Q6: Process vs Result -> Analítico vs Prático
-                    [0, 0, 0.5, 0.5, 0],
-                    // Q7: Soft vs Hard Skills -> Comunicador vs Especialista
-                    [0, 0.6, 0, 0, 0.4],
-                    // Q8: Methodical vs Reactive -> Analítico vs Criativo
-                    [0.3, 0, 0.7, 0, 0],
-                    // Q9: Conservative vs Innovative -> Prático vs Criativo
-                    [0.7, 0, 0, 0.3, 0],
-                    // Q10: Facilitator vs Decisor -> Comunicador vs Prático
-                    [0, 0.5, 0, 0.5, 0]
-                ];
-                
-                // Calculate weighted sum
-                for (let i = 0; i < 10; i++) {
-                    const value = this.sliderValues[i] / 100;
-                    for (let j = 0; j < 5; j++) {
-                        vector[j] += weights[i][j] * value;
-                    }
-                }
-                
-                // Normalize to 0-10 scale
-                return vector.map(v => v * 10);
-            }
-            
-            /**
-             * Calculate single dimension using weighted average
-             * @brief Computes dimension score from slider values
-             * @param {Array} values - Normalized slider values
-             * @param {Array} weights - Dimension weights for each question
-             * @returns {number} Dimension score (0-100)
-             */
             calculateDimension(values, weights) {
-                // Weighted average of slider values
                 let sum = 0;
                 let weightSum = 0;
                 
@@ -2057,226 +2098,133 @@
                     weightSum += weights[i];
                 }
                 
-                return Math.min(100, Math.round((sum / weightSum) * 100));
+                const raw = sum / weightSum;
+                // Ajusta para porcentagem com arredondamento inteligente
+                return Math.min(100, Math.max(0, Math.round(raw * 1000) / 10));
             }
             
-            /**
-             * Calculate essence words based on dimensions
-             * @brief Determines primary and secondary adjective pairs
-             * @param {Object} dimensions - User dimension scores
-             * @returns {Array} Two essence words
-             */
             calculateEssenceWords(dimensions) {
-                // Define essence word pairs based on dimension combinations
+                // Define combinações baseadas nos perfis de squad
                 const wordPairs = [
-                    { words: ['Visionário', 'Estratégico'], condition: (d) => d.criatividade > 70 && d.planejamento > 60 },
-                    { words: ['Analítico', 'Metódico'], condition: (d) => d.analise > 75 && d.planejamento > 65 },
-                    { words: ['Prático', 'Executor'], condition: (d) => d.execucao > 80 && d.analise > 50 },
-                    { words: ['Líder', 'Inspirador'], condition: (d) => d.lideranca > 75 && d.colaboracao > 60 },
-                    { words: ['Colaborativo', 'Diplomático'], condition: (d) => d.colaboracao > 80 && d.lideranca > 50 },
-                    { words: ['Criativo', 'Inovador'], condition: (d) => d.criatividade > 85 && d.analise < 50 },
-                    { words: ['Estratégico', 'Planejador'], condition: (d) => d.planejamento > 80 && d.criatividade > 50 },
-                    { words: ['Executor', 'Preciso'], condition: (d) => d.execucao > 85 && d.planejamento > 60 },
-                    { words: ['Analítico', 'Crítico'], condition: (d) => d.analise > 90 },
-                    { words: ['Visionário', 'Transformador'], condition: (d) => d.criatividade > 70 && d.lideranca > 65 },
-                    { words: ['Adaptável', 'Flexível'], condition: (d) => Math.abs(d.criatividade - d.analise) < 20 },
-                    { words: ['Detalhista', 'Minucioso'], condition: (d) => d.analise > 70 && d.execucao > 60 },
-                    { words: ['Comunicador', 'Facilitador'], condition: (d) => d.colaboracao > 75 && d.lideranca > 55 }
+                    { 
+                        words: ['Visionário', 'Inovador'], 
+                        condition: (d) => d.criatividade > 75 && d.lideranca > 60,
+                        description: 'Combina visão de futuro com criatividade disruptiva para criar soluções inovadoras.'
+                    },
+                    { 
+                        words: ['Analítico', 'Preciso'], 
+                        condition: (d) => d.analise > 80,
+                        description: 'Foco em dados, métricas e processos rigorosos para garantir qualidade e precisão.'
+                    },
+                    { 
+                        words: ['Executor', 'Prático'], 
+                        condition: (d) => d.execucao > 80 && d.planejamento > 60,
+                        description: 'Transforma ideias em realidade com eficiência, foco em resultados tangíveis.'
+                    },
+                    { 
+                        words: ['Estrategista', 'Planejador'], 
+                        condition: (d) => d.planejamento > 75 && d.analise > 65,
+                        description: 'Capacidade de planejamento estratégico e visão sistêmica de longo prazo.'
+                    },
+                    { 
+                        words: ['Comunicador', 'Facilitador'], 
+                        condition: (d) => d.colaboracao > 80 && d.lideranca > 50,
+                        description: 'Habilidade em construir consenso, facilitar diálogos e promover colaboração.'
+                    },
+                    { 
+                        words: ['Líder', 'Inspirador'], 
+                        condition: (d) => d.lideranca > 85,
+                        description: 'Liderança inspiradora que motiva times e conduz através de desafios complexos.'
+                    },
+                    { 
+                        words: ['Adaptável', 'Versátil'], 
+                        condition: (d) => this.calculateBalanceIndex(d) > 0.7,
+                        description: 'Versatilidade para atuar em múltiplas frentes e adaptar-se a diferentes contextos.'
+                    }
                 ];
                 
-                // Find matching word pair
+                // Encontra par correspondente
                 for (const pair of wordPairs) {
                     if (pair.condition(dimensions)) {
-                        return pair.words;
+                        return {
+                            words: pair.words,
+                            description: pair.description
+                        };
                     }
                 }
                 
-                // Default words based on highest dimension
+                // Default based on highest dimension
                 const maxDim = Object.entries(dimensions).reduce((a, b) => a[1] > b[1] ? a : b)[0];
-                
-                const defaultWords = {
-                    lideranca: ['Líder', 'Coordenador'],
-                    execucao: ['Prático', 'Executor'],
-                    planejamento: ['Estratégico', 'Planejador'],
-                    criatividade: ['Criativo', 'Inovador'],
-                    analise: ['Analítico', 'Metódico'],
-                    colaboracao: ['Colaborativo', 'Integrador']
+                const defaultMap = {
+                    lideranca: { words: ['Líder', 'Coordenador'], desc: 'Capacidade de coordenar pessoas e processos' },
+                    execucao: { words: ['Prático', 'Executor'], desc: 'Foco na implementação e entrega de resultados' },
+                    planejamento: { words: ['Planejador', 'Estrategista'], desc: 'Habilidade em planejamento e organização' },
+                    criatividade: { words: ['Criativo', 'Inovador'], desc: 'Pensamento criativo e abordagens inovadoras' },
+                    analise: { words: ['Analítico', 'Metódico'], desc: 'Abordagem analítica e baseada em dados' },
+                    colaboracao: { words: ['Colaborativo', 'Integrador'], desc: 'Habilidade em trabalhar em equipe e integrar perspectivas' }
                 };
                 
-                return defaultWords[maxDim] || ['Adaptável', 'Versátil'];
+                const defaultChoice = defaultMap[maxDim] || { words: ['Adaptável', 'Versátil'], desc: 'Versatilidade e capacidade de adaptação' };
+                return {
+                    words: defaultChoice.words,
+                    description: defaultChoice.desc
+                };
             }
             
-            /**
-             * Calculate ideal project direction
-             * @brief Determines best project type for user
-             * @param {Object} dimensions - User dimension scores
-             * @returns {string} Project direction
-             */
+            calculateBalanceIndex(dimensions) {
+                const values = Object.values(dimensions);
+                const mean = values.reduce((a, b) => a + b) / values.length;
+                const variance = values.reduce((a, b) => a + Math.pow(b - mean, 2), 0) / values.length;
+                // Quanto menor a variância, mais equilibrado
+                return Math.max(0, 1 - (variance / 2500));
+            }
+            
             calculateProjectDirection(dimensions) {
-                // Calculate scores for different project types
-                const projectScores = {
-                    'Inovação Disruptiva': (dimensions.criatividade * 0.4 + dimensions.lideranca * 0.3 + dimensions.analise * 0.3),
-                    'Otimização de Processos': (dimensions.analise * 0.4 + dimensions.planejamento * 0.4 + dimensions.execucao * 0.2),
-                    'Desenvolvimento Ágil': (dimensions.execucao * 0.4 + dimensions.colaboracao * 0.3 + dimensions.criatividade * 0.3),
-                    'Gestão Estratégica': (dimensions.planejamento * 0.5 + dimensions.lideranca * 0.3 + dimensions.analise * 0.2),
-                    'Transformação Digital': (dimensions.criatividade * 0.3 + dimensions.execucao * 0.3 + dimensions.lideranca * 0.2 + dimensions.analise * 0.2),
-                    'Qualidade e Métricas': (dimensions.analise * 0.5 + dimensions.execucao * 0.3 + dimensions.planejamento * 0.2),
-                    'Pesquisa e Desenvolvimento': (dimensions.criatividade * 0.6 + dimensions.analise * 0.4),
-                    'Gestão de Times': (dimensions.lideranca * 0.5 + dimensions.colaboracao * 0.5),
-                    'Arquitetura de Sistemas': (dimensions.analise * 0.4 + dimensions.criatividade * 0.3 + dimensions.planejamento * 0.3)
+                const projectTypes = {
+                    'Inovação Disruptiva': (d) => d.criatividade * 0.4 + d.lideranca * 0.3 + d.analise * 0.3,
+                    'Otimização de Processos': (d) => d.analise * 0.4 + d.planejamento * 0.4 + d.execucao * 0.2,
+                    'Desenvolvimento Ágil': (d) => d.execucao * 0.4 + d.colaboracao * 0.3 + d.criatividade * 0.3,
+                    'Gestão Estratégica': (d) => d.planejamento * 0.5 + d.lideranca * 0.3 + d.analise * 0.2,
+                    'Transformação Digital': (d) => d.criatividade * 0.3 + d.execucao * 0.3 + d.lideranca * 0.2 + d.analise * 0.2,
+                    'Qualidade e Métricas': (d) => d.analise * 0.5 + d.execucao * 0.3 + d.planejamento * 0.2,
+                    'Pesquisa e Desenvolvimento': (d) => d.criatividade * 0.6 + d.analise * 0.4,
+                    'Gestão de Times': (d) => d.lideranca * 0.5 + d.colaboracao * 0.5
                 };
                 
-                // Return highest scoring project direction
-                return Object.entries(projectScores).reduce((a, b) => a[1] > b[1] ? a : b)[0];
+                let bestType = 'Inovação Disruptiva';
+                let bestScore = -1;
+                
+                for (const [type, calculator] of Object.entries(projectTypes)) {
+                    const score = calculator(dimensions);
+                    if (score > bestScore) {
+                        bestScore = score;
+                        bestType = type;
+                    }
+                }
+                
+                return bestType;
             }
             
-            /**
-             * Initialize all 13 pseudo-groups with descriptions
-             * @brief Creates detailed group definitions
-             */
             initializePseudoGroups() {
                 this.allPseudoGroups = [
-                    {
-                        id: 1,
-                        name: 'Squad de Inovação',
-                        tagline: 'Foco em projetos disruptivos e criatividade',
-                        description: 'Especialistas em pensar fora da caixa e criar soluções inovadoras',
-                        contribution: 'Traz visão de futuro e estratégias inovadoras. Conecta ideias aparentemente desconexas em soluções coerentes.',
-                        roles: 'Product Owner Visionário, Arquiteto de Soluções, Estrategista de Inovação',
-                        pmbok: 'Escopo, Partes Interessadas, Integração, Comunicações',
-                        projects: 'Novos produtos/serviços, transformação digital, P&D'
-                    },
-                    {
-                        id: 2,
-                        name: 'Time de Execução',
-                        tagline: 'Foco em entrega, qualidade e prazos',
-                        description: 'Especialistas em implementação eficiente e atenção aos detalhes',
-                        contribution: 'Excelência na implementação e atenção aos detalhes. Garante qualidade e prazos.',
-                        roles: 'Desenvolvedor Sênior, Tech Lead, Especialista QA, DevOps',
-                        pmbok: 'Qualidade, Tempo, Custos, Aquisições',
-                        projects: 'Sistemas críticos, software empresarial, migrações'
-                    },
-                    {
-                        id: 3,
-                        name: 'Tribe de Estratégia',
-                        tagline: 'Foco em planejamento e visão de longo prazo',
-                        description: 'Especialistas em estratégia e planejamento sistêmico',
-                        contribution: 'Capacidade de planejamento de longo prazo e visão sistêmica. Define direções estratégicas.',
-                        roles: 'Gerente de Projeto, Estrategista, Analista de Processos',
-                        pmbok: 'Integração, Escopo, Tempo, Riscos',
-                        projects: 'Projetos estratégicos, planejamento de portfólio'
-                    },
-                    {
-                        id: 4,
-                        name: 'Crew de Colaboração',
-                        tagline: 'Foco em times, comunicação e sinergia',
-                        description: 'Especialistas em facilitar colaboração e ambientes produtivos',
-                        contribution: 'Habilidade em facilitar colaboração e comunicação. Promove ambiente positivo.',
-                        roles: 'Scrum Master, Facilitador, Coordenador, Comunicador',
-                        pmbok: 'Partes Interessadas, Comunicações, RH, Aquisições',
-                        projects: 'Projetos multi-stakeholder, equipes distribuídas'
-                    },
-                    {
-                        id: 5,
-                        name: 'Squad de Análise',
-                        tagline: 'Foco em dados, métricas e evidências',
-                        description: 'Especialistas em análise de dados e decisões baseadas em evidências',
-                        contribution: 'Capacidade analítica para interpretar dados. Suporte a decisões baseadas em evidências.',
-                        roles: 'Analista de Negócios, Cientista de Dados, Especialista em Métricas',
-                        pmbok: 'Qualidade, Riscos, Custos, Aquisições',
-                        projects: 'Business Intelligence, análise de dados, otimização'
-                    },
-                    {
-                        id: 6,
-                        name: 'Time Ágil',
-                        tagline: 'Foco em métodos ágeis e adaptação',
-                        description: 'Especialistas em metodologias ágeis e flexibilidade',
-                        contribution: 'Domínio de metodologias ágeis e flexibilidade. Foco em entrega de valor incremental.',
-                        roles: 'Scrum Master, Product Owner, Desenvolvedor Ágil, Coach',
-                        pmbok: 'Escopo, Tempo, Qualidade, Riscos',
-                        projects: 'Software ágil, startups, produtos digitais'
-                    },
-                    {
-                        id: 7,
-                        name: 'Tribe de Liderança',
-                        tagline: 'Foco em gestão e direção de equipes',
-                        description: 'Especialistas em liderança inspiradora e tomada de decisão',
-                        contribution: 'Liderança inspiradora e capacidade de tomar decisões difíceis. Guia a equipe através de desafios.',
-                        roles: 'Gerente de Projeto, Líder Técnico, Head de Produto',
-                        pmbok: 'Integração, Partes Interessadas, Riscos, Comunicações',
-                        projects: 'Projetos complexos, crises, alta visibilidade'
-                    },
-                    {
-                        id: 8,
-                        name: 'Crew de Qualidade',
-                        tagline: 'Foco em excelência e padrões de qualidade',
-                        description: 'Especialistas em garantia de qualidade e testes rigorosos',
-                        contribution: 'Compromisso com a excelência e padrões de qualidade. Implementa processos rigorosos.',
-                        roles: 'Especialista QA, Testador, Analista de Qualidade',
-                        pmbok: 'Qualidade, Riscos, Aquisições, Comunicações',
-                        projects: 'Sistemas críticos, regulatórios, certificação'
-                    },
-                    {
-                        id: 9,
-                        name: 'Squad de Produto',
-                        tagline: 'Foco em produto e experiência do usuário',
-                        description: 'Especialistas em valor do produto e experiência do usuário',
-                        contribution: 'Foco no valor do produto e experiência do usuário. Traduz necessidades em funcionalidades.',
-                        roles: 'Product Owner, Gerente de Produto, Designer UX',
-                        pmbok: 'Escopo, Partes Interessadas, Qualidade, Riscos',
-                        projects: 'Desenvolvimento de produto, design thinking, MVP'
-                    },
-                    {
-                        id: 10,
-                        name: 'Time de Tecnologia',
-                        tagline: 'Foco em arquitetura e soluções técnicas',
-                        description: 'Especialistas em expertise técnica e soluções complexas',
-                        contribution: 'Expertise técnica profunda. Garante solidez técnica das soluções.',
-                        roles: 'Arquiteto de Software, Desenvolvedor Sênior, DevOps',
-                        pmbok: 'Qualidade, Riscos, Aquisições, Custos',
-                        projects: 'Arquitetura, migração tecnológica, infraestrutura'
-                    },
-                    {
-                        id: 11,
-                        name: 'Tribe de Processos',
-                        tagline: 'Foco em otimização e eficiência operacional',
-                        description: 'Especialistas em processos e eficiência operacional',
-                        contribution: 'Otimização de processos e eficiência operacional. Melhora fluxos de trabalho.',
-                        roles: 'Analista de Processos, Especialista BPM, Consultor',
-                        pmbok: 'Qualidade, Riscos, Aquisições, Custos',
-                        projects: 'Melhoria de processos, reengenharia, automação'
-                    },
-                    {
-                        id: 12,
-                        name: 'Crew de Comunicação',
-                        tagline: 'Foco em comunicação e alinhamento',
-                        description: 'Especialistas em comunicação clara e efetiva',
-                        contribution: 'Habilidade em comunicação clara e efetiva. Facilita entendimento e alinhamento.',
-                        roles: 'Comunicador, Facilitador, Relações Públicas',
-                        pmbok: 'Comunicações, Partes Interessadas, Integração, Riscos',
-                        projects: 'Mudança organizacional, lançamentos, treinamento'
-                    },
-                    {
-                        id: 13,
-                        name: 'Squad de Integração',
-                        tagline: 'Foco em visão holística e síntese',
-                        description: 'Especialistas em integrar diferentes perspectivas',
-                        contribution: 'Capacidade de integrar diferentes perspectivas. Visão holística e síntese.',
-                        roles: 'Gerente de Projeto, Coordenador, Facilitador',
-                        pmbok: 'Integração, Partes Interessadas, Comunicações, Riscos',
-                        projects: 'Projetos multifuncionais, programas complexos'
-                    }
+                    { id: 1, name: 'Squad de Inovação', tagline: 'Foco em projetos disruptivos e criatividade' },
+                    { id: 2, name: 'Time de Execução', tagline: 'Foco em entrega, qualidade e prazos' },
+                    { id: 3, name: 'Tribe de Estratégia', tagline: 'Foco em planejamento e visão de longo prazo' },
+                    { id: 4, name: 'Crew de Colaboração', tagline: 'Foco em times, comunicação e sinergia' },
+                    { id: 5, name: 'Squad de Análise', tagline: 'Foco em dados, métricas e evidências' },
+                    { id: 6, name: 'Time Ágil', tagline: 'Foco em métodos ágeis e adaptação' },
+                    { id: 7, name: 'Tribe de Liderança', tagline: 'Foco em gestão e direção de equipes' },
+                    { id: 8, name: 'Crew de Qualidade', tagline: 'Foco em excelência e padrões de qualidade' },
+                    { id: 9, name: 'Squad de Produto', tagline: 'Foco em produto e experiência do usuário' },
+                    { id: 10, name: 'Time de Tecnologia', tagline: 'Foco em arquitetura e soluções técnicas' },
+                    { id: 11, name: 'Tribe de Processos', tagline: 'Foco em otimização e eficiência operacional' },
+                    { id: 12, name: 'Crew de Comunicação', tagline: 'Foco em comunicação e alinhamento' },
+                    { id: 13, name: 'Squad de Integração', tagline: 'Foco em visão holística e síntese' }
                 ];
             }
             
-            /**
-             * Determine matching pseudo-group
-             * @brief Finds best matching group based on dimensions
-             * @param {Object} dimensions - User dimension scores
-             * @returns {Object} Matched pseudo-group
-             */
             determinePseudoGroup(dimensions) {
-                // Define matching conditions for each group
+                // Mapeia dimensões para grupos
                 const groupConditions = [
                     { id: 1, condition: (d) => d.criatividade > 75 && d.lideranca > 60 },
                     { id: 2, condition: (d) => d.execucao > 80 && d.analise > 60 },
@@ -2290,71 +2238,75 @@
                     { id: 10, condition: (d) => d.execucao > 75 && d.analise > 70 },
                     { id: 11, condition: (d) => d.planejamento > 70 && d.analise > 65 },
                     { id: 12, condition: (d) => d.colaboracao > 75 && d.lideranca > 60 },
-                    { id: 13, condition: (d) => Math.abs(d.criatividade - d.analise) < 20 && d.lideranca > 55 }
+                    { id: 13, condition: (d) => this.calculateBalanceIndex(d) > 0.7 }
                 ];
                 
-                // Find matching group
-                for (const groupCondition of groupConditions) {
-                    if (groupCondition.condition(dimensions)) {
-                        return this.allPseudoGroups.find(g => g.id === groupCondition.id);
+                // Tenta encontrar correspondência exata
+                for (const condition of groupConditions) {
+                    if (condition.condition(dimensions)) {
+                        const group = this.allPseudoGroups.find(g => g.id === condition.id);
+                        return {
+                            ...group,
+                            matchReason: this.getMatchReason(condition.id, dimensions)
+                        };
                     }
                 }
                 
-                // Default to group based on highest dimension
-                const maxDim = Object.entries(dimensions).reduce((a, b) => a[1] > b[1] ? a : b)[0];
-                const defaultGroupMap = {
-                    lideranca: this.allPseudoGroups[6], // Tribe de Liderança
-                    execucao: this.allPseudoGroups[1],  // Time de Execução
-                    planejamento: this.allPseudoGroups[2], // Tribe de Estratégia
-                    criatividade: this.allPseudoGroups[0], // Squad de Inovação
-                    analise: this.allPseudoGroups[4],   // Squad de Análise
-                    colaboracao: this.allPseudoGroups[3] // Crew de Colaboração
+                // Fallback: grupo com melhor match por similaridade
+                return {
+                    ...this.allPseudoGroups[12], // Squad de Integração como default
+                    matchReason: "Perfil equilibrado com habilidades distribuídas em múltiplas áreas"
                 };
-                
-                return defaultGroupMap[maxDim] || this.allPseudoGroups[12]; // Default to Squad de Integração
             }
             
-            /**
-             * Update results display with profile data
-             * @brief Populates results tab with calculated profile
-             */
+            getMatchReason(groupId, dimensions) {
+                const reasons = {
+                    1: "Alta criatividade combinada com capacidade de liderança",
+                    2: "Foco em execução e atenção aos detalhes analíticos",
+                    3: "Forte habilidade de planejamento e pensamento estratégico",
+                    4: "Excelentes habilidades de colaboração e comunicação",
+                    5: "Capacidade analítica excepcional e foco em dados",
+                    6: "Adaptabilidade e foco em metodologias ágeis",
+                    7: "Liderança forte e capacidade de direção",
+                    8: "Foco em qualidade e processos rigorosos",
+                    9: "Orientação a produto com criatividade e análise",
+                    10: "Expertise técnica e foco em implementação",
+                    11: "Otimização de processos e eficiência operacional",
+                    12: "Habilidades excepcionais de comunicação",
+                    13: "Perfil equilibrado e versátil"
+                };
+                return reasons[groupId] || "Perfil único com combinação diversificada de habilidades";
+            }
+            
             updateResultsDisplay() {
                 if (!this.userProfile) return;
                 
                 const profile = this.userProfile;
                 
                 // Update essence words
-                document.getElementById('essenceWord1').textContent = profile.essenceWords[0];
-                document.getElementById('essenceWord2').textContent = profile.essenceWords[1];
+                document.getElementById('essenceWord1').textContent = profile.essenceWords.words[0];
+                document.getElementById('essenceWord2').textContent = profile.essenceWords.words[1];
+                document.getElementById('essenceDescription').textContent = profile.essenceWords.description;
                 
                 // Update project direction
                 document.getElementById('projectDirection').innerHTML = 
                     `<i class="fas fa-compass"></i> ${profile.projectDirection}`;
                 
-                // Update description
-                const descriptions = {
-                    'Visionário Estratégico': 'Você combina visão de futuro com planejamento cuidadoso. Sua capacidade de antecipar tendências e criar estratégias eficazes o torna ideal para projetos complexos que requerem tanto criatividade quanto execução meticulosa.',
-                    'Analítico Metódico': 'Sua força está na análise detalhada e abordagem sistemática. Excelente para garantir qualidade, identificar riscos e criar processos replicáveis que aumentam a eficiência do time.',
-                    'Prático Executor': 'Foco em resultados e implementação eficiente. Você transforma ideias em realidade com precisão e velocidade, garantindo entregas de alta qualidade dentro dos prazos.',
-                    'Líder Inspirador': 'Capacidade de guiar times com clareza e motivação. Você cria visão compartilhada, resolve conflitos e mantém todos alinhados com os objetivos do projeto.',
-                    'Colaborativo Diplomático': 'Habilidade excepcional em construir pontes e facilitar colaboração. Essencial para times multidisciplinares, você garante comunicação eficaz e consenso.',
-                    'Criativo Inovador': 'Pensamento fora da caixa e capacidade de ver soluções onde outros veem problemas. Motor de inovação e transformação em projetos desafiadores.'
-                };
-                
-                const key = `${profile.essenceWords[0]} ${profile.essenceWords[1]}`;
-                document.getElementById('essenceDescription').textContent = 
-                    descriptions[key] || 'Você possui uma combinação única de habilidades que será valiosa em qualquer time ágil. Sua versatidade permite adaptar-se a diferentes desafios de projeto.';
-                
                 // Update squad classification
                 if (profile.squadResult) {
-                    document.getElementById('squadName').textContent = profile.squadResult.squad.replace('_', ' ');
-                    document.getElementById('squadTagline').textContent = 
-                        `Classificação baseada em PMBOK 7, Belbin e similaridade de cosseno | ${profile.squadResult.mission}`;
-                    document.getElementById('squadType').textContent = profile.squadResult.squad;
-                    document.getElementById('squadFocus').textContent = profile.squadResult.mission;
-                    document.getElementById('squadAccuracy').textContent = profile.squadResult.fitAccuracy;
+                    const squad = profile.squadResult;
+                    document.getElementById('squadName').textContent = squad.name;
+                    document.getElementById('squadTagline').innerHTML = 
+                        `Classificação baseada em PMBOK 7, Belbin e similaridade de cosseno<br>
+                         <small>${squad.description}</small>`;
+                    document.getElementById('squadType').textContent = squad.id;
+                    document.getElementById('squadFocus').textContent = squad.mission;
+                    document.getElementById('squadAccuracy').textContent = `${squad.fitAccuracy}%`;
                     document.getElementById('squadFlexer').textContent = 
-                        `Índice: ${profile.squadResult.flexerIndex} | Candidato a Flexer: ${profile.squadResult.isFlexerCandidate ? 'Sim' : 'Não'}`;
+                        `Índice: ${squad.flexerIndex} | Candidato a Flexer: ${squad.isFlexerCandidate ? 'Sim' : 'Não'}`;
+                    
+                    // Update dimension bars
+                    this.updateDimensionBars(squad.dimensionScores);
                 }
                 
                 // Update pseudo-group
@@ -2363,99 +2315,111 @@
                 document.getElementById('pseudoGroupTagline').textContent = 
                     `Grupo #${matchedGroup.id} de 13 | ${matchedGroup.tagline}`;
                 
-                // Update group details
-                document.getElementById('contributionHow').textContent = matchedGroup.contribution;
-                document.getElementById('suggestedRoles').textContent = matchedGroup.roles;
-                document.getElementById('pmbokStrengths').textContent = matchedGroup.pmbok;
-                document.getElementById('idealProjects').textContent = matchedGroup.projects;
+                // Update group details (simplificado para exemplo)
+                const details = this.getGroupDetails(matchedGroup.id);
+                document.getElementById('contributionHow').textContent = details.contribution;
+                document.getElementById('suggestedRoles').textContent = details.roles;
+                document.getElementById('pmbokStrengths').textContent = details.pmbok;
+                document.getElementById('idealProjects').textContent = details.projects;
                 
-                // Create or update radar chart
+                // Create radar chart
                 this.createRadarChart(profile.dimensions);
                 
                 // Display all pseudo-groups
                 this.displayAllPseudoGroups(matchedGroup.id);
             }
             
-            /**
-             * Display all 13 pseudo-groups with highlighted match
-             * @brief Shows all groups with visual indication of user's match
-             * @param {number} matchedGroupId - ID of user's matched group
-             */
-            displayAllPseudoGroups(matchedGroupId) {
-                const container = document.getElementById('allPseudoGroups');
+            updateDimensionBars(dimensions) {
+                const container = document.getElementById('dimensionBars');
                 container.innerHTML = '';
                 
-                this.allPseudoGroups.forEach(group => {
-                    const isMatched = group.id === matchedGroupId;
-                    
-                    const groupElement = document.createElement('div');
-                    groupElement.className = 'pseudo-group';
-                    groupElement.style.background = isMatched ? 
-                        'linear-gradient(135deg, #4361EE 0%, #3A0CA3 100%)' : 
-                        'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
-                    groupElement.style.opacity = isMatched ? '1' : '0.7';
-                    groupElement.style.cursor = 'pointer';
-                    
-                    groupElement.innerHTML = `
-                        <div class="group-header">
-                            <div class="group-name" style="font-size: 1.2rem;">${group.name}</div>
-                            <div class="group-tagline" style="font-size: 0.8rem;">Grupo #${group.id}</div>
-                            ${isMatched ? 
-                                '<div style="margin-top: 0.5rem; padding: 0.3rem 0.8rem; background: rgba(247, 37, 133, 0.3); border-radius: 15px; display: inline-block; font-size: 0.7rem;"><i class="fas fa-check"></i> SEU GRUPO</div>' : 
-                                ''}
-                        </div>
-                        <div class="group-details" style="grid-template-columns: 1fr; margin-top: 1rem; gap: 0.8rem;">
-                            <div class="group-card" style="padding: 1rem;">
-                                <div class="group-card-title" style="font-size: 0.9rem;">
-                                    <i class="fas fa-bullseye"></i> ${group.tagline}
-                                </div>
-                                <div class="group-card-content" style="font-size: 0.8rem;">
-                                    ${group.description}
-                                </div>
+                dimensions.forEach(dim => {
+                    const barHTML = `
+                        <div class="dimension-bar">
+                            <div class="dimension-label">
+                                <span class="dimension-name">${dim.name}</span>
+                                <span class="dimension-value">${dim.value}%</span>
+                            </div>
+                            <div class="dimension-track">
+                                <div class="dimension-fill" style="width: ${dim.value}%"></div>
                             </div>
                         </div>
                     `;
-                    
-                    container.appendChild(groupElement);
+                    container.innerHTML += barHTML;
                 });
+                
+                // Animate bars
+                setTimeout(() => {
+                    container.querySelectorAll('.dimension-fill').forEach((fill, index) => {
+                        const width = fill.style.width;
+                        fill.style.width = '0%';
+                        setTimeout(() => {
+                            fill.style.width = width;
+                        }, index * 100);
+                    });
+                }, 100);
             }
             
-            /**
-             * Create radar chart visualization
-             * @brief Generates radar chart for dimension visualization
-             * @param {Object} dimensions - User dimension scores
-             */
-            createRadarChart(dimensions) {
-                const ctx = document.getElementById('spectrumChart').getContext('2d');
+            getGroupDetails(groupId) {
+                const details = {
+                    1: {
+                        contribution: 'Traz visão de futuro e estratégias inovadoras. Capacidade de conectar ideias aparentemente desconexas em soluções coerentes.',
+                        roles: 'Product Owner Visionário, Arquiteto de Soluções, Estrategista de Inovação',
+                        pmbok: 'Gestão de Escopo, Partes Interessadas, Integração, Comunicações',
+                        projects: 'Novos produtos/serviços, transformação digital, pesquisa e desenvolvimento'
+                    },
+                    2: {
+                        contribution: 'Excelência na implementação e atenção aos detalhes. Garante qualidade e prazos com metodologia consistente.',
+                        roles: 'Desenvolvedor Sênior, Tech Lead, Especialista QA, DevOps',
+                        pmbok: 'Qualidade, Tempo, Custos, Aquisições',
+                        projects: 'Sistemas críticos, software empresarial, migrações tecnológicas'
+                    },
+                    // ... outros grupos
+                    13: {
+                        contribution: 'Capacidade de integrar diferentes perspectivas e sintetizar visões complexas em soluções coerentes.',
+                        roles: 'Gerente de Projeto, Coordenador, Facilitador, Integrador',
+                        pmbok: 'Integração, Partes Interessadas, Comunicações, Riscos',
+                        projects: 'Projetos multifuncionais, programas complexos, integração de sistemas'
+                    }
+                };
                 
-                // Destroy existing chart if it exists
+                return details[groupId] || details[13];
+            }
+            
+            createRadarChart(dimensions) {
+                const ctx = document.getElementById('spectrumChart');
+                if (!ctx) return;
+                
+                // Destroy existing chart
                 if (this.chart) {
                     this.chart.destroy();
                 }
                 
-                this.chart = new Chart(ctx, {
+                const chartData = {
+                    labels: ['Liderança', 'Execução', 'Planejamento', 'Criatividade', 'Análise', 'Colaboração'],
+                    datasets: [{
+                        label: 'Seu Perfil',
+                        data: [
+                            dimensions.lideranca,
+                            dimensions.execucao,
+                            dimensions.planejamento,
+                            dimensions.criatividade,
+                            dimensions.analise,
+                            dimensions.colaboracao
+                        ],
+                        backgroundColor: 'rgba(67, 97, 238, 0.2)',
+                        borderColor: 'rgba(67, 97, 238, 1)',
+                        borderWidth: 2,
+                        pointBackgroundColor: 'rgba(67, 97, 238, 1)',
+                        pointBorderColor: '#fff',
+                        pointBorderWidth: 2,
+                        pointRadius: 4
+                    }]
+                };
+                
+                this.chart = new Chart(ctx.getContext('2d'), {
                     type: 'radar',
-                    data: {
-                        labels: ['Liderança', 'Execução', 'Planejamento', 'Criatividade', 'Análise', 'Colaboração'],
-                        datasets: [{
-                            label: 'Seu Perfil',
-                            data: [
-                                dimensions.lideranca,
-                                dimensions.execucao,
-                                dimensions.planejamento,
-                                dimensions.criatividade,
-                                dimensions.analise,
-                                dimensions.colaboracao
-                            ],
-                            backgroundColor: 'rgba(67, 97, 238, 0.2)',
-                            borderColor: 'rgba(67, 97, 238, 1)',
-                            borderWidth: 2,
-                            pointBackgroundColor: 'rgba(67, 97, 238, 1)',
-                            pointBorderColor: '#fff',
-                            pointBorderWidth: 2,
-                            pointRadius: 4
-                        }]
-                    },
+                    data: chartData,
                     options: {
                         scales: {
                             r: {
@@ -2481,14 +2445,10 @@
                             }
                         },
                         plugins: {
-                            legend: {
-                                display: false
-                            },
+                            legend: { display: false },
                             tooltip: {
                                 callbacks: {
-                                    label: function(context) {
-                                        return `${context.label}: ${context.raw}%`;
-                                    }
+                                    label: (context) => `${context.label}: ${context.raw}%`
                                 }
                             }
                         },
@@ -2497,34 +2457,61 @@
                 });
             }
             
-            /**
-             * Update export profile data
-             * @brief Prepares export tab with current profile
-             */
+            displayAllPseudoGroups(matchedGroupId) {
+                const container = document.getElementById('allPseudoGroups');
+                if (!container) return;
+                
+                container.innerHTML = '';
+                
+                this.allPseudoGroups.forEach(group => {
+                    const isMatched = group.id === matchedGroupId;
+                    const groupElement = document.createElement('div');
+                    groupElement.className = `pseudo-group ${isMatched ? 'matched' : ''}`;
+                    groupElement.innerHTML = `
+                        <div class="group-header">
+                            <div class="group-name">${group.name}</div>
+                            <div class="group-tagline">Grupo #${group.id}</div>
+                            ${isMatched ? 
+                                '<div style="margin-top: 0.5rem; padding: 0.3rem 0.8rem; background: rgba(247, 37, 133, 0.3); border-radius: 15px; display: inline-block; font-size: 0.7rem;"><i class="fas fa-check"></i> SEU GRUPO</div>' : 
+                                ''}
+                        </div>
+                        <div style="margin-top: 1rem; font-size: 0.9rem; opacity: 0.9;">
+                            ${group.tagline}
+                        </div>
+                    `;
+                    
+                    container.appendChild(groupElement);
+                });
+            }
+            
             updateExportProfile() {
                 if (!this.userProfile) return;
                 
                 const profile = this.userProfile;
                 const userInfo = profile.userInfo;
+                const squad = profile.squadResult;
                 
                 // Update profile card
                 document.getElementById('profileAvatar').textContent = userInfo.name.charAt(0).toUpperCase();
                 document.getElementById('exportName').textContent = userInfo.name;
                 document.getElementById('exportInfo').textContent = 
-                    `Turma: ${userInfo.class || 'Gestão de Projetos'} • RA: ${userInfo.ra}`;
+                    `Turma: ${userInfo.class} • RA: ${userInfo.ra} • Semestre: ${userInfo.semester}`;
                 
-                document.getElementById('exportWord1').textContent = profile.essenceWords[0];
-                document.getElementById('exportWord2').textContent = profile.essenceWords[1];
+                document.getElementById('exportWord1').textContent = profile.essenceWords.words[0];
+                document.getElementById('exportWord2').textContent = profile.essenceWords.words[1];
                 document.getElementById('exportProject').innerHTML = 
                     `<i class="fas fa-compass"></i> ${profile.projectDirection}`;
                 
-                const matchedGroup = profile.pseudoGroup;
-                document.getElementById('exportGroup').textContent = 
-                    `Pseudo-Grupo #${matchedGroup.id}: ${matchedGroup.name}`;
+                document.getElementById('exportSquad').textContent = 
+                    `Squad: ${squad.name} | Acurácia: ${squad.fitAccuracy}%`;
                 
-                document.getElementById('exportContribution').textContent = matchedGroup.contribution;
-                document.getElementById('exportRoles').textContent = matchedGroup.roles;
-                document.getElementById('exportPmbok').textContent = matchedGroup.pmbok;
+                document.getElementById('exportGroup').textContent = 
+                    `Pseudo-Grupo #${profile.pseudoGroup.id}: ${profile.pseudoGroup.name}`;
+                
+                const details = this.getGroupDetails(profile.pseudoGroup.id);
+                document.getElementById('exportContribution').textContent = details.contribution;
+                document.getElementById('exportRoles').textContent = details.roles;
+                document.getElementById('exportPmbok').textContent = details.pmbok;
                 
                 // Update date
                 const date = new Date(userInfo.generatedAt);
@@ -2535,15 +2522,12 @@
                 this.generateExportText();
             }
             
-            /**
-             * Generate formatted text for export
-             * @brief Creates text version of profile for copying
-             */
             generateExportText() {
                 if (!this.userProfile) return;
                 
                 const profile = this.userProfile;
                 const userInfo = profile.userInfo;
+                const squad = profile.squadResult;
                 
                 let text = `PERFIL ESSENCE MATCH - CLASSIFICAÇÃO DE SQUADS\n`;
                 text += `==================================================\n\n`;
@@ -2551,76 +2535,50 @@
                 text += `• Nome: ${userInfo.name}\n`;
                 text += `• Email: ${userInfo.email || 'Não informado'}\n`;
                 text += `• RA/Matrícula: ${userInfo.ra}\n`;
-                text += `• Turma: ${userInfo.class || 'Gestão de Projetos e Desenvolvimento de Software'}\n`;
-                text += `• Semestre: ${userInfo.semester || 'Não informado'}\n`;
+                text += `• Turma: ${userInfo.class}\n`;
+                text += `• Semestre: ${userInfo.semester}\n`;
                 text += `• Professor: ${userInfo.professor || 'Não informado'}\n`;
-                text += `• Data de geração: ${new Date(userInfo.generatedAt).toLocaleDateString('pt-BR')}\n\n`;
+                text += `• Data: ${new Date(userInfo.generatedAt).toLocaleDateString('pt-BR')}\n\n`;
                 
                 text += `ESSÊNCIA IDENTIFICADA:\n`;
-                text += `• Palavra 1: ${profile.essenceWords[0]}\n`;
-                text += `• Palavra 2: ${profile.essenceWords[1]}\n`;
-                text += `• Direção de Projeto: ${profile.projectDirection}\n\n`;
+                text += `• ${profile.essenceWords.words[0]} ${profile.essenceWords.words[1]}\n`;
+                text += `• ${profile.essenceWords.description}\n`;
+                text += `• Direção de Projeto Ideal: ${profile.projectDirection}\n\n`;
                 
-                text += `CLASSIFICAÇÃO DE SQUAD (PMBOK 7 + Belbin + Similaridade de Cosseno):\n`;
-                text += `• Squad: ${profile.squadResult.squad}\n`;
-                text += `• Acurácia do Match: ${profile.squadResult.fitAccuracy}\n`;
-                text += `• Foco: ${profile.squadResult.mission}\n`;
-                text += `• Índice Flexer: ${profile.squadResult.flexerIndex}\n`;
-                text += `• Candidato a Flexer: ${profile.squadResult.isFlexerCandidate ? 'Sim' : 'Não'}\n\n`;
+                text += `CLASSIFICAÇÃO DE SQUAD (PMBOK 7 + Belbin):\n`;
+                text += `• Squad: ${squad.name}\n`;
+                text += `• Acurácia: ${squad.fitAccuracy}%\n`;
+                text += `• Foco: ${squad.mission}\n`;
+                text += `• Justificativa: ${squad.justification}\n`;
+                text += `• Índice Flexer: ${squad.flexerIndex} (${squad.isFlexerCandidate ? 'Candidato a Flexer' : 'Perfil Especializado'})\n\n`;
                 
-                text += `PSEUDO-GRUPO PMBOK:\n`;
+                text += `DIMENSÕES DE PERFIL:\n`;
+                squad.dimensionScores.forEach(dim => {
+                    text += `• ${dim.name}: ${dim.value}%\n`;
+                });
+                text += `\n`;
+                
+                text += `PSEUDO-GRUPO RECOMENDADO:\n`;
                 text += `• Grupo #${profile.pseudoGroup.id}: ${profile.pseudoGroup.name}\n`;
                 text += `• ${profile.pseudoGroup.tagline}\n`;
-                text += `• Descrição: ${profile.pseudoGroup.description}\n\n`;
+                text += `• Motivo do Match: ${profile.pseudoGroup.matchReason}\n\n`;
                 
-                text += `COMO CONTRIBUI:\n`;
-                text += `${profile.pseudoGroup.contribution}\n\n`;
+                text += `COMO VOCÊ CONTRIBUI:\n`;
+                text += `${this.getGroupDetails(profile.pseudoGroup.id).contribution}\n\n`;
                 
                 text += `PAPÉIS SUGERIDOS:\n`;
-                text += `${profile.pseudoGroup.roles}\n\n`;
+                text += `${this.getGroupDetails(profile.pseudoGroup.id).roles}\n\n`;
                 
                 text += `ÁREAS PMBOK FORTES:\n`;
-                text += `${profile.pseudoGroup.pmbok}\n\n`;
+                text += `${this.getGroupDetails(profile.pseudoGroup.id).pmbok}\n\n`;
                 
-                text += `PROJETOS IDEAIS:\n`;
-                text += `${profile.pseudoGroup.projects}\n\n`;
-                
-                text += `DIMENSÕES DE CONTRIBUIÇÃO:\n`;
-                text += `• Liderança: ${profile.dimensions.lideranca}%\n`;
-                text += `• Execução: ${profile.dimensions.execucao}%\n`;
-                text += `• Planejamento: ${profile.dimensions.planejamento}%\n`;
-                text += `• Criatividade: ${profile.dimensions.criatividade}%\n`;
-                text += `• Análise: ${profile.dimensions.analise}%\n`;
-                text += `• Colaboração: ${profile.dimensions.colaboracao}%\n\n`;
-                
-                text += `RESPOSTAS DO QUESTIONÁRIO:\n`;
-                const questions = [
-                    'Foco Pessoas ↔ Produto',
-                    'Estilo Estruturado ↔ Adaptável',
-                    'Solução Analítica ↔ Criativa',
-                    'Comunicação Direta ↔ Diplomática',
-                    'Aprendizado Teórico ↔ Prático',
-                    'Valoriza Processo ↔ Resultado',
-                    'Áreas Soft ↔ Hard Skills',
-                    'Pressão Metódico ↔ Reativo',
-                    'Inovação Conservador ↔ Inovador',
-                    'Liderança Facilitador ↔ Decisor'
-                ];
-                
-                profile.sliderValues.forEach((value, index) => {
-                    text += `• Q${index + 1} (${questions[index]}): ${value}%\n`;
-                });
-                
-                text += `\n---\n`;
-                text += `Gerado por ESSENCE MATCH - Sistema de Classificação Comportamental para Squads\n`;
-                text += `Baseado em PMBOK 7, Belbin e Similaridade de Vetores (Cosseno)\n`;
+                text += `---\n`;
+                text += `Gerado por ESSENCE MATCH v2.0 PRO\n`;
+                text += `Sistema baseado em PMBOK 7, Belbin e Similaridade de Cosseno\n`;
                 
                 document.getElementById('exportText').textContent = text;
             }
             
-            /**
-             * Export profile as PNG image
-             */
             async exportProfilePNG() {
                 const element = document.getElementById('profileCard');
                 if (!element) {
@@ -2638,12 +2596,14 @@
                     const canvas = await html2canvas(element, {
                         backgroundColor: '#ffffff',
                         scale: 2,
-                        logging: false
+                        logging: false,
+                        useCORS: true
                     });
 
                     const userSlug = this.userProfile.userInfo.name
                         .replace(/\s+/g, '-')
-                        .toLowerCase();
+                        .toLowerCase()
+                        .normalize('NFD').replace(/[\u0300-\u036f]/g, '');
 
                     const link = document.createElement('a');
                     link.download = `perfil-essence-${userSlug}.png`;
@@ -2662,9 +2622,6 @@
                 }
             }
             
-            /**
-             * Export radar chart as PNG image
-             */
             async exportRadarPNG() {
                 const canvas = document.getElementById('spectrumChart');
                 if (!canvas || !this.chart) {
@@ -2679,72 +2636,50 @@
                     button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Gerando...';
                     button.disabled = true;
 
-                    // Cria um canvas temporário para garantir qualidade
+                    // Create a new canvas with higher resolution
                     const tempCanvas = document.createElement('canvas');
+                    tempCanvas.width = 800;
+                    tempCanvas.height = 600;
                     const tempCtx = tempCanvas.getContext('2d');
                     
-                    // Configura dimensões (2x para melhor qualidade)
-                    tempCanvas.width = canvas.width * 2;
-                    tempCanvas.height = canvas.height * 2;
-                    tempCanvas.style.width = canvas.width + 'px';
-                    tempCanvas.style.height = canvas.height + 'px';
-                    
-                    // Fundo branco
+                    // White background
                     tempCtx.fillStyle = 'white';
                     tempCtx.fillRect(0, 0, tempCanvas.width, tempCanvas.height);
                     
-                    // Redesenha o gráfico no canvas temporário com alta qualidade
-                    tempCtx.scale(2, 2);
-                    this.chart.draw();
+                    // Get the chart's base64 image
+                    const chartImage = this.chart.toBase64Image();
+                    const img = new Image();
                     
-                    // Copia o conteúdo do canvas original
-                    tempCtx.drawImage(canvas, 0, 0, canvas.width, canvas.height);
-                    
-                    // Usa o canvas temporário para gerar a imagem
-                    const image = tempCanvas.toDataURL('image/png');
+                    await new Promise((resolve, reject) => {
+                        img.onload = () => {
+                            tempCtx.drawImage(img, 50, 50, 700, 500);
+                            resolve();
+                        };
+                        img.onerror = reject;
+                        img.src = chartImage;
+                    });
 
                     const userSlug = this.userProfile.userInfo.name
                         .replace(/\s+/g, '-')
-                        .toLowerCase();
+                        .toLowerCase()
+                        .normalize('NFD').replace(/[\u0300-\u036f]/g, '');
 
                     const link = document.createElement('a');
                     link.download = `radar-essence-${userSlug}.png`;
-                    link.href = image;
+                    link.href = tempCanvas.toDataURL('image/png');
                     link.click();
 
-                    this.showNotification('Gráfico radar exportado como PNG!', 'success');
+                    this.showNotification('Gráfico radar exportado!', 'success');
 
                 } catch (error) {
-                    console.error('Erro ao gerar PNG do radar:', error);
-                    
-                    // Fallback: tenta capturar o canvas original
-                    try {
-                        const image = canvas.toDataURL('image/png');
-                        const userSlug = this.userProfile.userInfo.name
-                            .replace(/\s+/g, '-')
-                            .toLowerCase();
-
-                        const link = document.createElement('a');
-                        link.download = `radar-essence-${userSlug}.png`;
-                        link.href = image;
-                        link.click();
-
-                        this.showNotification('Gráfico radar exportado (fallback)!', 'success');
-                    } catch (fallbackError) {
-                        console.error('Erro no fallback:', fallbackError);
-                        this.showNotification('Erro ao gerar imagem do radar. Tente novamente.', 'error');
-                    }
-
+                    console.error('Erro ao exportar radar:', error);
+                    this.showNotification('Erro ao gerar imagem do radar.', 'error');
                 } finally {
                     button.innerHTML = originalHTML;
                     button.disabled = false;
                 }
             }
             
-            /**
-             * Generate and download complete PDF
-             * @brief Creates comprehensive PDF with all profile data
-             */
             downloadPDF() {
                 if (!this.userProfile) return;
                 
@@ -2773,12 +2708,12 @@
                     yPos += 8;
                     doc.text(`RA/Matrícula: ${userInfo.ra}`, 20, yPos);
                     yPos += 8;
-                    doc.text(`Turma: ${userInfo.class || 'Gestão de Projetos'}`, 20, yPos);
+                    doc.text(`Turma: ${userInfo.class}`, 20, yPos);
                     yPos += 8;
                     doc.text(`Data: ${new Date(userInfo.generatedAt).toLocaleDateString('pt-BR')}`, 20, yPos);
                     yPos += 15;
                     
-                    // Essence words
+                    // Essence
                     doc.setFontSize(20);
                     doc.setTextColor(67, 97, 238);
                     doc.text('Essência Identificada', pageWidth / 2, yPos, { align: 'center' });
@@ -2786,12 +2721,12 @@
                     
                     doc.setFontSize(18);
                     doc.setTextColor(58, 12, 163);
-                    doc.text(this.userProfile.essenceWords[0], pageWidth / 2, yPos, { align: 'center' });
+                    doc.text(this.userProfile.essenceWords.words[0], pageWidth / 2, yPos, { align: 'center' });
                     yPos += 8;
                     
                     doc.setFontSize(14);
                     doc.setTextColor(114, 9, 183);
-                    doc.text(this.userProfile.essenceWords[1], pageWidth / 2, yPos, { align: 'center' });
+                    doc.text(this.userProfile.essenceWords.words[1], pageWidth / 2, yPos, { align: 'center' });
                     yPos += 10;
                     
                     doc.setFontSize(12);
@@ -2808,9 +2743,9 @@
                     doc.setFontSize(12);
                     doc.setTextColor(0, 0, 0);
                     const squad = this.userProfile.squadResult;
-                    doc.text(`Squad: ${squad.squad}`, 20, yPos);
+                    doc.text(`Squad: ${squad.name}`, 20, yPos);
                     yPos += 6;
-                    doc.text(`Acurácia: ${squad.fitAccuracy}`, 20, yPos);
+                    doc.text(`Acurácia: ${squad.fitAccuracy}%`, 20, yPos);
                     yPos += 6;
                     doc.text(`Foco: ${squad.mission}`, 20, yPos);
                     yPos += 6;
@@ -2822,7 +2757,7 @@
                     // Pseudo Group
                     doc.setFontSize(16);
                     doc.setTextColor(67, 97, 238);
-                    doc.text('Pseudo-Grupo PMBOK', 20, yPos);
+                    doc.text('Pseudo-Grupo Recomendado', 20, yPos);
                     yPos += 10;
                     
                     doc.setFontSize(12);
@@ -2833,71 +2768,37 @@
                     doc.text(group.tagline, 20, yPos);
                     yPos += 10;
                     
-                    // Group details
-                    doc.setFontSize(11);
-                    doc.text(`Como Contribui: ${group.contribution}`, 20, yPos);
-                    yPos += 7;
-                    doc.text(`Papéis Sugeridos: ${group.roles}`, 20, yPos);
-                    yPos += 7;
-                    doc.text(`Áreas PMBOK Fortes: ${group.pmbok}`, 20, yPos);
-                    yPos += 7;
-                    doc.text(`Projetos Ideais: ${group.projects}`, 20, yPos);
-                    yPos += 15;
-                    
-                    // Dimensions
-                    doc.setFontSize(16);
-                    doc.setTextColor(67, 97, 238);
-                    doc.text('Dimensões de Contribuição', 20, yPos);
-                    yPos += 10;
-                    
-                    doc.setFontSize(11);
-                    doc.setTextColor(0, 0, 0);
-                    const dims = this.userProfile.dimensions;
-                    doc.text(`• Liderança: ${dims.lideranca}%`, 25, yPos);
-                    yPos += 6;
-                    doc.text(`• Execução: ${dims.execucao}%`, 25, yPos);
-                    yPos += 6;
-                    doc.text(`• Planejamento: ${dims.planejamento}%`, 25, yPos);
-                    yPos += 6;
-                    doc.text(`• Criatividade: ${dims.criatividade}%`, 25, yPos);
-                    yPos += 6;
-                    doc.text(`• Análise: ${dims.analise}%`, 25, yPos);
-                    yPos += 6;
-                    doc.text(`• Colaboração: ${dims.colaboracao}%`, 25, yPos);
-                    yPos += 15;
-                    
                     // Footer
                     doc.setFontSize(10);
                     doc.setTextColor(100, 100, 100);
                     doc.text('Gerado por ESSENCE MATCH - Sistema de Classificação Comportamental para Squads', 
                             pageWidth / 2, 290, { align: 'center' });
                     
-                    // Save PDF
-                    doc.save(`perfil-essence-${userInfo.name.replace(/\s+/g, '-').toLowerCase()}.pdf`);
+                    // Save
+                    const fileName = `perfil-essence-${userInfo.name.replace(/\s+/g, '-').toLowerCase()}.pdf`;
+                    doc.save(fileName);
                     
                     this.showNotification('PDF gerado com sucesso!', 'success');
                 } catch (error) {
-                    console.error('Error generating PDF:', error);
+                    console.error('Erro ao gerar PDF:', error);
                     this.showNotification('Erro ao gerar PDF. Tente novamente.', 'error');
                 }
             }
             
-            /**
-             * Copy profile text to clipboard
-             * @brief Copies formatted profile text for email/chat
-             */
             copyProfile() {
-                const exportText = document.getElementById('exportText').textContent;
-                
-                navigator.clipboard.writeText(exportText)
-                    .then(() => {
-                        this.showNotification('Perfil copiado para a área de transferência!', 'success');
-                    })
+                const exportText = document.getElementById('exportText');
+                if (!exportText || !exportText.textContent) {
+                    this.showNotification('Nenhum perfil para copiar', 'error');
+                    return;
+                }
+
+                navigator.clipboard.writeText(exportText.textContent)
+                    .then(() => this.showNotification('Perfil copiado para a área de transferência!', 'success'))
                     .catch(err => {
                         console.error('Erro ao copiar:', err);
-                        // Fallback for older browsers
+                        // Fallback
                         const textArea = document.createElement('textarea');
-                        textArea.value = exportText;
+                        textArea.value = exportText.textContent;
                         document.body.appendChild(textArea);
                         textArea.select();
                         document.execCommand('copy');
@@ -2906,17 +2807,13 @@
                     });
             }
             
-            /**
-             * Download profile as JSON
-             * @brief Exports complete profile data as JSON file
-             */
             downloadJSON() {
                 if (!this.userProfile) return;
                 
                 const exportData = {
                     meta: {
                         tool: "ESSENCE MATCH",
-                        version: "2.0",
+                        version: "2.0 PRO",
                         generatedAt: new Date().toISOString()
                     },
                     profile: this.userProfile
@@ -2924,20 +2821,22 @@
                 
                 const dataStr = JSON.stringify(exportData, null, 2);
                 const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
-                const exportFileDefaultName = `perfil-essence-${this.userProfile.userInfo.name.replace(/\s+/g, '-').toLowerCase()}.json`;
                 
-                const linkElement = document.createElement('a');
-                linkElement.setAttribute('href', dataUri);
-                linkElement.setAttribute('download', exportFileDefaultName);
-                linkElement.click();
+                const userSlug = this.userProfile.userInfo.name
+                    .replace(/\s+/g, '-')
+                    .toLowerCase()
+                    .normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+                    
+                const fileName = `perfil-essence-${userSlug}.json`;
+                
+                const link = document.createElement('a');
+                link.setAttribute('href', dataUri);
+                link.setAttribute('download', fileName);
+                link.click();
                 
                 this.showNotification('JSON baixado com sucesso!', 'success');
             }
             
-            /**
-             * Reset questionnaire for retaking
-             * @brief Clears all answers and returns to first question
-             */
             retakeQuiz() {
                 // Reset all values
                 this.currentQuestion = 1;
@@ -2946,14 +2845,25 @@
                 
                 // Reset all sliders
                 for (let i = 1; i <= this.totalQuestions; i++) {
-                    document.getElementById(`sliderThumb${i}`).style.left = '50%';
-                    document.getElementById(`sliderFill${i}`).style.width = '50%';
-                    document.getElementById(`sliderValue${i}`).textContent = '50%';
+                    const thumb = document.getElementById(`sliderThumb${i}`);
+                    const fill = document.getElementById(`sliderFill${i}`);
+                    const value = document.getElementById(`sliderValue${i}`);
+                    
+                    if (thumb && fill && value) {
+                        thumb.style.left = '50%';
+                        fill.style.width = '50%';
+                        value.textContent = '50%';
+                    }
                 }
                 
                 // Show first question
                 document.querySelectorAll('.question-section').forEach((section, index) => {
                     section.style.display = index === 0 ? 'block' : 'none';
+                });
+                
+                // Reset question cards
+                document.querySelectorAll('.question-card').forEach((card, index) => {
+                    card.classList.toggle('active', index === 0);
                 });
                 
                 // Reset buttons
@@ -2972,30 +2882,27 @@
                 this.showNotification('Questionário reiniciado! Responda novamente.');
             }
             
-            /**
-             * Load demo data for testing
-             * @brief Pre-fills form with sample data
-             */
             loadDemoData() {
-                // Pre-fill with demo data after a delay
+                // Load demo data after a short delay
                 setTimeout(() => {
-                    if (!document.getElementById('userName').value) {
-                        document.getElementById('userName').value = 'João Silva';
-                        document.getElementById('userEmail').value = 'joao.silva@email.com';
-                        document.getElementById('userRA').value = '2023.1.08.042';
-                        document.getElementById('userClass').value = 'Gestão de Projetos e Desenvolvimento de Software';
-                        document.getElementById('userSemester').value = '1/2026';
-                        document.getElementById('userProfessor').value = 'Prof. Machado de Assis';
-                    }
+                    const inputs = {
+                        'userName': 'João Silva',
+                        'userEmail': 'joao.silva@email.com',
+                        'userRA': '2023.1.08.042',
+                        'userClass': 'Gestão de Projetos e Desenvolvimento de Software',
+                        'userSemester': '1/2026',
+                        'userProfessor': 'Prof. Machado de Assis'
+                    };
+                    
+                    Object.entries(inputs).forEach(([id, value]) => {
+                        const element = document.getElementById(id);
+                        if (element && !element.value) {
+                            element.value = value;
+                        }
+                    });
                 }, 1000);
             }
             
-            /**
-             * Show notification message
-             * @brief Displays temporary notification to user
-             * @param {string} message - Notification text
-             * @param {string} type - 'success' or 'error'
-             */
             showNotification(message, type = 'success') {
                 const notification = document.getElementById('notification');
                 const icon = notification.querySelector('i');
@@ -3026,7 +2933,7 @@
             }
         }
 
-        // Initialize application when DOM is loaded
+        // Initialize application
         document.addEventListener('DOMContentLoaded', () => {
             window.essenceMatch = new EssenceMatchApp();
             
