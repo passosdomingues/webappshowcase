@@ -8,7 +8,6 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
     <style>
         :root {
             --primary: #4361EE;
@@ -55,7 +54,6 @@
             to { opacity: 1; transform: translateY(0); }
         }
 
-        /* Header */
         .header {
             background: linear-gradient(135deg, var(--primary), var(--secondary));
             color: white;
@@ -128,7 +126,6 @@
             line-height: 1.5;
         }
 
-        /* Tabs */
         .tabs {
             display: flex;
             background: var(--light);
@@ -177,7 +174,6 @@
             display: block;
         }
 
-        /* Question Cards */
         .question-section {
             margin-bottom: 2rem;
         }
@@ -262,7 +258,6 @@
             line-height: 1.4;
         }
 
-        /* Fuzzy Logic Sliders */
         .slider-container {
             margin: 1.5rem 0;
         }
@@ -337,7 +332,6 @@
             max-width: 45%;
         }
 
-        /* Essence Display */
         .essence-display {
             background: linear-gradient(135deg, #fdfcfb 0%, #e2d1c3 100%);
             border-radius: var(--border-radius);
@@ -406,7 +400,6 @@
             line-height: 1.6;
         }
 
-        /* Spectrum Chart */
         .spectrum-container {
             background: white;
             border-radius: var(--border-radius);
@@ -421,7 +414,6 @@
             position: relative;
         }
 
-        /* Pseudo Group */
         .pseudo-group {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             border-radius: var(--border-radius);
@@ -501,7 +493,6 @@
             line-height: 1.5;
         }
 
-        /* Export Section */
         .export-section {
             background: var(--light);
             border-radius: var(--border-radius);
@@ -559,7 +550,6 @@
             margin-bottom: 2rem;
         }
 
-        /* Buttons */
         .btn {
             display: inline-flex;
             align-items: center;
@@ -648,7 +638,6 @@
             justify-content: center;
         }
 
-        /* Form Elements */
         .form-row {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
@@ -686,7 +675,6 @@
             box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.1);
         }
 
-        /* Progress Indicator */
         .progress-container {
             background: var(--light);
             border-radius: var(--border-radius);
@@ -739,7 +727,6 @@
             font-weight: 600;
         }
 
-        /* Footer */
         .footer {
             text-align: center;
             padding: 2rem;
@@ -749,7 +736,6 @@
             margin-top: 2rem;
         }
 
-        /* Notifications */
         .notification {
             position: fixed;
             bottom: 30px;
@@ -782,7 +768,6 @@
             background: var(--warning);
         }
 
-        /* Responsive */
         @media (max-width: 768px) {
             .container {
                 border-radius: 0;
@@ -844,7 +829,6 @@
             }
         }
 
-        /* Custom Scrollbar */
         ::-webkit-scrollbar {
             width: 10px;
             height: 10px;
@@ -876,7 +860,7 @@
                 <div>
                     <h1>ESSENCE <span>MATCH</span></h1>
                     <div class="tagline">
-                        Direcione seu projeto
+                        Sistema de Classificação Comportamental para Squads - Baseado em PMBOK 7, Belbin e Similaridade de Vetores
                     </div>
                 </div>
             </div>
@@ -1363,6 +1347,50 @@
                 </div>
             </div>
 
+            <!-- Squad Classification Result -->
+            <div class="pseudo-group highlighted" id="squadResult" style="background: linear-gradient(135deg, #4CC9F0 0%, #4361EE 100%);">
+                <div class="group-header">
+                    <div class="group-name" id="squadName">Squad de Inovação</div>
+                    <div class="group-tagline" id="squadTagline">
+                        Classificação baseada em PMBOK 7, Belbin e similaridade de cosseno
+                    </div>
+                </div>
+                <div class="group-details">
+                    <div class="group-card">
+                        <div class="group-card-title">
+                            <i class="fas fa-robot"></i> Tipo de Squad
+                        </div>
+                        <div class="group-card-content" id="squadType">
+                            INNOVATION
+                        </div>
+                    </div>
+                    <div class="group-card">
+                        <div class="group-card-title">
+                            <i class="fas fa-bullseye"></i> Foco Principal
+                        </div>
+                        <div class="group-card-content" id="squadFocus">
+                            Inovação, Criação e Abordagens Adaptativas
+                        </div>
+                    </div>
+                    <div class="group-card">
+                        <div class="group-card-title">
+                            <i class="fas fa-percentage"></i> Acurácia do Match
+                        </div>
+                        <div class="group-card-content" id="squadAccuracy">
+                            95.45%
+                        </div>
+                    </div>
+                    <div class="group-card">
+                        <div class="group-card-title">
+                            <i class="fas fa-user-circle"></i> Flexibilidade (Flexer)
+                        </div>
+                        <div class="group-card-content" id="squadFlexer">
+                            Índice: 0.85 | Candidato a Flexer: Sim
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <!-- Matched Pseudo Group -->
             <div class="pseudo-group highlighted" id="matchedGroup">
                 <div class="group-header">
@@ -1548,9 +1576,9 @@
 
         <!-- Footer -->
         <div class="footer">
-            <p>ESSENCE MATCH &copy; 2026</p>
+            <p>ESSENCE MATCH &copy; 2026 | Sistema de Classificação Comportamental para Squads</p>
             <p style="margin-top: 10px;">
-                De recrutadores para recrutadores
+                Baseado em PMBOK 7, Belbin e Similaridade de Vetores (Cosseno)
             </p>
         </div>
     </div>
@@ -1562,6 +1590,101 @@
     </div>
 
     <script>
+        /**
+         * Classificador Comportamental de Alta Precisão para Formação de Squads
+         * Baseado em PMBOK 7, Belbin e Similaridade de Vetores (Cosseno)
+         */
+        class SquadClassifier {
+            constructor() {
+                // Definição de Pesos Ideais para cada tipo de Squad (Arquétipos)
+                // Ordem do Vetor: [Criativo, Comunicador, Analítico, Prático, Especialista]
+                this.archetypes = {
+                    INNOVATION: {
+                        vec: [0.5, 0.2, 0.1, 0.1, 0.1],
+                        focus: "Inovação, Criação e Abordagens Adaptativas"
+                    },
+                    QUALITY_QA: {
+                        vec: [0.1, 0.1, 0.5, 0.2, 0.1],
+                        focus: "Refinamento, Testes e Medição de Desempenho"
+                    },
+                    DELIVERY: {
+                        vec: [0.1, 0.1, 0.1, 0.5, 0.2],
+                        focus: "Execução, Implementação e Resultados Concretos"
+                    },
+                    STRATEGIC_PLAN: {
+                        vec: [0.2, 0.4, 0.2, 0.1, 0.1],
+                        focus: "Stakeholders, Planejamento e Coordenação"
+                    },
+                    TECH_CORE: {
+                        vec: [0.1, 0.1, 0.2, 0.2, 0.4],
+                        focus: "Trabalho Técnico, Arquitetura e Especialidade"
+                    }
+                };
+            }
+
+            /**
+             * Calcula a similaridade de cosseno entre dois vetores.
+             * Melhora a precisão ao focar no alinhamento de perfil em vez de valores brutos.
+             */
+            cosineSimilarity(vecA, vecB) {
+                let dotProduct = 0;
+                let normA = 0;
+                let normB = 0;
+                for (let i = 0; i < vecA.length; i++) {
+                    dotProduct += vecA[i] * vecB[i];
+                    normA += vecA[i] ** 2;
+                    normB += vecB[i] ** 2;
+                }
+                if (normA === 0 || normB === 0) return 0;
+                return dotProduct / (Math.sqrt(normA) * Math.sqrt(normB));
+            }
+
+            /**
+             * Calcula o Índice de Entropia Comportamental.
+             * Identifica indivíduos 'Flexers' que possuem equilíbrio entre os papéis.
+             */
+            calculateFlexerIndex(vector) {
+                const sum = vector.reduce((a, b) => a + b, 0);
+                if (sum === 0) return 0;
+                const probs = vector.map(v => v / sum);
+                const entropy = -probs.reduce((acc, p) => p > 0 ? acc + p * Math.log2(p) : acc, 0);
+                // Normaliza entre 0 e 1 (onde 1 é equilíbrio perfeito)
+                return (entropy / Math.log2(vector.length)).toFixed(4);
+            }
+
+            /**
+             * Crivo de Classificação Melhorado: Mapeia o indivíduo para o squad mais adequado.
+             */
+            matchMemberToSquad(memberScores) {
+                let bestMatch = null;
+                let maxSimilarity = -1;
+
+                // Normalização interna para escala 0-1
+                const normalizedScores = memberScores.map(s => s / 10);
+
+                for (const [squadName, archetype] of Object.entries(this.archetypes)) {
+                    const similarity = this.cosineSimilarity(normalizedScores, archetype.vec);
+                    
+                    if (similarity > maxSimilarity) {
+                        maxSimilarity = similarity;
+                        bestMatch = {
+                            squad: squadName,
+                            fitAccuracy: (similarity * 100).toFixed(2) + "%",
+                            mission: archetype.focus
+                        };
+                    }
+                }
+
+                const flexerIndex = this.calculateFlexerIndex(normalizedScores);
+
+                return {
+                   ...bestMatch,
+                    isFlexerCandidate: flexerIndex > 0.8,
+                    flexerIndex: flexerIndex
+                };
+            }
+        }
+
         /**
          * ESSENCE MATCH - Agile Contribution Profile System
          * @description Generates individual profile with 2 adjectives, visual spectrum and project direction
@@ -1582,6 +1705,7 @@
                 this.userProfile = null;
                 this.chart = null;
                 this.allPseudoGroups = [];
+                this.squadClassifier = new SquadClassifier();
                 
                 this.initSliders();
                 this.initEventListeners();
@@ -1676,11 +1800,11 @@
                 document.getElementById('retakeQuiz').addEventListener('click', () => this.retakeQuiz());
                 
                 // Export buttons
-                document.getElementById('exportPNG').addEventListener('click', () => this.exportPNG('profile'));
-                document.getElementById('downloadRadarPNG').addEventListener('click', () => this.exportPNG('radar'));
-                //document.getElementById('downloadPDF').addEventListener('click', () => this.downloadPDF());
+                document.getElementById('exportPNG').addEventListener('click', () => this.exportProfilePNG());
+                document.getElementById('downloadRadarPNG').addEventListener('click', () => this.exportRadarPNG());
+                document.getElementById('downloadPDF').addEventListener('click', () => this.downloadPDF());
                 document.getElementById('copyProfile').addEventListener('click', () => this.copyProfile());
-                //document.getElementById('downloadJSON').addEventListener('click', () => this.downloadJSON());
+                document.getElementById('downloadJSON').addEventListener('click', () => this.downloadJSON());
             }
             
             /**
@@ -1857,13 +1981,63 @@
                 // Determine pseudo-group (1-13)
                 const pseudoGroup = this.determinePseudoGroup(dimensions);
                 
+                // Calculate squad classification
+                const squadVector = this.calculateSquadVector();
+                const squadResult = this.squadClassifier.matchMemberToSquad(squadVector);
+                
                 return {
                     dimensions,
                     essenceWords,
                     projectDirection,
                     pseudoGroup,
+                    squadResult,
                     sliderValues: [...this.sliderValues]
                 };
+            }
+            
+            /**
+             * Calculate squad vector from slider values
+             * @returns {Array} Vector of 5 dimensions for squad classification
+             */
+            calculateSquadVector() {
+                // Map 10 questions to 5 dimensions: [Criativo, Comunicador, Analítico, Prático, Especialista]
+                // This mapping is based on the correlation between questions and Belbin roles
+                const vector = [0, 0, 0, 0, 0];
+                
+                // Question weights for each dimension
+                const weights = [
+                    // Q1: People vs Product -> Comunicador vs Especialista
+                    [0, 0.7, 0, 0, 0.3],
+                    // Q2: Structured vs Adaptable -> Prático vs Criativo
+                    [0.4, 0, 0.1, 0.5, 0],
+                    // Q3: Analytical vs Creative -> Analítico vs Criativo
+                    [0.5, 0, 0.5, 0, 0],
+                    // Q4: Direct vs Diplomatic -> Prático vs Comunicador
+                    [0, 0.6, 0, 0.4, 0],
+                    // Q5: Theoretical vs Practical -> Analítico vs Prático
+                    [0, 0, 0.6, 0.4, 0],
+                    // Q6: Process vs Result -> Analítico vs Prático
+                    [0, 0, 0.5, 0.5, 0],
+                    // Q7: Soft vs Hard Skills -> Comunicador vs Especialista
+                    [0, 0.6, 0, 0, 0.4],
+                    // Q8: Methodical vs Reactive -> Analítico vs Criativo
+                    [0.3, 0, 0.7, 0, 0],
+                    // Q9: Conservative vs Innovative -> Prático vs Criativo
+                    [0.7, 0, 0, 0.3, 0],
+                    // Q10: Facilitator vs Decisor -> Comunicador vs Prático
+                    [0, 0.5, 0, 0.5, 0]
+                ];
+                
+                // Calculate weighted sum
+                for (let i = 0; i < 10; i++) {
+                    const value = this.sliderValues[i] / 100;
+                    for (let j = 0; j < 5; j++) {
+                        vector[j] += weights[i][j] * value;
+                    }
+                }
+                
+                // Normalize to 0-10 scale
+                return vector.map(v => v * 10);
             }
             
             /**
@@ -2171,6 +2345,18 @@
                 document.getElementById('essenceDescription').textContent = 
                     descriptions[key] || 'Você possui uma combinação única de habilidades que será valiosa em qualquer time ágil. Sua versatidade permite adaptar-se a diferentes desafios de projeto.';
                 
+                // Update squad classification
+                if (profile.squadResult) {
+                    document.getElementById('squadName').textContent = profile.squadResult.squad.replace('_', ' ');
+                    document.getElementById('squadTagline').textContent = 
+                        `Classificação baseada em PMBOK 7, Belbin e similaridade de cosseno | ${profile.squadResult.mission}`;
+                    document.getElementById('squadType').textContent = profile.squadResult.squad;
+                    document.getElementById('squadFocus').textContent = profile.squadResult.mission;
+                    document.getElementById('squadAccuracy').textContent = profile.squadResult.fitAccuracy;
+                    document.getElementById('squadFlexer').textContent = 
+                        `Índice: ${profile.squadResult.flexerIndex} | Candidato a Flexer: ${profile.squadResult.isFlexerCandidate ? 'Sim' : 'Não'}`;
+                }
+                
                 // Update pseudo-group
                 const matchedGroup = profile.pseudoGroup;
                 document.getElementById('pseudoGroupName').textContent = matchedGroup.name;
@@ -2359,8 +2545,8 @@
                 const profile = this.userProfile;
                 const userInfo = profile.userInfo;
                 
-                let text = `PERFIL ESSENCE MATCH\n`;
-                text += `=====================\n\n`;
+                let text = `PERFIL ESSENCE MATCH - CLASSIFICAÇÃO DE SQUADS\n`;
+                text += `==================================================\n\n`;
                 text += `INFORMAÇÕES PESSOAIS:\n`;
                 text += `• Nome: ${userInfo.name}\n`;
                 text += `• Email: ${userInfo.email || 'Não informado'}\n`;
@@ -2374,6 +2560,13 @@
                 text += `• Palavra 1: ${profile.essenceWords[0]}\n`;
                 text += `• Palavra 2: ${profile.essenceWords[1]}\n`;
                 text += `• Direção de Projeto: ${profile.projectDirection}\n\n`;
+                
+                text += `CLASSIFICAÇÃO DE SQUAD (PMBOK 7 + Belbin + Similaridade de Cosseno):\n`;
+                text += `• Squad: ${profile.squadResult.squad}\n`;
+                text += `• Acurácia do Match: ${profile.squadResult.fitAccuracy}\n`;
+                text += `• Foco: ${profile.squadResult.mission}\n`;
+                text += `• Índice Flexer: ${profile.squadResult.flexerIndex}\n`;
+                text += `• Candidato a Flexer: ${profile.squadResult.isFlexerCandidate ? 'Sim' : 'Não'}\n\n`;
                 
                 text += `PSEUDO-GRUPO PMBOK:\n`;
                 text += `• Grupo #${profile.pseudoGroup.id}: ${profile.pseudoGroup.name}\n`;
@@ -2419,31 +2612,28 @@
                 });
                 
                 text += `\n---\n`;
-                text += `Gerado por ESSENCE MATCH - Sistema de Perfil de Essência\n`;
-                text += `Para formação de times ágeis em disciplinas de Computação\n`;
+                text += `Gerado por ESSENCE MATCH - Sistema de Classificação Comportamental para Squads\n`;
+                text += `Baseado em PMBOK 7, Belbin e Similaridade de Vetores (Cosseno)\n`;
                 
                 document.getElementById('exportText').textContent = text;
             }
-
+            
             /**
-             * Exporta qualquer elemento configurado como PNG
-             * Totalmente desacoplado do tipo de conteúdo
+             * Export profile as PNG image
              */
-            async exportPNG({ elementId, buttonId, filePrefix, successLabel }) {
-                const element = document.getElementById(elementId);
+            async exportProfilePNG() {
+                const element = document.getElementById('profileCard');
                 if (!element) {
-                    this.showNotification(`${successLabel} não disponível`, 'error');
+                    this.showNotification('Perfil não disponível', 'error');
                     return;
                 }
 
-                const button = document.getElementById(buttonId);
-                const originalHTML = button?.innerHTML;
+                const button = document.getElementById('exportPNG');
+                const originalHTML = button.innerHTML;
 
                 try {
-                    if (button) {
-                        button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Gerando...';
-                        button.disabled = true;
-                    }
+                    button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Gerando...';
+                    button.disabled = true;
 
                     const canvas = await html2canvas(element, {
                         backgroundColor: '#ffffff',
@@ -2456,40 +2646,99 @@
                         .toLowerCase();
 
                     const link = document.createElement('a');
-                    link.download = `${filePrefix}-${userSlug}.png`;
+                    link.download = `perfil-essence-${userSlug}.png`;
                     link.href = canvas.toDataURL('image/png');
                     link.click();
 
-                    this.showNotification(`${successLabel} baixado com sucesso`, 'success');
+                    this.showNotification('Perfil exportado como PNG!', 'success');
 
                 } catch (error) {
                     console.error('Erro ao gerar PNG:', error);
                     this.showNotification('Erro ao gerar imagem. Tente novamente.', 'error');
 
                 } finally {
-                    if (button) {
-                        button.innerHTML = originalHTML;
-                        button.disabled = false;
-                    }
+                    button.innerHTML = originalHTML;
+                    button.disabled = false;
                 }
             }
+            
+            /**
+             * Export radar chart as PNG image
+             */
+            async exportRadarPNG() {
+                const canvas = document.getElementById('spectrumChart');
+                if (!canvas || !this.chart) {
+                    this.showNotification('Gráfico não disponível', 'error');
+                    return;
+                }
 
-            downloadProfilePNG() {
-                return this.exportPNG({
-                    elementId: 'profileCard',
-                    buttonId: 'downloadPNG',
-                    filePrefix: 'perfil-essence',
-                    successLabel: 'Perfil'
-                });
-            }
+                const button = document.getElementById('downloadRadarPNG');
+                const originalHTML = button.innerHTML;
 
-            downloadRadarPNG() {
-                return this.exportPNG({
-                    elementId: 'spectrumChart',
-                    buttonId: 'downloadRadarPNG',
-                    filePrefix: 'radar-essence',
-                    successLabel: 'Gráfico radar'
-                });
+                try {
+                    button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Gerando...';
+                    button.disabled = true;
+
+                    // Cria um canvas temporário para garantir qualidade
+                    const tempCanvas = document.createElement('canvas');
+                    const tempCtx = tempCanvas.getContext('2d');
+                    
+                    // Configura dimensões (2x para melhor qualidade)
+                    tempCanvas.width = canvas.width * 2;
+                    tempCanvas.height = canvas.height * 2;
+                    tempCanvas.style.width = canvas.width + 'px';
+                    tempCanvas.style.height = canvas.height + 'px';
+                    
+                    // Fundo branco
+                    tempCtx.fillStyle = 'white';
+                    tempCtx.fillRect(0, 0, tempCanvas.width, tempCanvas.height);
+                    
+                    // Redesenha o gráfico no canvas temporário com alta qualidade
+                    tempCtx.scale(2, 2);
+                    this.chart.draw();
+                    
+                    // Copia o conteúdo do canvas original
+                    tempCtx.drawImage(canvas, 0, 0, canvas.width, canvas.height);
+                    
+                    // Usa o canvas temporário para gerar a imagem
+                    const image = tempCanvas.toDataURL('image/png');
+
+                    const userSlug = this.userProfile.userInfo.name
+                        .replace(/\s+/g, '-')
+                        .toLowerCase();
+
+                    const link = document.createElement('a');
+                    link.download = `radar-essence-${userSlug}.png`;
+                    link.href = image;
+                    link.click();
+
+                    this.showNotification('Gráfico radar exportado como PNG!', 'success');
+
+                } catch (error) {
+                    console.error('Erro ao gerar PNG do radar:', error);
+                    
+                    // Fallback: tenta capturar o canvas original
+                    try {
+                        const image = canvas.toDataURL('image/png');
+                        const userSlug = this.userProfile.userInfo.name
+                            .replace(/\s+/g, '-')
+                            .toLowerCase();
+
+                        const link = document.createElement('a');
+                        link.download = `radar-essence-${userSlug}.png`;
+                        link.href = image;
+                        link.click();
+
+                        this.showNotification('Gráfico radar exportado (fallback)!', 'success');
+                    } catch (fallbackError) {
+                        console.error('Erro no fallback:', fallbackError);
+                        this.showNotification('Erro ao gerar imagem do radar. Tente novamente.', 'error');
+                    }
+
+                } finally {
+                    button.innerHTML = originalHTML;
+                    button.disabled = false;
+                }
             }
             
             /**
@@ -2509,6 +2758,11 @@
                     doc.setFontSize(24);
                     doc.setTextColor(67, 97, 238);
                     doc.text('PERFIL ESSENCE MATCH', pageWidth / 2, yPos, { align: 'center' });
+                    yPos += 10;
+                    
+                    doc.setFontSize(14);
+                    doc.setTextColor(100, 100, 100);
+                    doc.text('Classificação Comportamental para Squads - PMBOK 7 + Belbin', pageWidth / 2, yPos, { align: 'center' });
                     yPos += 15;
                     
                     // User info
@@ -2545,6 +2799,26 @@
                     doc.text(`Direção de Projeto: ${this.userProfile.projectDirection}`, pageWidth / 2, yPos, { align: 'center' });
                     yPos += 15;
                     
+                    // Squad Classification
+                    doc.setFontSize(16);
+                    doc.setTextColor(67, 97, 238);
+                    doc.text('Classificação de Squad (PMBOK 7 + Belbin)', 20, yPos);
+                    yPos += 10;
+                    
+                    doc.setFontSize(12);
+                    doc.setTextColor(0, 0, 0);
+                    const squad = this.userProfile.squadResult;
+                    doc.text(`Squad: ${squad.squad}`, 20, yPos);
+                    yPos += 6;
+                    doc.text(`Acurácia: ${squad.fitAccuracy}`, 20, yPos);
+                    yPos += 6;
+                    doc.text(`Foco: ${squad.mission}`, 20, yPos);
+                    yPos += 6;
+                    doc.text(`Índice Flexer: ${squad.flexerIndex}`, 20, yPos);
+                    yPos += 6;
+                    doc.text(`Candidato a Flexer: ${squad.isFlexerCandidate ? 'Sim' : 'Não'}`, 20, yPos);
+                    yPos += 10;
+                    
                     // Pseudo Group
                     doc.setFontSize(16);
                     doc.setTextColor(67, 97, 238);
@@ -2569,24 +2843,6 @@
                     yPos += 7;
                     doc.text(`Projetos Ideais: ${group.projects}`, 20, yPos);
                     yPos += 15;
-                    
-                    // Add radar chart if available
-                    const chartCanvas = document.getElementById('spectrumChart');
-                    if (chartCanvas && this.chart) {
-                        const chartImage = chartCanvas.toDataURL('image/png');
-                        const chartWidth = 120;
-                        const chartHeight = 80;
-                        const chartX = (pageWidth - chartWidth) / 2;
-                        
-                        // Check if we need new page
-                        if (yPos + chartHeight > 280) {
-                            doc.addPage();
-                            yPos = 20;
-                        }
-                        
-                        doc.addImage(chartImage, 'PNG', chartX, yPos, chartWidth, chartHeight);
-                        yPos += chartHeight + 10;
-                    }
                     
                     // Dimensions
                     doc.setFontSize(16);
@@ -2613,7 +2869,7 @@
                     // Footer
                     doc.setFontSize(10);
                     doc.setTextColor(100, 100, 100);
-                    doc.text('Gerado por ESSENCE MATCH - Sistema de Perfil de Essência para Times Ágeis', 
+                    doc.text('Gerado por ESSENCE MATCH - Sistema de Classificação Comportamental para Squads', 
                             pageWidth / 2, 290, { align: 'center' });
                     
                     // Save PDF
