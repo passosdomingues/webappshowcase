@@ -3,10 +3,12 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>CRAS Field - Visitas Domiciliares</title>
+<title>CRAS ODS - Sistema de Visitas Domiciliares</title>
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <style>
+  /* ===== VARIÁVEIS CSS ===== */
   :root {
     --primary-color: #2c3e50;
     --primary-light: #3498db;
@@ -20,8 +22,15 @@
     --border-radius: 10px;
     --box-shadow: 0 4px 12px rgba(0,0,0,0.08);
     --transition: all 0.3s ease;
+    
+    /* Cores ODS */
+    --ods1: #E5243B;
+    --ods2: #DDA63A;
+    --ods3: #4C9F38;
+    --ods10: #DD1367;
   }
 
+  /* ===== RESET E ESTILOS GERAIS ===== */
   * {
     margin: 0;
     padding: 0;
@@ -90,126 +99,7 @@
     font-size: 1.1rem;
   }
 
-  /* ===== PAINEL DE CONTROLE ===== */
-  .control-panel {
-    background: var(--card-bg);
-    padding: 1.5rem;
-    border-radius: var(--border-radius);
-    margin-bottom: 1.5rem;
-    box-shadow: var(--box-shadow);
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 1rem;
-  }
-
-  .stats-card {
-    background: #f8f9fa;
-    padding: 1rem;
-    border-radius: var(--border-radius);
-    border-left: 4px solid var(--primary-color);
-  }
-
-  .stats-card h3 {
-    font-size: 0.9rem;
-    color: var(--primary-color);
-    margin-bottom: 0.5rem;
-  }
-
-  .stats-value {
-    font-size: 1.8rem;
-    font-weight: bold;
-    color: var(--text-color);
-  }
-
-  /* ===== BOTÕES ===== */
-  .button-group {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.75rem;
-    margin-bottom: 1.5rem;
-  }
-
-  button {
-    padding: 0.75rem 1.25rem;
-    border: none;
-    border-radius: var(--border-radius);
-    cursor: pointer;
-    font-weight: 600;
-    font-size: 0.9rem;
-    transition: var(--transition);
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    min-height: 44px;
-  }
-
-  button:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-  }
-
-  .btn-primary {
-    background: var(--primary-color);
-    color: white;
-  }
-
-  .btn-primary:hover:not(:disabled) {
-    background: var(--primary-light);
-    transform: translateY(-2px);
-  }
-
-  .btn-secondary {
-    background: var(--info-color);
-    color: white;
-  }
-
-  .btn-secondary:hover:not(:disabled) {
-    background: #8e44ad;
-    transform: translateY(-2px);
-  }
-
-  .btn-success {
-    background: var(--success-color);
-    color: white;
-  }
-
-  .btn-success:hover:not(:disabled) {
-    background: #219653;
-    transform: translateY(-2px);
-  }
-
-  .btn-danger {
-    background: var(--secondary-color);
-    color: white;
-  }
-
-  .btn-danger:hover:not(:disabled) {
-    background: #c0392b;
-    transform: translateY(-2px);
-  }
-
-  .btn-warning {
-    background: var(--warning-color);
-    color: white;
-  }
-
-  .btn-warning:hover:not(:disabled) {
-    background: #e67e22;
-    transform: translateY(-2px);
-  }
-
-  .btn-outline {
-    background: transparent;
-    border: 2px solid var(--primary-color);
-    color: var(--primary-color);
-  }
-
-  .btn-outline:hover:not(:disabled) {
-    background: var(--primary-color);
-    color: white;
-  }
-
-  /* ===== ABAS SIMPLIFICADAS ===== */
+  /* ===== ABAS ===== */
   .tabs {
     display: flex;
     background: white;
@@ -257,67 +147,12 @@
     display: block;
   }
 
-  /* ===== MAPA ===== */
-  #map {
-    height: 500px;
-    width: 100%;
-    border-radius: var(--border-radius);
-    margin-bottom: 1.5rem;
-    box-shadow: var(--box-shadow);
-    border: 1px solid #ddd;
-  }
-
-  .map-container {
-    position: relative;
-  }
-
-  .map-legend {
-    background: var(--card-bg);
-    padding: 1rem;
-    border-radius: var(--border-radius);
-    box-shadow: var(--box-shadow);
-    position: absolute;
-    bottom: 30px;
-    right: 10px;
-    z-index: 1000;
-    font-size: 0.85rem;
-    max-width: 220px;
-    border: 1px solid #eee;
-  }
-
-  .map-legend h3 {
-    margin-top: 0;
-    margin-bottom: 0.8rem;
-    font-size: 0.95rem;
-    color: var(--primary-color);
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-  }
-
-  .legend-item {
-    display: flex;
-    align-items: center;
-    margin-bottom: 0.5rem;
-    gap: 0.5rem;
-  }
-
-  .legend-icon {
-    width: 18px;
-    height: 18px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: white;
-    font-size: 0.7rem;
-  }
-
   /* ===== DASHBOARD ===== */
   .dashboard-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
     gap: 1.5rem;
+    margin-top: 1.5rem;
   }
 
   .dashboard-card {
@@ -337,99 +172,36 @@
     gap: 0.5rem;
   }
 
-  /* ===== LISTA DE VISITAS ===== */
-  .visits-container {
+  .metrics-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+    grid-template-columns: repeat(2, 1fr);
     gap: 1rem;
-    margin-bottom: 2rem;
+    margin-bottom: 1.5rem;
   }
 
-  .visit-card {
-    background: var(--card-bg);
-    border-radius: var(--border-radius);
-    padding: 1.25rem;
-    box-shadow: var(--box-shadow);
-    transition: var(--transition);
-    border-left: 4px solid var(--primary-color);
-  }
-
-  .visit-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 8px 20px rgba(0,0,0,0.12);
-  }
-
-  .visit-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    margin-bottom: 1rem;
-  }
-
-  .visit-id {
-    font-family: monospace;
-    background: #f1f2f6;
-    padding: 0.25rem 0.5rem;
-    border-radius: 4px;
-    font-size: 0.85rem;
-    color: var(--text-color);
-  }
-
-  .visit-status {
-    padding: 0.25rem 0.75rem;
-    border-radius: 20px;
-    font-size: 0.75rem;
-    font-weight: 600;
-    text-transform: uppercase;
-  }
-
-  .status-active { background: #d5f4e6; color: var(--success-color); }
-  .status-pending { background: #fff3cd; color: var(--warning-color); }
-  .status-urgent { background: #fde8e8; color: var(--secondary-color); }
-
-  /* ===== MODAL ===== */
-  .modal-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(0, 0, 0, 0.5);
-    display: none;
-    justify-content: center;
-    align-items: center;
-    z-index: 2000;
+  .metric-card {
+    background: #f8f9fa;
     padding: 1rem;
-  }
-
-  .modal {
-    background: var(--card-bg);
     border-radius: var(--border-radius);
-    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-    width: 100%;
-    max-width: 800px;
-    max-height: 90vh;
-    overflow-y: auto;
+    text-align: center;
   }
 
-  .modal-header {
-    padding: 1.5rem;
-    border-bottom: 1px solid #eee;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+  .metric-value {
+    font-size: 1.8rem;
+    font-weight: bold;
+    color: var(--text-color);
+    margin-bottom: 0.25rem;
   }
 
-  .modal-body {
-    padding: 1.5rem;
+  .metric-label {
+    font-size: 0.85rem;
+    color: #7f8c8d;
   }
 
-  .modal-footer {
-    padding: 1.5rem;
-    border-top: 1px solid #eee;
-    display: flex;
-    justify-content: flex-end;
-    gap: 1rem;
+  .chart-container {
+    position: relative;
+    height: 300px;
+    margin-top: 1rem;
   }
 
   /* ===== FORMULÁRIO ===== */
@@ -471,15 +243,147 @@
     box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
   }
 
+  .checkbox-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+  }
+
+  .checkbox-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  /* ===== MAPA ===== */
+  #map {
+    height: 500px;
+    width: 100%;
+    border-radius: var(--border-radius);
+    margin-bottom: 1.5rem;
+    box-shadow: var(--box-shadow);
+    border: 1px solid #ddd;
+  }
+
+  /* ===== LISTA DE VISITAS ===== */
+  .visits-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+    gap: 1rem;
+    margin-top: 1.5rem;
+  }
+
+  .visit-card {
+    background: var(--card-bg);
+    border-radius: var(--border-radius);
+    padding: 1.25rem;
+    box-shadow: var(--box-shadow);
+    transition: var(--transition);
+    border-left: 4px solid var(--primary-color);
+  }
+
+  .visit-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+  }
+
+  /* ===== MODAL ===== */
+  .modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 2000;
+    padding: 1rem;
+  }
+
+  .modal {
+    background: var(--card-bg);
+    border-radius: var(--border-radius);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    width: 100%;
+    max-width: 800px;
+    max-height: 90vh;
+    overflow-y: auto;
+  }
+
+  /* ===== BOTÕES ===== */
+  .button-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+  }
+
+  button {
+    padding: 0.75rem 1.25rem;
+    border: none;
+    border-radius: var(--border-radius);
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 0.9rem;
+    transition: var(--transition);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    min-height: 44px;
+  }
+
+  .btn-primary {
+    background: var(--primary-color);
+    color: white;
+  }
+
+  .btn-primary:hover {
+    background: var(--primary-light);
+    transform: translateY(-2px);
+  }
+
+  .btn-success {
+    background: var(--success-color);
+    color: white;
+  }
+
+  .btn-success:hover {
+    background: #219653;
+    transform: translateY(-2px);
+  }
+
+  .btn-warning {
+    background: var(--warning-color);
+    color: white;
+  }
+
+  .btn-warning:hover {
+    background: #e67e22;
+    transform: translateY(-2px);
+  }
+
+  .btn-danger {
+    background: var(--secondary-color);
+    color: white;
+  }
+
+  .btn-danger:hover {
+    background: #c0392b;
+    transform: translateY(-2px);
+  }
+
+  .btn-ods1 { background: var(--ods1); color: white; }
+  .btn-ods2 { background: var(--ods2); color: white; }
+  .btn-ods3 { background: var(--ods3); color: white; }
+  .btn-ods10 { background: var(--ods10); color: white; }
+
   /* ===== RESPONSIVIDADE ===== */
   @media (max-width: 768px) {
     body {
       padding: 0.75rem;
-    }
-    
-    header {
-      flex-direction: column;
-      align-items: flex-start;
     }
     
     .tabs {
@@ -491,15 +395,23 @@
       border-bottom: 1px solid #eee;
     }
     
-    #map {
-      height: 400px;
+    .dashboard-grid {
+      grid-template-columns: 1fr;
+    }
+    
+    .metrics-grid {
+      grid-template-columns: 1fr;
     }
     
     .visits-container {
       grid-template-columns: 1fr;
     }
     
-    .dashboard-grid {
+    .form-grid {
+      grid-template-columns: 1fr;
+    }
+    
+    .checkbox-grid {
       grid-template-columns: 1fr;
     }
   }
@@ -528,14 +440,14 @@
     <div class="logo">
       <i class="fas fa-hands-helping fa-2x" style="color: var(--primary-color);"></i>
       <div>
-        <h1>CRAS Field - Visitas Domiciliares</h1>
-        <p class="text-muted">Sistema de apontamento para assistentes sociais | Fama-MG</p>
+        <h1>CRAS ODS - Sistema de Visitas Domiciliares</h1>
+        <p class="text-muted">Fama-MG | Alinhado aos Objetivos de Desenvolvimento Sustentável</p>
       </div>
     </div>
     <div class="header-info">
       <div class="info-item">
-        <i class="fas fa-map-marker-alt"></i>
-        <span>Visitas: <strong id="visitasCount">0</strong></span>
+        <i class="fas fa-database"></i>
+        <span>Armazenamento: <strong id="storageUsage">0%</strong></span>
       </div>
       <div class="info-item">
         <i class="far fa-clock"></i>
@@ -544,236 +456,493 @@
     </div>
   </header>
 
-  <!-- Painel de Controle -->
-  <div class="control-panel">
-    <div class="stats-card">
-      <h3><i class="fas fa-check-circle"></i> Ativas</h3>
-      <div class="stats-value" id="statsActive">0</div>
-    </div>
-    <div class="stats-card">
-      <h3><i class="fas fa-exclamation-triangle"></i> Urgentes</h3>
-      <div class="stats-value" id="statsUrgent">0</div>
-    </div>
-    <div class="stats-card">
-      <h3><i class="fas fa-chart-line"></i> Vulnerabilidade</h3>
-      <div class="stats-value" id="statsVulnerabilidade">0.0</div>
-    </div>
-    <div class="stats-card">
-      <h3><i class="fas fa-home"></i> Rurais</h3>
-      <div class="stats-value" id="statsRurais">0</div>
-    </div>
-  </div>
-
-  <!-- Barra de Ações -->
-  <div class="button-group">
-    <button class="btn-primary" id="btnNovaVisita">
-      <i class="fas fa-plus-circle"></i> Nova Visita
-    </button>
-    <button class="btn-secondary" id="btnVerMapa">
-      <i class="fas fa-map"></i> Ver Mapa
-    </button>
-    <button class="btn-success" id="btnVerDashboard">
-      <i class="fas fa-chart-bar"></i> Dashboard
-    </button>
-  </div>
-
   <!-- Sistema de Abas -->
   <div class="tabs">
     <button class="tab-btn active" data-tab="visitas">
-      <i class="fas fa-list"></i> Visitas
-    </button>
-    <button class="tab-btn" data-tab="mapa">
-      <i class="fas fa-map"></i> Mapa
+      <i class="fas fa-home"></i> Visitas
     </button>
     <button class="tab-btn" data-tab="dashboard">
       <i class="fas fa-chart-bar"></i> Dashboard
     </button>
+    <button class="tab-btn" data-tab="mapa">
+      <i class="fas fa-map"></i> Mapa
+    </button>
+    <button class="tab-btn" data-tab="exportar">
+      <i class="fas fa-file-export"></i> Exportar
+    </button>
   </div>
 
-  <!-- Conteúdo da Aba Visitas -->
+  <!-- Aba Visitas -->
   <div id="visitas-tab" class="tab-content active">
+    <div class="button-group">
+      <button class="btn-primary" id="btnNovaVisita">
+        <i class="fas fa-plus-circle"></i> Nova Visita Domiciliar
+      </button>
+      <button class="btn-success" id="btnExportarWhatsAppIndividual">
+        <i class="fab fa-whatsapp"></i> Exportar Visita Atual
+      </button>
+    </div>
+
     <div class="filters-panel" style="background: var(--card-bg); padding: 1.5rem; border-radius: var(--border-radius); margin-bottom: 1.5rem;">
-      <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+      <div style="display: flex; gap: 1rem; flex-wrap: wrap; align-items: flex-end;">
         <div style="flex: 1; min-width: 250px; position: relative;">
           <i class="fas fa-search" style="position: absolute; left: 1rem; top: 50%; transform: translateY(-50%); color: #999;"></i>
-          <input type="text" id="searchVisitas" placeholder="Buscar por família, ID, tags..." style="width: 100%; padding: 0.75rem 1rem 0.75rem 2.5rem; border: 1px solid #ddd; border-radius: var(--border-radius);">
+          <input type="text" id="searchVisitas" placeholder="Buscar por família, bairro, ODS..." style="width: 100%; padding: 0.75rem 1rem 0.75rem 2.5rem; border: 1px solid #ddd; border-radius: var(--border-radius);">
         </div>
-        <select id="filterStatus" style="padding: 0.75rem; border: 1px solid #ddd; border-radius: var(--border-radius);">
-          <option value="all">Todas</option>
-          <option value="active">Ativas</option>
-          <option value="urgent">Urgentes</option>
+        <select id="filterODS" style="padding: 0.75rem; border: 1px solid #ddd; border-radius: var(--border-radius);">
+          <option value="all">Todos ODS</option>
+          <option value="ods1">ODS 1 - Pobreza</option>
+          <option value="ods2">ODS 2 - Fome Zero</option>
+          <option value="ods3">ODS 3 - Saúde</option>
+          <option value="ods10">ODS 10 - Desigualdade</option>
         </select>
-        <button class="btn-outline" id="btnAplicarFiltros">
+        <select id="filterStatus" style="padding: 0.75rem; border: 1px solid #ddd; border-radius: var(--border-radius);">
+          <option value="all">Todos Status</option>
+          <option value="ativo">Ativo</option>
+          <option value="urgente">Urgente</option>
+          <option value="concluido">Concluído</option>
+        </select>
+        <button class="btn-primary" id="btnAplicarFiltros">
           <i class="fas fa-filter"></i> Filtrar
         </button>
       </div>
     </div>
 
     <div id="visitasList" class="visits-container">
-      <!-- Visitas aparecerão aqui -->
-    </div>
-
-    <div id="emptyState" class="hidden text-center mb-2">
-      <i class="fas fa-clipboard-list fa-4x text-muted mb-2"></i>
-      <h3>Nenhuma visita registrada</h3>
-      <p class="text-muted">Comece clicando em "Nova Visita" para registrar seu primeiro atendimento.</p>
-      <button class="btn-primary mt-2" id="btnEmptyNovaVisita">
-        <i class="fas fa-plus-circle"></i> Criar Visita
-      </button>
+      <!-- Lista de visitas será carregada aqui -->
     </div>
   </div>
 
-  <!-- Conteúdo da Aba Mapa -->
-  <div id="mapa-tab" class="tab-content">
-    <div class="map-container">
-      <div id="map"></div>
-      <div class="map-legend">
-        <h3><i class="fas fa-key"></i> Legenda</h3>
-        <div class="legend-item">
-          <span class="legend-icon" style="background: #2ecc70;"><i class="fas fa-user"></i></span>
-          <span>Sua posição</span>
-        </div>
-        <div class="legend-item">
-          <span class="legend-icon" style="background: #e74c3c;"><i class="fas fa-exclamation-circle"></i></span>
-          <span>Urgência máxima</span>
-        </div>
-        <div class="legend-item">
-          <span class="legend-icon" style="background: #f39c12;"><i class="fas fa-exclamation-triangle"></i></span>
-          <span>Precisa de atenção</span>
-        </div>
-        <div class="legend-item">
-          <span class="legend-icon" style="background: #3498db;"><i class="fas fa-home"></i></span>
-          <span>Visita normal</span>
-        </div>
-      </div>
-    </div>
-    
-    <div class="button-group mt-2">
-      <button class="btn-outline" id="btnNovaVisitaMapa">
-        <i class="fas fa-map-marker-alt"></i> Nova Visita Aqui
-      </button>
-      <button class="btn-primary" id="btnAtualizarMapa">
-        <i class="fas fa-sync-alt"></i> Atualizar Mapa
-      </button>
-    </div>
-  </div>
-
-  <!-- Conteúdo da Aba Dashboard -->
+  <!-- Aba Dashboard -->
   <div id="dashboard-tab" class="tab-content">
+    <div class="metrics-grid" id="dashboardMetrics">
+      <!-- Métricas serão carregadas aqui -->
+    </div>
+
     <div class="dashboard-grid">
+      <!-- Gráfico Radar ODS -->
       <div class="dashboard-card">
-        <h3><i class="fas fa-chart-line"></i> Estatísticas</h3>
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
-          <div>
-            <div style="font-size: 2rem; font-weight: bold;" id="dashboardTotal">0</div>
-            <div style="color: #7f8c8d;">Total Visitas</div>
-          </div>
-          <div>
-            <div style="font-size: 2rem; font-weight: bold;" id="dashboardUrgentesDash">0</div>
-            <div style="color: #7f8c8d;">Urgentes</div>
-          </div>
+        <h3><i class="fas fa-bullseye"></i> Radar ODS</h3>
+        <div class="chart-container">
+          <canvas id="radarChart"></canvas>
         </div>
       </div>
 
+      <!-- Gráfico Pizza Vulnerabilidades -->
       <div class="dashboard-card">
-        <h3><i class="fas fa-globe-americas"></i> ODS Impactados</h3>
-        <div style="display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 1rem;">
-          <span style="background: #e8f5e9; color: #2e7d32; padding: 0.25rem 0.5rem; border-radius: 12px; font-size: 0.75rem;">
-            ODS 1: Erradicação da Pobreza
-          </span>
-          <span style="background: #e8f5e9; color: #2e7d32; padding: 0.25rem 0.5rem; border-radius: 12px; font-size: 0.75rem;">
-            ODS 10: Redução das Desigualdades
-          </span>
-          <span style="background: #e8f5e9; color: #2e7d32; padding: 0.25rem 0.5rem; border-radius: 12px; font-size: 0.75rem;">
-            ODS 16: Paz e Justiça
-          </span>
+        <h3><i class="fas fa-chart-pie"></i> Distribuição de Vulnerabilidades</h3>
+        <div class="chart-container">
+          <canvas id="pieChart"></canvas>
         </div>
       </div>
 
+      <!-- Gráfico Linha Evolução -->
       <div class="dashboard-card">
-        <h3><i class="fas fa-city"></i> Fama-MG</h3>
-        <div style="margin-top: 1rem;">
-          <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
-            <span>Bolsa Família:</span>
-            <span style="font-weight: bold;">237 famílias</span>
-          </div>
-          <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
-            <span>Área:</span>
-            <span style="font-weight: bold;">Rural</span>
-          </div>
-          <div style="display: flex; justify-content: space-between;">
-            <span>CRAS:</span>
-            <span style="font-weight: bold;">1 unidade</span>
-          </div>
+        <h3><i class="fas fa-chart-line"></i> Evolução Mensal</h3>
+        <div class="chart-container">
+          <canvas id="lineChart"></canvas>
         </div>
       </div>
 
+      <!-- Gráfico Barras -->
       <div class="dashboard-card">
-        <h3><i class="fas fa-heartbeat"></i> Vulnerabilidade</h3>
-        <div style="font-size: 2rem; font-weight: bold; text-align: center; margin: 1rem 0;" id="dashboardVulnerabilidadeDash">0.0</div>
-        <div style="background: #e0e0e0; height: 10px; border-radius: 5px; overflow: hidden;">
-          <div id="vulnerabilidadeBar" style="height: 100%; background: linear-gradient(90deg, #4caf50, #8bc34a); width: 0%;"></div>
+        <h3><i class="fas fa-chart-bar"></i> Visitas por Bairro</h3>
+        <div class="chart-container">
+          <canvas id="barChart"></canvas>
+        </div>
+      </div>
+
+      <!-- Histograma Faixa Etária -->
+      <div class="dashboard-card">
+        <h3><i class="fas fa-users"></i> Distribuição por Faixa Etária</h3>
+        <div class="chart-container">
+          <canvas id="histogramChart"></canvas>
+        </div>
+      </div>
+
+      <!-- Status dos Serviços -->
+      <div class="dashboard-card">
+        <h3><i class="fas fa-tasks"></i> Status dos Serviços</h3>
+        <div class="chart-container">
+          <canvas id="doughnutChart"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Aba Mapa -->
+  <div id="mapa-tab" class="tab-content">
+    <div id="map"></div>
+    <div class="button-group mt-2">
+      <button class="btn-primary" id="btnCapturarGPS">
+        <i class="fas fa-crosshairs"></i> Capturar Minha Localização
+      </button>
+      <button class="btn-warning" id="btnVerTodasVisitas">
+        <i class="fas fa-eye"></i> Ver Todas Visitas
+      </button>
+    </div>
+  </div>
+
+  <!-- Aba Exportar -->
+  <div id="exportar-tab" class="tab-content">
+    <div class="dashboard-card">
+      <h3><i class="fas fa-download"></i> Exportação de Dados</h3>
+      <p class="text-muted mb-2">Exporte dados organizados por mês para backup ou análise externa</p>
+      
+      <div class="button-group">
+        <button class="btn-success" id="btnExportarMesAtual">
+          <i class="fas fa-file-csv"></i> Exportar Mês Atual (CSV)
+        </button>
+        <button class="btn-primary" id="btnExportarUltimos3Meses">
+          <i class="fas fa-file-archive"></i> Exportar Últimos 3 Meses
+        </button>
+        <button class="btn-warning" id="btnExportarTodosMeses">
+          <i class="fas fa-database"></i> Exportar Todos os Meses
+        </button>
+      </div>
+
+      <div class="mt-2">
+        <h4><i class="fas fa-history"></i> Histórico de Exportações</h4>
+        <div id="exportHistory" style="background: #f8f9fa; padding: 1rem; border-radius: var(--border-radius); margin-top: 1rem;">
+          <!-- Histórico será carregado aqui -->
         </div>
       </div>
     </div>
   </div>
 </div>
 
-<!-- Modal Nova Visita (Simplificado) -->
+<!-- Modal Nova Visita -->
 <div class="modal-overlay" id="modalNovaVisita">
   <div class="modal">
-    <div class="modal-header">
+    <div class="modal-header" style="padding: 1.5rem; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: center;">
       <h2><i class="fas fa-home"></i> Nova Visita Domiciliar</h2>
-      <button class="close-btn" id="closeNovaVisita">&times;</button>
+      <button class="close-btn" id="closeNovaVisita" style="background: none; border: none; font-size: 1.5rem; color: #999; cursor: pointer;">&times;</button>
     </div>
-    <div class="modal-body">
-      <div class="form-grid">
+    <div class="modal-body" style="padding: 1.5rem;">
+      <form id="formNovaVisita">
+        <!-- Dados Básicos -->
         <div class="form-group">
-          <label>Nome da Família *</label>
-          <input type="text" id="familiaNome" placeholder="Ex: Família Silva">
+          <h3 style="color: var(--primary-color); margin-bottom: 1rem; border-bottom: 2px solid var(--light-gray); padding-bottom: 0.5rem;">
+            <i class="fas fa-id-card"></i> Dados da Família
+          </h3>
         </div>
+
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="familiaNome">Nome da Família *</label>
+            <input type="text" id="familiaNome" required placeholder="Ex: Família Silva">
+          </div>
+          <div class="form-group">
+            <label for="nisf">NISF (Cadastro Único)</label>
+            <input type="text" id="nisf" placeholder="Número do NISF">
+          </div>
+        </div>
+
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="responsavel">Responsável pela Família *</label>
+            <input type="text" id="responsavel" required placeholder="Nome do responsável">
+          </div>
+          <div class="form-group">
+            <label for="cpfResponsavel">CPF do Responsável</label>
+            <input type="text" id="cpfResponsavel" placeholder="000.000.000-00">
+          </div>
+        </div>
+
+        <!-- Localização -->
+        <div class="form-group mt-2">
+          <h3 style="color: var(--primary-color); margin-bottom: 1rem; border-bottom: 2px solid var(--light-gray); padding-bottom: 0.5rem;">
+            <i class="fas fa-map-marker-alt"></i> Localização
+          </h3>
+        </div>
+
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="endereco">Endereço *</label>
+            <textarea id="endereco" required rows="2" placeholder="Rua, número, complemento"></textarea>
+          </div>
+          <div class="form-group">
+            <label for="bairro">Bairro *</label>
+            <input type="text" id="bairro" required placeholder="Nome do bairro">
+          </div>
+        </div>
+
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="tipoLocalizacao">Tipo de Localização *</label>
+            <select id="tipoLocalizacao" required>
+              <option value="">Selecione...</option>
+              <option value="rural">Rural</option>
+              <option value="urbano">Urbano</option>
+              <option value="periferico">Periférico</option>
+              <option value="isolado">Isolado/Comunidade</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="coordenadas">Coordenadas (opcional)</label>
+            <input type="text" id="coordenadas" placeholder="Latitude, Longitude">
+          </div>
+        </div>
+
+        <!-- Composição Familiar -->
+        <div class="form-group mt-2">
+          <h3 style="color: var(--primary-color); margin-bottom: 1rem; border-bottom: 2px solid var(--light-gray); padding-bottom: 0.5rem;">
+            <i class="fas fa-users"></i> Composição Familiar
+          </h3>
+        </div>
+
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="totalMembros">Total de Membros *</label>
+            <input type="number" id="totalMembros" required min="1" value="1">
+          </div>
+          <div class="form-group">
+            <label for="criancas">Crianças (0-12 anos)</label>
+            <input type="number" id="criancas" min="0" value="0">
+          </div>
+          <div class="form-group">
+            <label for="adolescentes">Adolescentes (13-17)</label>
+            <input type="number" id="adolescentes" min="0" value="0">
+          </div>
+          <div class="form-group">
+            <label for="adultos">Adultos (18-59)</label>
+            <input type="number" id="adultos" min="0" value="1">
+          </div>
+          <div class="form-group">
+            <label for="idosos">Idosos (60+)</label>
+            <input type="number" id="idosos" min="0" value="0">
+          </div>
+        </div>
+
+        <!-- Renda e Benefícios -->
+        <div class="form-group mt-2">
+          <h3 style="color: var(--primary-color); margin-bottom: 1rem; border-bottom: 2px solid var(--light-gray); padding-bottom: 0.5rem;">
+            <i class="fas fa-money-bill-wave"></i> Renda e Benefícios (ODS 1)
+          </h3>
+        </div>
+
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="rendaTotal">Renda Total Mensal (R$) *</label>
+            <input type="number" id="rendaTotal" required min="0" step="0.01" placeholder="0.00">
+          </div>
+          <div class="form-group">
+            <label for="rendaPerCapita">Renda per Capita</label>
+            <input type="number" id="rendaPerCapita" readonly>
+          </div>
+        </div>
+
         <div class="form-group">
-          <label>Data da Visita *</label>
-          <input type="datetime-local" id="visitaData">
+          <label>Benefícios Sociais *</label>
+          <div class="checkbox-grid">
+            <div class="checkbox-item">
+              <input type="checkbox" id="bolsaFamilia" value="bolsaFamilia">
+              <label for="bolsaFamilia">Bolsa Família</label>
+            </div>
+            <div class="checkbox-item">
+              <input type="checkbox" id="bpc" value="bpc">
+              <label for="bpc">BPC - Benefício de Prestação Continuada</label>
+            </div>
+            <div class="checkbox-item">
+              <input type="checkbox" id="auxilioBrasil" value="auxilioBrasil">
+              <label for="auxilioBrasil">Auxílio Brasil</label>
+            </div>
+            <div class="checkbox-item">
+              <input type="checkbox" id="outrosBeneficios" value="outrosBeneficios">
+              <label for="outrosBeneficios">Outros Benefícios</label>
+            </div>
+          </div>
         </div>
-      </div>
-      
-      <div class="form-group">
-        <label>Endereço Rural *</label>
-        <textarea id="endereco" placeholder="Descreva o endereço com pontos de referência..." rows="3"></textarea>
-      </div>
-      
-      <div class="form-grid">
+
+        <!-- Saúde e Alimentação -->
+        <div class="form-group mt-2">
+          <h3 style="color: var(--primary-color); margin-bottom: 1rem; border-bottom: 2px solid var(--light-gray); padding-bottom: 0.5rem;">
+            <i class="fas fa-heartbeat"></i> Saúde e Alimentação (ODS 2, 3)
+          </h3>
+        </div>
+
         <div class="form-group">
-          <label>Latitude</label>
-          <input type="text" id="latitude" placeholder="Ex: -21.2421">
+          <label>Condições de Saúde na Família</label>
+          <div class="checkbox-grid">
+            <div class="checkbox-item">
+              <input type="checkbox" id="deficienciaFisica" value="deficienciaFisica">
+              <label for="deficienciaFisica">Deficiência Física</label>
+            </div>
+            <div class="checkbox-item">
+              <input type="checkbox" id="deficienciaVisual" value="deficienciaVisual">
+              <label for="deficienciaVisual">Deficiência Visual</label>
+            </div>
+            <div class="checkbox-item">
+              <input type="checkbox" id="deficienciaAuditiva" value="deficienciaAuditiva">
+              <label for="deficienciaAuditiva">Deficiência Auditiva</label>
+            </div>
+            <div class="checkbox-item">
+              <input type="checkbox" id="doencaCronica" value="doencaCronica">
+              <label for="doencaCronica">Doença Crônica</label>
+            </div>
+            <div class="checkbox-item">
+              <input type="checkbox" id="gestante" value="gestante">
+              <label for="gestante">Gestante</label>
+            </div>
+            <div class="checkbox-item">
+              <input type="checkbox" id="lactante" value="lactante">
+              <label for="lactante">Lactante</label>
+            </div>
+          </div>
         </div>
+
         <div class="form-group">
-          <label>Longitude</label>
-          <input type="text" id="longitude" placeholder="Ex: -45.4944">
+          <label>Segurança Alimentar</label>
+          <div class="checkbox-grid">
+            <div class="checkbox-item">
+              <input type="checkbox" id="fomeFrequente" value="fomeFrequente">
+              <label for="fomeFrequente">Fome Frequente</label>
+            </div>
+            <div class="checkbox-item">
+              <input type="checkbox" id="alimentacaoInadequada" value="alimentacaoInadequada">
+              <label for="alimentacaoInadequada">Alimentação Inadequada</label>
+            </div>
+            <div class="checkbox-item">
+              <input type="checkbox" id="acessoAgua" value="acessoAgua">
+              <label for="acessoAgua">Dificuldade acesso à água</label>
+            </div>
+          </div>
         </div>
-      </div>
-      
-      <div class="form-group">
-        <label>Situação</label>
-        <div style="display: flex; gap: 1rem;">
-          <label><input type="radio" name="situacao" value="estavel" checked> Estável</label>
-          <label><input type="radio" name="situacao" value="vulneravel"> Vulnerável</label>
-          <label><input type="radio" name="situacao" value="critica"> Crítica</label>
+
+        <!-- Serviços CRAS -->
+        <div class="form-group mt-2">
+          <h3 style="color: var(--primary-color); margin-bottom: 1rem; border-bottom: 2px solid var(--light-gray); padding-bottom: 0.5rem;">
+            <i class="fas fa-hands-helping"></i> Serviços CRAS
+          </h3>
         </div>
-      </div>
-      
-      <div class="form-group">
-        <label>Observações</label>
-        <textarea id="observacoes" placeholder="Registro resumido da visita..." rows="4"></textarea>
-      </div>
+
+        <div class="form-group">
+          <label>Serviços em Andamento</label>
+          <div class="checkbox-grid">
+            <div class="checkbox-item">
+              <input type="checkbox" id="paif" value="paif">
+              <label for="paif">PAIF - Proteção Integral à Família</label>
+            </div>
+            <div class="checkbox-item">
+              <input type="checkbox" id="scfv" value="scfv">
+              <label for="scfv">SCFV - Serviço de Convivência</label>
+            </div>
+            <div class="checkbox-item">
+              <input type="checkbox" id="cadastroUnico" value="cadastroUnico">
+              <label for="cadastroUnico">Cadastro Único Atualizado</label>
+            </div>
+          </div>
+        </div>
+
+        <!-- Encaminhamentos -->
+        <div class="form-group mt-2">
+          <h3 style="color: var(--primary-color); margin-bottom: 1rem; border-bottom: 2px solid var(--light-gray); padding-bottom: 0.5rem;">
+            <i class="fas fa-project-diagram"></i> Encaminhamentos
+          </h3>
+        </div>
+
+        <div class="form-group">
+          <label>Encaminhamentos Necessários</label>
+          <div class="checkbox-grid">
+            <div class="checkbox-item">
+              <input type="checkbox" id="encaminhamentoSaude" value="encaminhamentoSaude">
+              <label for="encaminhamentoSaude">Saúde (SUS, CAPS)</label>
+            </div>
+            <div class="checkbox-item">
+              <input type="checkbox" id="encaminhamentoEducacao" value="encaminhamentoEducacao">
+              <label for="encaminhamentoEducacao">Educação (Escola, Creche)</label>
+            </div>
+            <div class="checkbox-item">
+              <input type="checkbox" id="encaminhamentoTrabalho" value="encaminhamentoTrabalho">
+              <label for="encaminhamentoTrabalho">Trabalho (Emprego, Qualificação)</label>
+            </div>
+            <div class="checkbox-item">
+              <input type="checkbox" id="encaminhamentoHabitacao" value="encaminhamentoHabitacao">
+              <label for="encaminhamentoHabitacao">Habitação (Moradia)</label>
+            </div>
+            <div class="checkbox-item">
+              <input type="checkbox" id="encaminhamentoConselhoTutelar" value="encaminhamentoConselhoTutelar">
+              <label for="encaminhamentoConselhoTutelar">Conselho Tutelar</label>
+            </div>
+          </div>
+        </div>
+
+        <!-- Observações e Urgência -->
+        <div class="form-grid mt-2">
+          <div class="form-group">
+            <label for="urgencia">Nível de Urgência *</label>
+            <select id="urgencia" required>
+              <option value="baixa">Baixa</option>
+              <option value="media" selected>Média</option>
+              <option value="alta">Alta</option>
+              <option value="critica">Crítica</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="visitaData">Data da Visita *</label>
+            <input type="datetime-local" id="visitaData" required>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="observacoes">Observações e Diagnóstico *</label>
+          <textarea id="observacoes" required rows="4" placeholder="Descreva as observações, condições da família, necessidades identificadas..."></textarea>
+        </div>
+
+        <!-- Classificação Automática ODS -->
+        <div class="form-group mt-2">
+          <div style="background: #f0f7ff; padding: 1rem; border-radius: var(--border-radius); border-left: 4px solid var(--primary-color);">
+            <h4 style="color: var(--primary-color); margin-bottom: 0.5rem;">
+              <i class="fas fa-robot"></i> Classificação Automática ODS
+            </h4>
+            <div id="classificacaoODS" style="display: flex; flex-wrap: wrap; gap: 0.5rem;">
+              <!-- Classificação será exibida aqui -->
+            </div>
+          </div>
+        </div>
+      </form>
     </div>
-    <div class="modal-footer">
-      <button class="btn-outline" id="cancelarNovaVisita">
+    <div class="modal-footer" style="padding: 1.5rem; border-top: 1px solid #eee; display: flex; justify-content: flex-end; gap: 1rem;">
+      <button class="btn-danger" id="cancelarNovaVisita">
         <i class="fas fa-times"></i> Cancelar
       </button>
       <button class="btn-success" id="salvarNovaVisita">
         <i class="fas fa-save"></i> Salvar Visita
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Storage Cheio -->
+<div class="modal-overlay" id="modalStorageCheio">
+  <div class="modal">
+    <div class="modal-header" style="padding: 1.5rem; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: center;">
+      <h2><i class="fas fa-exclamation-triangle" style="color: var(--warning-color);"></i> Armazenamento Cheio</h2>
+      <button class="close-btn" id="closeStorageCheio" style="background: none; border: none; font-size: 1.5rem; color: #999; cursor: pointer;">&times;</button>
+    </div>
+    <div class="modal-body" style="padding: 1.5rem;">
+      <div style="background: #fff3cd; color: #856404; padding: 1rem; border-radius: var(--border-radius); margin-bottom: 1rem;">
+        <i class="fas fa-exclamation-circle"></i>
+        <strong> Atenção: </strong> O armazenamento local está quase cheio (90% utilizado).
+      </div>
+      <p>Para continuar registrando novas visitas, é necessário exportar os dados dos meses anteriores.</p>
+      <p class="text-muted">Sistema fará backup automático dos meses anteriores antes de continuar.</p>
+      
+      <div class="form-group mt-2">
+        <label for="backupOption">Opção de Backup:</label>
+        <select id="backupOption" style="width: 100%; padding: 0.75rem; border: 1px solid #ddd; border-radius: var(--border-radius);">
+          <option value="csv">Download CSV (recomendado)</option>
+          <option value="json">Download JSON completo</option>
+          <option value="both">Ambos formatos</option>
+        </select>
+      </div>
+    </div>
+    <div class="modal-footer" style="padding: 1.5rem; border-top: 1px solid #eee; display: flex; justify-content: flex-end; gap: 1rem;">
+      <button class="btn-primary" id="btnFazerBackup">
+        <i class="fas fa-download"></i> Fazer Backup Agora
+      </button>
+      <button class="btn-success" id="btnContinuarSemBackup">
+        <i class="fas fa-play"></i> Continuar Sem Backup
       </button>
     </div>
   </div>
@@ -784,482 +953,1377 @@
 
 <script>
 // =================================================================
-// APLICAÇÃO SIMPLIFICADA E FUNCIONAL
+// SISTEMA CRAS ODS - MVC COMPLETO
 // =================================================================
 
-// Variáveis globais
-let visitas = JSON.parse(localStorage.getItem('cras_visitas')) || [];
-let map = null;
-let currentTab = 'visitas';
-
-// Inicialização
-document.addEventListener('DOMContentLoaded', function() {
-  initTabs();
-  initMap();
-  initClock();
-  loadVisitas();
-  bindEvents();
-  
-  // Mostrar aba visitas por padrão
-  showTab('visitas');
-});
-
-// Sistema de abas
-function initTabs() {
-  const tabBtns = document.querySelectorAll('.tab-btn');
-  tabBtns.forEach(btn => {
-    btn.addEventListener('click', function() {
-      const tabId = this.getAttribute('data-tab');
-      showTab(tabId);
-    });
-  });
-}
-
-function showTab(tabId) {
-  // Atualizar botões
-  document.querySelectorAll('.tab-btn').forEach(btn => {
-    btn.classList.remove('active');
-  });
-  document.querySelector(`.tab-btn[data-tab="${tabId}"]`).classList.add('active');
-  
-  // Atualizar conteúdo
-  document.querySelectorAll('.tab-content').forEach(content => {
-    content.classList.remove('active');
-  });
-  document.getElementById(`${tabId}-tab`).classList.add('active');
-  
-  currentTab = tabId;
-  
-  // Se for a aba do mapa, inicializar/atualizar mapa
-  if (tabId === 'mapa') {
-    setTimeout(() => {
-      if (map) {
-        map.invalidateSize();
-        updateMap();
-      } else {
-        initMap();
-      }
-    }, 100);
+/**
+ * MODEL - Gerencia dados, localStorage, classificação ODS, exportação
+ */
+class CRASModel {
+  constructor() {
+    this.MAX_STORAGE = 5 * 1024 * 1024; // 5MB limite
+    this.CURRENT_MONTH = this.getCurrentMonthKey();
+    this.STORAGE_PREFIX = 'cras_visitas_';
+    this.MONTHS_TO_KEEP = 3; // Mantém apenas 3 meses em cache
+    
+    this.visitas = this.loadAllVisitas();
+    this.metrics = {};
+    this.charts = {};
+    
+    this.calculateMetrics();
   }
   
-  // Se for dashboard, atualizar dados
-  if (tabId === 'dashboard') {
-    updateDashboard();
-  }
-}
-
-// Mapa
-function initMap() {
-  if (!document.getElementById('map')) return;
-  
-  // Coordenadas de Fama-MG como fallback
-  const defaultCoords = [-21.2421, -45.4944];
-  
-  map = L.map('map').setView(defaultCoords, 13);
-  
-  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    maxZoom: 19,
-    attribution: '© OpenStreetMap contributors'
-  }).addTo(map);
-  
-  // Tentar obter localização do usuário
-  if (navigator.geolocation) {
-    navigator.geolocation.getCurrentPosition(
-      position => {
-        const userCoords = [position.coords.latitude, position.coords.longitude];
-        map.setView(userCoords, 15);
-        
-        // Marcador do usuário
-        L.marker(userCoords, {
-          icon: L.divIcon({
-            html: '<i class="fas fa-user" style="color: #2ecc70; font-size: 24px;"></i>',
-            className: 'user-marker',
-            iconSize: [24, 24]
-          })
-        }).addTo(map).bindPopup('Sua posição atual').openPopup();
-      },
-      error => {
-        console.log('Usando localização padrão (Fama-MG)');
-        L.marker(defaultCoords, {
-          icon: L.divIcon({
-            html: '<i class="fas fa-user" style="color: #2ecc70; font-size: 24px;"></i>',
-            className: 'user-marker',
-            iconSize: [24, 24]
-          })
-        }).addTo(map).bindPopup('Fama-MG').openPopup();
-      }
-    );
-  }
-  
-  // Evento de clique no mapa
-  map.on('click', function(e) {
-    if (document.getElementById('mapa-tab').classList.contains('active')) {
-      document.getElementById('latitude').value = e.latlng.lat.toFixed(6);
-      document.getElementById('longitude').value = e.latlng.lng.toFixed(6);
-      showNotification('Coordenadas capturadas do mapa', 'success');
-    }
-  });
-  
-  updateMap();
-}
-
-function updateMap() {
-  if (!map) return;
-  
-  // Limpar marcadores antigos (exceto o do usuário)
-  map.eachLayer(layer => {
-    if (layer instanceof L.Marker && !layer._icon?.classList?.contains('user-marker')) {
-      map.removeLayer(layer);
-    }
-  });
-  
-  // Adicionar marcadores das visitas
-  visitas.forEach(visita => {
-    if (visita.latitude && visita.longitude && !visita.omitted) {
-      const color = visita.urgencia === 'alta' ? '#e74c3c' :
-                   visita.urgencia === 'media' ? '#f39c12' : '#3498db';
-      
-      const marker = L.marker([visita.latitude, visita.longitude], {
-        icon: L.divIcon({
-          html: `<i class="fas fa-home" style="color: ${color}; font-size: 24px;"></i>`,
-          className: 'visita-marker',
-          iconSize: [24, 24]
-        })
-      }).addTo(map);
-      
-      marker.bindPopup(`
-        <b>${visita.familiaNome}</b><br>
-        <small>${formatDate(visita.visitaData)}</small><br>
-        ${visita.endereco?.substring(0, 50)}...
-      `);
-    }
-  });
-}
-
-// Relógio
-function initClock() {
-  function updateClock() {
+  getCurrentMonthKey() {
     const now = new Date();
-    const time = now.toLocaleTimeString('pt-BR');
-    document.getElementById('currentTime').textContent = time;
-  }
-  updateClock();
-  setInterval(updateClock, 1000);
-}
-
-// Visitas
-function loadVisitas() {
-  updateVisitasList();
-  updateStats();
-}
-
-function saveVisitas() {
-  localStorage.setItem('cras_visitas', JSON.stringify(visitas));
-  updateStats();
-  updateVisitasList();
-  updateMap();
-  updateDashboard();
-}
-
-function updateVisitasList() {
-  const container = document.getElementById('visitasList');
-  const emptyState = document.getElementById('emptyState');
-  
-  if (visitas.length === 0) {
-    container.innerHTML = '';
-    emptyState.classList.remove('hidden');
-    return;
+    return `${now.getFullYear()}_${String(now.getMonth() + 1).padStart(2, '0')}`;
   }
   
-  emptyState.classList.add('hidden');
-  
-  const html = visitas.filter(v => !v.omitted).map(visita => `
-    <div class="visit-card">
-      <div class="visit-header">
-        <div>
-          <span class="visit-id">${visita.id || 'CRAS-001'}</span>
-          <span class="visit-status ${visita.urgencia === 'alta' ? 'status-urgent' : visita.urgencia === 'media' ? 'status-pending' : 'status-active'}">
-            ${visita.urgencia === 'alta' ? 'Urgente' : visita.urgencia === 'media' ? 'Atenção' : 'Normal'}
-          </span>
-        </div>
-      </div>
-      
-      <h3>${visita.familiaNome}</h3>
-      
-      <div style="display: grid; gap: 0.5rem; margin-bottom: 1rem; font-size: 0.9rem;">
-        <div style="display: flex; gap: 0.5rem;">
-          <span style="font-weight: 600; min-width: 80px;">Data:</span>
-          <span>${formatDate(visita.visitaData)}</span>
-        </div>
-        <div style="display: flex; gap: 0.5rem;">
-          <span style="font-weight: 600; min-width: 80px;">Endereço:</span>
-          <span>${visita.endereco?.substring(0, 50)}${visita.endereco?.length > 50 ? '...' : ''}</span>
-        </div>
-        <div style="display: flex; gap: 0.5rem;">
-          <span style="font-weight: 600; min-width: 80px;">Situação:</span>
-          <span>${visita.situacao === 'critica' ? 'Crítica' : visita.situacao === 'vulneravel' ? 'Vulnerável' : 'Estável'}</span>
-        </div>
-      </div>
-      
-      <p class="text-muted" style="font-size: 0.85rem;">
-        ${visita.observacoes?.substring(0, 100)}${visita.observacoes?.length > 100 ? '...' : ''}
-      </p>
-    </div>
-  `).join('');
-  
-  container.innerHTML = html;
-}
-
-function updateStats() {
-  const total = visitas.length;
-  const ativas = visitas.filter(v => !v.omitted).length;
-  const urgentes = visitas.filter(v => v.urgencia === 'alta' && !v.omitted).length;
-  const rurais = visitas.filter(v => v.endereco?.toLowerCase().includes('rural') && !v.omitted).length;
-  
-  // Calcular vulnerabilidade média
-  let vulnerabilidade = 0;
-  const visitasComSituacao = visitas.filter(v => v.situacao && !v.omitted);
-  if (visitasComSituacao.length > 0) {
-    const scores = { 'estavel': 1, 'vulneravel': 5, 'critica': 9 };
-    const totalScore = visitasComSituacao.reduce((sum, v) => sum + (scores[v.situacao] || 1), 0);
-    vulnerabilidade = (totalScore / visitasComSituacao.length).toFixed(1);
+  getMonthKey(dateString) {
+    const date = new Date(dateString);
+    return `${date.getFullYear()}_${String(date.getMonth() + 1).padStart(2, '0')}`;
   }
   
-  document.getElementById('visitasCount').textContent = total;
-  document.getElementById('statsActive').textContent = ativas;
-  document.getElementById('statsUrgent').textContent = urgentes;
-  document.getElementById('statsVulnerabilidade').textContent = vulnerabilidade;
-  document.getElementById('statsRurais').textContent = rurais;
-}
-
-function updateDashboard() {
-  const total = visitas.length;
-  const urgentes = visitas.filter(v => v.urgencia === 'alta' && !v.omitted).length;
-  
-  // Calcular vulnerabilidade média
-  let vulnerabilidade = 0;
-  const visitasComSituacao = visitas.filter(v => v.situacao && !v.omitted);
-  if (visitasComSituacao.length > 0) {
-    const scores = { 'estavel': 1, 'vulneravel': 5, 'critica': 9 };
-    const totalScore = visitasComSituacao.reduce((sum, v) => sum + (scores[v.situacao] || 1), 0);
-    vulnerabilidade = (totalScore / visitasComSituacao.length).toFixed(1);
+  loadAllVisitas() {
+    const visitas = [];
+    const allKeys = Object.keys(localStorage);
+    
+    // Carrega visitas de todos os meses
+    for (const key of allKeys) {
+      if (key.startsWith(this.STORAGE_PREFIX)) {
+        try {
+          const monthVisitas = JSON.parse(localStorage.getItem(key)) || [];
+          visitas.push(...monthVisitas.map(v => ({
+            ...v,
+            storageMonth: key.replace(this.STORAGE_PREFIX, '')
+          })));
+        } catch (e) {
+          console.error(`Erro ao carregar ${key}:`, e);
+        }
+      }
+    }
+    
+    return visitas;
   }
   
-  document.getElementById('dashboardTotal').textContent = total;
-  document.getElementById('dashboardUrgentesDash').textContent = urgentes;
-  document.getElementById('dashboardVulnerabilidadeDash').textContent = vulnerabilidade;
-  
-  // Atualizar barra de vulnerabilidade
-  const percent = Math.min(100, (vulnerabilidade / 10) * 100);
-  document.getElementById('vulnerabilidadeBar').style.width = `${percent}%`;
-}
-
-// Eventos
-function bindEvents() {
-  // Botões principais
-  document.getElementById('btnNovaVisita').addEventListener('click', openNovaVisitaModal);
-  document.getElementById('btnEmptyNovaVisita').addEventListener('click', openNovaVisitaModal);
-  document.getElementById('btnNovaVisitaMapa').addEventListener('click', openNovaVisitaModal);
-  document.getElementById('btnVerMapa').addEventListener('click', () => showTab('mapa'));
-  document.getElementById('btnVerDashboard').addEventListener('click', () => showTab('dashboard'));
-  document.getElementById('btnAtualizarMapa').addEventListener('click', updateMap);
-  document.getElementById('btnAplicarFiltros').addEventListener('click', aplicarFiltros);
-  
-  // Modal nova visita
-  document.getElementById('salvarNovaVisita').addEventListener('click', salvarNovaVisita);
-  document.getElementById('cancelarNovaVisita').addEventListener('click', closeNovaVisitaModal);
-  document.getElementById('closeNovaVisita').addEventListener('click', closeNovaVisitaModal);
-}
-
-// Modal
-function openNovaVisitaModal() {
-  // Preencher data/hora atual
-  const now = new Date();
-  const localDateTime = new Date(now.getTime() - now.getTimezoneOffset() * 60000)
-    .toISOString()
-    .slice(0, 16);
-  document.getElementById('visitaData').value = localDateTime;
-  
-  // Limpar outros campos
-  document.getElementById('familiaNome').value = '';
-  document.getElementById('endereco').value = '';
-  document.getElementById('latitude').value = '';
-  document.getElementById('longitude').value = '';
-  document.getElementById('observacoes').value = '';
-  document.querySelector('input[name="situacao"][value="estavel"]').checked = true;
-  
-  document.getElementById('modalNovaVisita').style.display = 'flex';
-}
-
-function closeNovaVisitaModal() {
-  document.getElementById('modalNovaVisita').style.display = 'none';
-}
-
-function salvarNovaVisita() {
-  const familiaNome = document.getElementById('familiaNome').value.trim();
-  const visitaData = document.getElementById('visitaData').value;
-  const endereco = document.getElementById('endereco').value.trim();
-  const latitude = parseFloat(document.getElementById('latitude').value) || -21.2421;
-  const longitude = parseFloat(document.getElementById('longitude').value) || -45.4944;
-  const situacao = document.querySelector('input[name="situacao"]:checked').value;
-  const observacoes = document.getElementById('observacoes').value.trim();
-  
-  if (!familiaNome || !visitaData || !endereco) {
-    showNotification('Preencha os campos obrigatórios', 'error');
-    return;
+  saveVisita(visitaData) {
+    // Classificar ODS automaticamente
+    visitaData.ods = this.classificarODS(visitaData);
+    visitaData.id = this.generateId();
+    visitaData.createdAt = new Date().toISOString();
+    visitaData.mes = this.getMonthKey(visitaData.visitaData || new Date().toISOString());
+    
+    // Calcular renda per capita
+    if (visitaData.rendaTotal && visitaData.totalMembros) {
+      visitaData.rendaPerCapita = (visitaData.rendaTotal / visitaData.totalMembros).toFixed(2);
+    }
+    
+    // Adicionar à lista
+    this.visitas.push(visitaData);
+    
+    // Verificar storage e fazer rotação FIFO se necessário
+    this.manageStorage();
+    
+    // Salvar no mês correspondente
+    this.saveToMonth(visitaData.mes);
+    
+    // Recalcular métricas
+    this.calculateMetrics();
+    
+    return visitaData;
   }
   
-  const novaVisita = {
-    id: 'CRAS-' + Date.now().toString().slice(-6),
-    familiaNome,
-    visitaData,
-    endereco,
-    latitude,
-    longitude,
-    situacao,
-    observacoes,
-    urgencia: situacao === 'critica' ? 'alta' : situacao === 'vulneravel' ? 'media' : 'baixa',
-    createdAt: new Date().toISOString(),
-    omitted: false
-  };
+  classificarODS(visitaData) {
+    const ods = [];
+    
+    // ODS 1 - Erradicação da Pobreza
+    if (visitaData.rendaPerCapita < 218 || 
+        visitaData.bolsaFamilia || 
+        visitaData.bpc || 
+        visitaData.auxilioBrasil) {
+      ods.push({
+        codigo: 1,
+        nome: "Erradicação da Pobreza",
+        peso: visitaData.rendaPerCapita < 218 ? 2 : 1
+      });
+    }
+    
+    // ODS 2 - Fome Zero
+    if (visitaData.fomeFrequente || 
+        visitaData.alimentacaoInadequada || 
+        visitaData.acessoAgua) {
+      ods.push({
+        codigo: 2,
+        nome: "Fome Zero e Agricultura Sustentável",
+        peso: visitaData.fomeFrequente ? 2 : 1
+      });
+    }
+    
+    // ODS 3 - Saúde e Bem-Estar
+    if (visitaData.deficienciaFisica || 
+        visitaData.deficienciaVisual || 
+        visitaData.deficienciaAuditiva ||
+        visitaData.doencaCronica ||
+        visitaData.gestante ||
+        visitaData.lactante ||
+        visitaData.encaminhamentoSaude) {
+      ods.push({
+        codigo: 3,
+        nome: "Saúde e Bem-Estar",
+        peso: visitaData.doencaCronica ? 2 : 1
+      });
+    }
+    
+    // ODS 10 - Redução das Desigualdades
+    if (visitaData.tipoLocalizacao === 'rural' || 
+        visitaData.tipoLocalizacao === 'isolado' ||
+        visitaData.totalMembros > 6) {
+      ods.push({
+        codigo: 10,
+        nome: "Redução das Desigualdades",
+        peso: visitaData.tipoLocalizacao === 'isolado' ? 2 : 1
+      });
+    }
+    
+    return ods;
+  }
   
-  visitas.push(novaVisita);
-  saveVisitas();
-  closeNovaVisitaModal();
-  showNotification('Visita registrada com sucesso!', 'success');
-}
-
-// Filtros
-function aplicarFiltros() {
-  const search = document.getElementById('searchVisitas').value.toLowerCase();
-  const status = document.getElementById('filterStatus').value;
+  generateId() {
+    return 'CRAS_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+  }
   
-  let filtered = visitas.filter(v => !v.omitted);
+  saveToMonth(monthKey) {
+    const monthVisitas = this.visitas.filter(v => v.mes === monthKey);
+    localStorage.setItem(`${this.STORAGE_PREFIX}${monthKey}`, JSON.stringify(monthVisitas));
+  }
   
-  if (search) {
-    filtered = filtered.filter(v => 
-      v.familiaNome.toLowerCase().includes(search) ||
-      v.endereco.toLowerCase().includes(search) ||
-      v.observacoes.toLowerCase().includes(search)
+  manageStorage() {
+    const totalSize = this.getStorageSize();
+    const percentUsed = (totalSize / this.MAX_STORAGE) * 100;
+    
+    // Se storage > 90%, fazer backup e limpar meses antigos
+    if (percentUsed > 90) {
+      this.backupAndClean();
+    }
+    
+    // Atualizar UI do storage usage
+    this.updateStorageUI(percentUsed);
+  }
+  
+  getStorageSize() {
+    let total = 0;
+    for (const key in localStorage) {
+      if (localStorage.hasOwnProperty(key)) {
+        total += (localStorage[key].length * 2) / 1024; // Tamanho em KB
+      }
+    }
+    return total * 1024; // Retorna em bytes
+  }
+  
+  updateStorageUI(percent) {
+    const usageElement = document.getElementById('storageUsage');
+    if (usageElement) {
+      usageElement.textContent = `${percent.toFixed(1)}%`;
+      usageElement.style.color = percent > 80 ? '#e74c3c' : 
+                                  percent > 60 ? '#f39c12' : '#27ae60';
+    }
+  }
+  
+  backupAndClean() {
+    // Coletar todos os meses disponíveis
+    const months = new Set(this.visitas.map(v => v.storageMonth || v.mes));
+    const sortedMonths = Array.from(months).sort();
+    
+    // Manter apenas os últimos N meses
+    const monthsToKeep = sortedMonths.slice(-this.MONTHS_TO_KEEP);
+    const monthsToBackup = sortedMonths.slice(0, -this.MONTHS_TO_KEEP);
+    
+    // Fazer backup dos meses antigos
+    monthsToBackup.forEach(month => {
+      this.exportMonthToCSV(month, true); // true = download automático
+      localStorage.removeItem(`${this.STORAGE_PREFIX}${month}`);
+    });
+    
+    // Atualizar lista de visitas
+    this.visitas = this.visitas.filter(v => 
+      monthsToKeep.includes(v.storageMonth || v.mes)
+    );
+    
+    // Mostrar notificação
+    CRASController.showNotification(
+      `Backup automático realizado. ${monthsToBackup.length} mês(es) exportado(s).`,
+      'info'
     );
   }
   
-  if (status === 'urgent') {
-    filtered = filtered.filter(v => v.urgencia === 'alta');
-  } else if (status === 'active') {
-    // Já está filtrando apenas não omitidas
+  calculateMetrics() {
+    const ativas = this.visitas.filter(v => 
+      v.urgencia !== 'concluido' && v.urgencia !== 'baixa'
+    ).length;
+    
+    const urgentes = this.visitas.filter(v => 
+      v.urgencia === 'alta' || v.urgencia === 'critica'
+    ).length;
+    
+    const rurais = this.visitas.filter(v => 
+      v.tipoLocalizacao === 'rural' || v.tipoLocalizacao === 'isolado'
+    ).length;
+    
+    // Calcular vulnerabilidade composta
+    let vulnerabilidadeTotal = 0;
+    this.visitas.forEach(v => {
+      let score = 0;
+      if (v.urgencia === 'critica') score += 3;
+      else if (v.urgencia === 'alta') score += 2;
+      else if (v.urgencia === 'media') score += 1;
+      
+      if (v.ods && v.ods.length > 0) {
+        score += v.ods.reduce((sum, ods) => sum + ods.peso, 0);
+      }
+      
+      vulnerabilidadeTotal += score;
+    });
+    
+    const vulnerabilidadeMedia = this.visitas.length > 0 
+      ? (vulnerabilidadeTotal / this.visitas.length).toFixed(1)
+      : 0;
+    
+    this.metrics = {
+      ativas,
+      urgentes,
+      rurais,
+      vulnerabilidade: vulnerabilidadeMedia,
+      total: this.visitas.length,
+      ods1: this.visitas.filter(v => v.ods?.some(o => o.codigo === 1)).length,
+      ods2: this.visitas.filter(v => v.ods?.some(o => o.codigo === 2)).length,
+      ods3: this.visitas.filter(v => v.ods?.some(o => o.codigo === 3)).length,
+      ods10: this.visitas.filter(v => v.ods?.some(o => o.codigo === 10)).length
+    };
   }
   
-  updateVisitasListFiltered(filtered);
+  getDataForCharts() {
+    // Dados para gráfico radar ODS
+    const radarData = {
+      labels: ['ODS 1 - Pobreza', 'ODS 2 - Fome', 'ODS 3 - Saúde', 'ODS 10 - Desigualdade'],
+      datasets: [{
+        label: 'Impacto ODS',
+        data: [
+          this.metrics.ods1,
+          this.metrics.ods2,
+          this.metrics.ods3,
+          this.metrics.ods10
+        ],
+        backgroundColor: 'rgba(52, 152, 219, 0.2)',
+        borderColor: 'rgba(52, 152, 219, 1)',
+        borderWidth: 2
+      }]
+    };
+    
+    // Dados para gráfico pizza vulnerabilidades
+    const vulnerabilidades = {
+      'Renda Baixa': this.visitas.filter(v => v.rendaPerCapita < 218).length,
+      'Saúde': this.visitas.filter(v => 
+        v.deficienciaFisica || v.deficienciaVisual || v.deficienciaAuditiva || v.doencaCronica
+      ).length,
+      'Alimentação': this.visitas.filter(v => 
+        v.fomeFrequente || v.alimentacaoInadequada
+      ).length,
+      'Localização': this.visitas.filter(v => 
+        v.tipoLocalizacao === 'rural' || v.tipoLocalizacao === 'isolado'
+      ).length,
+      'Serviços': this.visitas.filter(v => 
+        v.paif || v.scfv || v.cadastroUnico
+      ).length
+    };
+    
+    const pieData = {
+      labels: Object.keys(vulnerabilidades),
+      datasets: [{
+        data: Object.values(vulnerabilidades),
+        backgroundColor: [
+          '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF'
+        ]
+      }]
+    };
+    
+    // Dados para gráfico linha (evolução mensal)
+    const meses = {};
+    this.visitas.forEach(v => {
+      const mes = v.mes || this.getMonthKey(v.createdAt);
+      if (!meses[mes]) meses[mes] = 0;
+      meses[mes]++;
+    });
+    
+    const sortedMonths = Object.keys(meses).sort();
+    const lineData = {
+      labels: sortedMonths.map(m => {
+        const [ano, mes] = m.split('_');
+        return `${mes}/${ano}`;
+      }),
+      datasets: [{
+        label: 'Visitas por Mês',
+        data: sortedMonths.map(m => meses[m]),
+        borderColor: '#27ae60',
+        backgroundColor: 'rgba(39, 174, 96, 0.1)',
+        tension: 0.4
+      }]
+    };
+    
+    // Dados para gráfico barras (por bairro)
+    const bairros = {};
+    this.visitas.forEach(v => {
+      if (v.bairro) {
+        if (!bairros[v.bairro]) bairros[v.bairro] = 0;
+        bairros[v.bairro]++;
+      }
+    });
+    
+    const barData = {
+      labels: Object.keys(bairros).slice(0, 10), // Top 10 bairros
+      datasets: [{
+        label: 'Visitas por Bairro',
+        data: Object.values(bairros).slice(0, 10),
+        backgroundColor: '#3498db'
+      }]
+    };
+    
+    // Dados para histograma (faixa etária)
+    const faixasEtarias = {
+      '0-12': this.visitas.reduce((sum, v) => sum + (parseInt(v.criancas) || 0), 0),
+      '13-17': this.visitas.reduce((sum, v) => sum + (parseInt(v.adolescentes) || 0), 0),
+      '18-59': this.visitas.reduce((sum, v) => sum + (parseInt(v.adultos) || 0), 0),
+      '60+': this.visitas.reduce((sum, v) => sum + (parseInt(v.idosos) || 0), 0)
+    };
+    
+    const histogramData = {
+      labels: Object.keys(faixasEtarias),
+      datasets: [{
+        label: 'Distribuição por Faixa Etária',
+        data: Object.values(faixasEtarias),
+        backgroundColor: '#9b59b6'
+      }]
+    };
+    
+    // Dados para gráfico rosca (status serviços)
+    const servicos = {
+      'PAIF': this.visitas.filter(v => v.paif).length,
+      'SCFV': this.visitas.filter(v => v.scfv).length,
+      'Cad. Único': this.visitas.filter(v => v.cadastroUnico).length,
+      'Sem Serviços': this.visitas.filter(v => !v.paif && !v.scfv && !v.cadastroUnico).length
+    };
+    
+    const doughnutData = {
+      labels: Object.keys(servicos),
+      datasets: [{
+        data: Object.values(servicos),
+        backgroundColor: ['#e74c3c', '#f39c12', '#3498db', '#95a5a6']
+      }]
+    };
+    
+    return {
+      radar: radarData,
+      pie: pieData,
+      line: lineData,
+      bar: barData,
+      histogram: histogramData,
+      doughnut: doughnutData
+    };
+  }
+  
+  exportMonthToCSV(monthKey, autoDownload = false) {
+    const monthVisitas = this.visitas.filter(v => 
+      (v.storageMonth || v.mes) === monthKey
+    );
+    
+    if (monthVisitas.length === 0) return null;
+    
+    // Criar cabeçalhos CSV
+    const headers = [
+      'ID', 'Data', 'Família', 'Responsável', 'Bairro', 'Tipo Localização',
+      'Membros', 'Renda Total', 'Renda per Capita', 'ODS', 'Urgência',
+      'Bolsa Família', 'BPC', 'Deficiências', 'Serviços CRAS', 'Observações'
+    ];
+    
+    // Criar linhas
+    const rows = monthVisitas.map(v => {
+      const odsList = v.ods?.map(o => `${o.codigo}`).join(';') || '';
+      const deficiencias = [
+        v.deficienciaFisica ? 'Física' : '',
+        v.deficienciaVisual ? 'Visual' : '',
+        v.deficienciaAuditiva ? 'Auditiva' : '',
+        v.doencaCronica ? 'Crônica' : ''
+      ].filter(Boolean).join(';');
+      
+      const servicos = [
+        v.paif ? 'PAIF' : '',
+        v.scfv ? 'SCFV' : '',
+        v.cadastroUnico ? 'CadÚnico' : ''
+      ].filter(Boolean).join(';');
+      
+      return [
+        v.id,
+        v.visitaData || v.createdAt,
+        `"${v.familiaNome || ''}"`,
+        `"${v.responsavel || ''}"`,
+        v.bairro || '',
+        v.tipoLocalizacao || '',
+        v.totalMembros || 0,
+        v.rendaTotal || 0,
+        v.rendaPerCapita || 0,
+        odsList,
+        v.urgencia || '',
+        v.bolsaFamilia ? 'Sim' : 'Não',
+        v.bpc ? 'Sim' : 'Não',
+        deficiencias,
+        servicos,
+        `"${(v.observacoes || '').replace(/"/g, '""')}"`
+      ].join(',');
+    });
+    
+    const csvContent = [headers.join(','), ...rows].join('\n');
+    
+    if (autoDownload) {
+      this.downloadCSV(csvContent, `CRAS_${monthKey}.csv`);
+    }
+    
+    return csvContent;
+  }
+  
+  exportAllMonths() {
+    const months = new Set(this.visitas.map(v => v.storageMonth || v.mes));
+    const promises = [];
+    
+    months.forEach(month => {
+      const csv = this.exportMonthToCSV(month, false);
+      if (csv) {
+        promises.push({
+          month,
+          csv,
+          filename: `CRAS_${month}.csv`
+        });
+      }
+    });
+    
+    return promises;
+  }
+  
+  downloadCSV(content, filename) {
+    const blob = new Blob([content], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    
+    link.setAttribute('href', url);
+    link.setAttribute('download', filename);
+    link.style.visibility = 'hidden';
+    
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  }
+  
+  exportWhatsAppSummary(visitaId) {
+    const visita = this.visitas.find(v => v.id === visitaId);
+    if (!visita) return null;
+    
+    const emojis = {
+      alta: '🔴',
+      critica: '🆘',
+      media: '🟡',
+      baixa: '🟢',
+      rural: '🌾',
+      urbano: '🏙️',
+      ods1: '💰',
+      ods2: '🍎',
+      ods3: '🏥',
+      ods10: '⚖️'
+    };
+    
+    let summary = `*CRAS - RELATÓRIO DE VISITA DOMICILIAR*\n\n`;
+    summary += `${emojis[visita.urgencia] || '📋'} *Visita:* ${visita.familiaNome}\n`;
+    summary += `👤 *Responsável:* ${visita.responsavel || 'Não informado'}\n`;
+    summary += `📅 *Data:* ${new Date(visita.visitaData || visita.createdAt).toLocaleDateString('pt-BR')}\n`;
+    summary += `📍 *Local:* ${visita.bairro || 'Não informado'} (${visita.tipoLocalizacao === 'rural' ? emojis.rural + ' Rural' : emojis.urbano + ' Urbano'})\n`;
+    summary += `👨‍👩‍👧‍👦 *Membros:* ${visita.totalMembros || 1} pessoas\n`;
+    summary += `💰 *Renda per capita:* R$ ${visita.rendaPerCapita || '0,00'}\n\n`;
+    
+    summary += `*📊 CLASSIFICAÇÃO ODS:*\n`;
+    if (visita.ods && visita.ods.length > 0) {
+      visita.ods.forEach(ods => {
+        summary += `  ${emojis['ods' + ods.codigo] || '🎯'} ${ods.nome}\n`;
+      });
+    } else {
+      summary += `  📭 Sem classificação ODS\n`;
+    }
+    
+    summary += `\n*🩺 SAÚDE E SERVIÇOS:*\n`;
+    if (visita.deficienciaFisica || visita.deficienciaVisual || visita.deficienciaAuditiva) {
+      summary += `  ♿ Com deficiência\n`;
+    }
+    if (visita.paif) summary += `  🤝 Em atendimento PAIF\n`;
+    if (visita.scfv) summary += `  👥 Participa SCFV\n`;
+    
+    summary += `\n*📝 OBSERVAÇÕES:*\n`;
+    summary += `${(visita.observacoes || '').substring(0, 200)}${visita.observacoes?.length > 200 ? '...' : ''}\n\n`;
+    
+    summary += `_Relatório gerado pelo Sistema CRAS ODS_`;
+    
+    return encodeURIComponent(summary);
+  }
+  
+  getFilteredVisitas(filters) {
+    return this.visitas.filter(visita => {
+      if (filters.search) {
+        const searchLower = filters.search.toLowerCase();
+        if (!visita.familiaNome?.toLowerCase().includes(searchLower) &&
+            !visita.bairro?.toLowerCase().includes(searchLower) &&
+            !visita.responsavel?.toLowerCase().includes(searchLower)) {
+          return false;
+        }
+      }
+      
+      if (filters.ods && filters.ods !== 'all') {
+        const odsCode = parseInt(filters.ods.replace('ods', ''));
+        if (!visita.ods?.some(o => o.codigo === odsCode)) {
+          return false;
+        }
+      }
+      
+      if (filters.status && filters.status !== 'all') {
+        if (visita.urgencia !== filters.status) {
+          return false;
+        }
+      }
+      
+      return true;
+    });
+  }
 }
 
-function updateVisitasListFiltered(filteredVisitas) {
-  const container = document.getElementById('visitasList');
-  const emptyState = document.getElementById('emptyState');
-  
-  if (filteredVisitas.length === 0) {
-    container.innerHTML = '<div class="text-center" style="grid-column: 1 / -1; padding: 3rem;"><i class="fas fa-search fa-3x text-muted mb-2"></i><p>Nenhuma visita encontrada</p></div>';
-    emptyState.classList.add('hidden');
-    return;
+/**
+ * VIEW - Gerencia interface, renderização, gráficos
+ */
+class CRASView {
+  constructor() {
+    this.model = null;
+    this.controller = null;
+    this.currentTab = 'visitas';
+    this.chartInstances = {};
+    
+    this.initializeElements();
+    this.bindEvents();
+    this.initializeCharts();
   }
   
-  const html = filteredVisitas.map(visita => `
-    <div class="visit-card">
-      <div class="visit-header">
-        <div>
-          <span class="visit-id">${visita.id}</span>
-          <span class="visit-status ${visita.urgencia === 'alta' ? 'status-urgent' : visita.urgencia === 'media' ? 'status-pending' : 'status-active'}">
-            ${visita.urgencia === 'alta' ? 'Urgente' : visita.urgencia === 'media' ? 'Atenção' : 'Normal'}
-          </span>
+  setModel(model) {
+    this.model = model;
+  }
+  
+  setController(controller) {
+    this.controller = controller;
+  }
+  
+  initializeElements() {
+    // Elementos já existem no HTML
+  }
+  
+  bindEvents() {
+    // Sistema de abas
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const tabId = e.target.dataset.tab;
+        this.switchTab(tabId);
+      });
+    });
+    
+    // Botão nova visita
+    document.getElementById('btnNovaVisita').addEventListener('click', () => {
+      this.openNovaVisitaModal();
+    });
+    
+    // Botões do modal
+    document.getElementById('closeNovaVisita').addEventListener('click', () => {
+      this.closeNovaVisitaModal();
+    });
+    
+    document.getElementById('cancelarNovaVisita').addEventListener('click', () => {
+      this.closeNovaVisitaModal();
+    });
+    
+    document.getElementById('salvarNovaVisita').addEventListener('click', (e) => {
+      e.preventDefault();
+      this.controller.handleSaveVisita();
+    });
+    
+    // Filtros
+    document.getElementById('btnAplicarFiltros').addEventListener('click', () => {
+      this.controller.handleFilterVisitas();
+    });
+    
+    // Exportação
+    document.getElementById('btnExportarWhatsAppIndividual').addEventListener('click', () => {
+      this.controller.handleExportWhatsApp();
+    });
+    
+    document.getElementById('btnExportarMesAtual').addEventListener('click', () => {
+      this.controller.handleExportCurrentMonth();
+    });
+    
+    document.getElementById('btnExportarUltimos3Meses').addEventListener('click', () => {
+      this.controller.handleExportLast3Months();
+    });
+    
+    document.getElementById('btnExportarTodosMeses').addEventListener('click', () => {
+      this.controller.handleExportAllMonths();
+    });
+    
+    // Calcula renda per capita automaticamente
+    document.getElementById('rendaTotal').addEventListener('input', () => {
+      this.calculateRendaPerCapita();
+    });
+    
+    document.getElementById('totalMembros').addEventListener('input', () => {
+      this.calculateRendaPerCapita();
+    });
+    
+    // Atualiza classificação ODS em tempo real
+    const formInputs = document.querySelectorAll('#formNovaVisita input, #formNovaVisita select');
+    formInputs.forEach(input => {
+      input.addEventListener('change', () => {
+        this.updateODSClassification();
+      });
+    });
+  }
+  
+  switchTab(tabId) {
+    // Atualiza botões
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+      btn.classList.remove('active');
+    });
+    document.querySelector(`.tab-btn[data-tab="${tabId}"]`).classList.add('active');
+    
+    // Atualiza conteúdo
+    document.querySelectorAll('.tab-content').forEach(content => {
+      content.classList.remove('active');
+    });
+    document.getElementById(`${tabId}-tab`).classList.add('active');
+    
+    this.currentTab = tabId;
+    
+    // Se for dashboard, atualiza gráficos
+    if (tabId === 'dashboard') {
+      this.updateDashboard();
+    }
+    
+    // Se for mapa, inicializa mapa
+    if (tabId === 'mapa') {
+      this.initializeMap();
+    }
+  }
+  
+  openNovaVisitaModal() {
+    // Preenche data/hora atual
+    const now = new Date();
+    const localDateTime = new Date(now.getTime() - now.getTimezoneOffset() * 60000)
+      .toISOString()
+      .slice(0, 16);
+    document.getElementById('visitaData').value = localDateTime;
+    
+    // Limpa formulário
+    document.getElementById('formNovaVisita').reset();
+    
+    // Atualiza classificação ODS
+    this.updateODSClassification();
+    
+    // Mostra modal
+    document.getElementById('modalNovaVisita').style.display = 'flex';
+  }
+  
+  closeNovaVisitaModal() {
+    document.getElementById('modalNovaVisita').style.display = 'none';
+  }
+  
+  calculateRendaPerCapita() {
+    const rendaTotal = parseFloat(document.getElementById('rendaTotal').value) || 0;
+    const totalMembros = parseInt(document.getElementById('totalMembros').value) || 1;
+    
+    if (totalMembros > 0) {
+      const rendaPerCapita = (rendaTotal / totalMembros).toFixed(2);
+      document.getElementById('rendaPerCapita').value = rendaPerCapita;
+    }
+  }
+  
+  updateODSClassification() {
+    // Simula dados do formulário para classificação
+    const formData = {
+      rendaPerCapita: parseFloat(document.getElementById('rendaPerCapita').value) || 0,
+      bolsaFamilia: document.getElementById('bolsaFamilia').checked,
+      bpc: document.getElementById('bpc').checked,
+      auxilioBrasil: document.getElementById('auxilioBrasil').checked,
+      fomeFrequente: document.getElementById('fomeFrequente').checked,
+      alimentacaoInadequada: document.getElementById('alimentacaoInadequada').checked,
+      deficienciaFisica: document.getElementById('deficienciaFisica').checked,
+      deficienciaVisual: document.getElementById('deficienciaVisual').checked,
+      deficienciaAuditiva: document.getElementById('deficienciaAuditiva').checked,
+      doencaCronica: document.getElementById('doencaCronica').checked,
+      tipoLocalizacao: document.getElementById('tipoLocalizacao').value,
+      totalMembros: parseInt(document.getElementById('totalMembros').value) || 1
+    };
+    
+    // Classificação simples para preview
+    const classificacaoDiv = document.getElementById('classificacaoODS');
+    classificacaoDiv.innerHTML = '';
+    
+    const odsClasses = [];
+    
+    if (formData.rendaPerCapita < 218 || formData.bolsaFamilia || formData.bpc) {
+      odsClasses.push({
+        codigo: 1,
+        nome: 'ODS 1 - Pobreza',
+        color: '#E5243B'
+      });
+    }
+    
+    if (formData.fomeFrequente || formData.alimentacaoInadequada) {
+      odsClasses.push({
+        codigo: 2,
+        nome: 'ODS 2 - Fome Zero',
+        color: '#DDA63A'
+      });
+    }
+    
+    if (formData.deficienciaFisica || formData.deficienciaVisual || formData.deficienciaAuditiva || formData.doencaCronica) {
+      odsClasses.push({
+        codigo: 3,
+        nome: 'ODS 3 - Saúde',
+        color: '#4C9F38'
+      });
+    }
+    
+    if (formData.tipoLocalizacao === 'rural' || formData.tipoLocalizacao === 'isolado' || formData.totalMembros > 6) {
+      odsClasses.push({
+        codigo: 10,
+        nome: 'ODS 10 - Desigualdade',
+        color: '#DD1367'
+      });
+    }
+    
+    odsClasses.forEach(ods => {
+      const badge = document.createElement('span');
+      badge.style.cssText = `
+        background: ${ods.color};
+        color: white;
+        padding: 0.25rem 0.5rem;
+        border-radius: 12px;
+        font-size: 0.8rem;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.25rem;
+      `;
+      badge.innerHTML = `<i class="fas fa-bullseye"></i> ${ods.nome}`;
+      classificacaoDiv.appendChild(badge);
+    });
+    
+    if (odsClasses.length === 0) {
+      classificacaoDiv.innerHTML = '<span class="text-muted">Preencha os dados para ver classificação ODS</span>';
+    }
+  }
+  
+  getFormData() {
+    const form = document.getElementById('formNovaVisita');
+    const formData = new FormData(form);
+    
+    // Converte FormData para objeto
+    const data = {};
+    for (const [key, value] of formData.entries()) {
+      if (key === 'rendaTotal' || key === 'totalMembros' || key === 'criancas' || 
+          key === 'adolescentes' || key === 'adultos' || key === 'idosos') {
+        data[key] = parseFloat(value) || 0;
+      } else if (key === 'rendaPerCapita') {
+        data[key] = parseFloat(value) || 0;
+      } else {
+        data[key] = value;
+      }
+    }
+    
+    // Adiciona checkboxes
+    const checkboxes = [
+      'bolsaFamilia', 'bpc', 'auxilioBrasil', 'outrosBeneficios',
+      'deficienciaFisica', 'deficienciaVisual', 'deficienciaAuditiva',
+      'doencaCronica', 'gestante', 'lactante',
+      'fomeFrequente', 'alimentacaoInadequada', 'acessoAgua',
+      'paif', 'scfv', 'cadastroUnico',
+      'encaminhamentoSaude', 'encaminhamentoEducacao',
+      'encaminhamentoTrabalho', 'encaminhamentoHabitacao',
+      'encaminhamentoConselhoTutelar'
+    ];
+    
+    checkboxes.forEach(checkboxId => {
+      data[checkboxId] = document.getElementById(checkboxId)?.checked || false;
+    });
+    
+    return data;
+  }
+  
+  renderVisitasList(visitas) {
+    const container = document.getElementById('visitasList');
+    
+    if (visitas.length === 0) {
+      container.innerHTML = `
+        <div style="grid-column: 1 / -1; text-align: center; padding: 3rem;">
+          <i class="fas fa-search fa-3x text-muted mb-2"></i>
+          <h3>Nenhuma visita encontrada</h3>
+          <p class="text-muted">Tente ajustar os filtros ou registre uma nova visita.</p>
         </div>
+      `;
+      return;
+    }
+    
+    const html = visitas.map(visita => {
+      const odsBadges = visita.ods?.map(ods => 
+        `<span style="background: ${ods.codigo === 1 ? '#E5243B' : ods.codigo === 2 ? '#DDA63A' : ods.codigo === 3 ? '#4C9F38' : '#DD1367'}; 
+          color: white; padding: 0.1rem 0.3rem; border-radius: 8px; font-size: 0.7rem;">
+          ODS ${ods.codigo}
+        </span>`
+      ).join(' ') || '';
+      
+      return `
+        <div class="visit-card">
+          <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 1rem;">
+            <div>
+              <h3 style="margin: 0 0 0.5rem 0;">${visita.familiaNome}</h3>
+              <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                ${odsBadges}
+              </div>
+            </div>
+            <button class="btn-success" onclick="crasController.exportVisitaWhatsApp('${visita.id}')" 
+                    style="padding: 0.5rem; font-size: 0.8rem;">
+              <i class="fab fa-whatsapp"></i>
+            </button>
+          </div>
+          
+          <div style="display: grid; gap: 0.5rem; margin-bottom: 1rem; font-size: 0.9rem;">
+            <div style="display: flex; gap: 0.5rem;">
+              <span style="font-weight: 600; min-width: 100px;">Responsável:</span>
+              <span>${visita.responsavel || 'Não informado'}</span>
+            </div>
+            <div style="display: flex; gap: 0.5rem;">
+              <span style="font-weight: 600; min-width: 100px;">Localização:</span>
+              <span>${visita.bairro || 'Não informado'} (${visita.tipoLocalizacao || 'Não informado'})</span>
+            </div>
+            <div style="display: flex; gap: 0.5rem;">
+              <span style="font-weight: 600; min-width: 100px;">Renda per capita:</span>
+              <span>R$ ${visita.rendaPerCapita || '0,00'}</span>
+            </div>
+            <div style="display: flex; gap: 0.5rem;">
+              <span style="font-weight: 600; min-width: 100px;">Urgência:</span>
+              <span style="color: ${visita.urgencia === 'critica' ? '#e74c3c' : visita.urgencia === 'alta' ? '#f39c12' : '#27ae60'}; 
+                    font-weight: 600;">
+                ${visita.urgencia === 'critica' ? 'Crítica' : 
+                  visita.urgencia === 'alta' ? 'Alta' : 
+                  visita.urgencia === 'media' ? 'Média' : 'Baixa'}
+              </span>
+            </div>
+          </div>
+          
+          <p class="text-muted" style="font-size: 0.85rem;">
+            ${(visita.observacoes || '').substring(0, 150)}${visita.observacoes?.length > 150 ? '...' : ''}
+          </p>
+          
+          <div style="display: flex; justify-content: space-between; margin-top: 1rem; font-size: 0.8rem; color: #7f8c8d;">
+            <span>${new Date(visita.visitaData || visita.createdAt).toLocaleDateString('pt-BR')}</span>
+            <span>${visita.totalMembros || 1} membros</span>
+          </div>
+        </div>
+      `;
+    }).join('');
+    
+    container.innerHTML = html;
+  }
+  
+  initializeCharts() {
+    // Inicializa todos os gráficos com dados vazios
+    const chartConfigs = {
+      radarChart: {
+        type: 'radar',
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            r: {
+              beginAtZero: true,
+              ticks: {
+                stepSize: 1
+              }
+            }
+          }
+        }
+      },
+      pieChart: {
+        type: 'pie',
+        options: {
+          responsive: true,
+          maintainAspectRatio: false
+        }
+      },
+      lineChart: {
+        type: 'line',
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            y: {
+              beginAtZero: true
+            }
+          }
+        }
+      },
+      barChart: {
+        type: 'bar',
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            y: {
+              beginAtZero: true
+            }
+          }
+        }
+      },
+      histogramChart: {
+        type: 'bar',
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            y: {
+              beginAtZero: true
+            }
+          }
+        }
+      },
+      doughnutChart: {
+        type: 'doughnut',
+        options: {
+          responsive: true,
+          maintainAspectRatio: false
+        }
+      }
+    };
+    
+    Object.keys(chartConfigs).forEach(chartId => {
+      const canvas = document.getElementById(chartId);
+      if (canvas) {
+        const ctx = canvas.getContext('2d');
+        const config = chartConfigs[chartId];
+        
+        this.chartInstances[chartId] = new Chart(ctx, {
+          type: config.type,
+          data: {
+            labels: [],
+            datasets: []
+          },
+          options: config.options
+        });
+      }
+    });
+  }
+  
+  updateDashboard() {
+    if (!this.model) return;
+    
+    // Atualiza métricas
+    const metrics = this.model.metrics;
+    const metricsHtml = `
+      <div class="metric-card">
+        <div class="metric-value">${metrics.ativas}</div>
+        <div class="metric-label">Ativas</div>
       </div>
-      
-      <h3>${visita.familiaNome}</h3>
-      
-      <div style="display: grid; gap: 0.5rem; margin-bottom: 1rem; font-size: 0.9rem;">
-        <div style="display: flex; gap: 0.5rem;">
-          <span style="font-weight: 600; min-width: 80px;">Data:</span>
-          <span>${formatDate(visita.visitaData)}</span>
-        </div>
-        <div style="display: flex; gap: 0.5rem;">
-          <span style="font-weight: 600; min-width: 80px;">Endereço:</span>
-          <span>${visita.endereco?.substring(0, 50)}${visita.endereco?.length > 50 ? '...' : ''}</span>
-        </div>
+      <div class="metric-card">
+        <div class="metric-value">${metrics.urgentes}</div>
+        <div class="metric-label">Urgentes</div>
       </div>
+      <div class="metric-card">
+        <div class="metric-value">${metrics.vulnerabilidade}</div>
+        <div class="metric-label">Vulnerabilidade</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-value">${metrics.rurais}</div>
+        <div class="metric-label">Rurais</div>
+      </div>
+    `;
+    
+    document.getElementById('dashboardMetrics').innerHTML = metricsHtml;
+    
+    // Atualiza gráficos
+    const chartData = this.model.getDataForCharts();
+    
+    Object.keys(this.chartInstances).forEach(chartId => {
+      const chart = this.chartInstances[chartId];
+      const dataKey = chartId.replace('Chart', '');
       
-      <p class="text-muted" style="font-size: 0.85rem;">
-        ${visita.observacoes?.substring(0, 100)}${visita.observacoes?.length > 100 ? '...' : ''}
-      </p>
-    </div>
-  `).join('');
-  
-  container.innerHTML = html;
-  emptyState.classList.add('hidden');
-}
-
-// Utilitários
-function formatDate(dateString) {
-  if (!dateString) return 'Data não informada';
-  const date = new Date(dateString);
-  return date.toLocaleDateString('pt-BR', {
-    day: '2-digit',
-    month: '2-digit',
-    year: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit'
-  });
-}
-
-function showNotification(message, type = 'info') {
-  // Criar elemento de notificação
-  const notification = document.createElement('div');
-  notification.className = `notification notification-${type}`;
-  notification.innerHTML = `
-    <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-circle' : type === 'warning' ? 'exclamation-triangle' : 'info-circle'}"></i>
-    <span>${message}</span>
-  `;
-  
-  notification.style.cssText = `
-    position: fixed;
-    top: 20px;
-    right: 20px;
-    padding: 1rem 1.5rem;
-    border-radius: var(--border-radius);
-    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    z-index: 3000;
-    animation: slideIn 0.3s ease, slideOut 0.3s ease 2.7s;
-    max-width: 400px;
-    background: ${type === 'success' ? 'var(--success-color)' : 
-                 type === 'error' ? 'var(--secondary-color)' : 
-                 type === 'warning' ? 'var(--warning-color)' : 
-                 'var(--info-color)'};
-    color: white;
-  `;
-  
-  document.body.appendChild(notification);
-  
-  setTimeout(() => {
-    notification.remove();
-  }, 3000);
-}
-
-// Adicionar estilos de animação
-const style = document.createElement('style');
-style.textContent = `
-  @keyframes slideIn {
-    from { transform: translateX(100%); opacity: 0; }
-    to { transform: translateX(0); opacity: 1; }
+      if (chartData[dataKey]) {
+        chart.data = chartData[dataKey];
+        chart.update();
+      }
+    });
   }
   
-  @keyframes slideOut {
-    from { transform: translateX(0); opacity: 1; }
-    to { transform: translateX(100%); opacity: 0; }
+  initializeMap() {
+    const mapElement = document.getElementById('map');
+    if (!mapElement || window.crasMap) return;
+    
+    // Coordenadas de Fama-MG
+    const famaCoords = [-21.2421, -45.4944];
+    
+    window.crasMap = L.map('map').setView(famaCoords, 13);
+    
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 19,
+      attribution: '© OpenStreetMap contributors'
+    }).addTo(window.crasMap);
+    
+    // Adiciona marcadores das visitas
+    if (this.model) {
+      this.model.visitas.forEach(visita => {
+        if (visita.coordenadas) {
+          const [lat, lng] = visita.coordenadas.split(',').map(Number);
+          if (lat && lng) {
+            const marker = L.marker([lat, lng]).addTo(window.crasMap);
+            marker.bindPopup(`
+              <b>${visita.familiaNome}</b><br>
+              <small>${visita.bairro || 'Sem bairro'}</small><br>
+              <small>${visita.urgencia === 'alta' ? '🔴 Urgente' : '🟢 Normal'}</small>
+            `);
+          }
+        }
+      });
+    }
   }
-`;
-document.head.appendChild(style);
+  
+  showNotification(message, type = 'info') {
+    const notification = document.createElement('div');
+    notification.className = 'notification';
+    notification.innerHTML = `
+      <i class="fas fa-${type === 'success' ? 'check-circle' : 
+                         type === 'error' ? 'exclamation-circle' : 
+                         type === 'warning' ? 'exclamation-triangle' : 'info-circle'}"></i>
+      <span>${message}</span>
+    `;
+    
+    notification.style.cssText = `
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      padding: 1rem 1.5rem;
+      border-radius: var(--border-radius);
+      box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      z-index: 3000;
+      animation: slideIn 0.3s ease, slideOut 0.3s ease 2.7s;
+      max-width: 400px;
+      background: ${type === 'success' ? 'var(--success-color)' : 
+                   type === 'error' ? 'var(--secondary-color)' : 
+                   type === 'warning' ? 'var(--warning-color)' : 
+                   'var(--info-color)'};
+      color: white;
+    `;
+    
+    document.body.appendChild(notification);
+    
+    setTimeout(() => {
+      notification.remove();
+    }, 3000);
+  }
+  
+  showStorageFullModal() {
+    document.getElementById('modalStorageCheio').style.display = 'flex';
+  }
+}
+
+/**
+ * CONTROLLER - Coordena interações entre Model e View
+ */
+class CRASController {
+  constructor(model, view) {
+    this.model = model;
+    this.view = view;
+    
+    this.view.setModel(model);
+    this.view.setController(this);
+    
+    this.initialize();
+  }
+  
+  initialize() {
+    // Carrega dados iniciais
+    this.updateVisitasList();
+    this.updateStorageUI();
+    this.initClock();
+  }
+  
+  initClock() {
+    function updateClock() {
+      const now = new Date();
+      const time = now.toLocaleTimeString('pt-BR');
+      const clockElement = document.getElementById('currentTime');
+      if (clockElement) {
+        clockElement.textContent = time;
+      }
+    }
+    
+    updateClock();
+    setInterval(updateClock, 1000);
+  }
+  
+  updateStorageUI() {
+    const totalSize = this.model.getStorageSize();
+    const percentUsed = (totalSize / this.model.MAX_STORAGE) * 100;
+    this.model.updateStorageUI(percentUsed);
+    
+    if (percentUsed > 90) {
+      this.view.showStorageFullModal();
+    }
+  }
+  
+  handleSaveVisita() {
+    const formData = this.view.getFormData();
+    
+    // Validação básica
+    if (!formData.familiaNome || !formData.responsavel || !formData.endereco) {
+      this.view.showNotification('Preencha os campos obrigatórios', 'error');
+      return;
+    }
+    
+    const visita = this.model.saveVisita(formData);
+    this.view.showNotification('Visita registrada com sucesso!', 'success');
+    this.view.closeNovaVisitaModal();
+    
+    // Atualiza UI
+    this.updateVisitasList();
+    this.updateStorageUI();
+    
+    // Se está na aba dashboard, atualiza
+    if (this.view.currentTab === 'dashboard') {
+      this.view.updateDashboard();
+    }
+  }
+  
+  handleFilterVisitas() {
+    const filters = {
+      search: document.getElementById('searchVisitas').value,
+      ods: document.getElementById('filterODS').value,
+      status: document.getElementById('filterStatus').value
+    };
+    
+    const filteredVisitas = this.model.getFilteredVisitas(filters);
+    this.view.renderVisitasList(filteredVisitas);
+  }
+  
+  updateVisitasList() {
+    const visitas = this.model.visitas;
+    this.view.renderVisitasList(visitas);
+  }
+  
+  handleExportWhatsApp() {
+    // Encontra a primeira visita para exportar (em produção, seria selecionada)
+    if (this.model.visitas.length > 0) {
+      this.exportVisitaWhatsApp(this.model.visitas[0].id);
+    } else {
+      this.view.showNotification('Nenhuma visita para exportar', 'warning');
+    }
+  }
+  
+  exportVisitaWhatsApp(visitaId) {
+    const whatsappText = this.model.exportWhatsAppSummary(visitaId);
+    if (whatsappText) {
+      const url = `https://wa.me/?text=${whatsappText}`;
+      window.open(url, '_blank');
+    }
+  }
+  
+  handleExportCurrentMonth() {
+    const currentMonth = this.model.getCurrentMonthKey();
+    this.model.exportMonthToCSV(currentMonth, true);
+    this.view.showNotification('Mês atual exportado com sucesso', 'success');
+  }
+  
+  handleExportLast3Months() {
+    const months = new Set(this.model.visitas.map(v => v.storageMonth || v.mes));
+    const sortedMonths = Array.from(months).sort();
+    const last3Months = sortedMonths.slice(-3);
+    
+    last3Months.forEach(month => {
+      this.model.exportMonthToCSV(month, true);
+    });
+    
+    this.view.showNotification('Últimos 3 meses exportados', 'success');
+  }
+  
+  handleExportAllMonths() {
+    const exports = this.model.exportAllMonths();
+    
+    if (exports.length === 0) {
+      this.view.showNotification('Nenhum dado para exportar', 'warning');
+      return;
+    }
+    
+    exports.forEach(exp => {
+      this.model.downloadCSV(exp.csv, exp.filename);
+    });
+    
+    this.view.showNotification(`${exports.length} meses exportados`, 'success');
+  }
+  
+  static showNotification(message, type) {
+    // Método estático para uso em outras partes do código
+    const notification = document.createElement('div');
+    notification.className = 'notification';
+    notification.innerHTML = `
+      <i class="fas fa-${type === 'success' ? 'check-circle' : 
+                         type === 'error' ? 'exclamation-circle' : 
+                         type === 'warning' ? 'exclamation-triangle' : 'info-circle'}"></i>
+      <span>${message}</span>
+    `;
+    
+    notification.style.cssText = `
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      padding: 1rem 1.5rem;
+      border-radius: var(--border-radius);
+      box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      z-index: 3000;
+      animation: slideIn 0.3s ease, slideOut 0.3s ease 2.7s;
+      max-width: 400px;
+      background: ${type === 'success' ? 'var(--success-color)' : 
+                   type === 'error' ? 'var(--secondary-color)' : 
+                   type === 'warning' ? 'var(--warning-color)' : 
+                   'var(--info-color)'};
+      color: white;
+    `;
+    
+    document.body.appendChild(notification);
+    
+    setTimeout(() => {
+      notification.remove();
+    }, 3000);
+  }
+}
+
+// =================================================================
+// INICIALIZAÇÃO DO SISTEMA
+// =================================================================
+
+// Variável global para acesso ao controller
+let crasController;
+
+document.addEventListener('DOMContentLoaded', function() {
+  // Adiciona estilos de animação
+  const style = document.createElement('style');
+  style.textContent = `
+    @keyframes slideIn {
+      from { transform: translateX(100%); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
+    }
+    
+    @keyframes slideOut {
+      from { transform: translateX(0); opacity: 1; }
+      to { transform: translateX(100%); opacity: 0; }
+    }
+    
+    .notification {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      padding: 1rem 1.5rem;
+      border-radius: var(--border-radius);
+      box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      z-index: 3000;
+      animation: slideIn 0.3s ease, slideOut 0.3s ease 2.7s;
+      max-width: 400px;
+    }
+    
+    .notification-success {
+      background: var(--success-color);
+      color: white;
+    }
+    
+    .notification-error {
+      background: var(--secondary-color);
+      color: white;
+    }
+    
+    .notification-warning {
+      background: var(--warning-color);
+      color: white;
+    }
+    
+    .notification-info {
+      background: var(--info-color);
+      color: white;
+    }
+  `;
+  document.head.appendChild(style);
+  
+  // Inicializa o sistema
+  const model = new CRASModel();
+  const view = new CRASView();
+  crasController = new CRASController(model, view);
+  
+  // Adiciona alguns dados de exemplo para demonstração
+  if (model.visitas.length === 0) {
+    const exemploVisitas = [
+      {
+        familiaNome: "Família Silva",
+        responsavel: "Maria Silva",
+        bairro: "Centro",
+        tipoLocalizacao: "urbano",
+        totalMembros: 4,
+        rendaTotal: 1200,
+        rendaPerCapita: 300,
+        bolsaFamilia: true,
+        urgencia: "media",
+        observacoes: "Família em situação de vulnerabilidade social, necessita de acompanhamento PAIF."
+      },
+      {
+        familiaNome: "Família Santos",
+        responsavel: "João Santos",
+        bairro: "Zona Rural",
+        tipoLocalizacao: "rural",
+        totalMembros: 6,
+        rendaTotal: 900,
+        rendaPerCapita: 150,
+        bpc: true,
+        urgencia: "alta",
+        observacoes: "Agricultor familiar, dificuldade de acesso a serviços básicos."
+      }
+    ];
+    
+    exemploVisitas.forEach(visita => {
+      model.saveVisita(visita);
+    });
+  }
+  
+  // Atualiza a lista inicial
+  crasController.updateVisitasList();
+  
+  console.log('Sistema CRAS ODS inicializado com sucesso!');
+  console.log('Características:');
+  console.log('- MVC em arquivo único');
+  console.log('- Dashboard com gráficos Chart.js');
+  console.log('- Coleta de dados atômicos para classificação ODS');
+  console.log('- Sistema de exportação CSV com rotação FIFO');
+  console.log('- Exportação WhatsApp com emojis');
+  console.log('- Armazenamento localStorage com limite de 5MB');
+  console.log('- Classificação automática ODS 1, 2, 3, 10');
+});
 </script>
 </body>
 </html>
