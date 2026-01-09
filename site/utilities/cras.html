@@ -709,6 +709,61 @@
   .badge-ods2 { background: var(--ods2); color: white; }
   .badge-ods3 { background: var(--ods3); color: white; }
   .badge-ods10 { background: var(--ods10); color: white; }
+  
+  /* ===== ÍCONES DE AÇÃO ===== */
+  .action-buttons {
+    display: flex;
+    gap: 0.25rem;
+  }
+  
+  .action-btn {
+    padding: 0.5rem;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: var(--transition);
+    width: 36px;
+    height: 36px;
+  }
+  
+  .action-btn-edit {
+    background: #3498db;
+    color: white;
+  }
+  
+  .action-btn-edit:hover {
+    background: #2980b9;
+  }
+  
+  .action-btn-delete {
+    background: #e74c3c;
+    color: white;
+  }
+  
+  .action-btn-delete:hover {
+    background: #c0392b;
+  }
+  
+  .action-btn-export {
+    background: #27ae60;
+    color: white;
+  }
+  
+  .action-btn-export:hover {
+    background: #219653;
+  }
+  
+  .action-btn-map {
+    background: #9b59b6;
+    color: white;
+  }
+  
+  .action-btn-map:hover {
+    background: #8e44ad;
+  }
 </style>
 </head>
 <body>
@@ -878,6 +933,9 @@
         <button id="btnSelecionarLocal">
           <i class="fas fa-map-marker-alt"></i> Selecionar Local
         </button>
+        <button id="btnClusterVisitas" class="btn-ods1">
+          <i class="fas fa-layer-group"></i> Agrupar Visitas
+        </button>
       </div>
     </div>
     <div class="dashboard-card mt-2">
@@ -887,6 +945,31 @@
         <p><strong>Local selecionado:</strong> <span id="selectedLocation">Nenhum local selecionado</span></p>
         <p><strong>Coordenadas:</strong> <span id="selectedCoords">-</span></p>
         <p><strong>Endereço aproximado:</strong> <span id="selectedAddress">-</span></p>
+      </div>
+      <div id="mapLegend" class="mt-2">
+        <h4><i class="fas fa-legend"></i> Legenda dos Marcadores ODS:</h4>
+        <div style="display: flex; flex-wrap: wrap; gap: 1rem; margin-top: 0.5rem;">
+          <div style="display: flex; align-items: center; gap: 0.5rem;">
+            <div style="width: 20px; height: 20px; border-radius: 50%; background: var(--ods1); border: 2px solid white;"></div>
+            <span>ODS 1 - Pobreza</span>
+          </div>
+          <div style="display: flex; align-items: center; gap: 0.5rem;">
+            <div style="width: 20px; height: 20px; border-radius: 50%; background: var(--ods2); border: 2px solid white;"></div>
+            <span>ODS 2 - Fome</span>
+          </div>
+          <div style="display: flex; align-items: center; gap: 0.5rem;">
+            <div style="width: 20px; height: 20px; border-radius: 50%; background: var(--ods3); border: 2px solid white;"></div>
+            <span>ODS 3 - Saúde</span>
+          </div>
+          <div style="display: flex; align-items: center; gap: 0.5rem;">
+            <div style="width: 20px; height: 20px; border-radius: 50%; background: var(--ods4); border: 2px solid white;"></div>
+            <span>ODS 4 - Educação</span>
+          </div>
+          <div style="display: flex; align-items: center; gap: 0.5rem;">
+            <div style="width: 20px; height: 20px; border-radius: 50%; background: var(--ods10); border: 2px solid white;"></div>
+            <span>ODS 10 - Desigualdade</span>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -1421,7 +1504,7 @@
             <div style="background: #f9f9f9; padding: 1rem; border-radius: var(--border-radius);">
               <h4 style="color: var(--primary-color); margin-bottom: 0.5rem;">
                 <i class="fas fa-file-alt"></i> Resumo da Visita
-              </h4>
+              </div>
               <div id="resumoVisita" style="font-size: 0.9rem; line-height: 1.5;">
                 <!-- Resumo será gerado aqui -->
               </div>
@@ -1451,52 +1534,37 @@
   </div>
 </div>
 
-<!-- Modal Storage Cheio -->
-<div class="modal-overlay" id="modalStorageCheio">
-  <div class="modal">
-    <div class="modal-header" style="padding: 1.5rem; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: center;">
-      <h2><i class="fas fa-exclamation-triangle" style="color: var(--warning-color);"></i> Armazenamento Cheio</h2>
-      <button class="close-btn" id="closeStorageCheio" style="background: none; border: none; font-size: 1.5rem; color: #999; cursor: pointer;">&times;</button>
-    </div>
-    <div class="modal-body" style="padding: 1.5rem;">
-      <div style="background: #fff3cd; color: #856404; padding: 1rem; border-radius: var(--border-radius); margin-bottom: 1rem;">
-        <i class="fas fa-exclamation-circle"></i>
-        <strong> Atenção: </strong> O armazenamento local está quase cheio (90% utilizado).
+<!-- Modal Confirmação Exclusão -->
+<div class="modal-overlay" id="modalConfirmacaoExclusao">
+  <div class="modal" style="max-width: 500px;">
+    <div class="modal-body" style="padding: 2rem; text-align: center;">
+      <i class="fas fa-exclamation-triangle fa-3x" style="color: var(--warning-color); margin-bottom: 1rem;"></i>
+      <h3 id="confirmacaoExclusaoTitulo">Confirmar Exclusão</h3>
+      <p id="confirmacaoExclusaoMensagem">Tem certeza que deseja excluir esta visita?</p>
+      <div style="display: flex; gap: 1rem; justify-content: center; margin-top: 2rem;">
+        <button class="btn-primary" id="btnCancelarExclusao">Cancelar</button>
+        <button class="btn-danger" id="btnConfirmarExclusao">Excluir</button>
       </div>
-      <p>Para continuar registrando novas visitas, é necessário exportar os dados dos meses anteriores.</p>
-      <p class="text-muted">Sistema fará backup automático dos meses anteriores antes de continuar.</p>
-      
-      <div class="form-group mt-2">
-        <label for="backupOption">Opção de Backup:</label>
-        <select id="backupOption" style="width: 100%; padding: 0.75rem; border: 1px solid #ddd; border-radius: var(--border-radius);">
-          <option value="csv">Download CSV (recomendado)</option>
-          <option value="json">Download JSON completo</option>
-          <option value="both">Ambos formatos</option>
-        </select>
-      </div>
-    </div>
-    <div class="modal-footer" style="padding: 1.5rem; border-top: 1px solid #eee; display: flex; justify-content: flex-end; gap: 1rem;">
-      <button class="btn-primary" id="btnFazerBackup">
-        <i class="fas fa-download"></i> Fazer Backup Agora
-      </button>
-      <button class="btn-success" id="btnContinuarSemBackup">
-        <i class="fas fa-play"></i> Continuar Sem Backup
-      </button>
     </div>
   </div>
 </div>
 
-<!-- Modal Confirmação -->
-<div class="modal-overlay" id="modalConfirmacao">
-  <div class="modal" style="max-width: 500px;">
-    <div class="modal-body" style="padding: 2rem; text-align: center;">
-      <i class="fas fa-question-circle fa-3x" style="color: var(--primary-light); margin-bottom: 1rem;"></i>
-      <h3 id="confirmacaoTitulo">Confirmar ação</h3>
-      <p id="confirmacaoMensagem">Tem certeza que deseja continuar?</p>
-      <div style="display: flex; gap: 1rem; justify-content: center; margin-top: 2rem;">
-        <button class="btn-danger" id="btnConfirmarNao">Não</button>
-        <button class="btn-success" id="btnConfirmarSim">Sim</button>
+<!-- Modal Detalhes Visita -->
+<div class="modal-overlay" id="modalDetalhesVisita">
+  <div class="modal" style="max-width: 800px;">
+    <div class="modal-header" style="padding: 1.5rem; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: center;">
+      <h2><i class="fas fa-info-circle"></i> Detalhes da Visita</h2>
+      <button class="close-btn" id="closeDetalhesVisita" style="background: none; border: none; font-size: 1.5rem; color: #999; cursor: pointer;">&times;</button>
+    </div>
+    <div class="modal-body" style="padding: 1.5rem; max-height: 70vh; overflow-y: auto;">
+      <div id="detalhesVisitaConteudo">
+        <!-- Conteúdo será carregado aqui -->
       </div>
+    </div>
+    <div class="modal-footer" style="padding: 1.5rem; border-top: 1px solid #eee; display: flex; justify-content: flex-end; gap: 1rem;">
+      <button class="btn-primary" id="btnFecharDetalhes">
+        <i class="fas fa-times"></i> Fechar
+      </button>
     </div>
   </div>
 </div>
@@ -1506,7 +1574,7 @@
 
 <script>
 // =================================================================
-// SISTEMA CRAS ODS - VERSÃO MELHORADA
+// SISTEMA CRAS ODS - VERSÃO COMPLETA COM EXCLUSÃO E MAPA INTERATIVO
 // =================================================================
 
 /**
@@ -1632,6 +1700,75 @@ class CRASModel {
     return visitaData;
   }
   
+  deleteVisita(visitaId) {
+    const index = this.visitas.findIndex(v => v.id === visitaId);
+    if (index >= 0) {
+      const visita = this.visitas[index];
+      
+      // Remover do array
+      this.visitas.splice(index, 1);
+      
+      // Remover do localStorage do mês correspondente
+      const monthKey = visita.storageMonth || visita.mes;
+      this.saveToMonth(monthKey);
+      
+      // Recalcular métricas
+      this.calculateMetrics();
+      
+      return true;
+    }
+    return false;
+  }
+  
+  getODSColor(odsArray) {
+    if (!odsArray || odsArray.length === 0) {
+      return '#7f8c8d'; // Cinza padrão
+    }
+    
+    // Ordenar por peso (maior primeiro) e pegar o primeiro
+    const sorted = odsArray.sort((a, b) => b.peso - a.peso);
+    const mainODS = sorted[0];
+    
+    const odsColors = {
+      1: '#E5243B', // Vermelho ODS 1
+      2: '#DDA63A', // Amarelo ODS 2
+      3: '#4C9F38', // Verde ODS 3
+      4: '#C5192D', // Vermelho ODS 4
+      5: '#FF3A21', // Laranja ODS 5
+      6: '#26BDE2', // Azul ODS 6
+      7: '#FCC30B', // Amarelo ODS 7
+      8: '#A21942', // Rosa ODS 8
+      9: '#FD6925', // Laranja ODS 9
+      10: '#DD1367'  // Rosa ODS 10
+    };
+    
+    return odsColors[mainODS.codigo] || '#7f8c8d';
+  }
+  
+  getODSIcon(odsArray) {
+    if (!odsArray || odsArray.length === 0) {
+      return 'fa-question-circle';
+    }
+    
+    const sorted = odsArray.sort((a, b) => b.peso - a.peso);
+    const mainODS = sorted[0];
+    
+    const odsIcons = {
+      1: 'fa-money-bill-wave', // Pobreza
+      2: 'fa-apple-alt',       // Fome
+      3: 'fa-heartbeat',       // Saúde
+      4: 'fa-graduation-cap',  // Educação
+      5: 'fa-venus-mars',      // Igualdade de gênero
+      6: 'fa-tint',            // Água
+      7: 'fa-bolt',            // Energia
+      8: 'fa-briefcase',       // Trabalho
+      9: 'fa-industry',        // Indústria
+      10: 'fa-balance-scale'   // Desigualdade
+    };
+    
+    return odsIcons[mainODS.codigo] || 'fa-question-circle';
+  }
+  
   classificarODS(visitaData) {
     const ods = [];
     const pesos = {};
@@ -1650,7 +1787,8 @@ class CRASModel {
       ods.push({
         codigo: 1,
         nome: "Erradicação da Pobreza",
-        peso: Math.min(pesoODS1, 5)
+        peso: Math.min(pesoODS1, 5),
+        icone: 'fa-money-bill-wave'
       });
     }
     
@@ -1664,7 +1802,8 @@ class CRASModel {
       ods.push({
         codigo: 2,
         nome: "Fome Zero e Agricultura Sustentável",
-        peso: Math.min(pesoODS2, 5)
+        peso: Math.min(pesoODS2, 5),
+        icone: 'fa-apple-alt'
       });
     }
     
@@ -1682,7 +1821,8 @@ class CRASModel {
       ods.push({
         codigo: 3,
         nome: "Saúde e Bem-Estar",
-        peso: Math.min(pesoODS3, 5)
+        peso: Math.min(pesoODS3, 5),
+        icone: 'fa-heartbeat'
       });
     }
     
@@ -1696,7 +1836,8 @@ class CRASModel {
       ods.push({
         codigo: 4,
         nome: "Educação de Qualidade",
-        peso: Math.min(pesoODS4, 5)
+        peso: Math.min(pesoODS4, 5),
+        icone: 'fa-graduation-cap'
       });
     }
     
@@ -1710,7 +1851,8 @@ class CRASModel {
       ods.push({
         codigo: 6,
         nome: "Água Potável e Saneamento",
-        peso: Math.min(pesoODS6, 5)
+        peso: Math.min(pesoODS6, 5),
+        icone: 'fa-tint'
       });
     }
     
@@ -1724,7 +1866,8 @@ class CRASModel {
       ods.push({
         codigo: 10,
         nome: "Redução das Desigualdades",
-        peso: Math.min(pesoODS10, 5)
+        peso: Math.min(pesoODS10, 5),
+        icone: 'fa-balance-scale'
       });
     }
     
@@ -2389,6 +2532,10 @@ class CRASView {
     this.map = null;
     this.mapMarkers = [];
     this.selectedLocation = null;
+    this.mapSelectionActive = false;
+    this.currentLocationMarker = null;
+    this.selectionMarker = null;
+    this.mapClusters = null;
     
     this.initializeElements();
     this.bindEvents();
@@ -2516,6 +2663,24 @@ class CRASView {
       this.activateMapSelection();
     });
     
+    document.getElementById('btnClusterVisitas').addEventListener('click', () => {
+      this.toggleMapClusters();
+    });
+    
+    // Modal detalhes
+    document.getElementById('closeDetalhesVisita').addEventListener('click', () => {
+      this.closeDetalhesVisitaModal();
+    });
+    
+    document.getElementById('btnFecharDetalhes').addEventListener('click', () => {
+      this.closeDetalhesVisitaModal();
+    });
+    
+    // Modal confirmação exclusão
+    document.getElementById('btnCancelarExclusao').addEventListener('click', () => {
+      this.closeConfirmacaoExclusaoModal();
+    });
+    
     // Atualizações em tempo real
     document.getElementById('rendaTotal').addEventListener('input', () => {
       this.calcularRendaPerCapita();
@@ -2594,6 +2759,245 @@ class CRASView {
   
   closeNovaVisitaModal() {
     document.getElementById('modalNovaVisita').style.display = 'none';
+  }
+  
+  openDetalhesVisitaModal(visitaId) {
+    const visita = this.model.visitas.find(v => v.id === visitaId);
+    if (!visita) return;
+    
+    const detalhesContent = document.getElementById('detalhesVisitaConteudo');
+    detalhesContent.innerHTML = this.generateDetalhesVisitaHTML(visita);
+    
+    document.getElementById('modalDetalhesVisita').style.display = 'flex';
+  }
+  
+  closeDetalhesVisitaModal() {
+    document.getElementById('modalDetalhesVisita').style.display = 'none';
+  }
+  
+  generateDetalhesVisitaHTML(visita) {
+    const urgenciaColor = {
+      'critica': '#e74c3c',
+      'alta': '#f39c12',
+      'media': '#3498db',
+      'baixa': '#27ae60'
+    }[visita.urgencia] || '#7f8c8d';
+    
+    const urgenciaText = {
+      'critica': 'Crítica',
+      'alta': 'Alta',
+      'media': 'Média',
+      'baixa': 'Baixa'
+    }[visita.urgencia] || 'Não informado';
+    
+    const odsBadges = visita.ods?.map(ods => `
+      <span class="badge" style="background: ${this.model.getODSColor([ods])}; margin: 0.2rem;">
+        <i class="fas ${ods.icone || 'fa-question-circle'}"></i> ODS ${ods.codigo}: ${ods.nome}
+      </span>
+    `).join('') || '<span class="text-muted">Sem classificação ODS</span>';
+    
+    return `
+      <div style="max-width: 100%;">
+        <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 1.5rem;">
+          <div>
+            <h2 style="margin: 0 0 0.5rem 0; color: var(--primary-color);">${visita.familiaNome}</h2>
+            <div style="display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 0.5rem;">
+              ${odsBadges}
+            </div>
+          </div>
+          <div style="display: flex; gap: 0.5rem;">
+            <button class="action-btn action-btn-edit" onclick="crasController.editVisita('${visita.id}')" title="Editar">
+              <i class="fas fa-edit"></i>
+            </button>
+            <button class="action-btn action-btn-export" onclick="crasController.exportVisitaWhatsApp('${visita.id}')" title="Exportar para WhatsApp">
+              <i class="fab fa-whatsapp"></i>
+            </button>
+            <button class="action-btn action-btn-map" onclick="crasController.showVisitaNoMapa('${visita.id}')" title="Mostrar no Mapa">
+              <i class="fas fa-map-marker-alt"></i>
+            </button>
+            <button class="action-btn action-btn-delete" onclick="crasController.confirmarExclusaoVisita('${visita.id}')" title="Excluir">
+              <i class="fas fa-trash"></i>
+            </button>
+          </div>
+        </div>
+        
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem;">
+          <!-- Coluna Esquerda -->
+          <div>
+            <div class="dashboard-card" style="margin-bottom: 1rem;">
+              <h3><i class="fas fa-info-circle"></i> Informações Básicas</h3>
+              <div style="display: grid; gap: 0.75rem;">
+                <div>
+                  <strong>Responsável:</strong> ${visita.responsavel || 'Não informado'}
+                </div>
+                <div>
+                  <strong>CPF:</strong> ${visita.cpfResponsavel || 'Não informado'}
+                </div>
+                <div>
+                  <strong>Telefone:</strong> ${visita.telefoneContato || 'Não informado'}
+                </div>
+                <div>
+                  <strong>Data da Visita:</strong> ${new Date(visita.visitaData || visita.createdAt).toLocaleDateString('pt-BR')}
+                </div>
+                <div>
+                  <strong>Urgência:</strong> 
+                  <span style="color: ${urgenciaColor}; font-weight: 600;">${urgenciaText}</span>
+                </div>
+              </div>
+            </div>
+            
+            <div class="dashboard-card">
+              <h3><i class="fas fa-map-marker-alt"></i> Localização</h3>
+              <div style="display: grid; gap: 0.75rem;">
+                <div>
+                  <strong>Endereço:</strong> ${visita.endereco || 'Não informado'}
+                </div>
+                <div>
+                  <strong>Bairro:</strong> ${visita.bairro || 'Não informado'}
+                </div>
+                <div>
+                  <strong>Tipo:</strong> ${visita.tipoLocalizacao ? visita.tipoLocalizacao.charAt(0).toUpperCase() + visita.tipoLocalizacao.slice(1) : 'Não informado'}
+                </div>
+                <div>
+                  <strong>Coordenadas:</strong> ${visita.coordenadas || 'Não informado'}
+                </div>
+                <div>
+                  <strong>Ponto de Referência:</strong> ${visita.pontoReferencia || 'Não informado'}
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Coluna Direita -->
+          <div>
+            <div class="dashboard-card" style="margin-bottom: 1rem;">
+              <h3><i class="fas fa-users"></i> Composição Familiar</h3>
+              <div style="display: grid; gap: 0.75rem;">
+                <div>
+                  <strong>Total de Membros:</strong> ${visita.totalMembros || 1}
+                </div>
+                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.5rem;">
+                  <div><strong>Crianças (0-12):</strong> ${visita.criancas || 0}</div>
+                  <div><strong>Adolescentes (13-17):</strong> ${visita.adolescentes || 0}</div>
+                  <div><strong>Adultos (18-59):</strong> ${visita.adultos || 1}</div>
+                  <div><strong>Idosos (60+):</strong> ${visita.idosos || 0}</div>
+                </div>
+                <div>
+                  <strong>Renda Total:</strong> R$ ${visita.rendaTotal || '0,00'}
+                </div>
+                <div>
+                  <strong>Renda per Capita:</strong> R$ ${visita.rendaPerCapita || '0,00'}
+                </div>
+              </div>
+            </div>
+            
+            <div class="dashboard-card">
+              <h3><i class="fas fa-hands-helping"></i> Serviços e Benefícios</h3>
+              <div style="display: grid; gap: 0.75rem;">
+                <div>
+                  <strong>Benefícios Recebidos:</strong>
+                  <div style="display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.25rem;">
+                    ${visita.bolsaFamilia ? '<span class="badge" style="background: #27ae60;">Bolsa Família</span>' : ''}
+                    ${visita.bpc ? '<span class="badge" style="background: #3498db;">BPC</span>' : ''}
+                    ${visita.auxilioBrasil ? '<span class="badge" style="background: #9b59b6;">Auxílio Brasil</span>' : ''}
+                    ${visita.auxilioGas ? '<span class="badge" style="background: #f39c12;">Auxílio Gás</span>' : ''}
+                    ${visita.tarifaSocial ? '<span class="badge" style="background: #1abc9c;">Tarifa Social</span>' : ''}
+                    ${!visita.bolsaFamilia && !visita.bpc && !visita.auxilioBrasil && !visita.auxilioGas && !visita.tarifaSocial ? '<span class="text-muted">Nenhum benefício</span>' : ''}
+                  </div>
+                </div>
+                <div>
+                  <strong>Serviços CRAS:</strong>
+                  <div style="display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.25rem;">
+                    ${visita.paif ? '<span class="badge" style="background: #e74c3c;">PAIF</span>' : ''}
+                    ${visita.scfv ? '<span class="badge" style="background: #f39c12;">SCFV</span>' : ''}
+                    ${visita.cadastroUnico ? '<span class="badge" style="background: #3498db;">Cadastro Único</span>' : ''}
+                    ${!visita.paif && !visita.scfv && !visita.cadastroUnico ? '<span class="text-muted">Nenhum serviço ativo</span>' : ''}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Condições de Saúde -->
+        <div class="dashboard-card mt-2">
+          <h3><i class="fas fa-heartbeat"></i> Condições de Saúde</h3>
+          <div style="display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.5rem;">
+            ${visita.deficienciaFisica ? '<span class="badge" style="background: #e74c3c;">Deficiência Física</span>' : ''}
+            ${visita.deficienciaVisual ? '<span class="badge" style="background: #e67e22;">Deficiência Visual</span>' : ''}
+            ${visita.deficienciaAuditiva ? '<span class="badge" style="background: #d35400;">Deficiência Auditiva</span>' : ''}
+            ${visita.deficienciaIntelectual ? '<span class="badge" style="background: #c0392b;">Deficiência Intelectual</span>' : ''}
+            ${visita.doencaCronica ? '<span class="badge" style="background: #8e44ad;">Doença Crônica</span>' : ''}
+            ${visita.gestante ? '<span class="badge" style="background: #9b59b6;">Gestante</span>' : ''}
+            ${visita.lactante ? '<span class="badge" style="background: #8e44ad;">Lactante</span>' : ''}
+            ${!visita.deficienciaFisica && !visita.deficienciaVisual && !visita.deficienciaAuditiva && !visita.deficienciaIntelectual && !visita.doencaCronica && !visita.gestante && !visita.lactante ? 
+              '<span class="text-muted">Nenhuma condição de saúde registrada</span>' : ''}
+          </div>
+        </div>
+        
+        <!-- Direcionamentos Sugeridos -->
+        ${visita.direcionamentosSugeridos && visita.direcionamentosSugeridos.length > 0 ? `
+          <div class="dashboard-card mt-2">
+            <h3><i class="fas fa-project-diagram"></i> Direcionamentos Sugeridos</h3>
+            <div style="display: grid; gap: 0.75rem; margin-top: 0.5rem;">
+              ${visita.direcionamentosSugeridos.map(d => `
+                <div class="direcionamento-item">
+                  <div class="direcionamento-header">
+                    <strong>${d.descricao}</strong>
+                    <div class="direcionamento-status">
+                      <span class="status-badge status-${d.prioridade}">${d.prioridade === 'alta' ? 'Alta' : d.prioridade === 'media' ? 'Média' : 'Baixa'} Prioridade</span>
+                    </div>
+                  </div>
+                  <div style="font-size: 0.85rem; color: #7f8c8d; margin-top: 0.25rem;">
+                    ODS Relacionados: ${d.ods?.map(o => `ODS ${o}`).join(', ') || 'N/A'}
+                  </div>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+        ` : ''}
+        
+        <!-- Observações -->
+        <div class="dashboard-card mt-2">
+          <h3><i class="fas fa-file-alt"></i> Observações</h3>
+          <p style="white-space: pre-wrap; margin-top: 0.5rem;">${visita.observacoes || 'Nenhuma observação registrada.'}</p>
+        </div>
+        
+        <!-- Próximos Passos -->
+        ${visita.proximosPassos ? `
+          <div class="dashboard-card mt-2">
+            <h3><i class="fas fa-forward"></i> Próximos Passos</h3>
+            <p style="white-space: pre-wrap; margin-top: 0.5rem;">${visita.proximosPassos}</p>
+          </div>
+        ` : ''}
+        
+        <div style="display: flex; justify-content: space-between; margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid #eee; color: #7f8c8d; font-size: 0.85rem;">
+          <div>
+            <strong>ID:</strong> ${visita.id}
+          </div>
+          <div>
+            <strong>Criado em:</strong> ${new Date(visita.createdAt).toLocaleString('pt-BR')}
+          </div>
+          <div>
+            <strong>Atualizado em:</strong> ${new Date(visita.updatedAt).toLocaleString('pt-BR')}
+          </div>
+        </div>
+      </div>
+    `;
+  }
+  
+  openConfirmacaoExclusaoModal(visitaId, visitaNome) {
+    document.getElementById('confirmacaoExclusaoTitulo').textContent = `Excluir Visita: ${visitaNome}`;
+    document.getElementById('confirmacaoExclusaoMensagem').textContent = 'Tem certeza que deseja excluir esta visita? Esta ação não pode ser desfeita.';
+    
+    const btnConfirmar = document.getElementById('btnConfirmarExclusao');
+    btnConfirmar.dataset.visitaId = visitaId;
+    
+    document.getElementById('modalConfirmacaoExclusao').style.display = 'flex';
+  }
+  
+  closeConfirmacaoExclusaoModal() {
+    document.getElementById('modalConfirmacaoExclusao').style.display = 'none';
   }
   
   updateFormProgress() {
@@ -2763,7 +3167,8 @@ class CRASView {
       odsClasses.push({
         codigo: 1,
         nome: 'ODS 1 - Erradicação da Pobreza',
-        color: '#E5243B'
+        color: '#E5243B',
+        icone: 'fa-money-bill-wave'
       });
     }
     
@@ -2772,7 +3177,8 @@ class CRASView {
       odsClasses.push({
         codigo: 2,
         nome: 'ODS 2 - Fome Zero',
-        color: '#DDA63A'
+        color: '#DDA63A',
+        icone: 'fa-apple-alt'
       });
     }
     
@@ -2783,7 +3189,8 @@ class CRASView {
       odsClasses.push({
         codigo: 3,
         nome: 'ODS 3 - Saúde e Bem-estar',
-        color: '#4C9F38'
+        color: '#4C9F38',
+        icone: 'fa-heartbeat'
       });
     }
     
@@ -2793,7 +3200,8 @@ class CRASView {
       odsClasses.push({
         codigo: 4,
         nome: 'ODS 4 - Educação de Qualidade',
-        color: '#C5192D'
+        color: '#C5192D',
+        icone: 'fa-graduation-cap'
       });
     }
     
@@ -2804,7 +3212,8 @@ class CRASView {
       odsClasses.push({
         codigo: 10,
         nome: 'ODS 10 - Redução das Desigualdades',
-        color: '#DD1367'
+        color: '#DD1367',
+        icone: 'fa-balance-scale'
       });
     }
     
@@ -2813,15 +3222,15 @@ class CRASView {
       badge.style.cssText = `
         background: ${ods.color};
         color: white;
-        padding: 0.25rem 0.75rem;
+        padding: 0.5rem 1rem;
         border-radius: 20px;
-        font-size: 0.8rem;
+        font-size: 0.85rem;
         display: inline-flex;
         align-items: center;
         gap: 0.5rem;
         margin: 0.25rem;
       `;
-      badge.innerHTML = `<i class="fas fa-bullseye"></i> ${ods.nome}`;
+      badge.innerHTML = `<i class="fas ${ods.icone}"></i> ${ods.nome}`;
       classificacaoDiv.appendChild(badge);
     });
     
@@ -3051,8 +3460,8 @@ class CRASView {
     
     const html = visitas.map(visita => {
       const odsBadges = visita.ods?.map(ods => 
-        `<span class="badge badge-ods${ods.codigo}" style="margin: 0.1rem;">
-          ODS ${ods.codigo}
+        `<span class="badge" style="background: ${this.model.getODSColor([ods])}; margin: 0.1rem; font-size: 0.7rem;">
+          <i class="fas ${this.model.getODSIcon([ods])}"></i> ODS ${ods.codigo}
         </span>`
       ).join('') || '';
       
@@ -3070,23 +3479,34 @@ class CRASView {
         'baixa': 'Baixa'
       }[visita.urgencia] || 'Não informado';
       
+      const mainODS = visita.ods && visita.ods.length > 0 ? visita.ods[0] : null;
+      const odsColor = mainODS ? this.model.getODSColor([mainODS]) : '#7f8c8d';
+      const odsIcon = mainODS ? this.model.getODSIcon([mainODS]) : 'fa-question-circle';
+      
       return `
         <div class="visit-card">
           <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 1rem;">
-            <div>
-              <h3 style="margin: 0 0 0.5rem 0; color: var(--primary-color);">${visita.familiaNome}</h3>
+            <div style="flex: 1;">
+              <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
+                <div style="width: 16px; height: 16px; border-radius: 50%; background: ${odsColor}; border: 2px solid white; box-shadow: 0 0 3px rgba(0,0,0,0.3);"></div>
+                <h3 style="margin: 0; color: var(--primary-color);">${visita.familiaNome}</h3>
+              </div>
               <div style="display: flex; flex-wrap: wrap; gap: 0.25rem; margin-bottom: 0.5rem;">
                 ${odsBadges}
               </div>
             </div>
-            <div style="display: flex; gap: 0.25rem;">
-              <button class="btn-success" onclick="crasController.exportVisitaWhatsApp('${visita.id}')" 
-                      style="padding: 0.5rem; font-size: 0.8rem;" title="Exportar para WhatsApp">
+            <div class="action-buttons">
+              <button class="action-btn action-btn-edit" onclick="crasController.editVisita('${visita.id}')" title="Editar">
+                <i class="fas fa-edit"></i>
+              </button>
+              <button class="action-btn action-btn-export" onclick="crasController.exportVisitaWhatsApp('${visita.id}')" title="Exportar para WhatsApp">
                 <i class="fab fa-whatsapp"></i>
               </button>
-              <button class="btn-warning" onclick="crasController.editVisita('${visita.id}')" 
-                      style="padding: 0.5rem; font-size: 0.8rem;" title="Editar">
-                <i class="fas fa-edit"></i>
+              <button class="action-btn action-btn-map" onclick="crasController.showVisitaNoMapa('${visita.id}')" title="Mostrar no Mapa">
+                <i class="fas fa-map-marker-alt"></i>
+              </button>
+              <button class="action-btn action-btn-delete" onclick="crasController.confirmarExclusaoVisita('${visita.id}')" title="Excluir">
+                <i class="fas fa-trash"></i>
               </button>
             </div>
           </div>
@@ -3118,6 +3538,9 @@ class CRASView {
           
           <div style="display: flex; justify-content: space-between; margin-top: 1rem; font-size: 0.8rem; color: #7f8c8d;">
             <span>${new Date(visita.visitaData || visita.createdAt).toLocaleDateString('pt-BR')}</span>
+            <button onclick="crasController.openDetalhesVisita('${visita.id}')" style="background: none; border: none; color: var(--primary-light); cursor: pointer; font-size: 0.8rem;">
+              <i class="fas fa-eye"></i> Ver detalhes
+            </button>
             <span>${visita.totalMembros || 1} membros</span>
           </div>
         </div>
@@ -3283,46 +3706,106 @@ class CRASView {
       attribution: '© OpenStreetMap contributors'
     }).addTo(this.map);
     
+    // Criar grupo de clusters
+    this.mapClusters = L.markerClusterGroup({
+      maxClusterRadius: 40,
+      spiderfyOnMaxZoom: true,
+      showCoverageOnHover: false,
+      zoomToBoundsOnClick: true
+    });
+    
     // Adicionar marcadores das visitas
     if (this.model) {
       this.model.visitas.forEach(visita => {
         if (visita.coordenadas) {
           const [lat, lng] = visita.coordenadas.split(',').map(Number);
           if (lat && lng) {
-            const urgenciaColor = {
-              'critica': 'red',
-              'alta': 'orange',
-              'media': 'blue',
-              'baixa': 'green'
-            }[visita.urgencia] || 'gray';
+            const odsColor = this.model.getODSColor(visita.ods);
+            const odsIcon = this.model.getODSIcon(visita.ods);
             
             const icon = L.divIcon({
-              html: `<div style="background: ${urgenciaColor}; width: 20px; height: 20px; border-radius: 50%; border: 2px solid white; box-shadow: 0 0 5px rgba(0,0,0,0.5);"></div>`,
+              html: `
+                <div style="
+                  background: ${odsColor};
+                  width: 30px;
+                  height: 30px;
+                  border-radius: 50%;
+                  border: 3px solid white;
+                  box-shadow: 0 0 5px rgba(0,0,0,0.5);
+                  display: flex;
+                  align-items: center;
+                  justify-content: center;
+                  color: white;
+                  font-size: 12px;
+                ">
+                  <i class="fas ${odsIcon}"></i>
+                </div>
+              `,
               className: '',
-              iconSize: [24, 24],
-              iconAnchor: [12, 12]
+              iconSize: [36, 36],
+              iconAnchor: [18, 18]
             });
             
-            const marker = L.marker([lat, lng], { icon }).addTo(this.map);
+            const marker = L.marker([lat, lng], { icon });
             
             const popupContent = `
               <div style="max-width: 250px;">
-                <strong>${visita.familiaNome}</strong><br>
-                <small>${visita.bairro || 'Sem bairro'}</small><br>
-                <small>${visita.responsavel || 'Sem responsável'}</small><br>
-                <small style="color: ${urgenciaColor}; font-weight: bold;">
-                  ${visita.urgencia === 'critica' ? '🔴 Crítica' : 
-                    visita.urgencia === 'alta' ? '🟠 Alta' : 
-                    visita.urgencia === 'media' ? '🔵 Média' : '🟢 Baixa'}
-                </small>
+                <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
+                  <div style="width: 20px; height: 20px; border-radius: 50%; background: ${odsColor};"></div>
+                  <strong style="color: ${odsColor};">${visita.familiaNome}</strong>
+                </div>
+                <div style="font-size: 0.9rem; margin-bottom: 0.5rem;">
+                  <div><strong>Responsável:</strong> ${visita.responsavel || 'Não informado'}</div>
+                  <div><strong>Bairro:</strong> ${visita.bairro || 'Não informado'}</div>
+                  <div><strong>Renda per capita:</strong> R$ ${visita.rendaPerCapita || '0,00'}</div>
+                </div>
+                <div style="display: flex; flex-wrap: wrap; gap: 0.25rem; margin-bottom: 0.5rem;">
+                  ${visita.ods?.map(ods => `
+                    <span style="background: ${this.model.getODSColor([ods])}; color: white; padding: 0.1rem 0.3rem; border-radius: 10px; font-size: 0.7rem;">
+                      ODS ${ods.codigo}
+                    </span>
+                  `).join('') || ''}
+                </div>
+                <div style="display: flex; gap: 0.5rem; margin-top: 0.5rem;">
+                  <button onclick="crasController.openDetalhesVisita('${visita.id}')" style="
+                    padding: 0.25rem 0.5rem;
+                    background: var(--primary-color);
+                    color: white;
+                    border: none;
+                    border-radius: 4px;
+                    cursor: pointer;
+                    font-size: 0.8rem;
+                    flex: 1;
+                  ">
+                    <i class="fas fa-info-circle"></i> Detalhes
+                  </button>
+                  <button onclick="crasController.showVisitaNoMapa('${visita.id}')" style="
+                    padding: 0.25rem 0.5rem;
+                    background: var(--primary-light);
+                    color: white;
+                    border: none;
+                    border-radius: 4px;
+                    cursor: pointer;
+                    font-size: 0.8rem;
+                    flex: 1;
+                  ">
+                    <i class="fas fa-crosshairs"></i> Centralizar
+                  </button>
+                </div>
               </div>
             `;
             
             marker.bindPopup(popupContent);
+            marker.visitaId = visita.id; // Armazenar ID da visita no marcador
+            
+            this.mapClusters.addLayer(marker);
             this.mapMarkers.push(marker);
           }
         }
       });
+      
+      // Adicionar clusters ao mapa
+      this.map.addLayer(this.mapClusters);
     }
     
     // Adicionar evento de clique no mapa
@@ -3368,6 +3851,25 @@ class CRASView {
     this.map.fitBounds(group.getBounds().pad(0.1));
   }
   
+  showVisitaNoMapa(visitaId) {
+    const visita = this.model.visitas.find(v => v.id === visitaId);
+    if (!visita || !visita.coordenadas) return;
+    
+    const [lat, lng] = visita.coordenadas.split(',').map(Number);
+    if (lat && lng) {
+      this.map.setView([lat, lng], 16);
+      
+      // Abrir popup do marcador correspondente
+      this.mapMarkers.forEach(marker => {
+        if (marker.visitaId === visitaId) {
+          marker.openPopup();
+        }
+      });
+      
+      this.switchTab('mapa');
+    }
+  }
+  
   activateMapSelection() {
     this.mapSelectionActive = true;
     this.showNotification('Clique no mapa para selecionar uma localização', 'info');
@@ -3375,6 +3877,27 @@ class CRASView {
     document.getElementById('selectedLocation').textContent = 'Aguardando seleção...';
     document.getElementById('selectedCoords').textContent = '-';
     document.getElementById('selectedAddress').textContent = '-';
+  }
+  
+  toggleMapClusters() {
+    if (this.mapClusters) {
+      if (this.map.hasLayer(this.mapClusters)) {
+        this.map.removeLayer(this.mapClusters);
+        // Mostrar marcadores individualmente
+        this.mapMarkers.forEach(marker => {
+          this.map.addLayer(marker);
+        });
+        this.showNotification('Clusters desativados', 'info');
+      } else {
+        // Remover marcadores individuais
+        this.mapMarkers.forEach(marker => {
+          this.map.removeLayer(marker);
+        });
+        // Adicionar clusters
+        this.map.addLayer(this.mapClusters);
+        this.showNotification('Clusters ativados', 'success');
+      }
+    }
   }
   
   async selectMapLocation(latlng) {
@@ -3411,6 +3934,11 @@ class CRASView {
     }).addTo(this.map);
     
     this.selectionMarker.bindPopup('<strong>Local selecionado</strong>').openPopup();
+    
+    // Atualizar campo de coordenadas no formulário se estiver aberto
+    if (document.getElementById('modalNovaVisita').style.display === 'flex') {
+      document.getElementById('coordenadas').value = `${latlng.lat.toFixed(6)}, ${latlng.lng.toFixed(6)}`;
+    }
     
     this.mapSelectionActive = false;
     this.showNotification('Localização selecionada com sucesso!', 'success');
@@ -3452,34 +3980,6 @@ class CRASView {
       notification.remove();
     }, 3000);
   }
-  
-  showStorageFullModal() {
-    document.getElementById('modalStorageCheio').style.display = 'flex';
-  }
-  
-  showConfirmationModal(title, message) {
-    document.getElementById('confirmacaoTitulo').textContent = title;
-    document.getElementById('confirmacaoMensagem').textContent = message;
-    document.getElementById('modalConfirmacao').style.display = 'flex';
-    
-    return new Promise((resolve) => {
-      const btnSim = document.getElementById('btnConfirmarSim');
-      const btnNao = document.getElementById('btnConfirmarNao');
-      
-      const handler = (result) => {
-        document.getElementById('modalConfirmacao').style.display = 'none';
-        btnSim.removeEventListener('click', simHandler);
-        btnNao.removeEventListener('click', naoHandler);
-        resolve(result);
-      };
-      
-      const simHandler = () => handler(true);
-      const naoHandler = () => handler(false);
-      
-      btnSim.addEventListener('click', simHandler);
-      btnNao.addEventListener('click', naoHandler);
-    });
-  }
 }
 
 /**
@@ -3501,6 +4001,12 @@ class CRASController {
     this.updateStorageUI();
     this.initClock();
     this.loadExportHistory();
+    
+    // Configurar evento de confirmação de exclusão
+    document.getElementById('btnConfirmarExclusao').addEventListener('click', (e) => {
+      const visitaId = e.target.dataset.visitaId;
+      this.handleDeleteVisita(visitaId);
+    });
   }
   
   initClock() {
@@ -3522,10 +4028,6 @@ class CRASController {
     const totalSize = this.model.getStorageSize();
     const percentUsed = (totalSize / this.model.MAX_STORAGE) * 100;
     this.model.updateStorageUI(percentUsed);
-    
-    if (percentUsed > 90) {
-      this.view.showStorageFullModal();
-    }
   }
   
   async handleSaveVisita() {
@@ -3588,6 +4090,10 @@ class CRASController {
     if (this.view.currentTab === 'dashboard') {
       this.view.updateDashboard();
     }
+    
+    if (this.view.currentTab === 'mapa') {
+      this.view.initializeMap();
+    }
   }
   
   handleFilterVisitas() {
@@ -3606,19 +4112,36 @@ class CRASController {
     this.view.renderVisitasList(visitas);
   }
   
-  handleExportWhatsApp() {
-    if (this.model.visitas.length > 0) {
-      this.exportVisitaWhatsApp(this.model.visitas[0].id);
-    } else {
-      this.view.showNotification('Nenhuma visita para exportar', 'warning');
-    }
+  openDetalhesVisita(visitaId) {
+    this.view.openDetalhesVisitaModal(visitaId);
   }
   
-  exportVisitaWhatsApp(visitaId) {
-    const whatsappText = this.model.exportWhatsAppSummary(visitaId);
-    if (whatsappText) {
-      const url = `https://wa.me/?text=${whatsappText}`;
-      window.open(url, '_blank');
+  confirmarExclusaoVisita(visitaId) {
+    const visita = this.model.visitas.find(v => v.id === visitaId);
+    if (!visita) return;
+    
+    this.view.openConfirmacaoExclusaoModal(visitaId, visita.familiaNome);
+  }
+  
+  handleDeleteVisita(visitaId) {
+    const success = this.model.deleteVisita(visitaId);
+    
+    if (success) {
+      this.view.closeConfirmacaoExclusaoModal();
+      this.updateVisitasList();
+      this.updateStorageUI();
+      
+      if (this.view.currentTab === 'dashboard') {
+        this.view.updateDashboard();
+      }
+      
+      if (this.view.currentTab === 'mapa') {
+        this.view.initializeMap();
+      }
+      
+      this.view.showNotification('Visita excluída com sucesso!', 'success');
+    } else {
+      this.view.showNotification('Erro ao excluir visita', 'error');
     }
   }
   
@@ -3638,8 +4161,41 @@ class CRASController {
       }
     });
     
+    // Preencher ID para atualização
+    if (!document.getElementById('visitaId')) {
+      const hiddenInput = document.createElement('input');
+      hiddenInput.type = 'hidden';
+      hiddenInput.id = 'visitaId';
+      hiddenInput.name = 'id';
+      hiddenInput.value = visita.id;
+      document.getElementById('formNovaVisita').appendChild(hiddenInput);
+    } else {
+      document.getElementById('visitaId').value = visita.id;
+    }
+    
     // Abrir modal
     this.view.openNovaVisitaModal();
+    this.view.showNotification('Editando visita existente', 'info');
+  }
+  
+  showVisitaNoMapa(visitaId) {
+    this.view.showVisitaNoMapa(visitaId);
+  }
+  
+  handleExportWhatsApp() {
+    if (this.model.visitas.length > 0) {
+      this.exportVisitaWhatsApp(this.model.visitas[0].id);
+    } else {
+      this.view.showNotification('Nenhuma visita para exportar', 'warning');
+    }
+  }
+  
+  exportVisitaWhatsApp(visitaId) {
+    const whatsappText = this.model.exportWhatsAppSummary(visitaId);
+    if (whatsappText) {
+      const url = `https://wa.me/?text=${whatsappText}`;
+      window.open(url, '_blank');
+    }
   }
   
   async handleExportCurrentMonth() {
@@ -3680,7 +4236,7 @@ class CRASController {
   }
   
   async handleClearOldData() {
-    const confirmed = await this.view.showConfirmationModal(
+    const confirmed = await this.showConfirmationModal(
       'Limpar Dados Antigos',
       'Tem certeza que deseja limpar dados com mais de 3 meses? Esta ação não pode ser desfeita.'
     );
@@ -3704,8 +4260,45 @@ class CRASController {
     this.view.updateDashboard();
     this.updateStorageUI();
     
+    if (this.view.currentTab === 'mapa') {
+      this.view.initializeMap();
+    }
+    
     this.addExportHistory(`Dados antigos limpos (${monthsToDelete.length} meses)`);
     this.view.showNotification(`${monthsToDelete.length} meses de dados antigos foram removidos`, 'success');
+  }
+  
+  showConfirmationModal(title, message) {
+    return new Promise((resolve) => {
+      const modal = document.createElement('div');
+      modal.className = 'modal-overlay';
+      modal.style.display = 'flex';
+      modal.innerHTML = `
+        <div class="modal" style="max-width: 500px;">
+          <div class="modal-body" style="padding: 2rem; text-align: center;">
+            <i class="fas fa-question-circle fa-3x" style="color: var(--primary-light); margin-bottom: 1rem;"></i>
+            <h3>${title}</h3>
+            <p>${message}</p>
+            <div style="display: flex; gap: 1rem; justify-content: center; margin-top: 2rem;">
+              <button class="btn-danger" id="confirmarNao">Não</button>
+              <button class="btn-success" id="confirmarSim">Sim</button>
+            </div>
+          </div>
+        </div>
+      `;
+      
+      document.body.appendChild(modal);
+      
+      document.getElementById('confirmarSim').addEventListener('click', () => {
+        document.body.removeChild(modal);
+        resolve(true);
+      });
+      
+      document.getElementById('confirmarNao').addEventListener('click', () => {
+        document.body.removeChild(modal);
+        resolve(false);
+      });
+    });
   }
   
   async handleGenerateReport() {
@@ -3850,6 +4443,16 @@ document.addEventListener('DOMContentLoaded', function() {
       to { transform: translateX(100%); opacity: 0; }
     }
     
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+      20%, 40%, 60%, 80% { transform: translateX(5px); }
+    }
+    
+    .shake {
+      animation: shake 0.5s ease;
+    }
+    
     .progress-step {
       width: 30px;
       height: 30px;
@@ -3879,6 +4482,30 @@ document.addEventListener('DOMContentLoaded', function() {
     .form-step.active {
       display: block;
       animation: fadeIn 0.5s ease;
+    }
+    
+    /* Estilo para o controle de clusters do Leaflet */
+    .leaflet-cluster-anim .leaflet-marker-icon, .leaflet-cluster-anim .leaflet-marker-shadow {
+      transition: transform 0.3s ease-out, opacity 0.3s ease-in;
+    }
+    
+    .marker-cluster {
+      background-clip: padding-box;
+      border-radius: 20px;
+    }
+    
+    .marker-cluster div {
+      width: 30px;
+      height: 30px;
+      margin-left: 5px;
+      margin-top: 5px;
+      text-align: center;
+      border-radius: 15px;
+      font: 12px "Helvetica Neue", Arial, Helvetica, sans-serif;
+    }
+    
+    .marker-cluster span {
+      line-height: 30px;
     }
   `;
   document.head.appendChild(style);
@@ -4030,7 +4657,7 @@ document.addEventListener('DOMContentLoaded', function() {
   // Atualizar lista inicial
   crasController.updateVisitasList();
   
-  console.log('Sistema CRAS ODS v2.0 inicializado com sucesso!');
+  console.log('Sistema CRAS ODS v3.0 inicializado com sucesso!');
   console.log('Características implementadas:');
   console.log('- Geolocalização automática com captura de coordenadas');
   console.log('- Integração com API de CEP para preenchimento automático');
@@ -4041,6 +4668,9 @@ document.addEventListener('DOMContentLoaded', function() {
   console.log('- Dashboard com métricas de direcionamentos');
   console.log('- Mapa com georreferenciamento das visitas');
   console.log('- Sistema de backup e rotação FIFO aprimorado');
+  console.log('- Exclusão individual de visitas com confirmação');
+  console.log('- Mapa interativo com ícones ODS e clusters');
+  console.log('- Modal de detalhes para cada visita');
 });
 </script>
 </body>
