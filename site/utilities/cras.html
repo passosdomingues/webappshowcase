@@ -8,6 +8,9 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
+<!-- Adicionando Leaflet MarkerCluster -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css" />
+<link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css" />
 <style>
   /* ===== VARIÁVEIS CSS ===== */
   :root {
@@ -1168,6 +1171,9 @@
                 <button type="button" id="btnCapturarCoordenadas" class="btn-primary" style="padding: 0.5rem 1rem;">
                   <i class="fas fa-crosshairs"></i> Capturar
                 </button>
+                <button type="button" id="btnSelecionarNoMapa" class="btn-ods3" style="padding: 0.5rem 1rem;">
+                  <i class="fas fa-map"></i> Mapa
+                </button>
               </div>
             </div>
           </div>
@@ -1571,6 +1577,7 @@
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
+<script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
 
 <script>
 // =================================================================
@@ -2536,6 +2543,8 @@ class CRASView {
     this.currentLocationMarker = null;
     this.selectionMarker = null;
     this.mapClusters = null;
+    this.markerClusterGroup = null;
+    this.editingVisitaId = null;
     
     this.initializeElements();
     this.bindEvents();
@@ -2611,6 +2620,11 @@ class CRASView {
     // Captura de coordenadas
     document.getElementById('btnCapturarCoordenadas').addEventListener('click', () => {
       this.capturarCoordenadas();
+    });
+    
+    // Selecionar no mapa
+    document.getElementById('btnSelecionarNoMapa').addEventListener('click', () => {
+      this.activateMapSelectionForForm();
     });
     
     // Filtros
@@ -2727,25 +2741,48 @@ class CRASView {
     
     if (tabId === 'mapa') {
       setTimeout(() => {
-        this.initializeMap();
+        if (!this.map) {
+          this.initializeMap();
+        } else {
+          this.map.invalidateSize();
+        }
       }, 100);
     }
   }
   
-  openNovaVisitaModal() {
-    // Resetar formulário
-    document.getElementById('formNovaVisita').reset();
+  openNovaVisitaModal(visitaId = null) {
+    // Resetar formulário se não for edição
+    if (!visitaId) {
+      document.getElementById('formNovaVisita').reset();
+      this.editingVisitaId = null;
+      
+      // Preencher data/hora atual
+      const now = new Date();
+      const localDateTime = new Date(now.getTime() - now.getTimezoneOffset() * 60000)
+        .toISOString()
+        .slice(0, 16);
+      document.getElementById('visitaData').value = localDateTime;
+      
+      // Resetar campo de ID oculto se existir
+      const hiddenIdField = document.getElementById('visitaIdHidden');
+      if (hiddenIdField) {
+        hiddenIdField.remove();
+      }
+    } else {
+      this.editingVisitaId = visitaId;
+      
+      // Criar campo oculto para ID da visita
+      const hiddenInput = document.createElement('input');
+      hiddenInput.type = 'hidden';
+      hiddenInput.id = 'visitaIdHidden';
+      hiddenInput.name = 'id';
+      hiddenInput.value = visitaId;
+      document.getElementById('formNovaVisita').appendChild(hiddenInput);
+    }
     
     // Resetar progresso
     this.currentFormStep = 1;
     this.updateFormProgress();
-    
-    // Preencher data/hora atual
-    const now = new Date();
-    const localDateTime = new Date(now.getTime() - now.getTimezoneOffset() * 60000)
-      .toISOString()
-      .slice(0, 16);
-    document.getElementById('visitaData').value = localDateTime;
     
     // Atualizações iniciais
     this.calcularRendaPerCapita();
@@ -2759,6 +2796,13 @@ class CRASView {
   
   closeNovaVisitaModal() {
     document.getElementById('modalNovaVisita').style.display = 'none';
+    this.editingVisitaId = null;
+    
+    // Remover campo oculto se existir
+    const hiddenIdField = document.getElementById('visitaIdHidden');
+    if (hiddenIdField) {
+      hiddenIdField.remove();
+    }
   }
   
   openDetalhesVisitaModal(visitaId) {
@@ -3441,7 +3485,70 @@ class CRASView {
       data[checkboxId] = document.getElementById(checkboxId)?.checked || false;
     });
     
+    // Adicionar ID se estiver editando
+    if (this.editingVisitaId) {
+      data.id = this.editingVisitaId;
+    }
+    
     return data;
+  }
+  
+  fillFormForEdit(visita) {
+    // Preencher campos de texto
+    const textFields = [
+      'familiaNome', 'nisf', 'responsavel', 'cpfResponsavel', 'telefoneContato',
+      'cep', 'endereco', 'bairro', 'pontoReferencia', 'coordenadas',
+      'totalMembros', 'criancas', 'adolescentes', 'adultos', 'idosos',
+      'rendaTotal', 'rendaPerCapita', 'observacoes', 'proximosPassos'
+    ];
+    
+    textFields.forEach(field => {
+      const element = document.getElementById(field);
+      if (element && visita[field] !== undefined) {
+        element.value = visita[field] || '';
+      }
+    });
+    
+    // Preencher selects
+    const selectFields = ['tipoLocalizacao', 'urgencia'];
+    selectFields.forEach(field => {
+      const element = document.getElementById(field);
+      if (element && visita[field]) {
+        element.value = visita[field];
+      }
+    });
+    
+    // Preencher data
+    if (visita.visitaData) {
+      const date = new Date(visita.visitaData);
+      const localDateTime = new Date(date.getTime() - date.getTimezoneOffset() * 60000)
+        .toISOString()
+        .slice(0, 16);
+      document.getElementById('visitaData').value = localDateTime;
+    }
+    
+    // Preencher checkboxes
+    const checkboxFields = [
+      'bolsaFamilia', 'bpc', 'auxilioBrasil', 'auxilioGas', 'tarifaSocial', 'outrosBeneficios',
+      'deficienciaFisica', 'deficienciaVisual', 'deficienciaAuditiva', 'deficienciaIntelectual',
+      'doencaCronica', 'gestante', 'lactante', 'acompanhamentoSaude',
+      'fomeFrequente', 'alimentacaoInadequada', 'acessoAgua', 'restricaoAlimentar', 'recebeCestas',
+      'criancasForaEscola', 'adultosAnalfabetos', 'dificuldadeAcessoEscola', 'evasaoEscolar',
+      'paif', 'scfv', 'cadastroUnico', 'visitasRegulares', 'gruposOficinas'
+    ];
+    
+    checkboxFields.forEach(field => {
+      const element = document.getElementById(field);
+      if (element) {
+        element.checked = visita[field] || false;
+      }
+    });
+    
+    // Atualizar cálculos e classificações
+    this.calcularRendaPerCapita();
+    this.updateODSClassification();
+    this.updateSuggestedDirections();
+    this.updateResumoVisita();
   }
   
   renderVisitasList(visitas) {
@@ -3707,12 +3814,7 @@ class CRASView {
     }).addTo(this.map);
     
     // Criar grupo de clusters
-    this.mapClusters = L.markerClusterGroup({
-      maxClusterRadius: 40,
-      spiderfyOnMaxZoom: true,
-      showCoverageOnHover: false,
-      zoomToBoundsOnClick: true
-    });
+    this.markerClusterGroup = L.markerClusterGroup();
     
     // Adicionar marcadores das visitas
     if (this.model) {
@@ -3720,92 +3822,13 @@ class CRASView {
         if (visita.coordenadas) {
           const [lat, lng] = visita.coordenadas.split(',').map(Number);
           if (lat && lng) {
-            const odsColor = this.model.getODSColor(visita.ods);
-            const odsIcon = this.model.getODSIcon(visita.ods);
-            
-            const icon = L.divIcon({
-              html: `
-                <div style="
-                  background: ${odsColor};
-                  width: 30px;
-                  height: 30px;
-                  border-radius: 50%;
-                  border: 3px solid white;
-                  box-shadow: 0 0 5px rgba(0,0,0,0.5);
-                  display: flex;
-                  align-items: center;
-                  justify-content: center;
-                  color: white;
-                  font-size: 12px;
-                ">
-                  <i class="fas ${odsIcon}"></i>
-                </div>
-              `,
-              className: '',
-              iconSize: [36, 36],
-              iconAnchor: [18, 18]
-            });
-            
-            const marker = L.marker([lat, lng], { icon });
-            
-            const popupContent = `
-              <div style="max-width: 250px;">
-                <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
-                  <div style="width: 20px; height: 20px; border-radius: 50%; background: ${odsColor};"></div>
-                  <strong style="color: ${odsColor};">${visita.familiaNome}</strong>
-                </div>
-                <div style="font-size: 0.9rem; margin-bottom: 0.5rem;">
-                  <div><strong>Responsável:</strong> ${visita.responsavel || 'Não informado'}</div>
-                  <div><strong>Bairro:</strong> ${visita.bairro || 'Não informado'}</div>
-                  <div><strong>Renda per capita:</strong> R$ ${visita.rendaPerCapita || '0,00'}</div>
-                </div>
-                <div style="display: flex; flex-wrap: wrap; gap: 0.25rem; margin-bottom: 0.5rem;">
-                  ${visita.ods?.map(ods => `
-                    <span style="background: ${this.model.getODSColor([ods])}; color: white; padding: 0.1rem 0.3rem; border-radius: 10px; font-size: 0.7rem;">
-                      ODS ${ods.codigo}
-                    </span>
-                  `).join('') || ''}
-                </div>
-                <div style="display: flex; gap: 0.5rem; margin-top: 0.5rem;">
-                  <button onclick="crasController.openDetalhesVisita('${visita.id}')" style="
-                    padding: 0.25rem 0.5rem;
-                    background: var(--primary-color);
-                    color: white;
-                    border: none;
-                    border-radius: 4px;
-                    cursor: pointer;
-                    font-size: 0.8rem;
-                    flex: 1;
-                  ">
-                    <i class="fas fa-info-circle"></i> Detalhes
-                  </button>
-                  <button onclick="crasController.showVisitaNoMapa('${visita.id}')" style="
-                    padding: 0.25rem 0.5rem;
-                    background: var(--primary-light);
-                    color: white;
-                    border: none;
-                    border-radius: 4px;
-                    cursor: pointer;
-                    font-size: 0.8rem;
-                    flex: 1;
-                  ">
-                    <i class="fas fa-crosshairs"></i> Centralizar
-                  </button>
-                </div>
-              </div>
-            `;
-            
-            marker.bindPopup(popupContent);
-            marker.visitaId = visita.id; // Armazenar ID da visita no marcador
-            
-            this.mapClusters.addLayer(marker);
-            this.mapMarkers.push(marker);
+            this.addVisitaMarker(visita, lat, lng);
           }
         }
       });
       
       // Adicionar clusters ao mapa
-      this.map.addLayer(this.mapClusters);
+      this.map.addLayer(this.markerClusterGroup);
     }
     
     // Adicionar evento de clique no mapa
@@ -3814,6 +3837,89 @@ class CRASView {
         this.selectMapLocation(e.latlng);
       }
     });
+  }
+  
+  addVisitaMarker(visita, lat, lng) {
+    const odsColor = this.model.getODSColor(visita.ods);
+    const odsIcon = this.model.getODSIcon(visita.ods);
+    
+    const icon = L.divIcon({
+      html: `
+        <div style="
+          background: ${odsColor};
+          width: 30px;
+          height: 30px;
+          border-radius: 50%;
+          border: 3px solid white;
+          box-shadow: 0 0 5px rgba(0,0,0,0.5);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          color: white;
+          font-size: 12px;
+        ">
+          <i class="fas ${odsIcon}"></i>
+        </div>
+      `,
+      className: '',
+      iconSize: [36, 36],
+      iconAnchor: [18, 18]
+    });
+    
+    const marker = L.marker([lat, lng], { icon });
+    
+    const popupContent = `
+      <div style="max-width: 250px;">
+        <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
+          <div style="width: 20px; height: 20px; border-radius: 50%; background: ${odsColor};"></div>
+          <strong style="color: ${odsColor};">${visita.familiaNome}</strong>
+        </div>
+        <div style="font-size: 0.9rem; margin-bottom: 0.5rem;">
+          <div><strong>Responsável:</strong> ${visita.responsavel || 'Não informado'}</div>
+          <div><strong>Bairro:</strong> ${visita.bairro || 'Não informado'}</div>
+          <div><strong>Renda per capita:</strong> R$ ${visita.rendaPerCapita || '0,00'}</div>
+        </div>
+        <div style="display: flex; flex-wrap: wrap; gap: 0.25rem; margin-bottom: 0.5rem;">
+          ${visita.ods?.map(ods => `
+            <span style="background: ${this.model.getODSColor([ods])}; color: white; padding: 0.1rem 0.3rem; border-radius: 10px; font-size: 0.7rem;">
+              ODS ${ods.codigo}
+            </span>
+          `).join('') || ''}
+        </div>
+        <div style="display: flex; gap: 0.5rem; margin-top: 0.5rem;">
+          <button onclick="crasController.openDetalhesVisita('${visita.id}')" style="
+            padding: 0.25rem 0.5rem;
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            flex: 1;
+          ">
+            <i class="fas fa-info-circle"></i> Detalhes
+          </button>
+          <button onclick="crasController.showVisitaNoMapa('${visita.id}')" style="
+            padding: 0.25rem 0.5rem;
+            background: var(--primary-light);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            flex: 1;
+          ">
+            <i class="fas fa-crosshairs"></i> Centralizar
+          </button>
+        </div>
+      </div>
+    `;
+    
+    marker.bindPopup(popupContent);
+    marker.visitaId = visita.id; // Armazenar ID da visita no marcador
+    
+    this.markerClusterGroup.addLayer(marker);
+    this.mapMarkers.push(marker);
   }
   
   async capturarLocalizacaoAtual() {
@@ -3879,10 +3985,16 @@ class CRASView {
     document.getElementById('selectedAddress').textContent = '-';
   }
   
+  activateMapSelectionForForm() {
+    this.mapSelectionActive = true;
+    this.showNotification('Clique no mapa para selecionar a localização da família', 'info');
+    this.switchTab('mapa');
+  }
+  
   toggleMapClusters() {
-    if (this.mapClusters) {
-      if (this.map.hasLayer(this.mapClusters)) {
-        this.map.removeLayer(this.mapClusters);
+    if (this.markerClusterGroup) {
+      if (this.map.hasLayer(this.markerClusterGroup)) {
+        this.map.removeLayer(this.markerClusterGroup);
         // Mostrar marcadores individualmente
         this.mapMarkers.forEach(marker => {
           this.map.addLayer(marker);
@@ -3894,7 +4006,7 @@ class CRASView {
           this.map.removeLayer(marker);
         });
         // Adicionar clusters
-        this.map.addLayer(this.mapClusters);
+        this.map.addLayer(this.markerClusterGroup);
         this.showNotification('Clusters ativados', 'success');
       }
     }
@@ -3906,6 +4018,9 @@ class CRASView {
     document.getElementById('selectedLocation').textContent = 'Local selecionado';
     document.getElementById('selectedCoords').textContent = `${latlng.lat.toFixed(6)}, ${latlng.lng.toFixed(6)}`;
     
+    // Atualizar campo de coordenadas no formulário
+    document.getElementById('coordenadas').value = `${latlng.lat.toFixed(6)}, ${latlng.lng.toFixed(6)}`;
+    
     // Tentar obter endereço reverso
     try {
       const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${latlng.lat}&lon=${latlng.lng}`);
@@ -3913,6 +4028,19 @@ class CRASView {
       
       if (data.display_name) {
         document.getElementById('selectedAddress').textContent = data.display_name;
+        
+        // Preencher automaticamente endereço e bairro se estiverem vazios
+        const enderecoField = document.getElementById('endereco');
+        const bairroField = document.getElementById('bairro');
+        
+        if (!enderecoField.value.trim()) {
+          enderecoField.value = data.display_name.split(',')[0] || '';
+        }
+        
+        // Tentar extrair bairro do endereço
+        if (!bairroField.value.trim() && data.address) {
+          bairroField.value = data.address.suburb || data.address.neighbourhood || data.address.village || '';
+        }
       }
     } catch (error) {
       console.error('Erro ao obter endereço:', error);
@@ -3933,15 +4061,15 @@ class CRASView {
       })
     }).addTo(this.map);
     
-    this.selectionMarker.bindPopup('<strong>Local selecionado</strong>').openPopup();
-    
-    // Atualizar campo de coordenadas no formulário se estiver aberto
-    if (document.getElementById('modalNovaVisita').style.display === 'flex') {
-      document.getElementById('coordenadas').value = `${latlng.lat.toFixed(6)}, ${latlng.lng.toFixed(6)}`;
-    }
+    this.selectionMarker.bindPopup('<strong>Local selecionado para a visita</strong>').openPopup();
     
     this.mapSelectionActive = false;
-    this.showNotification('Localização selecionada com sucesso!', 'success');
+    this.showNotification('Localização selecionada com sucesso! Volte para o formulário para continuar.', 'success');
+    
+    // Voltar para a aba visitas (onde está o formulário)
+    setTimeout(() => {
+      this.switchTab('visitas');
+    }, 1500);
   }
   
   showNotification(message, type = 'info') {
@@ -4079,20 +4207,25 @@ class CRASController {
     });
     
     // Salvar visita
-    const visita = await this.model.saveVisita(formData);
-    this.view.showNotification('Visita registrada com sucesso!', 'success');
-    this.view.closeNovaVisitaModal();
-    
-    // Atualizar UI
-    this.updateVisitasList();
-    this.updateStorageUI();
-    
-    if (this.view.currentTab === 'dashboard') {
-      this.view.updateDashboard();
-    }
-    
-    if (this.view.currentTab === 'mapa') {
-      this.view.initializeMap();
+    try {
+      const visita = this.model.saveVisita(formData);
+      this.view.showNotification('Visita registrada com sucesso!', 'success');
+      this.view.closeNovaVisitaModal();
+      
+      // Atualizar UI
+      this.updateVisitasList();
+      this.updateStorageUI();
+      
+      if (this.view.currentTab === 'dashboard') {
+        this.view.updateDashboard();
+      }
+      
+      if (this.view.currentTab === 'mapa') {
+        this.view.initializeMap();
+      }
+    } catch (error) {
+      console.error('Erro ao salvar visita:', error);
+      this.view.showNotification('Erro ao salvar visita. Tente novamente.', 'error');
     }
   }
   
@@ -4149,33 +4282,14 @@ class CRASController {
     const visita = this.model.visitas.find(v => v.id === visitaId);
     if (!visita) return;
     
+    // Abrir modal de edição
+    this.view.openNovaVisitaModal(visitaId);
+    
     // Preencher formulário com dados da visita
-    Object.keys(visita).forEach(key => {
-      const element = document.getElementById(key);
-      if (element) {
-        if (element.type === 'checkbox') {
-          element.checked = visita[key];
-        } else {
-          element.value = visita[key] || '';
-        }
-      }
-    });
-    
-    // Preencher ID para atualização
-    if (!document.getElementById('visitaId')) {
-      const hiddenInput = document.createElement('input');
-      hiddenInput.type = 'hidden';
-      hiddenInput.id = 'visitaId';
-      hiddenInput.name = 'id';
-      hiddenInput.value = visita.id;
-      document.getElementById('formNovaVisita').appendChild(hiddenInput);
-    } else {
-      document.getElementById('visitaId').value = visita.id;
-    }
-    
-    // Abrir modal
-    this.view.openNovaVisitaModal();
-    this.view.showNotification('Editando visita existente', 'info');
+    setTimeout(() => {
+      this.view.fillFormForEdit(visita);
+      this.view.showNotification('Editando visita existente', 'info');
+    }, 100);
   }
   
   showVisitaNoMapa(visitaId) {
@@ -4483,32 +4597,16 @@ document.addEventListener('DOMContentLoaded', function() {
       display: block;
       animation: fadeIn 0.5s ease;
     }
-    
-    /* Estilo para o controle de clusters do Leaflet */
-    .leaflet-cluster-anim .leaflet-marker-icon, .leaflet-cluster-anim .leaflet-marker-shadow {
-      transition: transform 0.3s ease-out, opacity 0.3s ease-in;
-    }
-    
-    .marker-cluster {
-      background-clip: padding-box;
-      border-radius: 20px;
-    }
-    
-    .marker-cluster div {
-      width: 30px;
-      height: 30px;
-      margin-left: 5px;
-      margin-top: 5px;
-      text-align: center;
-      border-radius: 15px;
-      font: 12px "Helvetica Neue", Arial, Helvetica, sans-serif;
-    }
-    
-    .marker-cluster span {
-      line-height: 30px;
-    }
   `;
   document.head.appendChild(style);
+  
+  // Função global para calcular renda per capita
+  window.calcularRendaPerCapita = function() {
+    const view = crasController?.view;
+    if (view) {
+      view.calcularRendaPerCapita();
+    }
+  };
   
   // Inicializar o sistema
   const model = new CRASModel();
@@ -4657,6 +4755,13 @@ document.addEventListener('DOMContentLoaded', function() {
   // Atualizar lista inicial
   crasController.updateVisitasList();
   
+  // Inicializar mapa
+  setTimeout(() => {
+    if (view.currentTab === 'mapa') {
+      view.initializeMap();
+    }
+  }, 500);
+  
   console.log('Sistema CRAS ODS v3.0 inicializado com sucesso!');
   console.log('Características implementadas:');
   console.log('- Geolocalização automática com captura de coordenadas');
@@ -4671,6 +4776,10 @@ document.addEventListener('DOMContentLoaded', function() {
   console.log('- Exclusão individual de visitas com confirmação');
   console.log('- Mapa interativo com ícones ODS e clusters');
   console.log('- Modal de detalhes para cada visita');
+  console.log('- CORREÇÕES APLICADAS:');
+  console.log('  1. Agora é possível selecionar localização no mapa diretamente do formulário');
+  console.log('  2. Formulário fecha corretamente e validação funciona');
+  console.log('  3. Visitas são salvas e aparecem na lista para edição/exclusão');
 });
 </script>
 </body>
