@@ -1,0 +1,2951 @@
+<!--
+ * --------------------------------------------------------------
+ * Aplicativo: CRAS Field - Sistema de Apontamento de Visitas Domiciliares
+ * Autor: Assistência Social Digital
+ * Última Atualização: 2025
+ * --------------------------------------------------------------
+ * MVC em arquivo único para registro de casos sociais em zona rural
+ * Armazenamento: localStorage (limite ~5MB) + caderninho físico como backup
+ * Design: Mobile-first para trabalho de campo offline
+ * Padrões: MVC, Singleton, Observer, Factory Method
+ * Paradigmas: OOP, Functional Programming, Symbolic AI concepts
+ * --------------------------------------------------------------
+-->
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>CRAS Field - Visitas Domiciliares</title>
+<!-- Bibliotecas externas -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+<style>
+  /* ===== VARIÁVEIS CSS - TEMA ASSISTÊNCIA SOCIAL ===== */
+  :root {
+    --primary-color: #2c3e50;       /* Azul escuro - profissionalismo */
+    --primary-light: #3498db;       /* Azul claro */
+    --secondary-color: #e74c3c;     /* Vermelho - urgência */
+    --warning-color: #f39c12;       /* Laranja - atenção */
+    --success-color: #27ae60;       /* Verde - resolvido */
+    --info-color: #9b59b6;          /* Roxo - informação */
+    --text-color: #34495e;          /* Cor principal do texto */
+    --light-gray: #ecf0f1;          /* Cor de fundo */
+    --card-bg: #ffffff;             /* Fundo dos cards */
+    --border-radius: 10px;          /* Arredondamento */
+    --box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    --transition: all 0.3s ease;
+  }
+
+  /* ===== RESET E ESTILOS GERAIS ===== */
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  body {
+    font-family: 'Segoe UI', 'Roboto', 'Arial', sans-serif;
+    margin: 0;
+    padding: 1rem;
+    background: var(--light-gray);
+    color: var(--text-color);
+    line-height: 1.6;
+    font-size: 14px;
+  }
+
+  .container {
+    max-width: 1400px;
+    margin: 0 auto;
+  }
+
+  /* ===== HEADER ===== */
+  header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+    gap: 1rem;
+    background: var(--card-bg);
+    padding: 1rem 1.5rem;
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
+    border-left: 5px solid var(--primary-color);
+  }
+
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  h1 {
+    margin: 0;
+    color: var(--primary-color);
+    font-size: 1.5rem;
+    font-weight: 600;
+  }
+
+  .header-info {
+    display: flex;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+  }
+
+  .info-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.9rem;
+    color: var(--text-color);
+  }
+
+  .info-item i {
+    color: var(--primary-light);
+    font-size: 1.1rem;
+  }
+
+  /* ===== PAINEL DE CONTROLE ===== */
+  .control-panel {
+    background: var(--card-bg);
+    padding: 1.5rem;
+    border-radius: var(--border-radius);
+    margin-bottom: 1.5rem;
+    box-shadow: var(--box-shadow);
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+  }
+
+  .stats-card {
+    background: #f8f9fa;
+    padding: 1rem;
+    border-radius: var(--border-radius);
+    border-left: 4px solid var(--primary-color);
+  }
+
+  .stats-card h3 {
+    font-size: 0.9rem;
+    color: var(--primary-color);
+    margin-bottom: 0.5rem;
+  }
+
+  .stats-value {
+    font-size: 1.8rem;
+    font-weight: bold;
+    color: var(--text-color);
+  }
+
+  /* ===== BOTÕES ===== */
+  .button-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+  }
+
+  button {
+    padding: 0.75rem 1.25rem;
+    border: none;
+    border-radius: var(--border-radius);
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 0.9rem;
+    transition: var(--transition);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    min-height: 44px; /* Acessibilidade touch */
+  }
+
+  button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+
+  .btn-primary {
+    background: var(--primary-color);
+    color: white;
+  }
+
+  .btn-primary:hover:not(:disabled) {
+    background: var(--primary-light);
+    transform: translateY(-2px);
+  }
+
+  .btn-secondary {
+    background: var(--info-color);
+    color: white;
+  }
+
+  .btn-secondary:hover:not(:disabled) {
+    background: #8e44ad;
+    transform: translateY(-2px);
+  }
+
+  .btn-success {
+    background: var(--success-color);
+    color: white;
+  }
+
+  .btn-success:hover:not(:disabled) {
+    background: #219653;
+    transform: translateY(-2px);
+  }
+
+  .btn-danger {
+    background: var(--secondary-color);
+    color: white;
+  }
+
+  .btn-danger:hover:not(:disabled) {
+    background: #c0392b;
+    transform: translateY(-2px);
+  }
+
+  .btn-warning {
+    background: var(--warning-color);
+    color: white;
+  }
+
+  .btn-warning:hover:not(:disabled) {
+    background: #e67e22;
+    transform: translateY(-2px);
+  }
+
+  .btn-outline {
+    background: transparent;
+    border: 2px solid var(--primary-color);
+    color: var(--primary-color);
+  }
+
+  .btn-outline:hover:not(:disabled) {
+    background: var(--primary-color);
+    color: white;
+  }
+
+  /* ===== MAPA ===== */
+  #map {
+    height: 500px;
+    border-radius: var(--border-radius);
+    margin-bottom: 1.5rem;
+    box-shadow: var(--box-shadow);
+    border: 1px solid #ddd;
+    z-index: 1;
+  }
+
+  .map-legend {
+    background: var(--card-bg);
+    padding: 1rem;
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
+    position: absolute;
+    bottom: 30px;
+    right: 10px;
+    z-index: 1000;
+    font-size: 0.85rem;
+    max-width: 220px;
+    border: 1px solid #eee;
+  }
+
+  .map-legend h3 {
+    margin-top: 0;
+    margin-bottom: 0.8rem;
+    font-size: 0.95rem;
+    color: var(--primary-color);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .legend-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 0.5rem;
+    gap: 0.5rem;
+  }
+
+  .legend-icon {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 0.7rem;
+  }
+
+  /* ===== MODAIS E PAINÉIS ===== */
+  .modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 2000;
+    padding: 1rem;
+  }
+
+  .modal {
+    background: var(--card-bg);
+    border-radius: var(--border-radius);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    width: 100%;
+    max-width: 800px;
+    max-height: 90vh;
+    overflow-y: auto;
+    animation: modalFadeIn 0.3s ease;
+  }
+
+  @keyframes modalFadeIn {
+    from { opacity: 0; transform: translateY(-20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .modal-header {
+    padding: 1.5rem;
+    border-bottom: 1px solid #eee;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .modal-body {
+    padding: 1.5rem;
+  }
+
+  .modal-footer {
+    padding: 1.5rem;
+    border-top: 1px solid #eee;
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
+  }
+
+  .close-btn {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    color: #999;
+    cursor: pointer;
+    padding: 0;
+    min-height: auto;
+  }
+
+  /* ===== FORMULÁRIOS ===== */
+  .form-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .form-group {
+    margin-bottom: 1rem;
+  }
+
+  .form-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+    color: var(--primary-color);
+    font-size: 0.9rem;
+  }
+
+  .form-group input,
+  .form-group select,
+  .form-group textarea {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid #ddd;
+    border-radius: var(--border-radius);
+    font-family: inherit;
+    font-size: 0.9rem;
+    transition: var(--transition);
+  }
+
+  .form-group input:focus,
+  .form-group select:focus,
+  .form-group textarea:focus {
+    outline: none;
+    border-color: var(--primary-light);
+    box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+  }
+
+  .form-group textarea {
+    min-height: 100px;
+    resize: vertical;
+  }
+
+  .radio-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+
+  .radio-option {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .checkbox-group {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 0.75rem;
+  }
+
+  .checkbox-option {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  /* ===== LISTA DE VISITAS ===== */
+  .visits-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+    gap: 1rem;
+    margin-bottom: 2rem;
+  }
+
+  .visit-card {
+    background: var(--card-bg);
+    border-radius: var(--border-radius);
+    padding: 1.25rem;
+    box-shadow: var(--box-shadow);
+    transition: var(--transition);
+    border-left: 4px solid var(--primary-color);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .visit-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+  }
+
+  .visit-card.omitted {
+    opacity: 0.7;
+    border-left-color: #95a5a6;
+    background: #f8f9fa;
+  }
+
+  .visit-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 1rem;
+  }
+
+  .visit-id {
+    font-family: monospace;
+    background: #f1f2f6;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.85rem;
+    color: var(--text-color);
+  }
+
+  .visit-status {
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+  }
+
+  .status-active { background: #d5f4e6; color: var(--success-color); }
+  .status-pending { background: #fff3cd; color: var(--warning-color); }
+  .status-urgent { background: #fde8e8; color: var(--secondary-color); }
+  .status-omitted { background: #e8ecee; color: #7f8c8d; }
+
+  .visit-body h3 {
+    color: var(--primary-color);
+    margin-bottom: 0.75rem;
+    font-size: 1.1rem;
+  }
+
+  .visit-details {
+    display: grid;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+    font-size: 0.9rem;
+  }
+
+  .detail-item {
+    display: flex;
+    gap: 0.5rem;
+  }
+
+  .detail-label {
+    font-weight: 600;
+    color: var(--text-color);
+    min-width: 80px;
+  }
+
+  .visit-actions {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    padding-top: 1rem;
+    border-top: 1px solid #eee;
+  }
+
+  .visit-actions button {
+    padding: 0.5rem 0.75rem;
+    font-size: 0.8rem;
+    flex: 1;
+    min-width: 80px;
+    justify-content: center;
+  }
+
+  /* ===== FILTROS E BUSCA ===== */
+  .filters-panel {
+    background: var(--card-bg);
+    padding: 1.5rem;
+    border-radius: var(--border-radius);
+    margin-bottom: 1.5rem;
+    box-shadow: var(--box-shadow);
+  }
+
+  .filter-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    align-items: flex-end;
+  }
+
+  .search-box {
+    flex: 1;
+    min-width: 250px;
+    position: relative;
+  }
+
+  .search-box i {
+    position: absolute;
+    left: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #999;
+  }
+
+  .search-box input {
+    width: 100%;
+    padding: 0.75rem 1rem 0.75rem 2.5rem;
+    border: 1px solid #ddd;
+    border-radius: var(--border-radius);
+  }
+
+  /* ===== NOTIFICAÇÕES ===== */
+  .notification {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    padding: 1rem 1.5rem;
+    border-radius: var(--border-radius);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    z-index: 3000;
+    animation: slideIn 0.3s ease, slideOut 0.3s ease 2.7s;
+    max-width: 400px;
+  }
+
+  .notification-success {
+    background: var(--success-color);
+    color: white;
+  }
+
+  .notification-error {
+    background: var(--secondary-color);
+    color: white;
+  }
+
+  .notification-warning {
+    background: var(--warning-color);
+    color: white;
+  }
+
+  .notification-info {
+    background: var(--info-color);
+    color: white;
+  }
+
+  @keyframes slideIn {
+    from { transform: translateX(100%); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+  }
+
+  @keyframes slideOut {
+    from { transform: translateX(0); opacity: 1; }
+    to { transform: translateX(100%); opacity: 0; }
+  }
+
+  /* ===== RESPONSIVIDADE ===== */
+  @media (max-width: 768px) {
+    body {
+      padding: 0.75rem;
+    }
+    
+    header {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+    
+    .header-info {
+      width: 100%;
+      justify-content: space-between;
+    }
+    
+    .control-panel {
+      grid-template-columns: 1fr;
+    }
+    
+    .button-group {
+      flex-direction: column;
+    }
+    
+    .button-group button {
+      width: 100%;
+      justify-content: center;
+    }
+    
+    #map {
+      height: 400px;
+    }
+    
+    .map-legend {
+      position: relative;
+      bottom: auto;
+      right: auto;
+      margin-top: 1rem;
+      max-width: 100%;
+    }
+    
+    .visits-container {
+      grid-template-columns: 1fr;
+    }
+    
+    .form-grid {
+      grid-template-columns: 1fr;
+    }
+    
+    .filter-row {
+      flex-direction: column;
+    }
+    
+    .search-box {
+      min-width: 100%;
+    }
+    
+    .modal {
+      margin: 1rem;
+    }
+  }
+
+  @media (max-width: 480px) {
+    h1 {
+      font-size: 1.25rem;
+    }
+    
+    .visit-actions {
+      flex-direction: column;
+    }
+    
+    .visit-actions button {
+      width: 100%;
+    }
+    
+    .detail-item {
+      flex-direction: column;
+      gap: 0.25rem;
+    }
+    
+    .detail-label {
+      min-width: auto;
+    }
+  }
+
+  /* ===== UTILITÁRIOS ===== */
+  .hidden {
+    display: none !important;
+  }
+
+  .text-center {
+    text-align: center;
+  }
+
+  .text-muted {
+    color: #7f8c8d;
+  }
+
+  .mb-1 { margin-bottom: 0.5rem; }
+  .mb-2 { margin-bottom: 1rem; }
+  .mb-3 { margin-bottom: 1.5rem; }
+  .mt-1 { margin-top: 0.5rem; }
+  .mt-2 { margin-top: 1rem; }
+  .mt-3 { margin-top: 1.5rem; }
+
+  .loading {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border: 3px solid #f3f3f3;
+    border-top: 3px solid var(--primary-color);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+  }
+
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+</style>
+</head>
+<body>
+
+<!-- ===== ESTRUTURA PRINCIPAL - VIEW ===== -->
+<div class="container">
+  <!-- Cabeçalho -->
+  <header>
+    <div class="logo">
+      <i class="fas fa-hands-helping fa-2x" style="color: var(--primary-color);"></i>
+      <div>
+        <h1>CRAS Field - Visitas Domiciliares</h1>
+        <p class="text-muted">Sistema de apontamento para assistentes sociais</p>
+      </div>
+    </div>
+    <div class="header-info">
+      <div class="info-item">
+        <i class="fas fa-map-marker-alt"></i>
+        <span>Visitas registradas: <strong id="visitasCount">0</strong></span>
+      </div>
+      <div class="info-item">
+        <i class="fas fa-database"></i>
+        <span>Armazenamento: <strong id="storageUsage">0%</strong></span>
+      </div>
+      <div class="info-item">
+        <i class="far fa-clock"></i>
+        <span id="currentTime">--:--:--</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Painel de Controle -->
+  <div class="control-panel">
+    <div class="stats-card">
+      <h3><i class="fas fa-check-circle"></i> Ativas</h3>
+      <div class="stats-value" id="statsActive">0</div>
+    </div>
+    <div class="stats-card">
+      <h3><i class="fas fa-eye-slash"></i> Omitidas</h3>
+      <div class="stats-value" id="statsOmitted">0</div>
+    </div>
+    <div class="stats-card">
+      <h3><i class="fas fa-exclamation-triangle"></i> Urgentes</h3>
+      <div class="stats-value" id="statsUrgent">0</div>
+    </div>
+    <div class="stats-card">
+      <h3><i class="fas fa-calendar-alt"></i> Este Mês</h3>
+      <div class="stats-value" id="statsThisMonth">0</div>
+    </div>
+  </div>
+
+  <!-- Barra de Ações -->
+  <div class="button-group">
+    <button class="btn-primary" id="btnNovaVisita">
+      <i class="fas fa-plus-circle"></i> Nova Visita
+    </button>
+    <button class="btn-secondary" id="btnVerMapa">
+      <i class="fas fa-map"></i> Ver Mapa
+    </button>
+    <button class="btn-success" id="btnExportarWhatsApp">
+      <i class="fab fa-whatsapp"></i> Compartilhar via WhatsApp
+    </button>
+    <button class="btn-warning" id="btnExportarRelatorio">
+      <i class="fas fa-file-export"></i> Exportar Relatório
+    </button>
+    <button class="btn-outline" id="btnGerenciarOmitidas">
+      <i class="fas fa-eye-slash"></i> Gerenciar Omitidas
+    </button>
+    <button class="btn-danger" id="btnLimparTudo">
+      <i class="fas fa-trash-alt"></i> Limpar Tudo
+    </button>
+  </div>
+
+  <!-- Painel de Filtros -->
+  <div class="filters-panel">
+    <div class="filter-row">
+      <div class="search-box">
+        <i class="fas fa-search"></i>
+        <input type="text" id="searchVisitas" placeholder="Buscar por família, ID ou endereço...">
+      </div>
+      <div class="form-group">
+        <label for="filterStatus">Status:</label>
+        <select id="filterStatus">
+          <option value="all">Todas</option>
+          <option value="active">Ativas</option>
+          <option value="omitted">Omitidas</option>
+          <option value="urgent">Urgentes</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="filterDate">Data:</label>
+        <input type="date" id="filterDate">
+      </div>
+      <button class="btn-outline" id="btnAplicarFiltros">
+        <i class="fas fa-filter"></i> Filtrar
+      </button>
+    </div>
+  </div>
+
+  <!-- Container do Mapa (inicialmente oculto) -->
+  <div id="mapContainer" class="hidden">
+    <div id="map"></div>
+    <div class="map-legend">
+      <h3><i class="fas fa-key"></i> Legenda</h3>
+      <div class="legend-item">
+        <span class="legend-icon" style="background: #2ecc70;"><i class="fas fa-user"></i></span>
+        <span>Sua posição</span>
+      </div>
+      <div class="legend-item">
+        <span class="legend-icon" style="background: #e74c3c;"><i class="fas fa-exclamation-circle"></i></span>
+        <span>Urgência máxima</span>
+      </div>
+      <div class="legend-item">
+        <span class="legend-icon" style="background: #f39c12;"><i class="fas fa-exclamation-triangle"></i></span>
+        <span>Precisa de atenção</span>
+      </div>
+      <div class="legend-item">
+        <span class="legend-icon" style="background: #3498db;"><i class="fas fa-home"></i></span>
+        <span>Visita normal</span>
+      </div>
+      <div class="legend-item">
+        <span class="legend-icon" style="background: #95a5a6;"><i class="fas fa-eye-slash"></i></span>
+        <span>Visita omitida</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Lista de Visitas -->
+  <div id="visitasList" class="visits-container">
+    <!-- As visitas serão renderizadas aqui pelo Controller -->
+  </div>
+
+  <!-- Mensagem quando não há visitas -->
+  <div id="emptyState" class="hidden text-center mb-3">
+    <i class="fas fa-clipboard-list fa-4x text-muted mb-2"></i>
+    <h3>Nenhuma visita registrada</h3>
+    <p class="text-muted">Comece clicando em "Nova Visita" para registrar seu primeiro atendimento.</p>
+    <button class="btn-primary mt-2" id="btnEmptyNovaVisita">
+      <i class="fas fa-plus-circle"></i> Criar Primeira Visita
+    </button>
+  </div>
+</div>
+
+<!-- ===== MODAIS ===== -->
+
+<!-- Modal Nova Visita -->
+<div class="modal-overlay" id="modalNovaVisita">
+  <div class="modal">
+    <div class="modal-header">
+      <h2><i class="fas fa-home"></i> Nova Visita Domiciliar</h2>
+      <button class="close-btn" id="closeNovaVisita">&times;</button>
+    </div>
+    <div class="modal-body">
+      <form id="formNovaVisita">
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="familiaNome"><i class="fas fa-users"></i> Nome da Família *</label>
+            <input type="text" id="familiaNome" required placeholder="Ex: Família Silva">
+          </div>
+          <div class="form-group">
+            <label for="familiaID"><i class="fas fa-id-card"></i> ID da Família</label>
+            <input type="text" id="familiaID" placeholder="Ex: CRAS-2024-001" value="CRAS-">
+          </div>
+          <div class="form-group">
+            <label for="visitaData"><i class="far fa-calendar"></i> Data da Visita *</label>
+            <input type="datetime-local" id="visitaData" required>
+          </div>
+          <div class="form-group">
+            <label for="visitaTipo"><i class="fas fa-tag"></i> Tipo de Visita</label>
+            <select id="visitaTipo">
+              <option value="rotina">Rotina</option>
+              <option value="acompanhamento">Acompanhamento</option>
+              <option value="denuncia">Denúncia</option>
+              <option value="emergencia">Emergência</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="endereco"><i class="fas fa-map-marker-alt"></i> Endereço Rural *</label>
+          <textarea id="endereco" required placeholder="Descreva o endereço rural com pontos de referência..."></textarea>
+        </div>
+
+        <div class="form-grid">
+          <div class="form-group">
+            <label><i class="fas fa-map-pin"></i> Coordenadas GPS</label>
+            <div class="button-group">
+              <button type="button" class="btn-outline" id="btnCapturarGPS">
+                <i class="fas fa-crosshairs"></i> Capturar Atual
+              </button>
+              <button type="button" class="btn-outline" id="btnSelecionarMapa">
+                <i class="fas fa-map"></i> Selecionar no Mapa
+              </button>
+            </div>
+            <div class="form-grid mt-1">
+              <input type="text" id="latitude" placeholder="Latitude" readonly>
+              <input type="text" id="longitude" placeholder="Longitude" readonly>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label><i class="fas fa-heartbeat"></i> Situação da Família</label>
+          <div class="radio-group">
+            <div class="radio-option">
+              <input type="radio" id="situacao_estavel" name="situacao" value="estavel" checked>
+              <label for="situacao_estavel">Estável</label>
+            </div>
+            <div class="radio-option">
+              <input type="radio" id="situacao_vulneravel" name="situacao" value="vulneravel">
+              <label for="situacao_vulneravel">Vulnerável</label>
+            </div>
+            <div class="radio-option">
+              <input type="radio" id="situacao_critica" name="situacao" value="critica">
+              <label for="situacao_critica">Crítica</label>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label><i class="fas fa-hands-helping"></i> Necessidades Identificadas</label>
+          <div class="checkbox-group">
+            <div class="checkbox-option">
+              <input type="checkbox" id="necessidade_alimentacao" value="alimentacao">
+              <label for="necessidade_alimentacao">Alimentação</label>
+            </div>
+            <div class="checkbox-option">
+              <input type="checkbox" id="necessidade_saude" value="saude">
+              <label for="necessidade_saude">Saúde</label>
+            </div>
+            <div class="checkbox-option">
+              <input type="checkbox" id="necessidade_documentacao" value="documentacao">
+              <label for="necessidade_documentacao">Documentação</label>
+            </div>
+            <div class="checkbox-option">
+              <input type="checkbox" id="necessidade_renda" value="renda">
+              <label for="necessidade_renda">Renda</label>
+            </div>
+            <div class="checkbox-option">
+              <input type="checkbox" id="necessidade_moradia" value="moradia">
+              <label for="necessidade_moradia">Moradia</label>
+            </div>
+            <div class="checkbox-option">
+              <input type="checkbox" id="necessidade_outras" value="outras">
+              <label for="necessidade_outras">Outras</label>
+            </div>
+          </div>
+          <textarea id="necessidadesDetalhe" class="mt-1" placeholder="Detalhe as necessidades específicas..." style="display: none;"></textarea>
+        </div>
+
+        <div class="form-group">
+          <label for="observacoes"><i class="fas fa-clipboard"></i> Observações / Resumo *</label>
+          <textarea id="observacoes" required placeholder="Registro resumido da visita (máx. 500 caracteres). Detalhes completos no caderninho físico." maxlength="500"></textarea>
+          <small class="text-muted">Limite do localStorage: 5MB. Use o caderninho para detalhes extensos.</small>
+        </div>
+
+        <div class="form-group">
+          <label for="urgencia"><i class="fas fa-exclamation-triangle"></i> Nível de Urgência</label>
+          <select id="urgencia">
+            <option value="baixa">Baixa</option>
+            <option value="media">Média</option>
+            <option value="alta">Alta</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label><i class="fas fa-star"></i> Avaliação do Atendimento</label>
+          <div class="rating" id="ratingStars">
+            <i class="far fa-star" data-rating="1"></i>
+            <i class="far fa-star" data-rating="2"></i>
+            <i class="far fa-star" data-rating="3"></i>
+            <i class="far fa-star" data-rating="4"></i>
+            <i class="far fa-star" data-rating="5"></i>
+          </div>
+          <input type="hidden" id="avaliacao" value="0">
+        </div>
+      </form>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-outline" id="cancelarNovaVisita">
+        <i class="fas fa-times"></i> Cancelar
+      </button>
+      <button class="btn-success" id="salvarNovaVisita">
+        <i class="fas fa-save"></i> Salvar Visita
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Confirmar Exclusão -->
+<div class="modal-overlay" id="modalConfirmarExclusao">
+  <div class="modal">
+    <div class="modal-header">
+      <h2><i class="fas fa-exclamation-triangle"></i> Confirmar Exclusão</h2>
+      <button class="close-btn" id="closeConfirmarExclusao">&times;</button>
+    </div>
+    <div class="modal-body">
+      <p id="exclusaoMensagem">Tem certeza que deseja excluir esta visita?</p>
+      <p class="text-muted"><small><i class="fas fa-info-circle"></i> A visita será apenas omitida (soft delete) e poderá ser recuperada posteriormente.</small></p>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-outline" id="cancelarExclusao">
+        <i class="fas fa-times"></i> Cancelar
+      </button>
+      <button class="btn-danger" id="confirmarExclusao">
+        <i class="fas fa-trash-alt"></i> Omitir Visita
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Limpar Tudo -->
+<div class="modal-overlay" id="modalLimparTudo">
+  <div class="modal">
+    <div class="modal-header">
+      <h2><i class="fas fa-radiation-alt"></i> Limpar Todos os Registros</h2>
+      <button class="close-btn" id="closeLimparTudo">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div class="warning-box" style="background: #fff3cd; padding: 1rem; border-radius: var(--border-radius); margin-bottom: 1rem;">
+        <i class="fas fa-exclamation-triangle" style="color: #856404;"></i>
+        <strong>Atenção! Esta ação é irreversível.</strong>
+      </div>
+      <p>Você está prestes a apagar <strong id="totalVisitasApagar">0</strong> visitas do sistema.</p>
+      <p class="text-muted">Isso inclui visitas ativas e omitidas. Os dados serão removidos do localStorage do navegador.</p>
+      
+      <div class="form-group mt-2">
+        <label for="backupOption"><i class="fas fa-download"></i> Fazer backup antes de apagar?</label>
+        <select id="backupOption">
+          <option value="sim">Sim, exportar automaticamente como JSON</option>
+          <option value="nao">Não, apenas apagar</option>
+        </select>
+      </div>
+      
+      <div class="form-group">
+        <label for="confirmacaoTexto">Digite "LIMPAR TUDO" para confirmar:</label>
+        <input type="text" id="confirmacaoTexto" placeholder="LIMPAR TUDO">
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-outline" id="cancelarLimparTudo">
+        <i class="fas fa-times"></i> Cancelar
+      </button>
+      <button class="btn-danger" id="confirmarLimparTudo" disabled>
+        <i class="fas fa-broom"></i> Limpar Tudo
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Gerenciar Omitidas -->
+<div class="modal-overlay" id="modalGerenciarOmitidas">
+  <div class="modal">
+    <div class="modal-header">
+      <h2><i class="fas fa-eye-slash"></i> Visitas Omitidas</h2>
+      <button class="close-btn" id="closeGerenciarOmitidas">&times;</button>
+    </div>
+    <div class="modal-body">
+      <p class="text-muted mb-2">Visitas omitidas não são exibidas na lista principal, mas permanecem armazenadas.</p>
+      <div id="omitidasList" class="visits-container">
+        <!-- Visitas omitidas serão renderizadas aqui -->
+      </div>
+      <div id="emptyOmitidas" class="text-center mt-3 hidden">
+        <i class="fas fa-eye fa-3x text-muted"></i>
+        <p class="mt-1">Nenhuma visita omitida</p>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-outline" id="fecharGerenciarOmitidas">
+        <i class="fas fa-times"></i> Fechar
+      </button>
+      <button class="btn-success" id="restaurarSelecionadas">
+        <i class="fas fa-eye"></i> Restaurar Selecionadas
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Notificação Toast -->
+<div id="notificationToast" class="notification hidden"></div>
+
+<!-- Bibliotecas JavaScript -->
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
+
+<script>
+// =================================================================
+// APLICAÇÃO MVC - CRAS FIELD VISITAS
+// =================================================================
+
+/**
+ * @brief Singleton principal da aplicação
+ * @description Controla a inicialização e coordenação MVC
+ */
+const CRASFieldApp = (() => {
+  let instance = null;
+  
+  class Application {
+    constructor() {
+      if (instance) return instance;
+      instance = this;
+      
+      this.model = new VisitaModel();
+      this.view = new VisitaView();
+      this.controller = new VisitaController(this.model, this.view);
+      
+      this.init();
+    }
+    
+    /**
+     * @brief Inicializa a aplicação
+     */
+    init() {
+      this.controller.init();
+      console.log('CRAS Field Application initialized');
+    }
+  }
+  
+  return Application;
+})();
+
+/**
+ * =================================================================
+ * MODEL - Manipulação de dados e localStorage
+ * =================================================================
+ * @class VisitaModel
+ * @description Gerencia dados das visitas, localStorage e lógica de negócio
+ */
+class VisitaModel {
+  constructor() {
+    this.STORAGE_KEY = 'cras_visitas';
+    this.OMITTED_KEY = 'cras_visitas_omitted';
+    this.SETTINGS_KEY = 'cras_settings';
+    this.MAX_STORAGE_BYTES = 5 * 1024 * 1024; // 5MB
+    
+    this.visitas = new Map();
+    this.visitasOmitidas = new Map();
+    this.currentFilters = {};
+    this.listeners = [];
+    
+    this.loadFromStorage();
+  }
+  
+  /**
+   * @brief Carrega dados do localStorage
+   */
+  loadFromStorage() {
+    try {
+      // Carrega visitas ativas
+      const visitasData = localStorage.getItem(this.STORAGE_KEY);
+      if (visitasData) {
+        const parsed = JSON.parse(visitasData);
+        parsed.forEach(v => this.visitas.set(v.id, v));
+      }
+      
+      // Carrega visitas omitidas
+      const omittedData = localStorage.getItem(this.OMITTED_KEY);
+      if (omittedData) {
+        const parsed = JSON.parse(omittedData);
+        parsed.forEach(v => this.visitasOmitidas.set(v.id, v));
+      }
+      
+      this.notifyListeners();
+      return true;
+    } catch (error) {
+      console.error('Erro ao carregar do localStorage:', error);
+      this.showError('Erro ao carregar dados salvos');
+      return false;
+    }
+  }
+  
+  /**
+   * @brief Salva dados no localStorage
+   * @returns {boolean} Sucesso da operação
+   */
+  saveToStorage() {
+    try {
+      const visitasArray = Array.from(this.visitas.values());
+      const omittedArray = Array.from(this.visitasOmitidas.values());
+      
+      // Verifica limite de armazenamento
+      const totalSize = this.calculateStorageSize(visitasArray, omittedArray);
+      if (totalSize > this.MAX_STORAGE_BYTES) {
+        this.showWarning('Limite de armazenamento atingido. Use o caderninho físico para detalhes extensos.');
+        return false;
+      }
+      
+      localStorage.setItem(this.STORAGE_KEY, JSON.stringify(visitasArray));
+      localStorage.setItem(this.OMITTED_KEY, JSON.stringify(omittedArray));
+      
+      this.notifyListeners();
+      return true;
+    } catch (error) {
+      console.error('Erro ao salvar no localStorage:', error);
+      this.showError('Erro ao salvar dados. Dados podem ter sido perdidos.');
+      return false;
+    }
+  }
+  
+  /**
+   * @brief Calcula tamanho estimado do armazenamento
+   * @param {Array} visitas - Array de visitas ativas
+   * @param {Array} omitted - Array de visitas omitidas
+   * @returns {number} Tamanho em bytes
+   */
+  calculateStorageSize(visitas, omitted) {
+    const allData = [...visitas, ...omitted];
+    const jsonString = JSON.stringify(allData);
+    return new Blob([jsonString]).size;
+  }
+  
+  /**
+   * @brief Cria uma nova visita
+   * @param {Object} data - Dados da visita
+   * @returns {Object} Visita criada com ID
+   */
+  criarVisita(data) {
+    const visita = {
+      id: this.generateId(),
+      ...data,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      omitted: false,
+      deleted: false
+    };
+    
+    this.visitas.set(visita.id, visita);
+    const success = this.saveToStorage();
+    
+    if (success) {
+      this.showSuccess('Visita registrada com sucesso');
+      return visita;
+    }
+    
+    return null;
+  }
+  
+  /**
+   * @brief Atualiza uma visita existente
+   * @param {string} id - ID da visita
+   * @param {Object} updates - Campos a atualizar
+   * @returns {Object|null} Visita atualizada ou null
+   */
+  atualizarVisita(id, updates) {
+    const visita = this.visitas.get(id) || this.visitasOmitidas.get(id);
+    if (!visita) return null;
+    
+    const updated = {
+      ...visita,
+      ...updates,
+      updatedAt: new Date().toISOString()
+    };
+    
+    if (visita.omitted) {
+      this.visitasOmitidas.set(id, updated);
+    } else {
+      this.visitas.set(id, updated);
+    }
+    
+    this.saveToStorage();
+    this.showSuccess('Visita atualizada com sucesso');
+    return updated;
+  }
+  
+  /**
+   * @brief Omite uma visita (soft delete)
+   * @param {string} id - ID da visita
+   * @returns {boolean} Sucesso da operação
+   */
+  omitirVisita(id) {
+    const visita = this.visitas.get(id);
+    if (!visita) return false;
+    
+    this.visitas.delete(id);
+    visita.omitted = true;
+    visita.omittedAt = new Date().toISOString();
+    this.visitasOmitidas.set(id, visita);
+    
+    this.saveToStorage();
+    this.showInfo('Visita omitida. Pode ser recuperada em "Gerenciar Omitidas"');
+    return true;
+  }
+  
+  /**
+   * @brief Restaura uma visita omitida
+   * @param {string} id - ID da visita
+   * @returns {boolean} Sucesso da operação
+   */
+  restaurarVisita(id) {
+    const visita = this.visitasOmitidas.get(id);
+    if (!visita) return false;
+    
+    this.visitasOmitidas.delete(id);
+    visita.omitted = false;
+    delete visita.omittedAt;
+    this.visitas.set(id, visita);
+    
+    this.saveToStorage();
+    this.showSuccess('Visita restaurada com sucesso');
+    return true;
+  }
+  
+  /**
+   * @brief Exclui permanentemente uma visita
+   * @param {string} id - ID da visita
+   * @param {boolean} isOmitted - Se está na lista de omitidas
+   * @returns {boolean} Sucesso da operação
+   */
+  excluirVisitaPermanente(id, isOmitted = false) {
+    if (isOmitted) {
+      this.visitasOmitidas.delete(id);
+    } else {
+      this.visitas.delete(id);
+    }
+    
+    this.saveToStorage();
+    this.showSuccess('Visita excluída permanentemente');
+    return true;
+  }
+  
+  /**
+   * @brief Limpa todos os dados (hard delete)
+   * @param {boolean} backupFirst - Se deve criar backup antes
+   * @returns {boolean} Sucesso da operação
+   */
+  limparTudo(backupFirst = false) {
+    if (backupFirst) {
+      this.exportarBackup();
+    }
+    
+    this.visitas.clear();
+    this.visitasOmitidas.clear();
+    
+    localStorage.removeItem(this.STORAGE_KEY);
+    localStorage.removeItem(this.OMITTED_KEY);
+    
+    this.showWarning('Todos os dados foram removidos');
+    return true;
+  }
+  
+  /**
+   * @brief Exporta backup de todos os dados
+   */
+  exportarBackup() {
+    const allVisitas = [
+      ...Array.from(this.visitas.values()),
+      ...Array.from(this.visitasOmitidas.values())
+    ];
+    
+    const dataStr = JSON.stringify(allVisitas, null, 2);
+    const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
+    
+    const exportFileDefaultName = `backup_cras_${new Date().toISOString().slice(0,10)}.json`;
+    
+    const linkElement = document.createElement('a');
+    linkElement.setAttribute('href', dataUri);
+    linkElement.setAttribute('download', exportFileDefaultName);
+    linkElement.click();
+  }
+  
+  /**
+   * @brief Filtra visitas com base em critérios
+   * @param {Object} filters - Critérios de filtro
+   * @returns {Array} Visitas filtradas
+   */
+  filtrarVisitas(filters = {}) {
+    this.currentFilters = filters;
+    let visitas = Array.from(this.visitas.values());
+    
+    // Aplica filtros
+    if (filters.search) {
+      const searchLower = filters.search.toLowerCase();
+      visitas = visitas.filter(v => 
+        v.familiaNome.toLowerCase().includes(searchLower) ||
+        v.familiaID.toLowerCase().includes(searchLower) ||
+        v.endereco.toLowerCase().includes(searchLower)
+      );
+    }
+    
+    if (filters.status && filters.status !== 'all') {
+      switch(filters.status) {
+        case 'urgent':
+          visitas = visitas.filter(v => v.urgencia === 'alta');
+          break;
+        case 'active':
+          // Já são as ativas por padrão
+          break;
+      }
+    }
+    
+    if (filters.date) {
+      const filterDate = new Date(filters.date).toDateString();
+      visitas = visitas.filter(v => 
+        new Date(v.visitaData).toDateString() === filterDate
+      );
+    }
+    
+    return visitas;
+  }
+  
+  /**
+   * @brief Gera estatísticas das visitas
+   * @returns {Object} Estatísticas
+   */
+  getEstatisticas() {
+    const visitasArray = Array.from(this.visitas.values());
+    const omittedArray = Array.from(this.visitasOmitidas.values());
+    
+    const now = new Date();
+    const thisMonth = now.getMonth();
+    const thisYear = now.getFullYear();
+    
+    const visitasEsteMes = visitasArray.filter(v => {
+      const visitDate = new Date(v.visitaData);
+      return visitDate.getMonth() === thisMonth && 
+             visitDate.getFullYear() === thisYear;
+    });
+    
+    const visitasUrgentes = visitasArray.filter(v => v.urgencia === 'alta');
+    
+    // Calcula uso de armazenamento
+    const totalSize = this.calculateStorageSize(visitasArray, omittedArray);
+    const storagePercent = Math.min(100, (totalSize / this.MAX_STORAGE_BYTES) * 100);
+    
+    return {
+      total: this.visitas.size + this.visitasOmitidas.size,
+      active: this.visitas.size,
+      omitted: this.visitasOmitidas.size,
+      urgent: visitasUrgentes.length,
+      thisMonth: visitasEsteMes.length,
+      storagePercent: storagePercent.toFixed(1),
+      storageUsed: (totalSize / 1024 / 1024).toFixed(2) // MB
+    };
+  }
+  
+  /**
+   * @brief Gera ID único para visita
+   * @returns {string} ID único
+   */
+  generateId() {
+    const timestamp = Date.now().toString(36);
+    const random = Math.random().toString(36).substr(2, 5);
+    return `CRAS-${timestamp}-${random}`.toUpperCase();
+  }
+  
+  /**
+   * @brief Adiciona listener para mudanças
+   * @param {Function} callback - Função a ser chamada
+   */
+  addListener(callback) {
+    this.listeners.push(callback);
+  }
+  
+  /**
+   * @brief Notifica todos os listeners
+   */
+  notifyListeners() {
+    this.listeners.forEach(callback => callback(this.getEstatisticas()));
+  }
+  
+  /**
+   * @brief Exibe notificação de sucesso
+   * @param {string} message - Mensagem
+   */
+  showSuccess(message) {
+    this.showNotification(message, 'success');
+  }
+  
+  /**
+   * @brief Exibe notificação de erro
+   * @param {string} message - Mensagem
+   */
+  showError(message) {
+    this.showNotification(message, 'error');
+  }
+  
+  /**
+   * @brief Exibe notificação de alerta
+   * @param {string} message - Mensagem
+   */
+  showWarning(message) {
+    this.showNotification(message, 'warning');
+  }
+  
+  /**
+   * @brief Exibe notificação informativa
+   * @param {string} message - Mensagem
+   */
+  showInfo(message) {
+    this.showNotification(message, 'info');
+  }
+  
+  /**
+   * @brief Exibe notificação toast
+   * @param {string} message - Mensagem
+   * @param {string} type - Tipo (success, error, warning, info)
+   */
+  showNotification(message, type = 'info') {
+    const event = new CustomEvent('showNotification', {
+      detail: { message, type }
+    });
+    window.dispatchEvent(event);
+  }
+}
+
+/**
+ * =================================================================
+ * VIEW - Interface do usuário e renderização
+ * =================================================================
+ * @class VisitaView
+ * @description Gerencia a interface do usuário e renderização
+ */
+class VisitaView {
+  constructor() {
+    this.elements = this.cacheElements();
+    this.map = null;
+    this.mapMarkers = new Map();
+    this.currentRating = 0;
+    this.selectedVisitas = new Set();
+    
+    this.initEventDelegation();
+  }
+  
+  /**
+   * @brief Cache de elementos DOM importantes
+   * @returns {Object} Elementos DOM
+   */
+  cacheElements() {
+    return {
+      // Elementos principais
+      visitasCount: document.getElementById('visitasCount'),
+      storageUsage: document.getElementById('storageUsage'),
+      currentTime: document.getElementById('currentTime'),
+      statsActive: document.getElementById('statsActive'),
+      statsOmitted: document.getElementById('statsOmitted'),
+      statsUrgent: document.getElementById('statsUrgent'),
+      statsThisMonth: document.getElementById('statsThisMonth'),
+      
+      // Containers
+      visitasList: document.getElementById('visitasList'),
+      emptyState: document.getElementById('emptyState'),
+      mapContainer: document.getElementById('mapContainer'),
+      
+      // Botões
+      btnNovaVisita: document.getElementById('btnNovaVisita'),
+      btnVerMapa: document.getElementById('btnVerMapa'),
+      btnExportarWhatsApp: document.getElementById('btnExportarWhatsApp'),
+      btnExportarRelatorio: document.getElementById('btnExportarRelatorio'),
+      btnGerenciarOmitidas: document.getElementById('btnGerenciarOmitidas'),
+      btnLimparTudo: document.getElementById('btnLimparTudo'),
+      btnEmptyNovaVisita: document.getElementById('btnEmptyNovaVisita'),
+      btnAplicarFiltros: document.getElementById('btnAplicarFiltros'),
+      
+      // Filtros
+      searchVisitas: document.getElementById('searchVisitas'),
+      filterStatus: document.getElementById('filterStatus'),
+      filterDate: document.getElementById('filterDate'),
+      
+      // Modais
+      modalNovaVisita: document.getElementById('modalNovaVisita'),
+      modalConfirmarExclusao: document.getElementById('modalConfirmarExclusao'),
+      modalLimparTudo: document.getElementById('modalLimparTudo'),
+      modalGerenciarOmitidas: document.getElementById('modalGerenciarOmitidas'),
+      
+      // Formulário nova visita
+      formNovaVisita: document.getElementById('formNovaVisita'),
+      familiaNome: document.getElementById('familiaNome'),
+      familiaID: document.getElementById('familiaID'),
+      visitaData: document.getElementById('visitaData'),
+      visitaTipo: document.getElementById('visitaTipo'),
+      endereco: document.getElementById('endereco'),
+      latitude: document.getElementById('latitude'),
+      longitude: document.getElementById('longitude'),
+      btnCapturarGPS: document.getElementById('btnCapturarGPS'),
+      btnSelecionarMapa: document.getElementById('btnSelecionarMapa'),
+      observacoes: document.getElementById('observacoes'),
+      urgencia: document.getElementById('urgencia'),
+      ratingStars: document.getElementById('ratingStars'),
+      avaliacao: document.getElementById('avaliacao'),
+      
+      // Botões de ação modais
+      salvarNovaVisita: document.getElementById('salvarNovaVisita'),
+      cancelarNovaVisita: document.getElementById('cancelarNovaVisita'),
+      closeNovaVisita: document.getElementById('closeNovaVisita'),
+      
+      confirmarExclusao: document.getElementById('confirmarExclusao'),
+      cancelarExclusao: document.getElementById('cancelarExclusao'),
+      closeConfirmarExclusao: document.getElementById('closeConfirmarExclusao'),
+      
+      confirmarLimparTudo: document.getElementById('confirmarLimparTudo'),
+      cancelarLimparTudo: document.getElementById('cancelarLimparTudo'),
+      closeLimparTudo: document.getElementById('closeLimparTudo'),
+      backupOption: document.getElementById('backupOption'),
+      confirmacaoTexto: document.getElementById('confirmacaoTexto'),
+      totalVisitasApagar: document.getElementById('totalVisitasApagar'),
+      
+      restaurarSelecionadas: document.getElementById('restaurarSelecionadas'),
+      fecharGerenciarOmitidas: document.getElementById('fecharGerenciarOmitidas'),
+      closeGerenciarOmitidas: document.getElementById('closeGerenciarOmitidas'),
+      omitidasList: document.getElementById('omitidasList'),
+      emptyOmitidas: document.getElementById('emptyOmitidas'),
+      
+      // Notificação
+      notificationToast: document.getElementById('notificationToast')
+    };
+  }
+  
+  /**
+   * @brief Inicializa delegação de eventos
+   */
+  initEventDelegation() {
+    // Delegação de eventos para as visitas
+    this.elements.visitasList.addEventListener('click', (e) => {
+      const card = e.target.closest('.visit-card');
+      if (!card) return;
+      
+      const id = card.dataset.id;
+      const action = e.target.closest('[data-action]');
+      
+      if (action) {
+        e.preventDefault();
+        const event = new CustomEvent('visitaAction', {
+          detail: { id, action: action.dataset.action }
+        });
+        window.dispatchEvent(event);
+      }
+    });
+    
+    // Delegação para checkboxes de seleção
+    this.elements.visitasList.addEventListener('change', (e) => {
+      if (e.target.type === 'checkbox' && e.target.name === 'selectVisita') {
+        const id = e.target.value;
+        const event = new CustomEvent('visitaSelect', {
+          detail: { id, checked: e.target.checked }
+        });
+        window.dispatchEvent(event);
+      }
+    });
+    
+    // Delegação para lista de omitidas
+    this.elements.omitidasList.addEventListener('click', (e) => {
+      const card = e.target.closest('.visit-card');
+      if (!card) return;
+      
+      const id = card.dataset.id;
+      const action = e.target.closest('[data-action]');
+      
+      if (action) {
+        e.preventDefault();
+        const event = new CustomEvent('omittedAction', {
+          detail: { id, action: action.dataset.action }
+        });
+        window.dispatchEvent(event);
+      }
+    });
+    
+    // Delegação para checkboxes de omitidas
+    this.elements.omitidasList.addEventListener('change', (e) => {
+      if (e.target.type === 'checkbox' && e.target.name === 'selectOmitted') {
+        const id = e.target.value;
+        const event = new CustomEvent('omittedSelect', {
+          detail: { id, checked: e.target.checked }
+        });
+        window.dispatchEvent(event);
+      }
+    });
+    
+    // Estrelas de avaliação
+    this.elements.ratingStars.addEventListener('click', (e) => {
+      if (e.target.classList.contains('fa-star')) {
+        const rating = parseInt(e.target.dataset.rating);
+        this.setRating(rating);
+      }
+    });
+    
+    // Necessidade "outras" mostra textarea
+    document.addEventListener('change', (e) => {
+      if (e.target.id === 'necessidade_outras') {
+        const detalhe = this.elements.necessidadesDetalhe;
+        detalhe.style.display = e.target.checked ? 'block' : 'none';
+        if (!e.target.checked) detalhe.value = '';
+      }
+    });
+    
+    // Validação do campo de confirmação de limpeza
+    this.elements.confirmacaoTexto?.addEventListener('input', (e) => {
+      const confirmBtn = this.elements.confirmarLimparTudo;
+      confirmBtn.disabled = e.target.value !== 'LIMPAR TUDO';
+    });
+  }
+  
+  /**
+   * @brief Atualiza estatísticas na interface
+   * @param {Object} stats - Estatísticas
+   */
+  updateStats(stats) {
+    this.elements.visitasCount.textContent = stats.total;
+    this.elements.storageUsage.textContent = `${stats.storagePercent}%`;
+    this.elements.statsActive.textContent = stats.active;
+    this.elements.statsOmitted.textContent = stats.omitted;
+    this.elements.statsUrgent.textContent = stats.urgent;
+    this.elements.statsThisMonth.textContent = stats.thisMonth;
+    
+    // Atualiza barra de progresso visual
+    const usagePercent = parseFloat(stats.storagePercent);
+    this.elements.storageUsage.style.color = usagePercent > 80 ? '#e74c3c' : 
+                                            usagePercent > 60 ? '#f39c12' : '#27ae60';
+    
+    // Mostra/oculta empty state
+    if (stats.total === 0) {
+      this.elements.emptyState.classList.remove('hidden');
+      this.elements.visitasList.classList.add('hidden');
+    } else {
+      this.elements.emptyState.classList.add('hidden');
+      this.elements.visitasList.classList.remove('hidden');
+    }
+  }
+  
+  /**
+   * @brief Renderiza lista de visitas
+   * @param {Array} visitas - Array de visitas
+   */
+  renderVisitas(visitas) {
+    if (!visitas || visitas.length === 0) {
+      this.elements.visitasList.innerHTML = `
+        <div class="text-center" style="grid-column: 1 / -1; padding: 3rem;">
+          <i class="fas fa-search fa-3x text-muted mb-2"></i>
+          <p>Nenhuma visita encontrada com os filtros aplicados</p>
+        </div>
+      `;
+      return;
+    }
+    
+    const html = visitas.map(visita => this.renderVisitaCard(visita)).join('');
+    this.elements.visitasList.innerHTML = html;
+  }
+  
+  /**
+   * @brief Renderiza card individual de visita
+   * @param {Object} visita - Dados da visita
+   * @returns {string} HTML do card
+   */
+  renderVisitaCard(visita) {
+    const statusClass = visita.urgencia === 'alta' ? 'status-urgent' :
+                       visita.urgencia === 'media' ? 'status-pending' : 'status-active';
+    
+    const statusText = visita.urgencia === 'alta' ? 'Urgente' :
+                      visita.urgencia === 'media' ? 'Atenção' : 'Normal';
+    
+    const formattedDate = this.formatDate(visita.visitaData);
+    const necessidades = Array.isArray(visita.necessidades) ? 
+                        visita.necessidades.join(', ') : visita.necessidades || '';
+    
+    return `
+      <div class="visit-card ${visita.omitted ? 'omitted' : ''}" data-id="${visita.id}">
+        <div class="visit-header">
+          <div>
+            <span class="visit-id">${visita.familiaID || visita.id}</span>
+            <span class="visit-status ${statusClass}">${statusText}</span>
+          </div>
+          <div>
+            <input type="checkbox" name="selectVisita" value="${visita.id}" 
+                   ${this.selectedVisitas.has(visita.id) ? 'checked' : ''}>
+          </div>
+        </div>
+        
+        <div class="visit-body">
+          <h3>${visita.familiaNome}</h3>
+          
+          <div class="visit-details">
+            <div class="detail-item">
+              <span class="detail-label"><i class="far fa-calendar"></i> Data:</span>
+              <span>${formattedDate}</span>
+            </div>
+            <div class="detail-item">
+              <span class="detail-label"><i class="fas fa-tag"></i> Tipo:</span>
+              <span>${this.capitalize(visita.visitaTipo || 'rotina')}</span>
+            </div>
+            <div class="detail-item">
+              <span class="detail-label"><i class="fas fa-map-marker-alt"></i> Local:</span>
+              <span>${visita.endereco?.substring(0, 50)}${visita.endereco?.length > 50 ? '...' : ''}</span>
+            </div>
+            <div class="detail-item">
+              <span class="detail-label"><i class="fas fa-heartbeat"></i> Situação:</span>
+              <span>${this.capitalize(visita.situacao || 'estavel')}</span>
+            </div>
+            ${visita.avaliacao ? `
+            <div class="detail-item">
+              <span class="detail-label"><i class="fas fa-star"></i> Avaliação:</span>
+              <span>${'★'.repeat(visita.avaliacao)}${'☆'.repeat(5-visita.avaliacao)}</span>
+            </div>` : ''}
+          </div>
+          
+          <p class="text-muted" style="font-size: 0.85rem; margin-top: 0.5rem;">
+            ${visita.observacoes?.substring(0, 100)}${visita.observacoes?.length > 100 ? '...' : ''}
+          </p>
+        </div>
+        
+        <div class="visit-actions">
+          <button class="btn-outline" data-action="view">
+            <i class="fas fa-eye"></i> Ver
+          </button>
+          <button class="btn-outline" data-action="edit">
+            <i class="fas fa-edit"></i> Editar
+          </button>
+          <button class="btn-outline" data-action="whatsapp">
+            <i class="fab fa-whatsapp"></i> WhatsApp
+          </button>
+          <button class="btn-danger" data-action="omit">
+            <i class="fas fa-eye-slash"></i> Omitir
+          </button>
+        </div>
+      </div>
+    `;
+  }
+  
+  /**
+   * @brief Renderiza lista de visitas omitidas
+   * @param {Array} visitas - Array de visitas omitidas
+   */
+  renderOmitidas(visitas) {
+    if (!visitas || visitas.length === 0) {
+      this.elements.omitidasList.innerHTML = '';
+      this.elements.emptyOmitidas.classList.remove('hidden');
+      return;
+    }
+    
+    this.elements.emptyOmitidas.classList.add('hidden');
+    
+    const html = visitas.map(visita => `
+      <div class="visit-card omitted" data-id="${visita.id}">
+        <div class="visit-header">
+          <div>
+            <span class="visit-id">${visita.familiaID || visita.id}</span>
+            <span class="visit-status status-omitted">Omitida</span>
+          </div>
+          <div>
+            <input type="checkbox" name="selectOmitted" value="${visita.id}">
+          </div>
+        </div>
+        
+        <div class="visit-body">
+          <h3>${visita.familiaNome}</h3>
+          <div class="visit-details">
+            <div class="detail-item">
+              <span class="detail-label">Omitida em:</span>
+              <span>${this.formatDate(visita.omittedAt)}</span>
+            </div>
+            <div class="detail-item">
+              <span class="detail-label">Razão:</span>
+              <span>${visita.omitReason || 'Não especificada'}</span>
+            </div>
+          </div>
+        </div>
+        
+        <div class="visit-actions">
+          <button class="btn-success" data-action="restore">
+            <i class="fas fa-eye"></i> Restaurar
+          </button>
+          <button class="btn-danger" data-action="delete">
+            <i class="fas fa-trash"></i> Excluir
+          </button>
+        </div>
+      </div>
+    `).join('');
+    
+    this.elements.omitidasList.innerHTML = html;
+  }
+  
+  /**
+   * @brief Inicializa o mapa Leaflet
+   * @param {number} lat - Latitude inicial
+   * @param {number} lng - Longitude inicial
+   */
+  initMap(lat, lng) {
+    if (this.map) {
+      this.map.remove();
+      this.mapMarkers.clear();
+    }
+    
+    this.map = L.map('map').setView([lat, lng], 13);
+    
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 19,
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+    }).addTo(this.map);
+    
+    // Marcador da posição atual
+    L.marker([lat, lng], {
+      icon: L.divIcon({
+        html: '<i class="fas fa-user" style="color: #2ecc70; font-size: 24px;"></i>',
+        className: 'user-marker',
+        iconSize: [24, 24]
+      })
+    }).addTo(this.map)
+      .bindPopup('<b>Sua posição atual</b>')
+      .openPopup();
+    
+    // Evento de clique para selecionar coordenadas
+    this.map.on('click', (e) => {
+      this.elements.latitude.value = e.latlng.lat.toFixed(6);
+      this.elements.longitude.value = e.latlng.lng.toFixed(6);
+      this.showNotification('Coordenadas selecionadas no mapa', 'success');
+    });
+  }
+  
+  /**
+   * @brief Adiciona marcador de visita no mapa
+   * @param {Object} visita - Dados da visita
+   */
+  addMapMarker(visita) {
+    if (!this.map || !visita.latitude || !visita.longitude) return;
+    
+    const color = visita.urgencia === 'alta' ? '#e74c3c' :
+                  visita.urgencia === 'media' ? '#f39c12' :
+                  visita.omitted ? '#95a5a6' : '#3498db';
+    
+    const icon = L.divIcon({
+      html: `<i class="fas fa-home" style="color: ${color}; font-size: 24px;"></i>`,
+      className: 'visita-marker',
+      iconSize: [24, 24]
+    });
+    
+    const marker = L.marker([visita.latitude, visita.longitude], { icon })
+      .addTo(this.map)
+      .bindPopup(`
+        <b>${visita.familiaNome}</b><br>
+        <small>${this.formatDate(visita.visitaData)}</small><br>
+        ${visita.endereco?.substring(0, 50)}...
+      `);
+    
+    this.mapMarkers.set(visita.id, marker);
+  }
+  
+  /**
+   * @brief Remove marcador do mapa
+   * @param {string} id - ID da visita
+   */
+  removeMapMarker(id) {
+    const marker = this.mapMarkers.get(id);
+    if (marker) {
+      marker.remove();
+      this.mapMarkers.delete(id);
+    }
+  }
+  
+  /**
+   * @brief Limpa todos os marcadores do mapa
+   */
+  clearMapMarkers() {
+    this.mapMarkers.forEach(marker => marker.remove());
+    this.mapMarkers.clear();
+  }
+  
+  /**
+   * @brief Atualiza mapa com todas as visitas
+   * @param {Array} visitas - Array de visitas
+   */
+  updateMapWithVisitas(visitas) {
+    this.clearMapMarkers();
+    visitas.forEach(visita => this.addMapMarker(visita));
+  }
+  
+  /**
+   * @brief Mostra/oculta o mapa
+   * @param {boolean} show - Se deve mostrar
+   */
+  toggleMap(show) {
+    if (show) {
+      this.elements.mapContainer.classList.remove('hidden');
+      setTimeout(() => {
+        if (this.map) this.map.invalidateSize();
+      }, 100);
+    } else {
+      this.elements.mapContainer.classList.add('hidden');
+    }
+  }
+  
+  /**
+   * @brief Abre modal de nova visita
+   * @param {Object|null} visita - Dados da visita para edição
+   */
+  openNovaVisitaModal(visita = null) {
+    this.resetForm();
+    
+    if (visita) {
+      // Modo edição
+      this.populateForm(visita);
+      this.elements.modalNovaVisita.querySelector('h2').innerHTML = 
+        '<i class="fas fa-edit"></i> Editar Visita';
+      this.elements.salvarNovaVisita.innerHTML = 
+        '<i class="fas fa-save"></i> Atualizar Visita';
+      this.elements.salvarNovaVisita.dataset.mode = 'edit';
+      this.elements.salvarNovaVisita.dataset.id = visita.id;
+    } else {
+      // Modo criação
+      this.elements.modalNovaVisita.querySelector('h2').innerHTML = 
+        '<i class="fas fa-home"></i> Nova Visita Domiciliar';
+      this.elements.salvarNovaVisita.innerHTML = 
+        '<i class="fas fa-save"></i> Salvar Visita';
+      this.elements.salvarNovaVisita.dataset.mode = 'create';
+      delete this.elements.salvarNovaVisita.dataset.id;
+      
+      // Preenche data/hora atual
+      const now = new Date();
+      const localDateTime = new Date(now.getTime() - now.getTimezoneOffset() * 60000)
+        .toISOString()
+        .slice(0, 16);
+      this.elements.visitaData.value = localDateTime;
+    }
+    
+    this.showModal(this.elements.modalNovaVisita);
+  }
+  
+  /**
+   * @brief Reseta formulário de nova visita
+   */
+  resetForm() {
+    this.elements.formNovaVisita.reset();
+    this.elements.latitude.value = '';
+    this.elements.longitude.value = '';
+    this.elements.necessidadesDetalhe.style.display = 'none';
+    this.elements.necessidadesDetalhe.value = '';
+    this.setRating(0);
+    
+    // Remove validação CSS
+    this.elements.formNovaVisita.querySelectorAll('input, textarea, select').forEach(el => {
+      el.classList.remove('is-invalid');
+    });
+  }
+  
+  /**
+   * @brief Preenche formulário com dados da visita
+   * @param {Object} visita - Dados da visita
+   */
+  populateForm(visita) {
+    this.elements.familiaNome.value = visita.familiaNome || '';
+    this.elements.familiaID.value = visita.familiaID || '';
+    this.elements.visitaData.value = visita.visitaData ? 
+      visita.visitaData.slice(0, 16) : '';
+    this.elements.visitaTipo.value = visita.visitaTipo || 'rotina';
+    this.elements.endereco.value = visita.endereco || '';
+    this.elements.latitude.value = visita.latitude || '';
+    this.elements.longitude.value = visita.longitude || '';
+    this.elements.observacoes.value = visita.observacoes || '';
+    this.elements.urgencia.value = visita.urgencia || 'baixa';
+    
+    // Situação
+    const situacaoInput = document.querySelector(`input[name="situacao"][value="${visita.situacao || 'estavel'}"]`);
+    if (situacaoInput) situacaoInput.checked = true;
+    
+    // Necessidades
+    document.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = false);
+    if (visita.necessidades) {
+      const necessidades = Array.isArray(visita.necessidades) ? 
+                          visita.necessidades : [visita.necessidades];
+      necessidades.forEach(n => {
+        const cb = document.getElementById(`necessidade_${n}`);
+        if (cb) cb.checked = true;
+      });
+    }
+    
+    // Avaliação
+    this.setRating(visita.avaliacao || 0);
+  }
+  
+  /**
+   * @brief Define avaliação por estrelas
+   * @param {number} rating - Avaliação (0-5)
+   */
+  setRating(rating) {
+    this.currentRating = rating;
+    this.elements.avaliacao.value = rating;
+    
+    const stars = this.elements.ratingStars.querySelectorAll('.fa-star');
+    stars.forEach((star, index) => {
+      if (index < rating) {
+        star.classList.remove('far');
+        star.classList.add('fas');
+      } else {
+        star.classList.remove('fas');
+        star.classList.add('far');
+      }
+    });
+  }
+  
+  /**
+   * @brief Obtém dados do formulário
+   * @returns {Object} Dados da visita
+   */
+  getFormData() {
+    const necessidades = [];
+    document.querySelectorAll('input[type="checkbox"]:checked').forEach(cb => {
+      if (cb.id !== 'necessidade_outras') {
+        necessidades.push(cb.value);
+      }
+    });
+    
+    if (document.getElementById('necessidade_outras').checked) {
+      necessidades.push(this.elements.necessidadesDetalhe.value);
+    }
+    
+    return {
+      familiaNome: this.elements.familiaNome.value.trim(),
+      familiaID: this.elements.familiaID.value.trim(),
+      visitaData: this.elements.visitaData.value,
+      visitaTipo: this.elements.visitaTipo.value,
+      endereco: this.elements.endereco.value.trim(),
+      latitude: parseFloat(this.elements.latitude.value) || null,
+      longitude: parseFloat(this.elements.longitude.value) || null,
+      situacao: document.querySelector('input[name="situacao"]:checked')?.value || 'estavel',
+      necessidades: necessidades.length > 0 ? necessidades : [],
+      observacoes: this.elements.observacoes.value.trim(),
+      urgencia: this.elements.urgencia.value,
+      avaliacao: this.currentRating
+    };
+  }
+  
+  /**
+   * @brief Valida dados do formulário
+   * @returns {Object} {isValid: boolean, errors: Array}
+   */
+  validateForm() {
+    const data = this.getFormData();
+    const errors = [];
+    
+    if (!data.familiaNome) errors.push('Nome da família é obrigatório');
+    if (!data.visitaData) errors.push('Data da visita é obrigatória');
+    if (!data.endereco) errors.push('Endereço é obrigatório');
+    if (!data.observacoes) errors.push('Observações são obrigatórias');
+    
+    if (data.observacoes.length > 500) {
+      errors.push('Observações devem ter no máximo 500 caracteres');
+    }
+    
+    // Valida coordenadas se preenchidas
+    if (data.latitude && (data.latitude < -90 || data.latitude > 90)) {
+      errors.push('Latitude inválida');
+    }
+    if (data.longitude && (data.longitude < -180 || data.longitude > 180)) {
+      errors.push('Longitude inválida');
+    }
+    
+    return {
+      isValid: errors.length === 0,
+      errors,
+      data
+    };
+  }
+  
+  /**
+   * @brief Mostra erros de validação
+   * @param {Array} errors - Lista de erros
+   */
+  showValidationErrors(errors) {
+    // Limpa erros anteriores
+    this.elements.formNovaVisita.querySelectorAll('.is-invalid').forEach(el => {
+      el.classList.remove('is-invalid');
+    });
+    
+    // Remove mensagens de erro existentes
+    this.elements.formNovaVisita.querySelectorAll('.error-message').forEach(el => {
+      el.remove();
+    });
+    
+    // Adiciona novos erros
+    errors.forEach(error => {
+      const field = error.toLowerCase();
+      let input;
+      
+      if (field.includes('família')) input = this.elements.familiaNome;
+      else if (field.includes('data')) input = this.elements.visitaData;
+      else if (field.includes('endereço')) input = this.elements.endereco;
+      else if (field.includes('observações')) input = this.elements.observacoes;
+      else if (field.includes('latitude')) input = this.elements.latitude;
+      else if (field.includes('longitude')) input = this.elements.longitude;
+      
+      if (input) {
+        input.classList.add('is-invalid');
+        const errorEl = document.createElement('div');
+        errorEl.className = 'error-message';
+        errorEl.style.color = '#e74c3c';
+        errorEl.style.fontSize = '0.85rem';
+        errorEl.style.marginTop = '0.25rem';
+        errorEl.textContent = error;
+        input.parentNode.appendChild(errorEl);
+      }
+    });
+  }
+  
+  /**
+   * @brief Abre modal de confirmação de exclusão
+   * @param {Object} visita - Dados da visita
+   */
+  openConfirmarExclusaoModal(visita) {
+    const mensagem = `Tem certeza que deseja omitir a visita da família <strong>${visita.familiaNome}</strong>?`;
+    this.elements.exclusaoMensagem.innerHTML = mensagem;
+    this.elements.confirmarExclusao.dataset.id = visita.id;
+    this.showModal(this.elements.modalConfirmarExclusao);
+  }
+  
+  /**
+   * @brief Abre modal de limpar tudo
+   * @param {number} totalVisitas - Total de visitas
+   */
+  openLimparTudoModal(totalVisitas) {
+    this.elements.totalVisitasApagar.textContent = totalVisitas;
+    this.elements.confirmacaoTexto.value = '';
+    this.elements.confirmarLimparTudo.disabled = true;
+    this.showModal(this.elements.modalLimparTudo);
+  }
+  
+  /**
+   * @brief Abre modal de gerenciar omitidas
+   */
+  openGerenciarOmitidasModal() {
+    this.showModal(this.elements.modalGerenciarOmitidas);
+  }
+  
+  /**
+   * @brief Mostra modal
+   * @param {HTMLElement} modal - Elemento do modal
+   */
+  showModal(modal) {
+    modal.style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+  }
+  
+  /**
+   * @brief Fecha modal
+   * @param {HTMLElement} modal - Elemento do modal
+   */
+  hideModal(modal) {
+    modal.style.display = 'none';
+    document.body.style.overflow = 'auto';
+  }
+  
+  /**
+   * @brief Mostra notificação toast
+   * @param {string} message - Mensagem
+   * @param {string} type - Tipo (success, error, warning, info)
+   */
+  showNotification(message, type = 'info') {
+    const toast = this.elements.notificationToast;
+    toast.textContent = message;
+    toast.className = `notification notification-${type}`;
+    toast.classList.remove('hidden');
+    
+    setTimeout(() => {
+      toast.classList.add('hidden');
+    }, 3000);
+  }
+  
+  /**
+   * @brief Atualiza relógio em tempo real
+   */
+  updateClock() {
+    const now = new Date();
+    const time = now.toLocaleTimeString('pt-BR');
+    this.elements.currentTime.textContent = time;
+  }
+  
+  /**
+   * @brief Formata data para exibição
+   * @param {string} dateString - String da data
+   * @returns {string} Data formatada
+   */
+  formatDate(dateString) {
+    if (!dateString) return 'Data não informada';
+    
+    const date = new Date(dateString);
+    return date.toLocaleDateString('pt-BR', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  }
+  
+  /**
+   * @brief Capitaliza primeira letra
+   * @param {string} str - String
+   * @returns {string} String capitalizada
+   */
+  capitalize(str) {
+    if (!str) return '';
+    return str.charAt(0).toUpperCase() + str.slice(1);
+  }
+}
+
+/**
+ * =================================================================
+ * CONTROLLER - Lógica de controle e coordenação
+ * =================================================================
+ * @class VisitaController
+ * @description Controla interações entre Model e View
+ */
+class VisitaController {
+  constructor(model, view) {
+    this.model = model;
+    this.view = view;
+    this.isMapVisible = false;
+    this.currentVisitaId = null;
+    
+    // Adiciona listener para atualizações do modelo
+    this.model.addListener((stats) => this.onModelUpdate(stats));
+  }
+  
+  /**
+   * @brief Inicializa o controller
+   */
+  init() {
+    this.bindEvents();
+    this.initClock();
+    this.initGPS();
+    this.loadInitialData();
+    
+    console.log('Controller initialized');
+  }
+  
+  /**
+   * @brief Vincula eventos DOM
+   */
+  bindEvents() {
+    const { elements } = this.view;
+    
+    // Botões principais
+    elements.btnNovaVisita.addEventListener('click', () => this.handleNovaVisita());
+    elements.btnEmptyNovaVisita.addEventListener('click', () => this.handleNovaVisita());
+    elements.btnVerMapa.addEventListener('click', () => this.handleToggleMapa());
+    elements.btnExportarWhatsApp.addEventListener('click', () => this.handleExportarWhatsApp());
+    elements.btnExportarRelatorio.addEventListener('click', () => this.handleExportarRelatorio());
+    elements.btnGerenciarOmitidas.addEventListener('click', () => this.handleGerenciarOmitidas());
+    elements.btnLimparTudo.addEventListener('click', () => this.handleLimparTudo());
+    elements.btnAplicarFiltros.addEventListener('click', () => this.handleAplicarFiltros());
+    
+    // Formulário nova visita
+    elements.salvarNovaVisita.addEventListener('click', (e) => this.handleSalvarVisita(e));
+    elements.cancelarNovaVisita.addEventListener('click', () => this.hideNovaVisitaModal());
+    elements.closeNovaVisita.addEventListener('click', () => this.hideNovaVisitaModal());
+    
+    // Captura GPS
+    elements.btnCapturarGPS.addEventListener('click', () => this.captureCurrentLocation());
+    elements.btnSelecionarMapa.addEventListener('click', () => this.showMapForSelection());
+    
+    // Modal confirmar exclusão
+    elements.confirmarExclusao.addEventListener('click', (e) => this.handleConfirmarExclusao(e));
+    elements.cancelarExclusao.addEventListener('click', () => this.hideConfirmarExclusaoModal());
+    elements.closeConfirmarExclusao.addEventListener('click', () => this.hideConfirmarExclusaoModal());
+    
+    // Modal limpar tudo
+    elements.confirmarLimparTudo.addEventListener('click', () => this.handleConfirmarLimparTudo());
+    elements.cancelarLimparTudo.addEventListener('click', () => this.hideLimparTudoModal());
+    elements.closeLimparTudo.addEventListener('click', () => this.hideLimparTudoModal());
+    
+    // Modal gerenciar omitidas
+    elements.restaurarSelecionadas.addEventListener('click', () => this.handleRestaurarSelecionadas());
+    elements.fecharGerenciarOmitidas.addEventListener('click', () => this.hideGerenciarOmitidasModal());
+    elements.closeGerenciarOmitidas.addEventListener('click', () => this.hideGerenciarOmitidasModal());
+    
+    // Eventos personalizados
+    window.addEventListener('visitaAction', (e) => this.handleVisitaAction(e.detail));
+    window.addEventListener('visitaSelect', (e) => this.handleVisitaSelect(e.detail));
+    window.addEventListener('omittedAction', (e) => this.handleOmittedAction(e.detail));
+    window.addEventListener('omittedSelect', (e) => this.handleOmittedSelect(e.detail));
+    window.addEventListener('showNotification', (e) => 
+      this.view.showNotification(e.detail.message, e.detail.type));
+    
+    // Busca em tempo real
+    elements.searchVisitas.addEventListener('input', 
+      this.debounce(() => this.handleAplicarFiltros(), 300));
+    
+    // Tecla Esc fecha modais
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        this.hideAllModals();
+      }
+    });
+  }
+  
+  /**
+   * @brief Carrega dados iniciais
+   */
+  loadInitialData() {
+    const visitas = this.model.filtrarVisitas({});
+    this.view.renderVisitas(visitas);
+    this.updateStats();
+  }
+  
+  /**
+   * @brief Atualiza estatísticas
+   */
+  updateStats() {
+    const stats = this.model.getEstatisticas();
+    this.view.updateStats(stats);
+  }
+  
+  /**
+   * @brief Handler para atualizações do modelo
+   * @param {Object} stats - Estatísticas atualizadas
+   */
+  onModelUpdate(stats) {
+    this.view.updateStats(stats);
+    
+    // Recarrega visitas com filtros atuais
+    const visitas = this.model.filtrarVisitas(this.model.currentFilters);
+    this.view.renderVisitas(visitas);
+    
+    // Atualiza mapa se visível
+    if (this.isMapVisible) {
+      this.view.updateMapWithVisitas(visitas);
+    }
+  }
+  
+  /**
+   * @brief Handler: Nova visita
+   */
+  handleNovaVisita() {
+    this.view.openNovaVisitaModal();
+  }
+  
+  /**
+   * @brief Handler: Salvar visita
+   * @param {Event} e - Evento de clique
+   */
+  handleSalvarVisita(e) {
+    const validation = this.view.validateForm();
+    
+    if (!validation.isValid) {
+      this.view.showValidationErrors(validation.errors);
+      return;
+    }
+    
+    const mode = e.target.dataset.mode;
+    const visitaData = validation.data;
+    
+    if (mode === 'edit') {
+      const id = e.target.dataset.id;
+      this.model.atualizarVisita(id, visitaData);
+    } else {
+      this.model.criarVisita(visitaData);
+    }
+    
+    this.hideNovaVisitaModal();
+  }
+  
+  /**
+   * @brief Handler: Ações na visita
+   * @param {Object} detail - Detalhes do evento {id, action}
+   */
+  handleVisitaAction(detail) {
+    const visita = this.model.visitas.get(detail.id);
+    if (!visita) return;
+    
+    switch(detail.action) {
+      case 'view':
+        this.view.openNovaVisitaModal(visita);
+        break;
+      case 'edit':
+        this.view.openNovaVisitaModal(visita);
+        break;
+      case 'whatsapp':
+        this.exportarVisitaWhatsApp(visita);
+        break;
+      case 'omit':
+        this.view.openConfirmarExclusaoModal(visita);
+        break;
+    }
+  }
+  
+  /**
+   * @brief Handler: Selecionar visita
+   * @param {Object} detail - Detalhes do evento {id, checked}
+   */
+  handleVisitaSelect(detail) {
+    if (detail.checked) {
+      this.view.selectedVisitas.add(detail.id);
+    } else {
+      this.view.selectedVisitas.delete(detail.id);
+    }
+  }
+  
+  /**
+   * @brief Handler: Confirmar exclusão
+   * @param {Event} e - Evento de clique
+   */
+  handleConfirmarExclusao(e) {
+    const id = e.target.dataset.id;
+    this.model.omitirVisita(id);
+    this.hideConfirmarExclusaoModal();
+  }
+  
+  /**
+   * @brief Handler: Ações em visitas omitidas
+   * @param {Object} detail - Detalhes do evento {id, action}
+   */
+  handleOmittedAction(detail) {
+    switch(detail.action) {
+      case 'restore':
+        this.model.restaurarVisita(detail.id);
+        this.loadOmitidas();
+        break;
+      case 'delete':
+        if (confirm('Excluir permanentemente esta visita? Esta ação não pode ser desfeita.')) {
+          this.model.excluirVisitaPermanente(detail.id, true);
+          this.loadOmitidas();
+        }
+        break;
+    }
+  }
+  
+  /**
+   * @brief Handler: Selecionar omitida
+   * @param {Object} detail - Detalhes do evento {id, checked}
+   */
+  handleOmittedSelect(detail) {
+    // Implementação similar a handleVisitaSelect se necessário
+  }
+  
+  /**
+   * @brief Handler: Restaurar selecionadas
+   */
+  handleRestaurarSelecionadas() {
+    const checkboxes = this.view.elements.omitidasList.querySelectorAll('input[type="checkbox"]:checked');
+    checkboxes.forEach(cb => {
+      this.model.restaurarVisita(cb.value);
+    });
+    this.loadOmitidas();
+  }
+  
+  /**
+   * @brief Handler: Alternar mapa
+   */
+  handleToggleMapa() {
+    this.isMapVisible = !this.isMapVisible;
+    this.view.toggleMap(this.isMapVisible);
+    
+    if (this.isMapVisible) {
+      // Inicializa mapa se não estiver inicializado
+      if (!this.view.map) {
+        navigator.geolocation.getCurrentPosition(
+          (pos) => {
+            this.view.initMap(pos.coords.latitude, pos.coords.longitude);
+            const visitas = this.model.filtrarVisitas(this.model.currentFilters);
+            this.view.updateMapWithVisitas(visitas);
+          },
+          () => {
+            // Fallback para coordenadas padrão (Brasília)
+            this.view.initMap(-15.7801, -47.9292);
+            const visitas = this.model.filtrarVisitas(this.model.currentFilters);
+            this.view.updateMapWithVisitas(visitas);
+          }
+        );
+      }
+    }
+  }
+  
+  /**
+   * @brief Handler: Exportar WhatsApp
+   */
+  handleExportarWhatsApp() {
+    const visitas = this.model.filtrarVisitas(this.model.currentFilters);
+    
+    if (visitas.length === 0) {
+      this.view.showNotification('Nenhuma visita para exportar', 'warning');
+      return;
+    }
+    
+    let texto = `*RELATÓRIO CRAS FIELD - VISITAS DOMICILIARES*\n\n`;
+    texto += `*Data do relatório:* ${new Date().toLocaleDateString('pt-BR')}\n`;
+    texto += `*Total de visitas:* ${visitas.length}\n\n`;
+    
+    visitas.forEach((visita, index) => {
+      texto += `*VISITA ${index + 1}:*\n`;
+      texto += `👨‍👩‍👧‍👦 Família: ${visita.familiaNome}\n`;
+      texto += `📋 ID: ${visita.familiaID || visita.id}\n`;
+      texto += `📅 Data: ${this.view.formatDate(visita.visitaData)}\n`;
+      texto += `📍 Endereço: ${visita.endereco}\n`;
+      texto += `🚨 Urgência: ${visita.urgencia === 'alta' ? 'ALTA' : visita.urgencia === 'media' ? 'MÉDIA' : 'BAIXA'}\n`;
+      texto += `📝 Observações: ${visita.observacoes}\n`;
+      
+      if (visita.necessidades.length > 0) {
+        texto += `🎯 Necessidades: ${Array.isArray(visita.necessidades) ? visita.necessidades.join(', ') : visita.necessidades}\n`;
+      }
+      
+      texto += `\n`;
+    });
+    
+    texto += `\n*INFORMAÇÕES IMPORTANTES:*\n`;
+    texto += `• Dados armazenados localmente no navegador\n`;
+    texto += `• Limite: ~5MB (use caderninho físico para detalhes)\n`;
+    texto += `• Backup recomendado via exportação JSON\n`;
+    
+    const url = `https://wa.me/?text=${encodeURIComponent(texto)}`;
+    window.open(url, '_blank');
+  }
+  
+  /**
+   * @brief Exporta visita individual para WhatsApp
+   * @param {Object} visita - Dados da visita
+   */
+  exportarVisitaWhatsApp(visita) {
+    let texto = `*VISITA DOMICILIAR - CRAS*\n\n`;
+    texto += `*Família:* ${visita.familiaNome}\n`;
+    texto += `*ID:* ${visita.familiaID || visita.id}\n`;
+    texto += `*Data:* ${this.view.formatDate(visita.visitaData)}\n`;
+    texto += `*Tipo:* ${this.view.capitalize(visita.visitaTipo || 'rotina')}\n`;
+    texto += `*Endereço:* ${visita.endereco}\n`;
+    
+    if (visita.latitude && visita.longitude) {
+      texto += `*Coordenadas:* https://maps.google.com/?q=${visita.latitude},${visita.longitude}\n`;
+    }
+    
+    texto += `*Situação:* ${this.view.capitalize(visita.situacao || 'estavel')}\n`;
+    texto += `*Urgência:* ${visita.urgencia === 'alta' ? 'ALTA' : visita.urgencia === 'media' ? 'MÉDIA' : 'BAIXA'}\n`;
+    
+    if (visita.necessidades.length > 0) {
+      texto += `*Necessidades:* ${Array.isArray(visita.necessidades) ? visita.necessidades.join(', ') : visita.necessidades}\n`;
+    }
+    
+    if (visita.avaliacao) {
+      texto += `*Avaliação:* ${'★'.repeat(visita.avaliacao)}${'☆'.repeat(5-visita.avaliacao)}\n`;
+    }
+    
+    texto += `\n*OBSERVAÇÕES:*\n${visita.observacoes}\n\n`;
+    texto += `_Relatório gerado pelo CRAS Field_`;
+    
+    const url = `https://wa.me/?text=${encodeURIComponent(texto)}`;
+    window.open(url, '_blank');
+  }
+  
+  /**
+   * @brief Handler: Exportar relatório
+   */
+  handleExportarRelatorio() {
+    this.model.exportarBackup();
+  }
+  
+  /**
+   * @brief Handler: Gerenciar omitidas
+   */
+  handleGerenciarOmitidas() {
+    this.loadOmitidas();
+    this.view.openGerenciarOmitidasModal();
+  }
+  
+  /**
+   * @brief Carrega lista de omitidas
+   */
+  loadOmitidas() {
+    const omitidas = Array.from(this.model.visitasOmitidas.values());
+    this.view.renderOmitidas(omitidas);
+  }
+  
+  /**
+   * @brief Handler: Limpar tudo
+   */
+  handleLimparTudo() {
+    const total = this.model.visitas.size + this.model.visitasOmitidas.size;
+    this.view.openLimparTudoModal(total);
+  }
+  
+  /**
+   * @brief Handler: Confirmar limpar tudo
+   */
+  handleConfirmarLimparTudo() {
+    const backupFirst = this.view.elements.backupOption.value === 'sim';
+    this.model.limparTudo(backupFirst);
+    this.hideLimparTudoModal();
+  }
+  
+  /**
+   * @brief Handler: Aplicar filtros
+   */
+  handleAplicarFiltros() {
+    const filters = {
+      search: this.view.elements.searchVisitas.value,
+      status: this.view.elements.filterStatus.value,
+      date: this.view.elements.filterDate.value
+    };
+    
+    const visitas = this.model.filtrarVisitas(filters);
+    this.view.renderVisitas(visitas);
+    
+    if (this.isMapVisible && this.view.map) {
+      this.view.updateMapWithVisitas(visitas);
+    }
+  }
+  
+  /**
+   * @brief Captura localização atual
+   */
+  captureCurrentLocation() {
+    if (!navigator.geolocation) {
+      this.view.showNotification('Geolocalização não suportada pelo navegador', 'error');
+      return;
+    }
+    
+    this.view.showNotification('Obtendo localização...', 'info');
+    
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const lat = position.coords.latitude;
+        const lng = position.coords.longitude;
+        
+        this.view.elements.latitude.value = lat.toFixed(6);
+        this.view.elements.longitude.value = lng.toFixed(6);
+        
+        this.view.showNotification('Localização capturada com sucesso', 'success');
+      },
+      (error) => {
+        console.error('Erro de geolocalização:', error);
+        let message = 'Erro ao obter localização';
+        
+        switch(error.code) {
+          case error.PERMISSION_DENIED:
+            message = 'Permissão de localização negada';
+            break;
+          case error.POSITION_UNAVAILABLE:
+            message = 'Localização indisponível';
+            break;
+          case error.TIMEOUT:
+            message = 'Tempo esgotado ao obter localização';
+            break;
+        }
+        
+        this.view.showNotification(message, 'error');
+      },
+      {
+        enableHighAccuracy: true,
+        timeout: 10000,
+        maximumAge: 0
+      }
+    );
+  }
+  
+  /**
+   * @brief Mostra mapa para seleção de coordenadas
+   */
+  showMapForSelection() {
+    this.isMapVisible = true;
+    this.view.toggleMap(true);
+    
+    // Foca no modal do mapa
+    const modalMap = document.createElement('div');
+    modalMap.className = 'modal-overlay';
+    modalMap.style.zIndex = '2001';
+    modalMap.innerHTML = `
+      <div class="modal">
+        <div class="modal-header">
+          <h2><i class="fas fa-map"></i> Selecione a localização no mapa</h2>
+          <button class="close-btn" id="closeMapSelect">&times;</button>
+        </div>
+        <div class="modal-body" style="padding: 0;">
+          <div id="selectMap" style="height: 400px;"></div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn-outline" id="cancelMapSelect">
+            <i class="fas fa-times"></i> Cancelar
+          </button>
+          <button class="btn-success" id="confirmMapSelect">
+            <i class="fas fa-check"></i> Usar esta localização
+          </button>
+        </div>
+      </div>
+    `;
+    
+    document.body.appendChild(modalMap);
+    
+    // Inicializa mapa de seleção
+    setTimeout(() => {
+      const selectMap = L.map('selectMap').setView([-15.7801, -47.9292], 13);
+      
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19,
+        attribution: '&copy; OpenStreetMap contributors'
+      }).addTo(selectMap);
+      
+      let selectedMarker = null;
+      let selectedLatLng = null;
+      
+      selectMap.on('click', (e) => {
+        if (selectedMarker) {
+          selectMap.removeLayer(selectedMarker);
+        }
+        
+        selectedLatLng = e.latlng;
+        selectedMarker = L.marker(selectedLatLng).addTo(selectMap)
+          .bindPopup('Localização selecionada')
+          .openPopup();
+      });
+      
+      // Eventos dos botões
+      document.getElementById('closeMapSelect').addEventListener('click', () => {
+        document.body.removeChild(modalMap);
+        this.view.toggleMap(false);
+        this.isMapVisible = false;
+      });
+      
+      document.getElementById('cancelMapSelect').addEventListener('click', () => {
+        document.body.removeChild(modalMap);
+        this.view.toggleMap(false);
+        this.isMapVisible = false;
+      });
+      
+      document.getElementById('confirmMapSelect').addEventListener('click', () => {
+        if (selectedLatLng) {
+          this.view.elements.latitude.value = selectedLatLng.lat.toFixed(6);
+          this.view.elements.longitude.value = selectedLatLng.lng.toFixed(6);
+          this.view.showNotification('Localização selecionada no mapa', 'success');
+        }
+        document.body.removeChild(modalMap);
+        this.view.toggleMap(false);
+        this.isMapVisible = false;
+      });
+      
+      // Geolocalização do usuário
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          selectMap.setView([pos.coords.latitude, pos.coords.longitude], 15);
+          L.marker([pos.coords.latitude, pos.coords.longitude])
+            .addTo(selectMap)
+            .bindPopup('Sua posição atual')
+            .openPopup();
+        },
+        () => {
+          // Ignora erro, usa view padrão
+        }
+      );
+    }, 100);
+  }
+  
+  /**
+   * @brief Inicializa relógio
+   */
+  initClock() {
+    this.view.updateClock();
+    setInterval(() => this.view.updateClock(), 1000);
+  }
+  
+  /**
+   * @brief Inicializa GPS
+   */
+  initGPS() {
+    // Pré-captura de GPS para melhor UX
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        () => console.log('GPS disponível'),
+        () => console.log('GPS não disponível'),
+        { maximumAge: 60000, timeout: 5000 }
+      );
+    }
+  }
+  
+  /**
+   * @brief Fecha modal nova visita
+   */
+  hideNovaVisitaModal() {
+    this.view.hideModal(this.view.elements.modalNovaVisita);
+  }
+  
+  /**
+   * @brief Fecha modal confirmar exclusão
+   */
+  hideConfirmarExclusaoModal() {
+    this.view.hideModal(this.view.elements.modalConfirmarExclusao);
+  }
+  
+  /**
+   * @brief Fecha modal limpar tudo
+   */
+  hideLimparTudoModal() {
+    this.view.hideModal(this.view.elements.modalLimparTudo);
+  }
+  
+  /**
+   * @brief Fecha modal gerenciar omitidas
+   */
+  hideGerenciarOmitidasModal() {
+    this.view.hideModal(this.view.elements.modalGerenciarOmitidas);
+  }
+  
+  /**
+   * @brief Fecha todos os modais
+   */
+  hideAllModals() {
+    const modais = [
+      this.view.elements.modalNovaVisita,
+      this.view.elements.modalConfirmarExclusao,
+      this.view.elements.modalLimparTudo,
+      this.view.elements.modalGerenciarOmitidas
+    ];
+    
+    modais.forEach(modal => {
+      if (modal.style.display === 'flex') {
+        this.view.hideModal(modal);
+      }
+    });
+  }
+  
+  /**
+   * @brief Debounce para otimizar eventos
+   * @param {Function} func - Função a executar
+   * @param {number} wait - Tempo de espera em ms
+   * @returns {Function} Função debounced
+   */
+  debounce(func, wait) {
+    let timeout;
+    return function executedFunction(...args) {
+      const later = () => {
+        clearTimeout(timeout);
+        func(...args);
+      };
+      clearTimeout(timeout);
+      timeout = setTimeout(later, wait);
+    };
+  }
+}
+
+/**
+ * =================================================================
+ * INICIALIZAÇÃO DA APLICAÇÃO
+ * =================================================================
+ */
+document.addEventListener('DOMContentLoaded', () => {
+  // Inicia a aplicação
+  const app = new CRASFieldApp();
+  
+  // Exibe aviso sobre localStorage
+  if (!localStorage) {
+    alert('AVISO: Seu navegador não suporta localStorage. Os dados não serão salvos.');
+  }
+  
+  console.log('CRAS Field completamente inicializado');
+});
+</script>
+</body>
+</html>
