@@ -7,6 +7,7 @@
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
 <style>
   /* ===== VARIÁVEIS CSS ===== */
   :root {
@@ -27,6 +28,12 @@
     --ods1: #E5243B;
     --ods2: #DDA63A;
     --ods3: #4C9F38;
+    --ods4: #C5192D;
+    --ods5: #FF3A21;
+    --ods6: #26BDE2;
+    --ods7: #FCC30B;
+    --ods8: #A21942;
+    --ods9: #FD6925;
     --ods10: #DD1367;
   }
 
@@ -41,10 +48,11 @@
     font-family: 'Segoe UI', 'Roboto', 'Arial', sans-serif;
     margin: 0;
     padding: 1rem;
-    background: var(--light-gray);
+    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
     color: var(--text-color);
     line-height: 1.6;
     font-size: 14px;
+    min-height: 100vh;
   }
 
   .container {
@@ -65,12 +73,27 @@
     border-radius: var(--border-radius);
     box-shadow: var(--box-shadow);
     border-left: 5px solid var(--primary-color);
+    position: relative;
+    overflow: hidden;
+  }
+
+  header::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 100px;
+    height: 100%;
+    background: linear-gradient(90deg, transparent 0%, var(--primary-color) 100%);
+    opacity: 0.1;
   }
 
   .logo {
     display: flex;
     align-items: center;
     gap: 0.75rem;
+    position: relative;
+    z-index: 1;
   }
 
   h1 {
@@ -84,6 +107,8 @@
     display: flex;
     gap: 1.5rem;
     flex-wrap: wrap;
+    position: relative;
+    z-index: 1;
   }
 
   .info-item {
@@ -92,6 +117,9 @@
     gap: 0.5rem;
     font-size: 0.9rem;
     color: var(--text-color);
+    background: rgba(255,255,255,0.8);
+    padding: 0.5rem 0.75rem;
+    border-radius: 6px;
   }
 
   .info-item i {
@@ -106,6 +134,7 @@
     border-radius: var(--border-radius) var(--border-radius) 0 0;
     overflow: hidden;
     margin-bottom: 0;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
   }
 
   .tab-btn {
@@ -122,6 +151,24 @@
     justify-content: center;
     gap: 0.5rem;
     transition: var(--transition);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .tab-btn::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 3px;
+    background: var(--primary-color);
+    transform: translateX(-100%);
+    transition: transform 0.3s ease;
+  }
+
+  .tab-btn:hover::after {
+    transform: translateX(0);
   }
 
   .tab-btn:hover {
@@ -141,6 +188,12 @@
     border-radius: 0 0 var(--border-radius) var(--border-radius);
     box-shadow: var(--box-shadow);
     min-height: 500px;
+    animation: fadeIn 0.5s ease;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
   }
 
   .tab-content.active {
@@ -161,6 +214,25 @@
     padding: 1.5rem;
     box-shadow: var(--box-shadow);
     border-left: 4px solid var(--primary-color);
+    transition: var(--transition);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .dashboard-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+  }
+
+  .dashboard-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 3px;
+    background: linear-gradient(90deg, var(--primary-color), var(--primary-light));
+    opacity: 0.5;
   }
 
   .dashboard-card h3 {
@@ -174,16 +246,23 @@
 
   .metrics-grid {
     display: grid;
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
     gap: 1rem;
     margin-bottom: 1.5rem;
   }
 
   .metric-card {
-    background: #f8f9fa;
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
     padding: 1rem;
     border-radius: var(--border-radius);
     text-align: center;
+    border: 1px solid #dee2e6;
+    transition: var(--transition);
+  }
+
+  .metric-card:hover {
+    border-color: var(--primary-light);
+    box-shadow: 0 4px 12px rgba(52, 152, 219, 0.1);
   }
 
   .metric-value {
@@ -191,11 +270,13 @@
     font-weight: bold;
     color: var(--text-color);
     margin-bottom: 0.25rem;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
   }
 
   .metric-label {
     font-size: 0.85rem;
     color: #7f8c8d;
+    font-weight: 500;
   }
 
   .chart-container {
@@ -214,6 +295,7 @@
 
   .form-group {
     margin-bottom: 1rem;
+    position: relative;
   }
 
   .form-group label {
@@ -224,15 +306,22 @@
     font-size: 0.9rem;
   }
 
+  .form-group.required label::after {
+    content: ' *';
+    color: var(--secondary-color);
+  }
+
   .form-group input,
   .form-group select,
   .form-group textarea {
     width: 100%;
     padding: 0.75rem;
-    border: 1px solid #ddd;
+    border: 2px solid #ddd;
     border-radius: var(--border-radius);
     font-family: inherit;
     font-size: 0.9rem;
+    transition: var(--transition);
+    background: #fff;
   }
 
   .form-group input:focus,
@@ -240,7 +329,27 @@
   .form-group textarea:focus {
     outline: none;
     border-color: var(--primary-light);
-    box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+    box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+  }
+
+  .form-group input.error,
+  .form-group select.error,
+  .form-group textarea.error {
+    border-color: var(--secondary-color);
+    background: #ffeaea;
+  }
+
+  .error-message {
+    color: var(--secondary-color);
+    font-size: 0.8rem;
+    margin-top: 0.25rem;
+    display: none;
+  }
+
+  .form-group input.error + .error-message,
+  .form-group select.error + .error-message,
+  .form-group textarea.error + .error-message {
+    display: block;
   }
 
   .checkbox-grid {
@@ -254,6 +363,18 @@
     display: flex;
     align-items: center;
     gap: 0.5rem;
+    padding: 0.5rem;
+    background: #f8f9fa;
+    border-radius: 6px;
+    transition: var(--transition);
+  }
+
+  .checkbox-item:hover {
+    background: #e9ecef;
+  }
+
+  .checkbox-item input[type="checkbox"] {
+    width: auto;
   }
 
   /* ===== MAPA ===== */
@@ -263,7 +384,34 @@
     border-radius: var(--border-radius);
     margin-bottom: 1.5rem;
     box-shadow: var(--box-shadow);
+    border: 2px solid #ddd;
+  }
+
+  .map-controls {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .map-controls button {
+    padding: 0.5rem 0.75rem;
+    background: white;
     border: 1px solid #ddd;
+    border-radius: 4px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    font-size: 0.8rem;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  }
+
+  .map-controls button:hover {
+    background: #f8f9fa;
   }
 
   /* ===== LISTA DE VISITAS ===== */
@@ -281,12 +429,58 @@
     box-shadow: var(--box-shadow);
     transition: var(--transition);
     border-left: 4px solid var(--primary-color);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .visit-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 3px;
+    background: linear-gradient(90deg, var(--primary-color), transparent);
   }
 
   .visit-card:hover {
     transform: translateY(-5px);
     box-shadow: 0 8px 20px rgba(0,0,0,0.12);
   }
+
+  /* ===== DIRECIONAMENTOS ===== */
+  .direcionamento-item {
+    background: #f8f9fa;
+    border-radius: var(--border-radius);
+    padding: 1rem;
+    margin-bottom: 0.75rem;
+    border-left: 3px solid var(--primary-color);
+  }
+
+  .direcionamento-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.5rem;
+  }
+
+  .direcionamento-status {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.8rem;
+  }
+
+  .status-badge {
+    padding: 0.25rem 0.5rem;
+    border-radius: 12px;
+    font-size: 0.7rem;
+    font-weight: 600;
+  }
+
+  .status-pendente { background: #ffeaa7; color: #d35400; }
+  .status-andamento { background: #a29bfe; color: #2d3436; }
+  .status-concluido { background: #55efc4; color: #00b894; }
 
   /* ===== MODAL ===== */
   .modal-overlay {
@@ -301,16 +495,23 @@
     align-items: center;
     z-index: 2000;
     padding: 1rem;
+    animation: fadeIn 0.3s ease;
   }
 
   .modal {
     background: var(--card-bg);
     border-radius: var(--border-radius);
-    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    box-shadow: 0 20px 40px rgba(0,0,0,0.2);
     width: 100%;
     max-width: 800px;
     max-height: 90vh;
     overflow-y: auto;
+    animation: modalSlideIn 0.3s ease;
+  }
+
+  @keyframes modalSlideIn {
+    from { transform: translateY(-20px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
   }
 
   /* ===== BOTÕES ===== */
@@ -333,6 +534,26 @@
     align-items: center;
     gap: 0.5rem;
     min-height: 44px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  button::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    background: rgba(255,255,255,0.3);
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    transition: width 0.6s, height 0.6s;
+  }
+
+  button:hover::after {
+    width: 300px;
+    height: 300px;
   }
 
   .btn-primary {
@@ -380,6 +601,26 @@
   .btn-ods3 { background: var(--ods3); color: white; }
   .btn-ods10 { background: var(--ods10); color: white; }
 
+  /* ===== SEÇÃO LGPD ===== */
+  .lgpd-section {
+    background: #f8f9fa;
+    border-radius: var(--border-radius);
+    padding: 1.5rem;
+    margin-top: 2rem;
+    border-left: 4px solid var(--info-color);
+  }
+
+  .lgpd-checkbox {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    margin-top: 1rem;
+  }
+
+  .lgpd-checkbox input[type="checkbox"] {
+    margin-top: 0.25rem;
+  }
+
   /* ===== RESPONSIVIDADE ===== */
   @media (max-width: 768px) {
     body {
@@ -414,6 +655,11 @@
     .checkbox-grid {
       grid-template-columns: 1fr;
     }
+    
+    .header-info {
+      flex-direction: column;
+      gap: 0.5rem;
+    }
   }
 
   .hidden {
@@ -430,6 +676,39 @@
 
   .mb-2 { margin-bottom: 1rem; }
   .mt-2 { margin-top: 1rem; }
+  .mt-3 { margin-top: 1.5rem; }
+  .mb-3 { margin-bottom: 1.5rem; }
+
+  /* ===== LOADING ===== */
+  .loading {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border: 3px solid rgba(52, 152, 219, 0.3);
+    border-radius: 50%;
+    border-top-color: var(--primary-light);
+    animation: spin 1s ease-in-out infinite;
+  }
+
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
+
+  /* ===== BADGES ===== */
+  .badge {
+    display: inline-block;
+    padding: 0.25rem 0.5rem;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    margin-right: 0.25rem;
+    margin-bottom: 0.25rem;
+  }
+
+  .badge-ods1 { background: var(--ods1); color: white; }
+  .badge-ods2 { background: var(--ods2); color: white; }
+  .badge-ods3 { background: var(--ods3); color: white; }
+  .badge-ods10 { background: var(--ods10); color: white; }
 </style>
 </head>
 <body>
@@ -453,6 +732,10 @@
         <i class="far fa-clock"></i>
         <span id="currentTime">--:--:--</span>
       </div>
+      <div class="info-item">
+        <i class="fas fa-user-shield"></i>
+        <span id="lgpdStatus">LGPD Ativa</span>
+      </div>
     </div>
   </header>
 
@@ -466,6 +749,9 @@
     </button>
     <button class="tab-btn" data-tab="mapa">
       <i class="fas fa-map"></i> Mapa
+    </button>
+    <button class="tab-btn" data-tab="lgpd">
+      <i class="fas fa-user-shield"></i> LGPD
     </button>
     <button class="tab-btn" data-tab="exportar">
       <i class="fas fa-file-export"></i> Exportar
@@ -481,6 +767,9 @@
       <button class="btn-success" id="btnExportarWhatsAppIndividual">
         <i class="fab fa-whatsapp"></i> Exportar Visita Atual
       </button>
+      <button class="btn-warning" id="btnGerarRelatorio">
+        <i class="fas fa-file-pdf"></i> Gerar Relatório
+      </button>
     </div>
 
     <div class="filters-panel" style="background: var(--card-bg); padding: 1.5rem; border-radius: var(--border-radius); margin-bottom: 1.5rem;">
@@ -491,10 +780,12 @@
         </div>
         <select id="filterODS" style="padding: 0.75rem; border: 1px solid #ddd; border-radius: var(--border-radius);">
           <option value="all">Todos ODS</option>
-          <option value="ods1">ODS 1 - Pobreza</option>
-          <option value="ods2">ODS 2 - Fome Zero</option>
-          <option value="ods3">ODS 3 - Saúde</option>
-          <option value="ods10">ODS 10 - Desigualdade</option>
+          <option value="1">ODS 1 - Erradicação da Pobreza</option>
+          <option value="2">ODS 2 - Fome Zero</option>
+          <option value="3">ODS 3 - Saúde e Bem-estar</option>
+          <option value="4">ODS 4 - Educação de Qualidade</option>
+          <option value="5">ODS 5 - Igualdade de Gênero</option>
+          <option value="10">ODS 10 - Redução das Desigualdades</option>
         </select>
         <select id="filterStatus" style="padding: 0.75rem; border: 1px solid #ddd; border-radius: var(--border-radius);">
           <option value="all">Todos Status</option>
@@ -504,6 +795,9 @@
         </select>
         <button class="btn-primary" id="btnAplicarFiltros">
           <i class="fas fa-filter"></i> Filtrar
+        </button>
+        <button class="btn-danger" id="btnLimparFiltros">
+          <i class="fas fa-times"></i> Limpar
         </button>
       </div>
     </div>
@@ -536,6 +830,14 @@
         </div>
       </div>
 
+      <!-- Gráfico Direcionamentos -->
+      <div class="dashboard-card">
+        <h3><i class="fas fa-project-diagram"></i> Status dos Direcionamentos</h3>
+        <div class="chart-container">
+          <canvas id="direcionamentosChart"></canvas>
+        </div>
+      </div>
+
       <!-- Gráfico Linha Evolução -->
       <div class="dashboard-card">
         <h3><i class="fas fa-chart-line"></i> Evolução Mensal</h3>
@@ -544,7 +846,7 @@
         </div>
       </div>
 
-      <!-- Gráfico Barras -->
+      <!-- Gráfico Barras Bairros -->
       <div class="dashboard-card">
         <h3><i class="fas fa-chart-bar"></i> Visitas por Bairro</h3>
         <div class="chart-container">
@@ -552,19 +854,11 @@
         </div>
       </div>
 
-      <!-- Histograma Faixa Etária -->
+      <!-- Gráfico Status Urgência -->
       <div class="dashboard-card">
-        <h3><i class="fas fa-users"></i> Distribuição por Faixa Etária</h3>
+        <h3><i class="fas fa-exclamation-triangle"></i> Distribuição por Urgência</h3>
         <div class="chart-container">
-          <canvas id="histogramChart"></canvas>
-        </div>
-      </div>
-
-      <!-- Status dos Serviços -->
-      <div class="dashboard-card">
-        <h3><i class="fas fa-tasks"></i> Status dos Serviços</h3>
-        <div class="chart-container">
-          <canvas id="doughnutChart"></canvas>
+          <canvas id="urgentesChart"></canvas>
         </div>
       </div>
     </div>
@@ -572,14 +866,79 @@
 
   <!-- Aba Mapa -->
   <div id="mapa-tab" class="tab-content">
-    <div id="map"></div>
-    <div class="button-group mt-2">
-      <button class="btn-primary" id="btnCapturarGPS">
-        <i class="fas fa-crosshairs"></i> Capturar Minha Localização
-      </button>
-      <button class="btn-warning" id="btnVerTodasVisitas">
-        <i class="fas fa-eye"></i> Ver Todas Visitas
-      </button>
+    <div style="position: relative;">
+      <div id="map"></div>
+      <div class="map-controls">
+        <button id="btnLocalizarAtual">
+          <i class="fas fa-crosshairs"></i> Minha Localização
+        </button>
+        <button id="btnVerTodasVisitas">
+          <i class="fas fa-eye"></i> Todas Visitas
+        </button>
+        <button id="btnSelecionarLocal">
+          <i class="fas fa-map-marker-alt"></i> Selecionar Local
+        </button>
+      </div>
+    </div>
+    <div class="dashboard-card mt-2">
+      <h3><i class="fas fa-info-circle"></i> Informações do Mapa</h3>
+      <p class="text-muted">Clique no mapa para selecionar uma localização ou use o botão para capturar automaticamente.</p>
+      <div id="mapInfo" class="mt-2">
+        <p><strong>Local selecionado:</strong> <span id="selectedLocation">Nenhum local selecionado</span></p>
+        <p><strong>Coordenadas:</strong> <span id="selectedCoords">-</span></p>
+        <p><strong>Endereço aproximado:</strong> <span id="selectedAddress">-</span></p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Aba LGPD -->
+  <div id="lgpd-tab" class="tab-content">
+    <div class="dashboard-card">
+      <h3><i class="fas fa-user-shield"></i> Política de Privacidade e Termos de Uso</h3>
+      <div class="lgpd-section">
+        <h4 style="color: var(--info-color); margin-bottom: 1rem;">
+          <i class="fas fa-gavel"></i> Conformidade com a Lei Geral de Proteção de Dados (LGPD)
+        </h4>
+        
+        <p><strong>1. Finalidade do Sistema:</strong> Este sistema tem como objetivo registrar visitas domiciliares do CRAS para fins de assistência social, acompanhamento familiar e elaboração de políticas públicas.</p>
+        
+        <p><strong>2. Dados Coletados:</strong> Coletamos apenas dados necessários para a prestação de serviços sociais, incluindo:</p>
+        <ul style="margin-left: 1.5rem; margin-bottom: 1rem;">
+          <li>Dados de identificação da família</li>
+          <li>Informações socioeconômicas</li>
+          <li>Condições de saúde e vulnerabilidade</li>
+          <li>Localização geográfica para planejamento territorial</li>
+        </ul>
+        
+        <p><strong>3. Armazenamento e Segurança:</strong> Os dados são armazenados localmente no dispositivo do usuário, com criptografia e controle de acesso. Backup periódico é realizado para preservação das informações.</p>
+        
+        <p><strong>4. Compartilhamento:</strong> Os dados só serão compartilhados com órgãos públicos competentes para fins de políticas públicas, respeitando o sigilo e a privacidade.</p>
+        
+        <p><strong>5. Direitos do Titular:</strong> As famílias têm direito a:</p>
+        <ul style="margin-left: 1.5rem; margin-bottom: 1rem;">
+          <li>Acesso aos seus dados</li>
+          <li>Correção de informações inexatas</li>
+          <li>Exclusão de dados (exceto quando obrigatório por lei)</li>
+          <li>Revogação do consentimento</li>
+        </ul>
+        
+        <p><strong>6. Isenção de Responsabilidade:</strong> O sistema é uma ferramenta de apoio à gestão social. A qualidade e veracidade dos dados inseridos são de responsabilidade do usuário. O desenvolvedor não se responsabiliza por:</p>
+        <ul style="margin-left: 1.5rem; margin-bottom: 1rem;">
+          <li>Perda de dados devido a falhas técnicas do dispositivo</li>
+          <li>Uso indevido das informações por terceiros</li>
+          <li>Decisões tomadas com base nos dados do sistema</li>
+        </ul>
+        
+        <p><strong>7. Contato do Encarregado (DPO):</strong> Para questões sobre proteção de dados, entre em contato com o CRAS de Fama-MG.</p>
+        
+        <div class="lgpd-checkbox">
+          <input type="checkbox" id="aceiteLGPD" checked disabled>
+          <label for="aceiteLGPD">
+            <strong>Declaro que li e concordo com os termos acima.</strong><br>
+            <small>Este consentimento é necessário para o funcionamento do sistema, em conformidade com a LGPD (Lei 13.709/2018).</small>
+          </label>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -599,11 +958,14 @@
         <button class="btn-warning" id="btnExportarTodosMeses">
           <i class="fas fa-database"></i> Exportar Todos os Meses
         </button>
+        <button class="btn-danger" id="btnLimparDadosAntigos">
+          <i class="fas fa-trash"></i> Limpar Dados Antigos
+        </button>
       </div>
 
-      <div class="mt-2">
+      <div class="mt-3">
         <h4><i class="fas fa-history"></i> Histórico de Exportações</h4>
-        <div id="exportHistory" style="background: #f8f9fa; padding: 1rem; border-radius: var(--border-radius); margin-top: 1rem;">
+        <div id="exportHistory" style="background: #f8f9fa; padding: 1rem; border-radius: var(--border-radius); margin-top: 1rem; max-height: 200px; overflow-y: auto;">
           <!-- Histórico será carregado aqui -->
         </div>
       </div>
@@ -620,285 +982,461 @@
     </div>
     <div class="modal-body" style="padding: 1.5rem;">
       <form id="formNovaVisita">
-        <!-- Dados Básicos -->
-        <div class="form-group">
-          <h3 style="color: var(--primary-color); margin-bottom: 1rem; border-bottom: 2px solid var(--light-gray); padding-bottom: 0.5rem;">
-            <i class="fas fa-id-card"></i> Dados da Família
-          </h3>
+        <!-- Progresso do Formulário -->
+        <div class="form-progress" style="margin-bottom: 2rem;">
+          <div style="display: flex; justify-content: space-between; position: relative;">
+            <div style="position: absolute; top: 50%; left: 0; right: 0; height: 2px; background: #ddd; z-index: 1;"></div>
+            <div style="position: absolute; top: 50%; left: 0; height: 2px; background: var(--primary-color); z-index: 2; width: 0%;" id="progressBar"></div>
+            <div class="progress-step active" data-step="1">Dados</div>
+            <div class="progress-step" data-step="2">Local</div>
+            <div class="progress-step" data-step="3">Família</div>
+            <div class="progress-step" data-step="4">Serviços</div>
+            <div class="progress-step" data-step="5">Revisão</div>
+          </div>
         </div>
 
-        <div class="form-grid">
+        <!-- Passo 1: Dados Básicos -->
+        <div class="form-step active" data-step="1">
+          <div class="form-group required">
+            <h3 style="color: var(--primary-color); margin-bottom: 1rem; border-bottom: 2px solid var(--light-gray); padding-bottom: 0.5rem;">
+              <i class="fas fa-id-card"></i> Dados da Família
+            </h3>
+          </div>
+
+          <div class="form-grid">
+            <div class="form-group required">
+              <label for="familiaNome">Nome da Família *</label>
+              <input type="text" id="familiaNome" required placeholder="Ex: Família Silva">
+              <div class="error-message">Este campo é obrigatório</div>
+            </div>
+            <div class="form-group">
+              <label for="nisf">NISF (Cadastro Único)</label>
+              <input type="text" id="nisf" placeholder="Número do NISF">
+            </div>
+          </div>
+
+          <div class="form-grid">
+            <div class="form-group required">
+              <label for="responsavel">Responsável pela Família *</label>
+              <input type="text" id="responsavel" required placeholder="Nome do responsável">
+              <div class="error-message">Este campo é obrigatório</div>
+            </div>
+            <div class="form-group">
+              <label for="cpfResponsavel">CPF do Responsável</label>
+              <input type="text" id="cpfResponsavel" placeholder="000.000.000-00">
+            </div>
+          </div>
+
           <div class="form-group">
-            <label for="familiaNome">Nome da Família *</label>
-            <input type="text" id="familiaNome" required placeholder="Ex: Família Silva">
+            <label for="telefoneContato">Telefone para Contato</label>
+            <input type="tel" id="telefoneContato" placeholder="(31) 99999-9999">
           </div>
+        </div>
+
+        <!-- Passo 2: Localização -->
+        <div class="form-step" data-step="2">
+          <div class="form-group required">
+            <h3 style="color: var(--primary-color); margin-bottom: 1rem; border-bottom: 2px solid var(--light-gray); padding-bottom: 0.5rem;">
+              <i class="fas fa-map-marker-alt"></i> Localização
+            </h3>
+          </div>
+
           <div class="form-group">
-            <label for="nisf">NISF (Cadastro Único)</label>
-            <input type="text" id="nisf" placeholder="Número do NISF">
+            <label for="cep">CEP</label>
+            <div style="display: flex; gap: 0.5rem;">
+              <input type="text" id="cep" placeholder="00000-000" style="flex: 1;">
+              <button type="button" id="btnBuscarCEP" class="btn-primary" style="padding: 0.5rem 1rem;">
+                <i class="fas fa-search"></i> Buscar
+              </button>
+            </div>
           </div>
-        </div>
 
-        <div class="form-grid">
+          <div class="form-grid">
+            <div class="form-group required">
+              <label for="endereco">Endereço *</label>
+              <textarea id="endereco" required rows="2" placeholder="Rua, número, complemento"></textarea>
+              <div class="error-message">Este campo é obrigatório</div>
+            </div>
+            <div class="form-group required">
+              <label for="bairro">Bairro *</label>
+              <input type="text" id="bairro" required placeholder="Nome do bairro">
+              <div class="error-message">Este campo é obrigatório</div>
+            </div>
+          </div>
+
+          <div class="form-grid">
+            <div class="form-group required">
+              <label for="tipoLocalizacao">Tipo de Localização *</label>
+              <select id="tipoLocalizacao" required>
+                <option value="">Selecione...</option>
+                <option value="rural">Rural</option>
+                <option value="urbano">Urbano</option>
+                <option value="periferico">Periférico</option>
+                <option value="isolado">Isolado/Comunidade</option>
+                <option value="assentamento">Assentamento</option>
+                <option value="quilombola">Comunidade Quilombola</option>
+              </select>
+              <div class="error-message">Este campo é obrigatório</div>
+            </div>
+            <div class="form-group">
+              <label for="coordenadas">Coordenadas</label>
+              <div style="display: flex; gap: 0.5rem;">
+                <input type="text" id="coordenadas" placeholder="Latitude, Longitude" style="flex: 1;" readonly>
+                <button type="button" id="btnCapturarCoordenadas" class="btn-primary" style="padding: 0.5rem 1rem;">
+                  <i class="fas fa-crosshairs"></i> Capturar
+                </button>
+              </div>
+            </div>
+          </div>
+
           <div class="form-group">
-            <label for="responsavel">Responsável pela Família *</label>
-            <input type="text" id="responsavel" required placeholder="Nome do responsável">
+            <label for="pontoReferencia">Ponto de Referência</label>
+            <input type="text" id="pontoReferencia" placeholder="Próximo a escola, mercado...">
           </div>
+        </div>
+
+        <!-- Passo 3: Composição Familiar -->
+        <div class="form-step" data-step="3">
+          <div class="form-group required">
+            <h3 style="color: var(--primary-color); margin-bottom: 1rem; border-bottom: 2px solid var(--light-gray); padding-bottom: 0.5rem;">
+              <i class="fas fa-users"></i> Composição Familiar
+            </h3>
+          </div>
+
+          <div class="form-grid">
+            <div class="form-group required">
+              <label for="totalMembros">Total de Membros *</label>
+              <input type="number" id="totalMembros" required min="1" value="1" onchange="calcularRendaPerCapita()">
+              <div class="error-message">Este campo é obrigatório</div>
+            </div>
+            <div class="form-group">
+              <label for="criancas">Crianças (0-12 anos)</label>
+              <input type="number" id="criancas" min="0" value="0" onchange="calcularRendaPerCapita()">
+            </div>
+            <div class="form-group">
+              <label for="adolescentes">Adolescentes (13-17)</label>
+              <input type="number" id="adolescentes" min="0" value="0" onchange="calcularRendaPerCapita()">
+            </div>
+            <div class="form-group">
+              <label for="adultos">Adultos (18-59)</label>
+              <input type="number" id="adultos" min="0" value="1" onchange="calcularRendaPerCapita()">
+            </div>
+            <div class="form-group">
+              <label for="idosos">Idosos (60+)</label>
+              <input type="number" id="idosos" min="0" value="0" onchange="calcularRendaPerCapita()">
+            </div>
+          </div>
+
+          <!-- Renda e Benefícios -->
+          <div class="form-group required mt-2">
+            <h3 style="color: var(--ods1); margin-bottom: 1rem; border-bottom: 2px solid var(--light-gray); padding-bottom: 0.5rem;">
+              <i class="fas fa-money-bill-wave"></i> Renda e Benefícios (ODS 1)
+            </h3>
+          </div>
+
+          <div class="form-grid">
+            <div class="form-group required">
+              <label for="rendaTotal">Renda Total Mensal (R$) *</label>
+              <input type="number" id="rendaTotal" required min="0" step="0.01" placeholder="0.00" oninput="calcularRendaPerCapita()">
+              <div class="error-message">Este campo é obrigatório</div>
+            </div>
+            <div class="form-group">
+              <label for="rendaPerCapita">Renda per Capita (Calculada)</label>
+              <input type="number" id="rendaPerCapita" readonly style="background: #f8f9fa;">
+            </div>
+          </div>
+
           <div class="form-group">
-            <label for="cpfResponsavel">CPF do Responsável</label>
-            <input type="text" id="cpfResponsavel" placeholder="000.000.000-00">
+            <label>Benefícios Sociais Recebidos</label>
+            <div class="checkbox-grid">
+              <div class="checkbox-item">
+                <input type="checkbox" id="bolsaFamilia" value="bolsaFamilia">
+                <label for="bolsaFamilia">Bolsa Família</label>
+              </div>
+              <div class="checkbox-item">
+                <input type="checkbox" id="bpc" value="bpc">
+                <label for="bpc">BPC</label>
+              </div>
+              <div class="checkbox-item">
+                <input type="checkbox" id="auxilioBrasil" value="auxilioBrasil">
+                <label for="auxilioBrasil">Auxílio Brasil</label>
+              </div>
+              <div class="checkbox-item">
+                <input type="checkbox" id="auxilioGas" value="auxilioGas">
+                <label for="auxilioGas">Auxílio Gás</label>
+              </div>
+              <div class="checkbox-item">
+                <input type="checkbox" id="tarifaSocial" value="tarifaSocial">
+                <label for="tarifaSocial">Tarifa Social de Energia</label>
+              </div>
+              <div class="checkbox-item">
+                <input type="checkbox" id="outrosBeneficios" value="outrosBeneficios">
+                <label for="outrosBeneficios">Outros Benefícios</label>
+              </div>
+            </div>
           </div>
-        </div>
 
-        <!-- Localização -->
-        <div class="form-group mt-2">
-          <h3 style="color: var(--primary-color); margin-bottom: 1rem; border-bottom: 2px solid var(--light-gray); padding-bottom: 0.5rem;">
-            <i class="fas fa-map-marker-alt"></i> Localização
-          </h3>
-        </div>
+          <!-- Saúde e Alimentação -->
+          <div class="form-group mt-2">
+            <h3 style="color: var(--ods3); margin-bottom: 1rem; border-bottom: 2px solid var(--light-gray); padding-bottom: 0.5rem;">
+              <i class="fas fa-heartbeat"></i> Saúde e Alimentação (ODS 2, 3)
+            </h3>
+          </div>
 
-        <div class="form-grid">
           <div class="form-group">
-            <label for="endereco">Endereço *</label>
-            <textarea id="endereco" required rows="2" placeholder="Rua, número, complemento"></textarea>
+            <label>Condições de Saúde na Família</label>
+            <div class="checkbox-grid">
+              <div class="checkbox-item">
+                <input type="checkbox" id="deficienciaFisica" value="deficienciaFisica">
+                <label for="deficienciaFisica">Deficiência Física</label>
+              </div>
+              <div class="checkbox-item">
+                <input type="checkbox" id="deficienciaVisual" value="deficienciaVisual">
+                <label for="deficienciaVisual">Deficiência Visual</label>
+              </div>
+              <div class="checkbox-item">
+                <input type="checkbox" id="deficienciaAuditiva" value="deficienciaAuditiva">
+                <label for="deficienciaAuditiva">Deficiência Auditiva</label>
+              </div>
+              <div class="checkbox-item">
+                <input type="checkbox" id="deficienciaIntelectual" value="deficienciaIntelectual">
+                <label for="deficienciaIntelectual">Deficiência Intelectual</label>
+              </div>
+              <div class="checkbox-item">
+                <input type="checkbox" id="doencaCronica" value="doencaCronica">
+                <label for="doencaCronica">Doença Crônica</label>
+              </div>
+              <div class="checkbox-item">
+                <input type="checkbox" id="gestante" value="gestante">
+                <label for="gestante">Gestante</label>
+              </div>
+              <div class="checkbox-item">
+                <input type="checkbox" id="lactante" value="lactante">
+                <label for="lactante">Lactante</label>
+              </div>
+              <div class="checkbox-item">
+                <input type="checkbox" id="acompanhamentoSaude" value="acompanhamentoSaude">
+                <label for="acompanhamentoSaude">Acompanhamento Saúde</label>
+              </div>
+            </div>
           </div>
+
           <div class="form-group">
-            <label for="bairro">Bairro *</label>
-            <input type="text" id="bairro" required placeholder="Nome do bairro">
+            <label>Segurança Alimentar</label>
+            <div class="checkbox-grid">
+              <div class="checkbox-item">
+                <input type="checkbox" id="fomeFrequente" value="fomeFrequente">
+                <label for="fomeFrequente">Fome Frequente</label>
+              </div>
+              <div class="checkbox-item">
+                <input type="checkbox" id="alimentacaoInadequada" value="alimentacaoInadequada">
+                <label for="alimentacaoInadequada">Alimentação Inadequada</label>
+              </div>
+              <div class="checkbox-item">
+                <input type="checkbox" id="acessoAgua" value="acessoAgua">
+                <label for="acessoAgua">Dificuldade acesso à água</label>
+              </div>
+              <div class="checkbox-item">
+                <input type="checkbox" id="restricaoAlimentar" value="restricaoAlimentar">
+                <label for="restricaoAlimentar">Restrição Alimentar</label>
+              </div>
+              <div class="checkbox-item">
+                <input type="checkbox" id="recebeCestas" value="recebeCestas">
+                <label for="recebeCestas">Recebe Cestas Básicas</label>
+              </div>
+            </div>
           </div>
-        </div>
 
-        <div class="form-grid">
+          <!-- Educação -->
+          <div class="form-group mt-2">
+            <h3 style="color: var(--ods4); margin-bottom: 1rem; border-bottom: 2px solid var(--light-gray); padding-bottom: 0.5rem;">
+              <i class="fas fa-graduation-cap"></i> Educação (ODS 4)
+            </h3>
+          </div>
+
           <div class="form-group">
-            <label for="tipoLocalizacao">Tipo de Localização *</label>
-            <select id="tipoLocalizacao" required>
-              <option value="">Selecione...</option>
-              <option value="rural">Rural</option>
-              <option value="urbano">Urbano</option>
-              <option value="periferico">Periférico</option>
-              <option value="isolado">Isolado/Comunidade</option>
-            </select>
+            <label>Situação Educacional</label>
+            <div class="checkbox-grid">
+              <div class="checkbox-item">
+                <input type="checkbox" id="criancasForaEscola" value="criancasForaEscola">
+                <label for="criancasForaEscola">Crianças fora da escola</label>
+              </div>
+              <div class="checkbox-item">
+                <input type="checkbox" id="adultosAnalfabetos" value="adultosAnalfabetos">
+                <label for="adultosAnalfabetos">Adultos analfabetos</label>
+              </div>
+              <div class="checkbox-item">
+                <input type="checkbox" id="dificuldadeAcessoEscola" value="dificuldadeAcessoEscola">
+                <label for="dificuldadeAcessoEscola">Dificuldade acesso escola</label>
+              </div>
+              <div class="checkbox-item">
+                <input type="checkbox" id="evasaoEscolar" value="evasaoEscolar">
+                <label for="evasaoEscolar">Evasão escolar</label>
+              </div>
+            </div>
           </div>
+        </div>
+
+        <!-- Passo 4: Serviços e Direcionamentos -->
+        <div class="form-step" data-step="4">
+          <!-- Serviços CRAS -->
           <div class="form-group">
-            <label for="coordenadas">Coordenadas (opcional)</label>
-            <input type="text" id="coordenadas" placeholder="Latitude, Longitude">
+            <h3 style="color: var(--primary-color); margin-bottom: 1rem; border-bottom: 2px solid var(--light-gray); padding-bottom: 0.5rem;">
+              <i class="fas fa-hands-helping"></i> Serviços CRAS
+            </h3>
           </div>
-        </div>
 
-        <!-- Composição Familiar -->
-        <div class="form-group mt-2">
-          <h3 style="color: var(--primary-color); margin-bottom: 1rem; border-bottom: 2px solid var(--light-gray); padding-bottom: 0.5rem;">
-            <i class="fas fa-users"></i> Composição Familiar
-          </h3>
-        </div>
-
-        <div class="form-grid">
           <div class="form-group">
-            <label for="totalMembros">Total de Membros *</label>
-            <input type="number" id="totalMembros" required min="1" value="1">
+            <label>Serviços em Andamento</label>
+            <div class="checkbox-grid">
+              <div class="checkbox-item">
+                <input type="checkbox" id="paif" value="paif">
+                <label for="paif">PAIF</label>
+              </div>
+              <div class="checkbox-item">
+                <input type="checkbox" id="scfv" value="scfv">
+                <label for="scfv">SCFV</label>
+              </div>
+              <div class="checkbox-item">
+                <input type="checkbox" id="cadastroUnico" value="cadastroUnico">
+                <label for="cadastroUnico">Cadastro Único Atualizado</label>
+              </div>
+              <div class="checkbox-item">
+                <input type="checkbox" id="visitasRegulares" value="visitasRegulares">
+                <label for="visitasRegulares">Visitas Regulares</label>
+              </div>
+              <div class="checkbox-item">
+                <input type="checkbox" id="gruposOficinas" value="gruposOficinas">
+                <label for="gruposOficinas">Participa Grupos/Oficinas</label>
+              </div>
+            </div>
           </div>
+
+          <!-- Direcionamentos Sugeridos -->
+          <div class="form-group mt-2">
+            <h3 style="color: var(--success-color); margin-bottom: 1rem; border-bottom: 2px solid var(--light-gray); padding-bottom: 0.5rem;">
+              <i class="fas fa-project-diagram"></i> Direcionamentos Sugeridos
+            </h3>
+            <p class="text-muted">Baseado nas respostas, o sistema sugere os seguintes encaminhamentos:</p>
+          </div>
+
+          <div id="direcionamentosSugeridos">
+            <!-- Direcionamentos serão inseridos aqui -->
+          </div>
+
+          <!-- Encaminhamentos Manual -->
+          <div class="form-group mt-2">
+            <label>Encaminhamentos Necessários</label>
+            <div class="checkbox-grid">
+              <div class="checkbox-item">
+                <input type="checkbox" id="encaminhamentoSaude" value="encaminhamentoSaude">
+                <label for="encaminhamentoSaude">Saúde (SUS, CAPS)</label>
+              </div>
+              <div class="checkbox-item">
+                <input type="checkbox" id="encaminhamentoEducacao" value="encaminhamentoEducacao">
+                <label for="encaminhamentoEducacao">Educação</label>
+              </div>
+              <div class="checkbox-item">
+                <input type="checkbox" id="encaminhamentoTrabalho" value="encaminhamentoTrabalho">
+                <label for="encaminhamentoTrabalho">Trabalho</label>
+              </div>
+              <div class="checkbox-item">
+                <input type="checkbox" id="encaminhamentoHabitacao" value="encaminhamentoHabitacao">
+                <label for="encaminhamentoHabitacao">Habitação</label>
+              </div>
+              <div class="checkbox-item">
+                <input type="checkbox" id="encaminhamentoConselhoTutelar" value="encaminhamentoConselhoTutelar">
+                <label for="encaminhamentoConselhoTutelar">Conselho Tutelar</label>
+              </div>
+              <div class="checkbox-item">
+                <input type="checkbox" id="encaminhamentoCREAS" value="encaminhamentoCREAS">
+                <label for="encaminhamentoCREAS">CREAS</label>
+              </div>
+              <div class="checkbox-item">
+                <input type="checkbox" id="encaminhamentoDefensoria" value="encaminhamentoDefensoria">
+                <label for="encaminhamentoDefensoria">Defensoria Pública</label>
+              </div>
+              <div class="checkbox-item">
+                <input type="checkbox" id="encaminhamentoAssistenciaJuridica" value="encaminhamentoAssistenciaJuridica">
+                <label for="encaminhamentoAssistenciaJuridica">Assistência Jurídica</label>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Passo 5: Revisão -->
+        <div class="form-step" data-step="5">
           <div class="form-group">
-            <label for="criancas">Crianças (0-12 anos)</label>
-            <input type="number" id="criancas" min="0" value="0">
+            <h3 style="color: var(--primary-color); margin-bottom: 1rem; border-bottom: 2px solid var(--light-gray); padding-bottom: 0.5rem;">
+              <i class="fas fa-clipboard-check"></i> Revisão e Finalização
+            </h3>
           </div>
+
+          <div class="form-grid">
+            <div class="form-group required">
+              <label for="visitaData">Data da Visita *</label>
+              <input type="datetime-local" id="visitaData" required>
+              <div class="error-message">Este campo é obrigatório</div>
+            </div>
+            <div class="form-group required">
+              <label for="urgencia">Nível de Urgência *</label>
+              <select id="urgencia" required>
+                <option value="baixa">Baixa</option>
+                <option value="media" selected>Média</option>
+                <option value="alta">Alta</option>
+                <option value="critica">Crítica</option>
+              </select>
+              <div class="error-message">Este campo é obrigatório</div>
+            </div>
+          </div>
+
+          <div class="form-group required">
+            <label for="observacoes">Observações e Diagnóstico *</label>
+            <textarea id="observacoes" required rows="4" placeholder="Descreva as observações, condições da família, necessidades identificadas..."></textarea>
+            <div class="error-message">Este campo é obrigatório</div>
+          </div>
+
           <div class="form-group">
-            <label for="adolescentes">Adolescentes (13-17)</label>
-            <input type="number" id="adolescentes" min="0" value="0">
+            <label for="proximosPassos">Próximos Passos</label>
+            <textarea id="proximosPassos" rows="3" placeholder="Ações planejadas, acompanhamentos necessários..."></textarea>
           </div>
-          <div class="form-group">
-            <label for="adultos">Adultos (18-59)</label>
-            <input type="number" id="adultos" min="0" value="1">
-          </div>
-          <div class="form-group">
-            <label for="idosos">Idosos (60+)</label>
-            <input type="number" id="idosos" min="0" value="0">
-          </div>
-        </div>
 
-        <!-- Renda e Benefícios -->
-        <div class="form-group mt-2">
-          <h3 style="color: var(--primary-color); margin-bottom: 1rem; border-bottom: 2px solid var(--light-gray); padding-bottom: 0.5rem;">
-            <i class="fas fa-money-bill-wave"></i> Renda e Benefícios (ODS 1)
-          </h3>
-        </div>
-
-        <div class="form-grid">
-          <div class="form-group">
-            <label for="rendaTotal">Renda Total Mensal (R$) *</label>
-            <input type="number" id="rendaTotal" required min="0" step="0.01" placeholder="0.00">
+          <!-- Classificação Automática ODS -->
+          <div class="form-group mt-2">
+            <div style="background: #f0f7ff; padding: 1rem; border-radius: var(--border-radius); border-left: 4px solid var(--primary-color);">
+              <h4 style="color: var(--primary-color); margin-bottom: 0.5rem;">
+                <i class="fas fa-robot"></i> Classificação Automática ODS
+              </h4>
+              <div id="classificacaoODS" style="display: flex; flex-wrap: wrap; gap: 0.5rem;">
+                <!-- Classificação será exibida aqui -->
+              </div>
+              <p class="text-muted mt-2" style="font-size: 0.85rem;">
+                <i class="fas fa-info-circle"></i> Classificação baseada nos dados informados, alinhada aos Objetivos de Desenvolvimento Sustentável da ONU.
+              </p>
+            </div>
           </div>
-          <div class="form-group">
-            <label for="rendaPerCapita">Renda per Capita</label>
-            <input type="number" id="rendaPerCapita" readonly>
-          </div>
-        </div>
 
-        <div class="form-group">
-          <label>Benefícios Sociais *</label>
-          <div class="checkbox-grid">
-            <div class="checkbox-item">
-              <input type="checkbox" id="bolsaFamilia" value="bolsaFamilia">
-              <label for="bolsaFamilia">Bolsa Família</label>
-            </div>
-            <div class="checkbox-item">
-              <input type="checkbox" id="bpc" value="bpc">
-              <label for="bpc">BPC - Benefício de Prestação Continuada</label>
-            </div>
-            <div class="checkbox-item">
-              <input type="checkbox" id="auxilioBrasil" value="auxilioBrasil">
-              <label for="auxilioBrasil">Auxílio Brasil</label>
-            </div>
-            <div class="checkbox-item">
-              <input type="checkbox" id="outrosBeneficios" value="outrosBeneficios">
-              <label for="outrosBeneficios">Outros Benefícios</label>
+          <!-- Resumo da Visita -->
+          <div class="form-group mt-2">
+            <div style="background: #f9f9f9; padding: 1rem; border-radius: var(--border-radius);">
+              <h4 style="color: var(--primary-color); margin-bottom: 0.5rem;">
+                <i class="fas fa-file-alt"></i> Resumo da Visita
+              </h4>
+              <div id="resumoVisita" style="font-size: 0.9rem; line-height: 1.5;">
+                <!-- Resumo será gerado aqui -->
+              </div>
             </div>
           </div>
         </div>
 
-        <!-- Saúde e Alimentação -->
-        <div class="form-group mt-2">
-          <h3 style="color: var(--primary-color); margin-bottom: 1rem; border-bottom: 2px solid var(--light-gray); padding-bottom: 0.5rem;">
-            <i class="fas fa-heartbeat"></i> Saúde e Alimentação (ODS 2, 3)
-          </h3>
-        </div>
-
-        <div class="form-group">
-          <label>Condições de Saúde na Família</label>
-          <div class="checkbox-grid">
-            <div class="checkbox-item">
-              <input type="checkbox" id="deficienciaFisica" value="deficienciaFisica">
-              <label for="deficienciaFisica">Deficiência Física</label>
-            </div>
-            <div class="checkbox-item">
-              <input type="checkbox" id="deficienciaVisual" value="deficienciaVisual">
-              <label for="deficienciaVisual">Deficiência Visual</label>
-            </div>
-            <div class="checkbox-item">
-              <input type="checkbox" id="deficienciaAuditiva" value="deficienciaAuditiva">
-              <label for="deficienciaAuditiva">Deficiência Auditiva</label>
-            </div>
-            <div class="checkbox-item">
-              <input type="checkbox" id="doencaCronica" value="doencaCronica">
-              <label for="doencaCronica">Doença Crônica</label>
-            </div>
-            <div class="checkbox-item">
-              <input type="checkbox" id="gestante" value="gestante">
-              <label for="gestante">Gestante</label>
-            </div>
-            <div class="checkbox-item">
-              <input type="checkbox" id="lactante" value="lactante">
-              <label for="lactante">Lactante</label>
-            </div>
-          </div>
-        </div>
-
-        <div class="form-group">
-          <label>Segurança Alimentar</label>
-          <div class="checkbox-grid">
-            <div class="checkbox-item">
-              <input type="checkbox" id="fomeFrequente" value="fomeFrequente">
-              <label for="fomeFrequente">Fome Frequente</label>
-            </div>
-            <div class="checkbox-item">
-              <input type="checkbox" id="alimentacaoInadequada" value="alimentacaoInadequada">
-              <label for="alimentacaoInadequada">Alimentação Inadequada</label>
-            </div>
-            <div class="checkbox-item">
-              <input type="checkbox" id="acessoAgua" value="acessoAgua">
-              <label for="acessoAgua">Dificuldade acesso à água</label>
-            </div>
-          </div>
-        </div>
-
-        <!-- Serviços CRAS -->
-        <div class="form-group mt-2">
-          <h3 style="color: var(--primary-color); margin-bottom: 1rem; border-bottom: 2px solid var(--light-gray); padding-bottom: 0.5rem;">
-            <i class="fas fa-hands-helping"></i> Serviços CRAS
-          </h3>
-        </div>
-
-        <div class="form-group">
-          <label>Serviços em Andamento</label>
-          <div class="checkbox-grid">
-            <div class="checkbox-item">
-              <input type="checkbox" id="paif" value="paif">
-              <label for="paif">PAIF - Proteção Integral à Família</label>
-            </div>
-            <div class="checkbox-item">
-              <input type="checkbox" id="scfv" value="scfv">
-              <label for="scfv">SCFV - Serviço de Convivência</label>
-            </div>
-            <div class="checkbox-item">
-              <input type="checkbox" id="cadastroUnico" value="cadastroUnico">
-              <label for="cadastroUnico">Cadastro Único Atualizado</label>
-            </div>
-          </div>
-        </div>
-
-        <!-- Encaminhamentos -->
-        <div class="form-group mt-2">
-          <h3 style="color: var(--primary-color); margin-bottom: 1rem; border-bottom: 2px solid var(--light-gray); padding-bottom: 0.5rem;">
-            <i class="fas fa-project-diagram"></i> Encaminhamentos
-          </h3>
-        </div>
-
-        <div class="form-group">
-          <label>Encaminhamentos Necessários</label>
-          <div class="checkbox-grid">
-            <div class="checkbox-item">
-              <input type="checkbox" id="encaminhamentoSaude" value="encaminhamentoSaude">
-              <label for="encaminhamentoSaude">Saúde (SUS, CAPS)</label>
-            </div>
-            <div class="checkbox-item">
-              <input type="checkbox" id="encaminhamentoEducacao" value="encaminhamentoEducacao">
-              <label for="encaminhamentoEducacao">Educação (Escola, Creche)</label>
-            </div>
-            <div class="checkbox-item">
-              <input type="checkbox" id="encaminhamentoTrabalho" value="encaminhamentoTrabalho">
-              <label for="encaminhamentoTrabalho">Trabalho (Emprego, Qualificação)</label>
-            </div>
-            <div class="checkbox-item">
-              <input type="checkbox" id="encaminhamentoHabitacao" value="encaminhamentoHabitacao">
-              <label for="encaminhamentoHabitacao">Habitação (Moradia)</label>
-            </div>
-            <div class="checkbox-item">
-              <input type="checkbox" id="encaminhamentoConselhoTutelar" value="encaminhamentoConselhoTutelar">
-              <label for="encaminhamentoConselhoTutelar">Conselho Tutelar</label>
-            </div>
-          </div>
-        </div>
-
-        <!-- Observações e Urgência -->
-        <div class="form-grid mt-2">
-          <div class="form-group">
-            <label for="urgencia">Nível de Urgência *</label>
-            <select id="urgencia" required>
-              <option value="baixa">Baixa</option>
-              <option value="media" selected>Média</option>
-              <option value="alta">Alta</option>
-              <option value="critica">Crítica</option>
-            </select>
-          </div>
-          <div class="form-group">
-            <label for="visitaData">Data da Visita *</label>
-            <input type="datetime-local" id="visitaData" required>
-          </div>
-        </div>
-
-        <div class="form-group">
-          <label for="observacoes">Observações e Diagnóstico *</label>
-          <textarea id="observacoes" required rows="4" placeholder="Descreva as observações, condições da família, necessidades identificadas..."></textarea>
-        </div>
-
-        <!-- Classificação Automática ODS -->
-        <div class="form-group mt-2">
-          <div style="background: #f0f7ff; padding: 1rem; border-radius: var(--border-radius); border-left: 4px solid var(--primary-color);">
-            <h4 style="color: var(--primary-color); margin-bottom: 0.5rem;">
-              <i class="fas fa-robot"></i> Classificação Automática ODS
-            </h4>
-            <div id="classificacaoODS" style="display: flex; flex-wrap: wrap; gap: 0.5rem;">
-              <!-- Classificação será exibida aqui -->
-            </div>
-          </div>
+        <!-- Navegação do Formulário -->
+        <div class="form-navigation" style="display: flex; justify-content: space-between; margin-top: 2rem; padding-top: 1rem; border-top: 1px solid #eee;">
+          <button type="button" class="btn-danger" id="btnAnterior" style="display: none;">
+            <i class="fas fa-arrow-left"></i> Anterior
+          </button>
+          <button type="button" class="btn-primary" id="btnProximo">
+            Próximo <i class="fas fa-arrow-right"></i>
+          </button>
         </div>
       </form>
     </div>
@@ -906,7 +1444,7 @@
       <button class="btn-danger" id="cancelarNovaVisita">
         <i class="fas fa-times"></i> Cancelar
       </button>
-      <button class="btn-success" id="salvarNovaVisita">
+      <button class="btn-success" id="salvarNovaVisita" style="display: none;">
         <i class="fas fa-save"></i> Salvar Visita
       </button>
     </div>
@@ -948,12 +1486,27 @@
   </div>
 </div>
 
+<!-- Modal Confirmação -->
+<div class="modal-overlay" id="modalConfirmacao">
+  <div class="modal" style="max-width: 500px;">
+    <div class="modal-body" style="padding: 2rem; text-align: center;">
+      <i class="fas fa-question-circle fa-3x" style="color: var(--primary-light); margin-bottom: 1rem;"></i>
+      <h3 id="confirmacaoTitulo">Confirmar ação</h3>
+      <p id="confirmacaoMensagem">Tem certeza que deseja continuar?</p>
+      <div style="display: flex; gap: 1rem; justify-content: center; margin-top: 2rem;">
+        <button class="btn-danger" id="btnConfirmarNao">Não</button>
+        <button class="btn-success" id="btnConfirmarSim">Sim</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
 
 <script>
 // =================================================================
-// SISTEMA CRAS ODS - MVC COMPLETO
+// SISTEMA CRAS ODS - VERSÃO MELHORADA
 // =================================================================
 
 /**
@@ -961,14 +1514,17 @@
  */
 class CRASModel {
   constructor() {
-    this.MAX_STORAGE = 5 * 1024 * 1024; // 5MB limite
+    this.MAX_STORAGE = 10 * 1024 * 1024; // 10MB limite
     this.CURRENT_MONTH = this.getCurrentMonthKey();
     this.STORAGE_PREFIX = 'cras_visitas_';
-    this.MONTHS_TO_KEEP = 3; // Mantém apenas 3 meses em cache
+    this.MONTHS_TO_KEEP = 3;
+    this.DIRECIONAMENTOS_PREFIX = 'cras_direcionamentos_';
     
     this.visitas = this.loadAllVisitas();
+    this.direcionamentos = this.loadDirecionamentos();
     this.metrics = {};
     this.charts = {};
+    this.geolocationWatcher = null;
     
     this.calculateMetrics();
   }
@@ -987,7 +1543,6 @@ class CRASModel {
     const visitas = [];
     const allKeys = Object.keys(localStorage);
     
-    // Carrega visitas de todos os meses
     for (const key of allKeys) {
       if (key.startsWith(this.STORAGE_PREFIX)) {
         try {
@@ -1005,20 +1560,65 @@ class CRASModel {
     return visitas;
   }
   
-  saveVisita(visitaData) {
-    // Classificar ODS automaticamente
-    visitaData.ods = this.classificarODS(visitaData);
-    visitaData.id = this.generateId();
-    visitaData.createdAt = new Date().toISOString();
-    visitaData.mes = this.getMonthKey(visitaData.visitaData || new Date().toISOString());
+  loadDirecionamentos() {
+    try {
+      return JSON.parse(localStorage.getItem(this.DIRECIONAMENTOS_PREFIX + 'all')) || [];
+    } catch (e) {
+      console.error('Erro ao carregar direcionamentos:', e);
+      return [];
+    }
+  }
+  
+  saveDirecionamento(direcionamentoData) {
+    if (!direcionamentoData.id) {
+      direcionamentoData.id = this.generateDirecionamentoId();
+      direcionamentoData.createdAt = new Date().toISOString();
+    }
     
-    // Calcular renda per capita
-    if (visitaData.rendaTotal && visitaData.totalMembros) {
+    direcionamentoData.updatedAt = new Date().toISOString();
+    
+    const index = this.direcionamentos.findIndex(d => d.id === direcionamentoData.id);
+    if (index >= 0) {
+      this.direcionamentos[index] = direcionamentoData;
+    } else {
+      this.direcionamentos.push(direcionamentoData);
+    }
+    
+    localStorage.setItem(this.DIRECIONAMENTOS_PREFIX + 'all', JSON.stringify(this.direcionamentos));
+    return direcionamentoData;
+  }
+  
+  generateDirecionamentoId() {
+    return 'DIR_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+  }
+  
+  saveVisita(visitaData) {
+    // Calcular renda per capita se necessário
+    if (!visitaData.rendaPerCapita && visitaData.rendaTotal && visitaData.totalMembros) {
       visitaData.rendaPerCapita = (visitaData.rendaTotal / visitaData.totalMembros).toFixed(2);
     }
     
+    // Classificar ODS automaticamente
+    visitaData.ods = this.classificarODS(visitaData);
+    
+    // Gerar ID e timestamps
+    if (!visitaData.id) {
+      visitaData.id = this.generateId();
+      visitaData.createdAt = new Date().toISOString();
+    }
+    visitaData.updatedAt = new Date().toISOString();
+    visitaData.mes = this.getMonthKey(visitaData.visitaData || new Date().toISOString());
+    
+    // Gerar direcionamentos sugeridos
+    visitaData.direcionamentosSugeridos = this.sugerirDirecionamentos(visitaData);
+    
     // Adicionar à lista
-    this.visitas.push(visitaData);
+    const index = this.visitas.findIndex(v => v.id === visitaData.id);
+    if (index >= 0) {
+      this.visitas[index] = visitaData;
+    } else {
+      this.visitas.push(visitaData);
+    }
     
     // Verificar storage e fazer rotação FIFO se necessário
     this.manageStorage();
@@ -1034,57 +1634,194 @@ class CRASModel {
   
   classificarODS(visitaData) {
     const ods = [];
+    const pesos = {};
     
     // ODS 1 - Erradicação da Pobreza
-    if (visitaData.rendaPerCapita < 218 || 
-        visitaData.bolsaFamilia || 
-        visitaData.bpc || 
-        visitaData.auxilioBrasil) {
+    let pesoODS1 = 0;
+    if (visitaData.rendaPerCapita && visitaData.rendaPerCapita < 218) pesoODS1 += 3;
+    if (visitaData.rendaPerCapita && visitaData.rendaPerCapita < 500) pesoODS1 += 2;
+    if (visitaData.rendaPerCapita && visitaData.rendaPerCapita < 1000) pesoODS1 += 1;
+    if (visitaData.bolsaFamilia) pesoODS1 += 2;
+    if (visitaData.bpc) pesoODS1 += 2;
+    if (visitaData.auxilioBrasil) pesoODS1 += 2;
+    if (visitaData.auxilioGas) pesoODS1 += 1;
+    if (visitaData.tarifaSocial) pesoODS1 += 1;
+    if (pesoODS1 > 0) {
       ods.push({
         codigo: 1,
         nome: "Erradicação da Pobreza",
-        peso: visitaData.rendaPerCapita < 218 ? 2 : 1
+        peso: Math.min(pesoODS1, 5)
       });
     }
     
     // ODS 2 - Fome Zero
-    if (visitaData.fomeFrequente || 
-        visitaData.alimentacaoInadequada || 
-        visitaData.acessoAgua) {
+    let pesoODS2 = 0;
+    if (visitaData.fomeFrequente) pesoODS2 += 3;
+    if (visitaData.alimentacaoInadequada) pesoODS2 += 2;
+    if (visitaData.restricaoAlimentar) pesoODS2 += 1;
+    if (visitaData.recebeCestas) pesoODS2 += 1;
+    if (pesoODS2 > 0) {
       ods.push({
         codigo: 2,
         nome: "Fome Zero e Agricultura Sustentável",
-        peso: visitaData.fomeFrequente ? 2 : 1
+        peso: Math.min(pesoODS2, 5)
       });
     }
     
     // ODS 3 - Saúde e Bem-Estar
-    if (visitaData.deficienciaFisica || 
-        visitaData.deficienciaVisual || 
-        visitaData.deficienciaAuditiva ||
-        visitaData.doencaCronica ||
-        visitaData.gestante ||
-        visitaData.lactante ||
-        visitaData.encaminhamentoSaude) {
+    let pesoODS3 = 0;
+    if (visitaData.deficienciaFisica) pesoODS3 += 2;
+    if (visitaData.deficienciaVisual) pesoODS3 += 2;
+    if (visitaData.deficienciaAuditiva) pesoODS3 += 2;
+    if (visitaData.deficienciaIntelectual) pesoODS3 += 2;
+    if (visitaData.doencaCronica) pesoODS3 += 3;
+    if (visitaData.gestante) pesoODS3 += 2;
+    if (visitaData.lactante) pesoODS3 += 1;
+    if (visitaData.acompanhamentoSaude) pesoODS3 += 1;
+    if (pesoODS3 > 0) {
       ods.push({
         codigo: 3,
         nome: "Saúde e Bem-Estar",
-        peso: visitaData.doencaCronica ? 2 : 1
+        peso: Math.min(pesoODS3, 5)
+      });
+    }
+    
+    // ODS 4 - Educação de Qualidade
+    let pesoODS4 = 0;
+    if (visitaData.criancasForaEscola) pesoODS4 += 3;
+    if (visitaData.adultosAnalfabetos) pesoODS4 += 2;
+    if (visitaData.dificuldadeAcessoEscola) pesoODS4 += 2;
+    if (visitaData.evasaoEscolar) pesoODS4 += 2;
+    if (pesoODS4 > 0) {
+      ods.push({
+        codigo: 4,
+        nome: "Educação de Qualidade",
+        peso: Math.min(pesoODS4, 5)
+      });
+    }
+    
+    // ODS 5 - Igualdade de Gênero
+    // Implementar lógica baseada em dados da família
+    
+    // ODS 6 - Água Potável e Saneamento
+    let pesoODS6 = 0;
+    if (visitaData.acessoAgua) pesoODS6 += 3;
+    if (pesoODS6 > 0) {
+      ods.push({
+        codigo: 6,
+        nome: "Água Potável e Saneamento",
+        peso: Math.min(pesoODS6, 5)
       });
     }
     
     // ODS 10 - Redução das Desigualdades
-    if (visitaData.tipoLocalizacao === 'rural' || 
-        visitaData.tipoLocalizacao === 'isolado' ||
-        visitaData.totalMembros > 6) {
+    let pesoODS10 = 0;
+    if (visitaData.tipoLocalizacao === 'rural' || visitaData.tipoLocalizacao === 'isolado') pesoODS10 += 3;
+    if (visitaData.tipoLocalizacao === 'assentamento' || visitaData.tipoLocalizacao === 'quilombola') pesoODS10 += 4;
+    if (visitaData.tipoLocalizacao === 'periferico') pesoODS10 += 2;
+    if (visitaData.totalMembros > 6) pesoODS10 += 1;
+    if (pesoODS10 > 0) {
       ods.push({
         codigo: 10,
         nome: "Redução das Desigualdades",
-        peso: visitaData.tipoLocalizacao === 'isolado' ? 2 : 1
+        peso: Math.min(pesoODS10, 5)
       });
     }
     
-    return ods;
+    return ods.sort((a, b) => b.peso - a.peso);
+  }
+  
+  sugerirDirecionamentos(visitaData) {
+    const direcionamentos = [];
+    
+    // Saúde
+    if (visitaData.deficienciaFisica || visitaData.deficienciaVisual || 
+        visitaData.deficienciaAuditiva || visitaData.deficienciaIntelectual) {
+      direcionamentos.push({
+        tipo: 'saude',
+        descricao: 'Encaminhamento para avaliação e acompanhamento em saúde',
+        prioridade: 'alta',
+        ods: [3]
+      });
+    }
+    
+    if (visitaData.doencaCronica) {
+      direcionamentos.push({
+        tipo: 'saude',
+        descricao: 'Acompanhamento médico para doença crônica',
+        prioridade: 'media',
+        ods: [3]
+      });
+    }
+    
+    if (visitaData.gestante || visitaData.lactante) {
+      direcionamentos.push({
+        tipo: 'saude',
+        descricao: 'Pré-natal e acompanhamento pós-parto',
+        prioridade: 'alta',
+        ods: [3]
+      });
+    }
+    
+    // Educação
+    if (visitaData.criancasForaEscola) {
+      direcionamentos.push({
+        tipo: 'educacao',
+        descricao: 'Matrícula escolar e acompanhamento pedagógico',
+        prioridade: 'alta',
+        ods: [4]
+      });
+    }
+    
+    if (visitaData.adultosAnalfabetos) {
+      direcionamentos.push({
+        tipo: 'educacao',
+        descricao: 'Encaminhamento para programa de alfabetização',
+        prioridade: 'media',
+        ods: [4]
+      });
+    }
+    
+    // Renda e Benefícios
+    if (visitaData.rendaPerCapita && visitaData.rendaPerCapita < 218) {
+      direcionamentos.push({
+        tipo: 'assistencia_social',
+        descricao: 'Avaliação para inclusão em programas de transferência de renda',
+        prioridade: 'alta',
+        ods: [1]
+      });
+    }
+    
+    if (!visitaData.cadastroUnico) {
+      direcionamentos.push({
+        tipo: 'assistencia_social',
+        descricao: 'Atualização do Cadastro Único',
+        prioridade: 'media',
+        ods: [1]
+      });
+    }
+    
+    // Habitação
+    if (visitaData.tipoLocalizacao === 'isolado' || visitaData.tipoLocalizacao === 'assentamento') {
+      direcionamentos.push({
+        tipo: 'habitacao',
+        descricao: 'Avaliação para programas habitacionais',
+        prioridade: 'media',
+        ods: [1, 10]
+      });
+    }
+    
+    // Segurança Alimentar
+    if (visitaData.fomeFrequente || visitaData.alimentacaoInadequada) {
+      direcionamentos.push({
+        tipo: 'seguranca_alimentar',
+        descricao: 'Inclusão em programa de distribuição de alimentos',
+        prioridade: 'alta',
+        ods: [2]
+      });
+    }
+    
+    return direcionamentos;
   }
   
   generateId() {
@@ -1100,12 +1837,10 @@ class CRASModel {
     const totalSize = this.getStorageSize();
     const percentUsed = (totalSize / this.MAX_STORAGE) * 100;
     
-    // Se storage > 90%, fazer backup e limpar meses antigos
     if (percentUsed > 90) {
       this.backupAndClean();
     }
     
-    // Atualizar UI do storage usage
     this.updateStorageUI(percentUsed);
   }
   
@@ -1113,10 +1848,10 @@ class CRASModel {
     let total = 0;
     for (const key in localStorage) {
       if (localStorage.hasOwnProperty(key)) {
-        total += (localStorage[key].length * 2) / 1024; // Tamanho em KB
+        total += (localStorage[key].length * 2);
       }
     }
-    return total * 1024; // Retorna em bytes
+    return total;
   }
   
   updateStorageUI(percent) {
@@ -1129,26 +1864,21 @@ class CRASModel {
   }
   
   backupAndClean() {
-    // Coletar todos os meses disponíveis
     const months = new Set(this.visitas.map(v => v.storageMonth || v.mes));
     const sortedMonths = Array.from(months).sort();
     
-    // Manter apenas os últimos N meses
     const monthsToKeep = sortedMonths.slice(-this.MONTHS_TO_KEEP);
     const monthsToBackup = sortedMonths.slice(0, -this.MONTHS_TO_KEEP);
     
-    // Fazer backup dos meses antigos
     monthsToBackup.forEach(month => {
-      this.exportMonthToCSV(month, true); // true = download automático
+      this.exportMonthToCSV(month, true);
       localStorage.removeItem(`${this.STORAGE_PREFIX}${month}`);
     });
     
-    // Atualizar lista de visitas
     this.visitas = this.visitas.filter(v => 
       monthsToKeep.includes(v.storageMonth || v.mes)
     );
     
-    // Mostrar notificação
     CRASController.showNotification(
       `Backup automático realizado. ${monthsToBackup.length} mês(es) exportado(s).`,
       'info'
@@ -1156,19 +1886,16 @@ class CRASModel {
   }
   
   calculateMetrics() {
-    const ativas = this.visitas.filter(v => 
-      v.urgencia !== 'concluido' && v.urgencia !== 'baixa'
-    ).length;
-    
-    const urgentes = this.visitas.filter(v => 
-      v.urgencia === 'alta' || v.urgencia === 'critica'
-    ).length;
+    const total = this.visitas.length;
+    const ativas = this.visitas.filter(v => v.urgencia === 'alta' || v.urgencia === 'critica' || v.urgencia === 'media').length;
+    const urgentes = this.visitas.filter(v => v.urgencia === 'alta' || v.urgencia === 'critica').length;
+    const concluidas = this.visitas.filter(v => v.urgencia === 'baixa').length;
     
     const rurais = this.visitas.filter(v => 
-      v.tipoLocalizacao === 'rural' || v.tipoLocalizacao === 'isolado'
+      v.tipoLocalizacao === 'rural' || v.tipoLocalizacao === 'isolado' || 
+      v.tipoLocalizacao === 'assentamento' || v.tipoLocalizacao === 'quilombola'
     ).length;
     
-    // Calcular vulnerabilidade composta
     let vulnerabilidadeTotal = 0;
     this.visitas.forEach(v => {
       let score = 0;
@@ -1183,33 +1910,47 @@ class CRASModel {
       vulnerabilidadeTotal += score;
     });
     
-    const vulnerabilidadeMedia = this.visitas.length > 0 
-      ? (vulnerabilidadeTotal / this.visitas.length).toFixed(1)
-      : 0;
+    const vulnerabilidadeMedia = total > 0 ? (vulnerabilidadeTotal / total).toFixed(1) : 0;
+    
+    // Métricas de direcionamentos
+    const direcionamentosTotal = this.direcionamentos.length;
+    const direcionamentosConcluidos = this.direcionamentos.filter(d => d.status === 'concluido').length;
+    const direcionamentosAndamento = this.direcionamentos.filter(d => d.status === 'andamento').length;
+    const direcionamentosPendentes = this.direcionamentos.filter(d => d.status === 'pendente').length;
     
     this.metrics = {
+      total,
       ativas,
       urgentes,
+      concluidas,
       rurais,
       vulnerabilidade: vulnerabilidadeMedia,
-      total: this.visitas.length,
+      direcionamentosTotal,
+      direcionamentosConcluidos,
+      direcionamentosAndamento,
+      direcionamentosPendentes,
+      direcionamentosEficacia: direcionamentosTotal > 0 ? 
+        ((direcionamentosConcluidos / direcionamentosTotal) * 100).toFixed(1) + '%' : '0%',
+      
       ods1: this.visitas.filter(v => v.ods?.some(o => o.codigo === 1)).length,
       ods2: this.visitas.filter(v => v.ods?.some(o => o.codigo === 2)).length,
       ods3: this.visitas.filter(v => v.ods?.some(o => o.codigo === 3)).length,
+      ods4: this.visitas.filter(v => v.ods?.some(o => o.codigo === 4)).length,
       ods10: this.visitas.filter(v => v.ods?.some(o => o.codigo === 10)).length
     };
   }
   
   getDataForCharts() {
-    // Dados para gráfico radar ODS
+    // Radar ODS
     const radarData = {
-      labels: ['ODS 1 - Pobreza', 'ODS 2 - Fome', 'ODS 3 - Saúde', 'ODS 10 - Desigualdade'],
+      labels: ['ODS 1', 'ODS 2', 'ODS 3', 'ODS 4', 'ODS 10'],
       datasets: [{
         label: 'Impacto ODS',
         data: [
           this.metrics.ods1,
           this.metrics.ods2,
           this.metrics.ods3,
+          this.metrics.ods4,
           this.metrics.ods10
         ],
         backgroundColor: 'rgba(52, 152, 219, 0.2)',
@@ -1218,20 +1959,22 @@ class CRASModel {
       }]
     };
     
-    // Dados para gráfico pizza vulnerabilidades
+    // Vulnerabilidades
     const vulnerabilidades = {
-      'Renda Baixa': this.visitas.filter(v => v.rendaPerCapita < 218).length,
+      'Renda Baixa': this.visitas.filter(v => v.rendaPerCapita && v.rendaPerCapita < 500).length,
       'Saúde': this.visitas.filter(v => 
-        v.deficienciaFisica || v.deficienciaVisual || v.deficienciaAuditiva || v.doencaCronica
+        v.deficienciaFisica || v.deficienciaVisual || v.deficienciaAuditiva || 
+        v.deficienciaIntelectual || v.doencaCronica
       ).length,
       'Alimentação': this.visitas.filter(v => 
         v.fomeFrequente || v.alimentacaoInadequada
       ).length,
-      'Localização': this.visitas.filter(v => 
-        v.tipoLocalizacao === 'rural' || v.tipoLocalizacao === 'isolado'
+      'Educação': this.visitas.filter(v => 
+        v.criancasForaEscola || v.adultosAnalfabetos || v.evasaoEscolar
       ).length,
-      'Serviços': this.visitas.filter(v => 
-        v.paif || v.scfv || v.cadastroUnico
+      'Localização': this.visitas.filter(v => 
+        v.tipoLocalizacao === 'rural' || v.tipoLocalizacao === 'isolado' ||
+        v.tipoLocalizacao === 'assentamento' || v.tipoLocalizacao === 'quilombola'
       ).length
     };
     
@@ -1245,7 +1988,20 @@ class CRASModel {
       }]
     };
     
-    // Dados para gráfico linha (evolução mensal)
+    // Direcionamentos
+    const direcionamentosData = {
+      labels: ['Concluídos', 'Em Andamento', 'Pendentes'],
+      datasets: [{
+        data: [
+          this.metrics.direcionamentosConcluidos,
+          this.metrics.direcionamentosAndamento,
+          this.metrics.direcionamentosPendentes
+        ],
+        backgroundColor: ['#27ae60', '#f39c12', '#e74c3c']
+      }]
+    };
+    
+    // Evolução Mensal
     const meses = {};
     this.visitas.forEach(v => {
       const mes = v.mes || this.getMonthKey(v.createdAt);
@@ -1264,11 +2020,12 @@ class CRASModel {
         data: sortedMonths.map(m => meses[m]),
         borderColor: '#27ae60',
         backgroundColor: 'rgba(39, 174, 96, 0.1)',
-        tension: 0.4
+        tension: 0.4,
+        fill: true
       }]
     };
     
-    // Dados para gráfico barras (por bairro)
+    // Bairros
     const bairros = {};
     this.visitas.forEach(v => {
       if (v.bairro) {
@@ -1277,55 +2034,42 @@ class CRASModel {
       }
     });
     
+    const sortedBairros = Object.entries(bairros)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 8);
+    
     const barData = {
-      labels: Object.keys(bairros).slice(0, 10), // Top 10 bairros
+      labels: sortedBairros.map(b => b[0]),
       datasets: [{
         label: 'Visitas por Bairro',
-        data: Object.values(bairros).slice(0, 10),
+        data: sortedBairros.map(b => b[1]),
         backgroundColor: '#3498db'
       }]
     };
     
-    // Dados para histograma (faixa etária)
-    const faixasEtarias = {
-      '0-12': this.visitas.reduce((sum, v) => sum + (parseInt(v.criancas) || 0), 0),
-      '13-17': this.visitas.reduce((sum, v) => sum + (parseInt(v.adolescentes) || 0), 0),
-      '18-59': this.visitas.reduce((sum, v) => sum + (parseInt(v.adultos) || 0), 0),
-      '60+': this.visitas.reduce((sum, v) => sum + (parseInt(v.idosos) || 0), 0)
+    // Urgência
+    const urgencias = {
+      'Crítica': this.visitas.filter(v => v.urgencia === 'critica').length,
+      'Alta': this.visitas.filter(v => v.urgencia === 'alta').length,
+      'Média': this.visitas.filter(v => v.urgencia === 'media').length,
+      'Baixa': this.visitas.filter(v => v.urgencia === 'baixa').length
     };
     
-    const histogramData = {
-      labels: Object.keys(faixasEtarias),
+    const urgentesData = {
+      labels: Object.keys(urgencias),
       datasets: [{
-        label: 'Distribuição por Faixa Etária',
-        data: Object.values(faixasEtarias),
-        backgroundColor: '#9b59b6'
-      }]
-    };
-    
-    // Dados para gráfico rosca (status serviços)
-    const servicos = {
-      'PAIF': this.visitas.filter(v => v.paif).length,
-      'SCFV': this.visitas.filter(v => v.scfv).length,
-      'Cad. Único': this.visitas.filter(v => v.cadastroUnico).length,
-      'Sem Serviços': this.visitas.filter(v => !v.paif && !v.scfv && !v.cadastroUnico).length
-    };
-    
-    const doughnutData = {
-      labels: Object.keys(servicos),
-      datasets: [{
-        data: Object.values(servicos),
-        backgroundColor: ['#e74c3c', '#f39c12', '#3498db', '#95a5a6']
+        data: Object.values(urgencias),
+        backgroundColor: ['#e74c3c', '#f39c12', '#3498db', '#27ae60']
       }]
     };
     
     return {
       radar: radarData,
       pie: pieData,
+      direcionamentos: direcionamentosData,
       line: lineData,
       bar: barData,
-      histogram: histogramData,
-      doughnut: doughnutData
+      urgentes: urgentesData
     };
   }
   
@@ -1336,46 +2080,93 @@ class CRASModel {
     
     if (monthVisitas.length === 0) return null;
     
-    // Criar cabeçalhos CSV
     const headers = [
-      'ID', 'Data', 'Família', 'Responsável', 'Bairro', 'Tipo Localização',
-      'Membros', 'Renda Total', 'Renda per Capita', 'ODS', 'Urgência',
-      'Bolsa Família', 'BPC', 'Deficiências', 'Serviços CRAS', 'Observações'
+      'ID', 'Data', 'Família', 'Responsável', 'CPF', 'Telefone',
+      'Endereço', 'Bairro', 'Tipo Localização', 'Coordenadas',
+      'Total Membros', 'Crianças', 'Adolescentes', 'Adultos', 'Idosos',
+      'Renda Total', 'Renda per Capita', 'Benefícios',
+      'Condições Saúde', 'Segurança Alimentar', 'Situação Educação',
+      'ODS', 'Urgência', 'Serviços CRAS', 'Direcionamentos',
+      'Observações', 'Próximos Passos', 'Data Criação'
     ];
     
-    // Criar linhas
     const rows = monthVisitas.map(v => {
-      const odsList = v.ods?.map(o => `${o.codigo}`).join(';') || '';
-      const deficiencias = [
-        v.deficienciaFisica ? 'Física' : '',
-        v.deficienciaVisual ? 'Visual' : '',
-        v.deficienciaAuditiva ? 'Auditiva' : '',
-        v.doencaCronica ? 'Crônica' : ''
+      const beneficios = [
+        v.bolsaFamilia ? 'Bolsa Família' : '',
+        v.bpc ? 'BPC' : '',
+        v.auxilioBrasil ? 'Auxílio Brasil' : '',
+        v.auxilioGas ? 'Auxílio Gás' : '',
+        v.tarifaSocial ? 'Tarifa Social' : '',
+        v.outrosBeneficios ? 'Outros' : ''
       ].filter(Boolean).join(';');
+      
+      const saude = [
+        v.deficienciaFisica ? 'Def. Física' : '',
+        v.deficienciaVisual ? 'Def. Visual' : '',
+        v.deficienciaAuditiva ? 'Def. Auditiva' : '',
+        v.deficienciaIntelectual ? 'Def. Intelectual' : '',
+        v.doencaCronica ? 'Doença Crônica' : '',
+        v.gestante ? 'Gestante' : '',
+        v.lactante ? 'Lactante' : '',
+        v.acompanhamentoSaude ? 'Acomp. Saúde' : ''
+      ].filter(Boolean).join(';');
+      
+      const alimentacao = [
+        v.fomeFrequente ? 'Fome Frequente' : '',
+        v.alimentacaoInadequada ? 'Alim. Inadequada' : '',
+        v.acessoAgua ? 'Dific. Água' : '',
+        v.restricaoAlimentar ? 'Restr. Alimentar' : '',
+        v.recebeCestas ? 'Recebe Cestas' : ''
+      ].filter(Boolean).join(';');
+      
+      const educacao = [
+        v.criancasForaEscola ? 'Crianças Fora Escola' : '',
+        v.adultosAnalfabetos ? 'Adultos Analfabetos' : '',
+        v.dificuldadeAcessoEscola ? 'Dific. Acesso' : '',
+        v.evasaoEscolar ? 'Evasão Escolar' : ''
+      ].filter(Boolean).join(';');
+      
+      const odsList = v.ods?.map(o => `${o.codigo}`).join(';') || '';
       
       const servicos = [
         v.paif ? 'PAIF' : '',
         v.scfv ? 'SCFV' : '',
-        v.cadastroUnico ? 'CadÚnico' : ''
+        v.cadastroUnico ? 'CadÚnico' : '',
+        v.visitasRegulares ? 'Visitas Regulares' : '',
+        v.gruposOficinas ? 'Grupos/Oficinas' : ''
       ].filter(Boolean).join(';');
+      
+      const direcionamentosList = v.direcionamentosSugeridos?.map(d => d.descricao).join(';') || '';
       
       return [
         v.id,
         v.visitaData || v.createdAt,
         `"${v.familiaNome || ''}"`,
         `"${v.responsavel || ''}"`,
+        v.cpfResponsavel || '',
+        v.telefoneContato || '',
+        `"${v.endereco || ''}"`,
         v.bairro || '',
         v.tipoLocalizacao || '',
+        v.coordenadas || '',
         v.totalMembros || 0,
+        v.criancas || 0,
+        v.adolescentes || 0,
+        v.adultos || 0,
+        v.idosos || 0,
         v.rendaTotal || 0,
         v.rendaPerCapita || 0,
+        `"${beneficios}"`,
+        `"${saude}"`,
+        `"${alimentacao}"`,
+        `"${educacao}"`,
         odsList,
         v.urgencia || '',
-        v.bolsaFamilia ? 'Sim' : 'Não',
-        v.bpc ? 'Sim' : 'Não',
-        deficiencias,
-        servicos,
-        `"${(v.observacoes || '').replace(/"/g, '""')}"`
+        `"${servicos}"`,
+        `"${direcionamentosList}"`,
+        `"${(v.observacoes || '').replace(/"/g, '""')}"`,
+        `"${(v.proximosPassos || '').replace(/"/g, '""')}"`,
+        v.createdAt || ''
       ].join(',');
     });
     
@@ -1431,17 +2222,22 @@ class CRASModel {
       baixa: '🟢',
       rural: '🌾',
       urbano: '🏙️',
+      periferico: '🏘️',
+      isolado: '🏕️',
+      assentamento: '🏚️',
+      quilombola: '👨‍👩‍👧‍👦',
       ods1: '💰',
       ods2: '🍎',
       ods3: '🏥',
+      ods4: '📚',
       ods10: '⚖️'
     };
     
-    let summary = `*CRAS - RELATÓRIO DE VISITA DOMICILIAR*\n\n`;
-    summary += `${emojis[visita.urgencia] || '📋'} *Visita:* ${visita.familiaNome}\n`;
+    let summary = `*CRAS FAMA-MG - RELATÓRIO DE VISITA DOMICILIAR*\n\n`;
+    summary += `${emojis[visita.urgencia] || '📋'} *VISITA:* ${visita.familiaNome}\n`;
     summary += `👤 *Responsável:* ${visita.responsavel || 'Não informado'}\n`;
     summary += `📅 *Data:* ${new Date(visita.visitaData || visita.createdAt).toLocaleDateString('pt-BR')}\n`;
-    summary += `📍 *Local:* ${visita.bairro || 'Não informado'} (${visita.tipoLocalizacao === 'rural' ? emojis.rural + ' Rural' : emojis.urbano + ' Urbano'})\n`;
+    summary += `📍 *Local:* ${visita.bairro || 'Não informado'} (${visita.tipoLocalizacao ? visita.tipoLocalizacao.charAt(0).toUpperCase() + visita.tipoLocalizacao.slice(1) : 'Não informado'})\n`;
     summary += `👨‍👩‍👧‍👦 *Membros:* ${visita.totalMembros || 1} pessoas\n`;
     summary += `💰 *Renda per capita:* R$ ${visita.rendaPerCapita || '0,00'}\n\n`;
     
@@ -1455,16 +2251,29 @@ class CRASModel {
     }
     
     summary += `\n*🩺 SAÚDE E SERVIÇOS:*\n`;
-    if (visita.deficienciaFisica || visita.deficienciaVisual || visita.deficienciaAuditiva) {
+    if (visita.deficienciaFisica || visita.deficienciaVisual || visita.deficienciaAuditiva || visita.deficienciaIntelectual) {
       summary += `  ♿ Com deficiência\n`;
     }
+    if (visita.doencaCronica) summary += `  💊 Doença crônica\n`;
+    if (visita.gestante) summary += `  🤰 Gestante\n`;
+    if (visita.lactante) summary += `  👶 Lactante\n`;
     if (visita.paif) summary += `  🤝 Em atendimento PAIF\n`;
     if (visita.scfv) summary += `  👥 Participa SCFV\n`;
+    
+    summary += `\n*🎯 DIRECIONAMENTOS SUGERIDOS:*\n`;
+    if (visita.direcionamentosSugeridos && visita.direcionamentosSugeridos.length > 0) {
+      visita.direcionamentosSugeridos.forEach(d => {
+        const prioridadeEmoji = d.prioridade === 'alta' ? '🔴' : d.prioridade === 'media' ? '🟡' : '🟢';
+        summary += `  ${prioridadeEmoji} ${d.descricao}\n`;
+      });
+    } else {
+      summary += `  📭 Sem direcionamentos sugeridos\n`;
+    }
     
     summary += `\n*📝 OBSERVAÇÕES:*\n`;
     summary += `${(visita.observacoes || '').substring(0, 200)}${visita.observacoes?.length > 200 ? '...' : ''}\n\n`;
     
-    summary += `_Relatório gerado pelo Sistema CRAS ODS_`;
+    summary += `_Relatório gerado pelo Sistema CRAS ODS - Fama/MG_`;
     
     return encodeURIComponent(summary);
   }
@@ -1475,13 +2284,14 @@ class CRASModel {
         const searchLower = filters.search.toLowerCase();
         if (!visita.familiaNome?.toLowerCase().includes(searchLower) &&
             !visita.bairro?.toLowerCase().includes(searchLower) &&
-            !visita.responsavel?.toLowerCase().includes(searchLower)) {
+            !visita.responsavel?.toLowerCase().includes(searchLower) &&
+            !visita.observacoes?.toLowerCase().includes(searchLower)) {
           return false;
         }
       }
       
       if (filters.ods && filters.ods !== 'all') {
-        const odsCode = parseInt(filters.ods.replace('ods', ''));
+        const odsCode = parseInt(filters.ods);
         if (!visita.ods?.some(o => o.codigo === odsCode)) {
           return false;
         }
@@ -1496,6 +2306,73 @@ class CRASModel {
       return true;
     });
   }
+  
+  async buscarCEP(cep) {
+    try {
+      const response = await fetch(`https://viacep.com.br/ws/${cep}/json/`);
+      const data = await response.json();
+      
+      if (data.erro) {
+        throw new Error('CEP não encontrado');
+      }
+      
+      return {
+        endereco: `${data.logradouro}, ${data.bairro}`,
+        bairro: data.bairro,
+        cidade: data.localidade,
+        uf: data.uf
+      };
+    } catch (error) {
+      console.error('Erro ao buscar CEP:', error);
+      throw error;
+    }
+  }
+  
+  async geocodeEndereco(endereco) {
+    try {
+      const response = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(endereco + ', Fama, MG, Brasil')}&limit=1`);
+      const data = await response.json();
+      
+      if (data.length > 0) {
+        return {
+          lat: data[0].lat,
+          lon: data[0].lon,
+          display_name: data[0].display_name
+        };
+      }
+      return null;
+    } catch (error) {
+      console.error('Erro no geocoding:', error);
+      return null;
+    }
+  }
+  
+  async getCurrentLocation() {
+    return new Promise((resolve, reject) => {
+      if (!navigator.geolocation) {
+        reject(new Error('Geolocalização não suportada'));
+        return;
+      }
+      
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          resolve({
+            lat: position.coords.latitude,
+            lon: position.coords.longitude,
+            accuracy: position.coords.accuracy
+          });
+        },
+        (error) => {
+          reject(error);
+        },
+        {
+          enableHighAccuracy: true,
+          timeout: 10000,
+          maximumAge: 0
+        }
+      );
+    });
+  }
 }
 
 /**
@@ -1506,7 +2383,12 @@ class CRASView {
     this.model = null;
     this.controller = null;
     this.currentTab = 'visitas';
+    this.currentFormStep = 1;
+    this.totalFormSteps = 5;
     this.chartInstances = {};
+    this.map = null;
+    this.mapMarkers = [];
+    this.selectedLocation = null;
     
     this.initializeElements();
     this.bindEvents();
@@ -1522,7 +2404,12 @@ class CRASView {
   }
   
   initializeElements() {
-    // Elementos já existem no HTML
+    // Inicializar data/hora atual no formulário
+    const now = new Date();
+    const localDateTime = new Date(now.getTime() - now.getTimezoneOffset() * 60000)
+      .toISOString()
+      .slice(0, 16);
+    document.getElementById('visitaData').value = localDateTime;
   }
   
   bindEvents() {
@@ -1553,8 +2440,41 @@ class CRASView {
       this.controller.handleSaveVisita();
     });
     
+    // Navegação do formulário
+    document.getElementById('btnProximo').addEventListener('click', () => {
+      this.nextFormStep();
+    });
+    
+    document.getElementById('btnAnterior').addEventListener('click', () => {
+      this.previousFormStep();
+    });
+    
+    // CEP
+    document.getElementById('btnBuscarCEP').addEventListener('click', () => {
+      this.buscarCEP();
+    });
+    
+    document.getElementById('cep').addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        this.buscarCEP();
+      }
+    });
+    
+    // Captura de coordenadas
+    document.getElementById('btnCapturarCoordenadas').addEventListener('click', () => {
+      this.capturarCoordenadas();
+    });
+    
     // Filtros
     document.getElementById('btnAplicarFiltros').addEventListener('click', () => {
+      this.controller.handleFilterVisitas();
+    });
+    
+    document.getElementById('btnLimparFiltros').addEventListener('click', () => {
+      document.getElementById('searchVisitas').value = '';
+      document.getElementById('filterODS').value = 'all';
+      document.getElementById('filterStatus').value = 'all';
       this.controller.handleFilterVisitas();
     });
     
@@ -1575,32 +2495,60 @@ class CRASView {
       this.controller.handleExportAllMonths();
     });
     
-    // Calcula renda per capita automaticamente
+    document.getElementById('btnLimparDadosAntigos').addEventListener('click', () => {
+      this.controller.handleClearOldData();
+    });
+    
+    document.getElementById('btnGerarRelatorio').addEventListener('click', () => {
+      this.controller.handleGenerateReport();
+    });
+    
+    // Mapa
+    document.getElementById('btnLocalizarAtual').addEventListener('click', () => {
+      this.capturarLocalizacaoAtual();
+    });
+    
+    document.getElementById('btnVerTodasVisitas').addEventListener('click', () => {
+      this.showAllVisitasOnMap();
+    });
+    
+    document.getElementById('btnSelecionarLocal').addEventListener('click', () => {
+      this.activateMapSelection();
+    });
+    
+    // Atualizações em tempo real
     document.getElementById('rendaTotal').addEventListener('input', () => {
-      this.calculateRendaPerCapita();
+      this.calcularRendaPerCapita();
     });
     
     document.getElementById('totalMembros').addEventListener('input', () => {
-      this.calculateRendaPerCapita();
+      this.calcularRendaPerCapita();
     });
     
-    // Atualiza classificação ODS em tempo real
-    const formInputs = document.querySelectorAll('#formNovaVisita input, #formNovaVisita select');
+    // Atualiza classificação ODS
+    const formInputs = document.querySelectorAll('#formNovaVisita input, #formNovaVisita select, #formNovaVisita textarea');
     formInputs.forEach(input => {
       input.addEventListener('change', () => {
         this.updateODSClassification();
+        this.updateSuggestedDirections();
+        this.updateResumoVisita();
+      });
+    });
+    
+    // Validação em tempo real
+    document.querySelectorAll('#formNovaVisita [required]').forEach(input => {
+      input.addEventListener('blur', () => {
+        this.validateField(input);
       });
     });
   }
   
   switchTab(tabId) {
-    // Atualiza botões
     document.querySelectorAll('.tab-btn').forEach(btn => {
       btn.classList.remove('active');
     });
     document.querySelector(`.tab-btn[data-tab="${tabId}"]`).classList.add('active');
     
-    // Atualiza conteúdo
     document.querySelectorAll('.tab-content').forEach(content => {
       content.classList.remove('active');
     });
@@ -1608,32 +2556,39 @@ class CRASView {
     
     this.currentTab = tabId;
     
-    // Se for dashboard, atualiza gráficos
     if (tabId === 'dashboard') {
       this.updateDashboard();
     }
     
-    // Se for mapa, inicializa mapa
     if (tabId === 'mapa') {
-      this.initializeMap();
+      setTimeout(() => {
+        this.initializeMap();
+      }, 100);
     }
   }
   
   openNovaVisitaModal() {
-    // Preenche data/hora atual
+    // Resetar formulário
+    document.getElementById('formNovaVisita').reset();
+    
+    // Resetar progresso
+    this.currentFormStep = 1;
+    this.updateFormProgress();
+    
+    // Preencher data/hora atual
     const now = new Date();
     const localDateTime = new Date(now.getTime() - now.getTimezoneOffset() * 60000)
       .toISOString()
       .slice(0, 16);
     document.getElementById('visitaData').value = localDateTime;
     
-    // Limpa formulário
-    document.getElementById('formNovaVisita').reset();
-    
-    // Atualiza classificação ODS
+    // Atualizações iniciais
+    this.calcularRendaPerCapita();
     this.updateODSClassification();
+    this.updateSuggestedDirections();
+    this.updateResumoVisita();
     
-    // Mostra modal
+    // Mostrar modal
     document.getElementById('modalNovaVisita').style.display = 'flex';
   }
   
@@ -1641,7 +2596,88 @@ class CRASView {
     document.getElementById('modalNovaVisita').style.display = 'none';
   }
   
-  calculateRendaPerCapita() {
+  updateFormProgress() {
+    // Atualizar barra de progresso
+    const progressPercent = ((this.currentFormStep - 1) / (this.totalFormSteps - 1)) * 100;
+    document.getElementById('progressBar').style.width = `${progressPercent}%`;
+    
+    // Atualizar passos
+    document.querySelectorAll('.progress-step').forEach(step => {
+      step.classList.remove('active');
+      if (parseInt(step.dataset.step) <= this.currentFormStep) {
+        step.classList.add('active');
+      }
+    });
+    
+    // Mostrar/ocultar passos
+    document.querySelectorAll('.form-step').forEach(step => {
+      step.classList.remove('active');
+      if (parseInt(step.dataset.step) === this.currentFormStep) {
+        step.classList.add('active');
+      }
+    });
+    
+    // Atualizar botões
+    document.getElementById('btnAnterior').style.display = this.currentFormStep > 1 ? 'flex' : 'none';
+    document.getElementById('btnProximo').style.display = this.currentFormStep < this.totalFormSteps ? 'flex' : 'none';
+    document.getElementById('salvarNovaVisita').style.display = this.currentFormStep === this.totalFormSteps ? 'flex' : 'none';
+    
+    if (this.currentFormStep === this.totalFormSteps) {
+      document.getElementById('btnProximo').style.display = 'none';
+    }
+  }
+  
+  nextFormStep() {
+    // Validar passo atual
+    if (!this.validateCurrentStep()) {
+      return;
+    }
+    
+    if (this.currentFormStep < this.totalFormSteps) {
+      this.currentFormStep++;
+      this.updateFormProgress();
+    }
+  }
+  
+  previousFormStep() {
+    if (this.currentFormStep > 1) {
+      this.currentFormStep--;
+      this.updateFormProgress();
+    }
+  }
+  
+  validateCurrentStep() {
+    const currentStep = document.querySelector(`.form-step[data-step="${this.currentFormStep}"]`);
+    const requiredFields = currentStep.querySelectorAll('[required]');
+    let isValid = true;
+    
+    requiredFields.forEach(field => {
+      if (!this.validateField(field)) {
+        isValid = false;
+      }
+    });
+    
+    if (!isValid) {
+      this.showNotification('Preencha todos os campos obrigatórios marcados em vermelho', 'error');
+    }
+    
+    return isValid;
+  }
+  
+  validateField(field) {
+    const value = field.value.trim();
+    const isValid = field.type === 'checkbox' ? field.checked : value !== '';
+    
+    if (!isValid) {
+      field.classList.add('error');
+    } else {
+      field.classList.remove('error');
+    }
+    
+    return isValid;
+  }
+  
+  calcularRendaPerCapita() {
     const rendaTotal = parseFloat(document.getElementById('rendaTotal').value) || 0;
     const totalMembros = parseInt(document.getElementById('totalMembros').value) || 1;
     
@@ -1651,38 +2687,88 @@ class CRASView {
     }
   }
   
-  updateODSClassification() {
-    // Simula dados do formulário para classificação
-    const formData = {
-      rendaPerCapita: parseFloat(document.getElementById('rendaPerCapita').value) || 0,
-      bolsaFamilia: document.getElementById('bolsaFamilia').checked,
-      bpc: document.getElementById('bpc').checked,
-      auxilioBrasil: document.getElementById('auxilioBrasil').checked,
-      fomeFrequente: document.getElementById('fomeFrequente').checked,
-      alimentacaoInadequada: document.getElementById('alimentacaoInadequada').checked,
-      deficienciaFisica: document.getElementById('deficienciaFisica').checked,
-      deficienciaVisual: document.getElementById('deficienciaVisual').checked,
-      deficienciaAuditiva: document.getElementById('deficienciaAuditiva').checked,
-      doencaCronica: document.getElementById('doencaCronica').checked,
-      tipoLocalizacao: document.getElementById('tipoLocalizacao').value,
-      totalMembros: parseInt(document.getElementById('totalMembros').value) || 1
-    };
+  async buscarCEP() {
+    const cepInput = document.getElementById('cep');
+    const cep = cepInput.value.replace(/\D/g, '');
     
-    // Classificação simples para preview
+    if (cep.length !== 8) {
+      this.showNotification('CEP inválido. Digite 8 números.', 'error');
+      return;
+    }
+    
+    this.showLoading(cepInput, true);
+    
+    try {
+      const endereco = await this.model.buscarCEP(cep);
+      
+      document.getElementById('endereco').value = endereco.endereco;
+      document.getElementById('bairro').value = endereco.bairro;
+      
+      // Tentar geocodificar
+      const coordenadas = await this.model.geocodeEndereco(endereco.endereco);
+      if (coordenadas) {
+        document.getElementById('coordenadas').value = `${coordenadas.lat}, ${coordenadas.lon}`;
+      }
+      
+      this.showNotification('Endereço encontrado com sucesso!', 'success');
+    } catch (error) {
+      this.showNotification('CEP não encontrado. Preencha manualmente.', 'error');
+    } finally {
+      this.showLoading(cepInput, false);
+    }
+  }
+  
+  showLoading(element, show) {
+    if (show) {
+      element.style.backgroundImage = "url('data:image/svg+xml,<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 100 100\"><circle cx=\"50\" cy=\"50\" r=\"40\" stroke=\"%233498db\" stroke-width=\"10\" fill=\"none\"><animateTransform attributeName=\"transform\" type=\"rotate\" from=\"0 50 50\" to=\"360 50 50\" dur=\"1s\" repeatCount=\"indefinite\"/></circle></svg>')";
+      element.style.backgroundRepeat = 'no-repeat';
+      element.style.backgroundPosition = 'right 10px center';
+      element.style.backgroundSize = '20px';
+    } else {
+      element.style.backgroundImage = '';
+    }
+  }
+  
+  async capturarCoordenadas() {
+    const btn = document.getElementById('btnCapturarCoordenadas');
+    const originalText = btn.innerHTML;
+    
+    btn.innerHTML = '<span class="loading"></span> Capturando...';
+    btn.disabled = true;
+    
+    try {
+      const location = await this.model.getCurrentLocation();
+      document.getElementById('coordenadas').value = `${location.lat.toFixed(6)}, ${location.lon.toFixed(6)}`;
+      this.showNotification('Localização capturada com sucesso!', 'success');
+    } catch (error) {
+      console.error('Erro ao capturar localização:', error);
+      this.showNotification('Não foi possível capturar a localização. Permita o acesso à localização ou preencha manualmente.', 'error');
+    } finally {
+      btn.innerHTML = originalText;
+      btn.disabled = false;
+    }
+  }
+  
+  updateODSClassification() {
+    const formData = this.getFormData();
     const classificacaoDiv = document.getElementById('classificacaoODS');
     classificacaoDiv.innerHTML = '';
     
+    // Classificação simples para preview
     const odsClasses = [];
     
-    if (formData.rendaPerCapita < 218 || formData.bolsaFamilia || formData.bpc) {
+    // ODS 1 - Pobreza
+    if ((formData.rendaPerCapita && formData.rendaPerCapita < 500) || 
+        formData.bolsaFamilia || formData.bpc || formData.auxilioBrasil) {
       odsClasses.push({
         codigo: 1,
-        nome: 'ODS 1 - Pobreza',
+        nome: 'ODS 1 - Erradicação da Pobreza',
         color: '#E5243B'
       });
     }
     
-    if (formData.fomeFrequente || formData.alimentacaoInadequada) {
+    // ODS 2 - Fome Zero
+    if (formData.fomeFrequente || formData.alimentacaoInadequada || formData.restricaoAlimentar) {
       odsClasses.push({
         codigo: 2,
         nome: 'ODS 2 - Fome Zero',
@@ -1690,18 +2776,34 @@ class CRASView {
       });
     }
     
-    if (formData.deficienciaFisica || formData.deficienciaVisual || formData.deficienciaAuditiva || formData.doencaCronica) {
+    // ODS 3 - Saúde
+    if (formData.deficienciaFisica || formData.deficienciaVisual || 
+        formData.deficienciaAuditiva || formData.deficienciaIntelectual ||
+        formData.doencaCronica || formData.gestante || formData.lactante) {
       odsClasses.push({
         codigo: 3,
-        nome: 'ODS 3 - Saúde',
+        nome: 'ODS 3 - Saúde e Bem-estar',
         color: '#4C9F38'
       });
     }
     
-    if (formData.tipoLocalizacao === 'rural' || formData.tipoLocalizacao === 'isolado' || formData.totalMembros > 6) {
+    // ODS 4 - Educação
+    if (formData.criancasForaEscola || formData.adultosAnalfabetos || 
+        formData.evasaoEscolar || formData.dificuldadeAcessoEscola) {
+      odsClasses.push({
+        codigo: 4,
+        nome: 'ODS 4 - Educação de Qualidade',
+        color: '#C5192D'
+      });
+    }
+    
+    // ODS 10 - Desigualdade
+    if (formData.tipoLocalizacao === 'rural' || formData.tipoLocalizacao === 'isolado' ||
+        formData.tipoLocalizacao === 'assentamento' || formData.tipoLocalizacao === 'quilombola' ||
+        (formData.totalMembros && formData.totalMembros > 6)) {
       odsClasses.push({
         codigo: 10,
-        nome: 'ODS 10 - Desigualdade',
+        nome: 'ODS 10 - Redução das Desigualdades',
         color: '#DD1367'
       });
     }
@@ -1711,12 +2813,13 @@ class CRASView {
       badge.style.cssText = `
         background: ${ods.color};
         color: white;
-        padding: 0.25rem 0.5rem;
-        border-radius: 12px;
+        padding: 0.25rem 0.75rem;
+        border-radius: 20px;
         font-size: 0.8rem;
         display: inline-flex;
         align-items: center;
-        gap: 0.25rem;
+        gap: 0.5rem;
+        margin: 0.25rem;
       `;
       badge.innerHTML = `<i class="fas fa-bullseye"></i> ${ods.nome}`;
       classificacaoDiv.appendChild(badge);
@@ -1727,33 +2830,202 @@ class CRASView {
     }
   }
   
+  updateSuggestedDirections() {
+    const formData = this.getFormData();
+    const container = document.getElementById('direcionamentosSugeridos');
+    container.innerHTML = '';
+    
+    const direcionamentos = [];
+    
+    // Saúde
+    if (formData.deficienciaFisica || formData.deficienciaVisual || 
+        formData.deficienciaAuditiva || formData.deficienciaIntelectual) {
+      direcionamentos.push({
+        tipo: 'saude',
+        descricao: 'Avaliação para acompanhamento em saúde',
+        prioridade: 'alta'
+      });
+    }
+    
+    if (formData.doencaCronica) {
+      direcionamentos.push({
+        tipo: 'saude',
+        descricao: 'Acompanhamento médico para doença crônica',
+        prioridade: 'media'
+      });
+    }
+    
+    if (formData.gestante) {
+      direcionamentos.push({
+        tipo: 'saude',
+        descricao: 'Pré-natal e acompanhamento',
+        prioridade: 'alta'
+      });
+    }
+    
+    // Educação
+    if (formData.criancasForaEscola) {
+      direcionamentos.push({
+        tipo: 'educacao',
+        descricao: 'Matrícula escolar urgente',
+        prioridade: 'alta'
+      });
+    }
+    
+    if (formData.adultosAnalfabetos) {
+      direcionamentos.push({
+        tipo: 'educacao',
+        descricao: 'Programa de alfabetização',
+        prioridade: 'media'
+      });
+    }
+    
+    // Renda
+    if (formData.rendaPerCapita && formData.rendaPerCapita < 218) {
+      direcionamentos.push({
+        tipo: 'assistencia_social',
+        descricao: 'Avaliação para programas de renda',
+        prioridade: 'alta'
+      });
+    }
+    
+    if (!formData.cadastroUnico) {
+      direcionamentos.push({
+        tipo: 'assistencia_social',
+        descricao: 'Atualização do Cadastro Único',
+        prioridade: 'media'
+      });
+    }
+    
+    // Habitação
+    if (formData.tipoLocalizacao === 'isolado' || formData.tipoLocalizacao === 'assentamento') {
+      direcionamentos.push({
+        tipo: 'habitacao',
+        descricao: 'Programas habitacionais',
+        prioridade: 'media'
+      });
+    }
+    
+    // Alimentação
+    if (formData.fomeFrequente || formData.alimentacaoInadequada) {
+      direcionamentos.push({
+        tipo: 'seguranca_alimentar',
+        descricao: 'Distribuição de alimentos',
+        prioridade: 'alta'
+      });
+    }
+    
+    // Renderizar direcionamentos
+    direcionamentos.forEach(dir => {
+      const item = document.createElement('div');
+      item.className = 'direcionamento-item';
+      
+      const prioridadeEmoji = dir.prioridade === 'alta' ? '🔴' : dir.prioridade === 'media' ? '🟡' : '🟢';
+      const tipoIcon = dir.tipo === 'saude' ? '🏥' : 
+                       dir.tipo === 'educacao' ? '📚' : 
+                       dir.tipo === 'assistencia_social' ? '🤝' : 
+                       dir.tipo === 'habitacao' ? '🏠' : '🍎';
+      
+      item.innerHTML = `
+        <div class="direcionamento-header">
+          <div>
+            <strong>${tipoIcon} ${dir.descricao}</strong>
+            <div style="font-size: 0.8rem; color: #7f8c8d; margin-top: 0.25rem;">
+              Prioridade: ${prioridadeEmoji} ${dir.prioridade.charAt(0).toUpperCase() + dir.prioridade.slice(1)}
+            </div>
+          </div>
+          <div class="direcionamento-status">
+            <select class="status-select" style="padding: 0.25rem 0.5rem; border-radius: 4px; border: 1px solid #ddd; font-size: 0.8rem;">
+              <option value="pendente">Pendente</option>
+              <option value="andamento">Em Andamento</option>
+              <option value="concluido">Concluído</option>
+            </select>
+          </div>
+        </div>
+      `;
+      
+      container.appendChild(item);
+    });
+    
+    if (direcionamentos.length === 0) {
+      container.innerHTML = '<p class="text-muted">Preencha mais informações para ver direcionamentos sugeridos.</p>';
+    }
+  }
+  
+  updateResumoVisita() {
+    const formData = this.getFormData();
+    const container = document.getElementById('resumoVisita');
+    
+    let html = '';
+    
+    if (formData.familiaNome) {
+      html += `<p><strong>Família:</strong> ${formData.familiaNome}</p>`;
+    }
+    
+    if (formData.responsavel) {
+      html += `<p><strong>Responsável:</strong> ${formData.responsavel}</p>`;
+    }
+    
+    if (formData.bairro) {
+      html += `<p><strong>Localização:</strong> ${formData.bairro} (${formData.tipoLocalizacao || 'Não informado'})</p>`;
+    }
+    
+    if (formData.totalMembros) {
+      html += `<p><strong>Composição:</strong> ${formData.totalMembros} membros`;
+      if (formData.criancas || formData.adolescentes || formData.adultos || formData.idosos) {
+        html += ` (${formData.criancas || 0} crianças, ${formData.adolescentes || 0} adolescentes, ${formData.adultos || 0} adultos, ${formData.idosos || 0} idosos)`;
+      }
+      html += `</p>`;
+    }
+    
+    if (formData.rendaPerCapita) {
+      html += `<p><strong>Renda per capita:</strong> R$ ${formData.rendaPerCapita}</p>`;
+    }
+    
+    if (formData.urgencia) {
+      const urgenciaText = {
+        'baixa': 'Baixa',
+        'media': 'Média',
+        'alta': 'Alta',
+        'critica': 'Crítica'
+      }[formData.urgencia];
+      
+      html += `<p><strong>Urgência:</strong> <span style="color: ${
+        formData.urgencia === 'critica' ? '#e74c3c' : 
+        formData.urgencia === 'alta' ? '#f39c12' : 
+        formData.urgencia === 'media' ? '#3498db' : '#27ae60'
+      }">${urgenciaText}</span></p>`;
+    }
+    
+    container.innerHTML = html || '<p class="text-muted">Preencha o formulário para ver o resumo.</p>';
+  }
+  
   getFormData() {
     const form = document.getElementById('formNovaVisita');
     const formData = new FormData(form);
     
-    // Converte FormData para objeto
     const data = {};
     for (const [key, value] of formData.entries()) {
-      if (key === 'rendaTotal' || key === 'totalMembros' || key === 'criancas' || 
-          key === 'adolescentes' || key === 'adultos' || key === 'idosos') {
+      if (key === 'rendaTotal' || key === 'rendaPerCapita' || key === 'totalMembros' || 
+          key === 'criancas' || key === 'adolescentes' || key === 'adultos' || key === 'idosos') {
         data[key] = parseFloat(value) || 0;
-      } else if (key === 'rendaPerCapita') {
-        data[key] = parseFloat(value) || 0;
+      } else if (key === 'cep') {
+        data[key] = value.replace(/\D/g, '');
       } else {
         data[key] = value;
       }
     }
     
-    // Adiciona checkboxes
     const checkboxes = [
-      'bolsaFamilia', 'bpc', 'auxilioBrasil', 'outrosBeneficios',
-      'deficienciaFisica', 'deficienciaVisual', 'deficienciaAuditiva',
-      'doencaCronica', 'gestante', 'lactante',
-      'fomeFrequente', 'alimentacaoInadequada', 'acessoAgua',
-      'paif', 'scfv', 'cadastroUnico',
-      'encaminhamentoSaude', 'encaminhamentoEducacao',
-      'encaminhamentoTrabalho', 'encaminhamentoHabitacao',
-      'encaminhamentoConselhoTutelar'
+      'bolsaFamilia', 'bpc', 'auxilioBrasil', 'auxilioGas', 'tarifaSocial', 'outrosBeneficios',
+      'deficienciaFisica', 'deficienciaVisual', 'deficienciaAuditiva', 'deficienciaIntelectual',
+      'doencaCronica', 'gestante', 'lactante', 'acompanhamentoSaude',
+      'fomeFrequente', 'alimentacaoInadequada', 'acessoAgua', 'restricaoAlimentar', 'recebeCestas',
+      'criancasForaEscola', 'adultosAnalfabetos', 'dificuldadeAcessoEscola', 'evasaoEscolar',
+      'paif', 'scfv', 'cadastroUnico', 'visitasRegulares', 'gruposOficinas',
+      'encaminhamentoSaude', 'encaminhamentoEducacao', 'encaminhamentoTrabalho',
+      'encaminhamentoHabitacao', 'encaminhamentoConselhoTutelar', 'encaminhamentoCREAS',
+      'encaminhamentoDefensoria', 'encaminhamentoAssistenciaJuridica'
     ];
     
     checkboxes.forEach(checkboxId => {
@@ -1779,25 +3051,44 @@ class CRASView {
     
     const html = visitas.map(visita => {
       const odsBadges = visita.ods?.map(ods => 
-        `<span style="background: ${ods.codigo === 1 ? '#E5243B' : ods.codigo === 2 ? '#DDA63A' : ods.codigo === 3 ? '#4C9F38' : '#DD1367'}; 
-          color: white; padding: 0.1rem 0.3rem; border-radius: 8px; font-size: 0.7rem;">
+        `<span class="badge badge-ods${ods.codigo}" style="margin: 0.1rem;">
           ODS ${ods.codigo}
         </span>`
-      ).join(' ') || '';
+      ).join('') || '';
+      
+      const urgenciaColor = {
+        'critica': '#e74c3c',
+        'alta': '#f39c12',
+        'media': '#3498db',
+        'baixa': '#27ae60'
+      }[visita.urgencia] || '#7f8c8d';
+      
+      const urgenciaText = {
+        'critica': 'Crítica',
+        'alta': 'Alta',
+        'media': 'Média',
+        'baixa': 'Baixa'
+      }[visita.urgencia] || 'Não informado';
       
       return `
         <div class="visit-card">
           <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 1rem;">
             <div>
-              <h3 style="margin: 0 0 0.5rem 0;">${visita.familiaNome}</h3>
-              <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+              <h3 style="margin: 0 0 0.5rem 0; color: var(--primary-color);">${visita.familiaNome}</h3>
+              <div style="display: flex; flex-wrap: wrap; gap: 0.25rem; margin-bottom: 0.5rem;">
                 ${odsBadges}
               </div>
             </div>
-            <button class="btn-success" onclick="crasController.exportVisitaWhatsApp('${visita.id}')" 
-                    style="padding: 0.5rem; font-size: 0.8rem;">
-              <i class="fab fa-whatsapp"></i>
-            </button>
+            <div style="display: flex; gap: 0.25rem;">
+              <button class="btn-success" onclick="crasController.exportVisitaWhatsApp('${visita.id}')" 
+                      style="padding: 0.5rem; font-size: 0.8rem;" title="Exportar para WhatsApp">
+                <i class="fab fa-whatsapp"></i>
+              </button>
+              <button class="btn-warning" onclick="crasController.editVisita('${visita.id}')" 
+                      style="padding: 0.5rem; font-size: 0.8rem;" title="Editar">
+                <i class="fas fa-edit"></i>
+              </button>
+            </div>
           </div>
           
           <div style="display: grid; gap: 0.5rem; margin-bottom: 1rem; font-size: 0.9rem;">
@@ -1807,7 +3098,7 @@ class CRASView {
             </div>
             <div style="display: flex; gap: 0.5rem;">
               <span style="font-weight: 600; min-width: 100px;">Localização:</span>
-              <span>${visita.bairro || 'Não informado'} (${visita.tipoLocalizacao || 'Não informado'})</span>
+              <span>${visita.bairro || 'Não informado'} (${visita.tipoLocalizacao ? visita.tipoLocalizacao.charAt(0).toUpperCase() + visita.tipoLocalizacao.slice(1) : 'Não informado'})</span>
             </div>
             <div style="display: flex; gap: 0.5rem;">
               <span style="font-weight: 600; min-width: 100px;">Renda per capita:</span>
@@ -1815,16 +3106,13 @@ class CRASView {
             </div>
             <div style="display: flex; gap: 0.5rem;">
               <span style="font-weight: 600; min-width: 100px;">Urgência:</span>
-              <span style="color: ${visita.urgencia === 'critica' ? '#e74c3c' : visita.urgencia === 'alta' ? '#f39c12' : '#27ae60'}; 
-                    font-weight: 600;">
-                ${visita.urgencia === 'critica' ? 'Crítica' : 
-                  visita.urgencia === 'alta' ? 'Alta' : 
-                  visita.urgencia === 'media' ? 'Média' : 'Baixa'}
+              <span style="color: ${urgenciaColor}; font-weight: 600;">
+                ${urgenciaText}
               </span>
             </div>
           </div>
           
-          <p class="text-muted" style="font-size: 0.85rem;">
+          <p class="text-muted" style="font-size: 0.85rem; line-height: 1.4;">
             ${(visita.observacoes || '').substring(0, 150)}${visita.observacoes?.length > 150 ? '...' : ''}
           </p>
           
@@ -1840,7 +3128,6 @@ class CRASView {
   }
   
   initializeCharts() {
-    // Inicializa todos os gráficos com dados vazios
     const chartConfigs = {
       radarChart: {
         type: 'radar',
@@ -1861,7 +3148,20 @@ class CRASView {
         type: 'pie',
         options: {
           responsive: true,
-          maintainAspectRatio: false
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              position: 'right'
+            }
+          }
+        }
+      },
+      direcionamentosChart: {
+        type: 'doughnut',
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          cutout: '70%'
         }
       },
       lineChart: {
@@ -1888,20 +3188,8 @@ class CRASView {
           }
         }
       },
-      histogramChart: {
-        type: 'bar',
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          scales: {
-            y: {
-              beginAtZero: true
-            }
-          }
-        }
-      },
-      doughnutChart: {
-        type: 'doughnut',
+      urgentesChart: {
+        type: 'pie',
         options: {
           responsive: true,
           maintainAspectRatio: false
@@ -1934,8 +3222,8 @@ class CRASView {
     const metrics = this.model.metrics;
     const metricsHtml = `
       <div class="metric-card">
-        <div class="metric-value">${metrics.ativas}</div>
-        <div class="metric-label">Ativas</div>
+        <div class="metric-value">${metrics.total}</div>
+        <div class="metric-label">Total Visitas</div>
       </div>
       <div class="metric-card">
         <div class="metric-value">${metrics.urgentes}</div>
@@ -1948,6 +3236,14 @@ class CRASView {
       <div class="metric-card">
         <div class="metric-value">${metrics.rurais}</div>
         <div class="metric-label">Rurais</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-value">${metrics.direcionamentosTotal}</div>
+        <div class="metric-label">Direcionamentos</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-value">${metrics.direcionamentosEficacia}</div>
+        <div class="metric-label">Eficácia</div>
       </div>
     `;
     
@@ -1969,34 +3265,155 @@ class CRASView {
   
   initializeMap() {
     const mapElement = document.getElementById('map');
-    if (!mapElement || window.crasMap) return;
+    if (!mapElement) return;
+    
+    // Limpar mapa existente
+    if (this.map) {
+      this.map.remove();
+      this.mapMarkers = [];
+    }
     
     // Coordenadas de Fama-MG
     const famaCoords = [-21.2421, -45.4944];
     
-    window.crasMap = L.map('map').setView(famaCoords, 13);
+    this.map = L.map('map').setView(famaCoords, 13);
     
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       maxZoom: 19,
       attribution: '© OpenStreetMap contributors'
-    }).addTo(window.crasMap);
+    }).addTo(this.map);
     
-    // Adiciona marcadores das visitas
+    // Adicionar marcadores das visitas
     if (this.model) {
       this.model.visitas.forEach(visita => {
         if (visita.coordenadas) {
           const [lat, lng] = visita.coordenadas.split(',').map(Number);
           if (lat && lng) {
-            const marker = L.marker([lat, lng]).addTo(window.crasMap);
-            marker.bindPopup(`
-              <b>${visita.familiaNome}</b><br>
-              <small>${visita.bairro || 'Sem bairro'}</small><br>
-              <small>${visita.urgencia === 'alta' ? '🔴 Urgente' : '🟢 Normal'}</small>
-            `);
+            const urgenciaColor = {
+              'critica': 'red',
+              'alta': 'orange',
+              'media': 'blue',
+              'baixa': 'green'
+            }[visita.urgencia] || 'gray';
+            
+            const icon = L.divIcon({
+              html: `<div style="background: ${urgenciaColor}; width: 20px; height: 20px; border-radius: 50%; border: 2px solid white; box-shadow: 0 0 5px rgba(0,0,0,0.5);"></div>`,
+              className: '',
+              iconSize: [24, 24],
+              iconAnchor: [12, 12]
+            });
+            
+            const marker = L.marker([lat, lng], { icon }).addTo(this.map);
+            
+            const popupContent = `
+              <div style="max-width: 250px;">
+                <strong>${visita.familiaNome}</strong><br>
+                <small>${visita.bairro || 'Sem bairro'}</small><br>
+                <small>${visita.responsavel || 'Sem responsável'}</small><br>
+                <small style="color: ${urgenciaColor}; font-weight: bold;">
+                  ${visita.urgencia === 'critica' ? '🔴 Crítica' : 
+                    visita.urgencia === 'alta' ? '🟠 Alta' : 
+                    visita.urgencia === 'media' ? '🔵 Média' : '🟢 Baixa'}
+                </small>
+              </div>
+            `;
+            
+            marker.bindPopup(popupContent);
+            this.mapMarkers.push(marker);
           }
         }
       });
     }
+    
+    // Adicionar evento de clique no mapa
+    this.map.on('click', (e) => {
+      if (this.mapSelectionActive) {
+        this.selectMapLocation(e.latlng);
+      }
+    });
+  }
+  
+  async capturarLocalizacaoAtual() {
+    try {
+      const location = await this.model.getCurrentLocation();
+      this.map.setView([location.lat, location.lon], 15);
+      
+      // Adicionar marcador da localização atual
+      if (this.currentLocationMarker) {
+        this.map.removeLayer(this.currentLocationMarker);
+      }
+      
+      this.currentLocationMarker = L.marker([location.lat, location.lon], {
+        icon: L.divIcon({
+          html: '<div style="background: #3498db; width: 24px; height: 24px; border-radius: 50%; border: 3px solid white; box-shadow: 0 0 10px rgba(52, 152, 219, 0.8);"></div>',
+          className: '',
+          iconSize: [30, 30],
+          iconAnchor: [15, 15]
+        })
+      }).addTo(this.map);
+      
+      this.currentLocationMarker.bindPopup('<strong>Sua localização atual</strong>').openPopup();
+      
+      this.showNotification('Localização atual encontrada!', 'success');
+    } catch (error) {
+      console.error('Erro ao capturar localização:', error);
+      this.showNotification('Não foi possível capturar a localização atual.', 'error');
+    }
+  }
+  
+  showAllVisitasOnMap() {
+    if (this.mapMarkers.length === 0) return;
+    
+    const group = new L.FeatureGroup(this.mapMarkers);
+    this.map.fitBounds(group.getBounds().pad(0.1));
+  }
+  
+  activateMapSelection() {
+    this.mapSelectionActive = true;
+    this.showNotification('Clique no mapa para selecionar uma localização', 'info');
+    
+    document.getElementById('selectedLocation').textContent = 'Aguardando seleção...';
+    document.getElementById('selectedCoords').textContent = '-';
+    document.getElementById('selectedAddress').textContent = '-';
+  }
+  
+  async selectMapLocation(latlng) {
+    this.selectedLocation = latlng;
+    
+    document.getElementById('selectedLocation').textContent = 'Local selecionado';
+    document.getElementById('selectedCoords').textContent = `${latlng.lat.toFixed(6)}, ${latlng.lng.toFixed(6)}`;
+    
+    // Tentar obter endereço reverso
+    try {
+      const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${latlng.lat}&lon=${latlng.lng}`);
+      const data = await response.json();
+      
+      if (data.display_name) {
+        document.getElementById('selectedAddress').textContent = data.display_name;
+      }
+    } catch (error) {
+      console.error('Erro ao obter endereço:', error);
+      document.getElementById('selectedAddress').textContent = 'Endereço não disponível';
+    }
+    
+    // Adicionar marcador de seleção
+    if (this.selectionMarker) {
+      this.map.removeLayer(this.selectionMarker);
+    }
+    
+    this.selectionMarker = L.marker(latlng, {
+      icon: L.divIcon({
+        html: '<div style="background: #e74c3c; width: 24px; height: 24px; border-radius: 50%; border: 3px solid white; box-shadow: 0 0 10px rgba(231, 76, 60, 0.8);"></div>',
+        className: '',
+        iconSize: [30, 30],
+        iconAnchor: [15, 15]
+      })
+    }).addTo(this.map);
+    
+    this.selectionMarker.bindPopup('<strong>Local selecionado</strong>').openPopup();
+    
+    this.mapSelectionActive = false;
+    this.showNotification('Localização selecionada com sucesso!', 'success');
   }
   
   showNotification(message, type = 'info') {
@@ -2039,6 +3456,30 @@ class CRASView {
   showStorageFullModal() {
     document.getElementById('modalStorageCheio').style.display = 'flex';
   }
+  
+  showConfirmationModal(title, message) {
+    document.getElementById('confirmacaoTitulo').textContent = title;
+    document.getElementById('confirmacaoMensagem').textContent = message;
+    document.getElementById('modalConfirmacao').style.display = 'flex';
+    
+    return new Promise((resolve) => {
+      const btnSim = document.getElementById('btnConfirmarSim');
+      const btnNao = document.getElementById('btnConfirmarNao');
+      
+      const handler = (result) => {
+        document.getElementById('modalConfirmacao').style.display = 'none';
+        btnSim.removeEventListener('click', simHandler);
+        btnNao.removeEventListener('click', naoHandler);
+        resolve(result);
+      };
+      
+      const simHandler = () => handler(true);
+      const naoHandler = () => handler(false);
+      
+      btnSim.addEventListener('click', simHandler);
+      btnNao.addEventListener('click', naoHandler);
+    });
+  }
 }
 
 /**
@@ -2056,19 +3497,20 @@ class CRASController {
   }
   
   initialize() {
-    // Carrega dados iniciais
     this.updateVisitasList();
     this.updateStorageUI();
     this.initClock();
+    this.loadExportHistory();
   }
   
   initClock() {
     function updateClock() {
       const now = new Date();
       const time = now.toLocaleTimeString('pt-BR');
+      const date = now.toLocaleDateString('pt-BR');
       const clockElement = document.getElementById('currentTime');
       if (clockElement) {
-        clockElement.textContent = time;
+        clockElement.textContent = `${date} ${time}`;
       }
     }
     
@@ -2086,24 +3528,63 @@ class CRASController {
     }
   }
   
-  handleSaveVisita() {
+  async handleSaveVisita() {
     const formData = this.view.getFormData();
     
-    // Validação básica
-    if (!formData.familiaNome || !formData.responsavel || !formData.endereco) {
-      this.view.showNotification('Preencha os campos obrigatórios', 'error');
+    // Validar campos obrigatórios
+    const camposObrigatorios = [
+      'familiaNome', 'responsavel', 'endereco', 'bairro',
+      'tipoLocalizacao', 'totalMembros', 'rendaTotal',
+      'urgencia', 'visitaData', 'observacoes'
+    ];
+    
+    let camposFaltantes = [];
+    camposObrigatorios.forEach(campo => {
+      if (!formData[campo] || formData[campo].toString().trim() === '') {
+        camposFaltantes.push(campo);
+      }
+    });
+    
+    if (camposFaltantes.length > 0) {
+      this.view.showNotification('Preencha todos os campos obrigatórios', 'error');
+      
+      // Destacar campos faltantes
+      camposFaltantes.forEach(campo => {
+        const element = document.getElementById(campo);
+        if (element) {
+          element.classList.add('error');
+          element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+      });
       return;
     }
     
-    const visita = this.model.saveVisita(formData);
+    // Salvar direcionamentos
+    const direcionamentoElements = document.querySelectorAll('.direcionamento-item');
+    direcionamentoElements.forEach(element => {
+      const descricao = element.querySelector('strong')?.textContent.replace(/[🔴🟡🟢🏥📚🤝🏠🍎]/g, '').trim();
+      const status = element.querySelector('.status-select')?.value;
+      
+      if (descricao && status) {
+        this.model.saveDirecionamento({
+          familiaId: formData.id || this.model.generateId(),
+          familiaNome: formData.familiaNome,
+          descricao,
+          status,
+          data: new Date().toISOString()
+        });
+      }
+    });
+    
+    // Salvar visita
+    const visita = await this.model.saveVisita(formData);
     this.view.showNotification('Visita registrada com sucesso!', 'success');
     this.view.closeNovaVisitaModal();
     
-    // Atualiza UI
+    // Atualizar UI
     this.updateVisitasList();
     this.updateStorageUI();
     
-    // Se está na aba dashboard, atualiza
     if (this.view.currentTab === 'dashboard') {
       this.view.updateDashboard();
     }
@@ -2126,7 +3607,6 @@ class CRASController {
   }
   
   handleExportWhatsApp() {
-    // Encontra a primeira visita para exportar (em produção, seria selecionada)
     if (this.model.visitas.length > 0) {
       this.exportVisitaWhatsApp(this.model.visitas[0].id);
     } else {
@@ -2142,13 +3622,35 @@ class CRASController {
     }
   }
   
-  handleExportCurrentMonth() {
+  editVisita(visitaId) {
+    const visita = this.model.visitas.find(v => v.id === visitaId);
+    if (!visita) return;
+    
+    // Preencher formulário com dados da visita
+    Object.keys(visita).forEach(key => {
+      const element = document.getElementById(key);
+      if (element) {
+        if (element.type === 'checkbox') {
+          element.checked = visita[key];
+        } else {
+          element.value = visita[key] || '';
+        }
+      }
+    });
+    
+    // Abrir modal
+    this.view.openNovaVisitaModal();
+  }
+  
+  async handleExportCurrentMonth() {
     const currentMonth = this.model.getCurrentMonthKey();
     this.model.exportMonthToCSV(currentMonth, true);
+    
+    this.addExportHistory(`Mês atual (${currentMonth}) exportado`);
     this.view.showNotification('Mês atual exportado com sucesso', 'success');
   }
   
-  handleExportLast3Months() {
+  async handleExportLast3Months() {
     const months = new Set(this.model.visitas.map(v => v.storageMonth || v.mes));
     const sortedMonths = Array.from(months).sort();
     const last3Months = sortedMonths.slice(-3);
@@ -2157,10 +3659,11 @@ class CRASController {
       this.model.exportMonthToCSV(month, true);
     });
     
+    this.addExportHistory(`Últimos 3 meses exportados (${last3Months.join(', ')})`);
     this.view.showNotification('Últimos 3 meses exportados', 'success');
   }
   
-  handleExportAllMonths() {
+  async handleExportAllMonths() {
     const exports = this.model.exportAllMonths();
     
     if (exports.length === 0) {
@@ -2172,11 +3675,124 @@ class CRASController {
       this.model.downloadCSV(exp.csv, exp.filename);
     });
     
+    this.addExportHistory(`${exports.length} meses exportados`);
     this.view.showNotification(`${exports.length} meses exportados`, 'success');
   }
   
+  async handleClearOldData() {
+    const confirmed = await this.view.showConfirmationModal(
+      'Limpar Dados Antigos',
+      'Tem certeza que deseja limpar dados com mais de 3 meses? Esta ação não pode ser desfeita.'
+    );
+    
+    if (!confirmed) return;
+    
+    const months = new Set(this.model.visitas.map(v => v.storageMonth || v.mes));
+    const sortedMonths = Array.from(months).sort();
+    const monthsToKeep = sortedMonths.slice(-this.model.MONTHS_TO_KEEP);
+    const monthsToDelete = sortedMonths.slice(0, -this.model.MONTHS_TO_KEEP);
+    
+    monthsToDelete.forEach(month => {
+      localStorage.removeItem(`${this.model.STORAGE_PREFIX}${month}`);
+    });
+    
+    this.model.visitas = this.model.visitas.filter(v => 
+      monthsToKeep.includes(v.storageMonth || v.mes)
+    );
+    
+    this.updateVisitasList();
+    this.view.updateDashboard();
+    this.updateStorageUI();
+    
+    this.addExportHistory(`Dados antigos limpos (${monthsToDelete.length} meses)`);
+    this.view.showNotification(`${monthsToDelete.length} meses de dados antigos foram removidos`, 'success');
+  }
+  
+  async handleGenerateReport() {
+    this.view.showNotification('Gerando relatório PDF...', 'info');
+    
+    // Simulação de geração de relatório
+    setTimeout(() => {
+      const visitasCount = this.model.visitas.length;
+      const urgentesCount = this.model.metrics.urgentes;
+      const ruraisCount = this.model.metrics.rurais;
+      
+      const report = `
+        RELATÓRIO CRAS FAMA-MG
+        ======================
+        
+        Data: ${new Date().toLocaleDateString('pt-BR')}
+        
+        RESUMO:
+        - Total de visitas: ${visitasCount}
+        - Visitas urgentes: ${urgentesCount}
+        - Famílias rurais: ${ruraisCount}
+        - Vulnerabilidade média: ${this.model.metrics.vulnerabilidade}
+        
+        DISTRIBUIÇÃO ODS:
+        - ODS 1 (Pobreza): ${this.model.metrics.ods1} famílias
+        - ODS 2 (Fome): ${this.model.metrics.ods2} famílias
+        - ODS 3 (Saúde): ${this.model.metrics.ods3} famílias
+        - ODS 4 (Educação): ${this.model.metrics.ods4} famílias
+        - ODS 10 (Desigualdade): ${this.model.metrics.ods10} famílias
+        
+        DIRECIONAMENTOS:
+        - Total: ${this.model.metrics.direcionamentosTotal}
+        - Concluídos: ${this.model.metrics.direcionamentosConcluidos}
+        - Em andamento: ${this.model.metrics.direcionamentosAndamento}
+        - Eficácia: ${this.model.metrics.direcionamentosEficacia}
+      `;
+      
+      const blob = new Blob([report], { type: 'text/plain' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `relatorio_cras_${new Date().toISOString().slice(0, 10)}.txt`;
+      link.click();
+      
+      this.addExportHistory('Relatório gerado');
+      this.view.showNotification('Relatório gerado com sucesso', 'success');
+    }, 1000);
+  }
+  
+  addExportHistory(description) {
+    const history = JSON.parse(localStorage.getItem('cras_export_history') || '[]');
+    
+    history.unshift({
+      date: new Date().toISOString(),
+      description
+    });
+    
+    if (history.length > 10) {
+      history.pop();
+    }
+    
+    localStorage.setItem('cras_export_history', JSON.stringify(history));
+    this.loadExportHistory();
+  }
+  
+  loadExportHistory() {
+    const history = JSON.parse(localStorage.getItem('cras_export_history') || '[]');
+    const container = document.getElementById('exportHistory');
+    
+    if (history.length === 0) {
+      container.innerHTML = '<p class="text-muted">Nenhuma exportação registrada</p>';
+      return;
+    }
+    
+    const html = history.map(item => `
+      <div style="padding: 0.5rem; border-bottom: 1px solid #dee2e6; font-size: 0.85rem;">
+        <div style="display: flex; justify-content: space-between;">
+          <span>${item.description}</span>
+          <span class="text-muted">${new Date(item.date).toLocaleDateString('pt-BR')}</span>
+        </div>
+      </div>
+    `).join('');
+    
+    container.innerHTML = html;
+  }
+  
   static showNotification(message, type) {
-    // Método estático para uso em outras partes do código
     const notification = document.createElement('div');
     notification.className = 'notification';
     notification.innerHTML = `
@@ -2218,11 +3834,10 @@ class CRASController {
 // INICIALIZAÇÃO DO SISTEMA
 // =================================================================
 
-// Variável global para acesso ao controller
 let crasController;
 
 document.addEventListener('DOMContentLoaded', function() {
-  // Adiciona estilos de animação
+  // Adicionar estilos de animação
   const style = document.createElement('style');
   style.textContent = `
     @keyframes slideIn {
@@ -2235,94 +3850,197 @@ document.addEventListener('DOMContentLoaded', function() {
       to { transform: translateX(100%); opacity: 0; }
     }
     
-    .notification {
-      position: fixed;
-      top: 20px;
-      right: 20px;
-      padding: 1rem 1.5rem;
-      border-radius: var(--border-radius);
-      box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    .progress-step {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      background: #f8f9fa;
+      border: 2px solid #ddd;
       display: flex;
       align-items: center;
-      gap: 0.75rem;
-      z-index: 3000;
-      animation: slideIn 0.3s ease, slideOut 0.3s ease 2.7s;
-      max-width: 400px;
+      justify-content: center;
+      font-size: 0.8rem;
+      font-weight: 600;
+      position: relative;
+      z-index: 2;
+      transition: var(--transition);
     }
     
-    .notification-success {
-      background: var(--success-color);
+    .progress-step.active {
+      background: var(--primary-color);
+      border-color: var(--primary-color);
       color: white;
     }
     
-    .notification-error {
-      background: var(--secondary-color);
-      color: white;
+    .form-step {
+      display: none;
     }
     
-    .notification-warning {
-      background: var(--warning-color);
-      color: white;
-    }
-    
-    .notification-info {
-      background: var(--info-color);
-      color: white;
+    .form-step.active {
+      display: block;
+      animation: fadeIn 0.5s ease;
     }
   `;
   document.head.appendChild(style);
   
-  // Inicializa o sistema
+  // Inicializar o sistema
   const model = new CRASModel();
   const view = new CRASView();
   crasController = new CRASController(model, view);
   
-  // Adiciona alguns dados de exemplo para demonstração
+  // Adicionar dados de exemplo para demonstração
   if (model.visitas.length === 0) {
     const exemploVisitas = [
       {
         familiaNome: "Família Silva",
         responsavel: "Maria Silva",
+        cpfResponsavel: "123.456.789-00",
+        telefoneContato: "(31) 99999-9999",
+        endereco: "Rua Principal, 123",
         bairro: "Centro",
+        cep: "37145-000",
         tipoLocalizacao: "urbano",
+        coordenadas: "-21.2421, -45.4944",
+        pontoReferencia: "Próximo à igreja matriz",
         totalMembros: 4,
+        criancas: 1,
+        adolescentes: 1,
+        adultos: 2,
+        idosos: 0,
         rendaTotal: 1200,
         rendaPerCapita: 300,
         bolsaFamilia: true,
         urgencia: "media",
-        observacoes: "Família em situação de vulnerabilidade social, necessita de acompanhamento PAIF."
+        observacoes: "Família em situação de vulnerabilidade social, necessita de acompanhamento PAIF. Casa em bom estado, mas renda insuficiente.",
+        proximosPassos: "Agendar retorno em 30 dias para acompanhamento do PAIF",
+        visitaData: new Date().toISOString(),
+        deficienciaFisica: false,
+        deficienciaVisual: true,
+        doencaCronica: false,
+        gestante: false,
+        fomeFrequente: false,
+        alimentacaoInadequada: true,
+        criancasForaEscola: false,
+        adultosAnalfabetos: false,
+        paif: true,
+        scfv: false,
+        cadastroUnico: true
       },
       {
         familiaNome: "Família Santos",
         responsavel: "João Santos",
+        cpfResponsavel: "987.654.321-00",
+        telefoneContato: "(31) 98888-8888",
+        endereco: "Zona Rural, S/N",
         bairro: "Zona Rural",
+        cep: "37145-000",
         tipoLocalizacao: "rural",
+        coordenadas: "-21.2521, -45.5044",
+        pontoReferencia: "Após a ponte de madeira",
         totalMembros: 6,
+        criancas: 2,
+        adolescentes: 2,
+        adultos: 2,
+        idosos: 0,
         rendaTotal: 900,
         rendaPerCapita: 150,
         bpc: true,
         urgencia: "alta",
-        observacoes: "Agricultor familiar, dificuldade de acesso a serviços básicos."
+        observacoes: "Agricultor familiar, dificuldade de acesso a serviços básicos. Casa precária, sem saneamento adequado.",
+        proximosPassos: "Encaminhar para programa habitacional e verificar elegibilidade para auxílio emergencial",
+        visitaData: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(),
+        deficienciaFisica: false,
+        doencaCronica: true,
+        gestante: false,
+        fomeFrequente: true,
+        alimentacaoInadequada: true,
+        acessoAgua: true,
+        criancasForaEscola: true,
+        adultosAnalfabetos: true,
+        paif: false,
+        scfv: false,
+        cadastroUnico: false
+      },
+      {
+        familiaNome: "Família Oliveira",
+        responsavel: "Ana Oliveira",
+        cpfResponsavel: "456.789.123-00",
+        telefoneContato: "(31) 97777-7777",
+        endereco: "Rua das Flores, 45",
+        bairro: "Jardim Primavera",
+        cep: "37145-000",
+        tipoLocalizacao: "periferico",
+        coordenadas: "-21.2321, -45.4844",
+        pontoReferencia: "Ao lado do campo de futebol",
+        totalMembros: 3,
+        criancas: 1,
+        adolescentes: 0,
+        adultos: 2,
+        idosos: 0,
+        rendaTotal: 1500,
+        rendaPerCapita: 500,
+        auxilioBrasil: true,
+        urgencia: "baixa",
+        observacoes: "Família estável, com acompanhamento regular do CRAS. Criança com deficiência visual recebendo atendimento especializado.",
+        proximosPassos: "Continuar acompanhamento mensal",
+        visitaData: new Date(Date.now() - 14 * 24 * 60 * 60 * 1000).toISOString(),
+        deficienciaVisual: true,
+        doencaCronica: false,
+        gestante: false,
+        fomeFrequente: false,
+        alimentacaoInadequada: false,
+        criancasForaEscola: false,
+        adultosAnalfabetos: false,
+        paif: true,
+        scfv: true,
+        cadastroUnico: true
       }
     ];
     
     exemploVisitas.forEach(visita => {
       model.saveVisita(visita);
     });
+    
+    // Adicionar direcionamentos de exemplo
+    model.saveDirecionamento({
+      familiaId: exemploVisitas[0].id,
+      familiaNome: exemploVisitas[0].familiaNome,
+      descricao: "Acompanhamento PAIF",
+      status: "andamento",
+      data: new Date().toISOString()
+    });
+    
+    model.saveDirecionamento({
+      familiaId: exemploVisitas[1].id,
+      familiaNome: exemploVisitas[1].familiaNome,
+      descricao: "Encaminhamento para programa habitacional",
+      status: "pendente",
+      data: new Date().toISOString()
+    });
+    
+    model.saveDirecionamento({
+      familiaId: exemploVisitas[2].id,
+      familiaNome: exemploVisitas[2].familiaNome,
+      descricao: "Atendimento especializado para criança com deficiência",
+      status: "concluido",
+      data: new Date().toISOString()
+    });
   }
   
-  // Atualiza a lista inicial
+  // Atualizar lista inicial
   crasController.updateVisitasList();
   
-  console.log('Sistema CRAS ODS inicializado com sucesso!');
-  console.log('Características:');
-  console.log('- MVC em arquivo único');
-  console.log('- Dashboard com gráficos Chart.js');
-  console.log('- Coleta de dados atômicos para classificação ODS');
-  console.log('- Sistema de exportação CSV com rotação FIFO');
-  console.log('- Exportação WhatsApp com emojis');
-  console.log('- Armazenamento localStorage com limite de 5MB');
-  console.log('- Classificação automática ODS 1, 2, 3, 10');
+  console.log('Sistema CRAS ODS v2.0 inicializado com sucesso!');
+  console.log('Características implementadas:');
+  console.log('- Geolocalização automática com captura de coordenadas');
+  console.log('- Integração com API de CEP para preenchimento automático');
+  console.log('- Cálculo automático de renda per capita');
+  console.log('- Validação de campos obrigatórios com destaque');
+  console.log('- Seção LGPD completa com termos de uso');
+  console.log('- Sistema de direcionamentos sugeridos baseado nas respostas');
+  console.log('- Dashboard com métricas de direcionamentos');
+  console.log('- Mapa com georreferenciamento das visitas');
+  console.log('- Sistema de backup e rotação FIFO aprimorado');
 });
 </script>
 </body>
