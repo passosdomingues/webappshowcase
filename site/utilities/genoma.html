@@ -1,0 +1,622 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>G.E.N.O.M.A. - DNA Alignment Visualizer</title>
+    <style>
+        /* ==========================================================================
+           VIEW: STYLESHEET (Holographic UI)
+           ========================================================================== */
+        :root {
+            --bg-color: #050510;
+            --neon-blue: #00f3ff;
+            --neon-green: #39ff14;
+            --neon-red: #ff073a;
+            --neon-yellow: #fce803;
+            --hud-border: rgba(0, 243, 255, 0.3);
+            --hud-bg: rgba(0, 243, 255, 0.05);
+            --font-main: 'Courier New', Courier, monospace;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--neon-blue);
+            font-family: var(--font-main);
+            margin: 0;
+            padding: 20px;
+            overflow-x: hidden;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            box-sizing: border-box;
+        }
+
+        header {
+            text-align: center;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            text-shadow: 0 0 10px var(--neon-blue);
+            border-bottom: 1px solid var(--hud-border);
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+
+        .controls {
+            display: flex;
+            justify-content: space-around;
+            background: var(--hud-bg);
+            border: 1px solid var(--hud-border);
+            padding: 15px;
+            border-radius: 5px;
+            box-shadow: inset 0 0 20px rgba(0, 243, 255, 0.1);
+            margin-bottom: 20px;
+        }
+
+        select, button {
+            background: transparent;
+            color: var(--neon-blue);
+            border: 1px solid var(--neon-blue);
+            padding: 8px 15px;
+            font-family: inherit;
+            font-size: 14px;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 0 5px var(--neon-blue);
+        }
+
+        select:hover, button:hover {
+            background: var(--neon-blue);
+            color: var(--bg-color);
+            box-shadow: 0 0 15px var(--neon-blue);
+        }
+
+        button:disabled {
+            border-color: #555;
+            color: #555;
+            box-shadow: none;
+            cursor: not-allowed;
+        }
+
+        .main-workspace {
+            display: flex;
+            flex: 1;
+            gap: 20px;
+            overflow: hidden;
+        }
+
+        /* 3D DNA Visualizer */
+        .dna-visualizer {
+            flex: 1;
+            border: 1px solid var(--hud-border);
+            background: var(--hud-bg);
+            padding: 20px;
+            border-radius: 5px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            perspective: 800px;
+        }
+
+        .strand {
+            display: flex;
+            gap: 10px;
+            margin: 20px 0;
+            transform-style: preserve-3d;
+        }
+
+        .base {
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            font-weight: bold;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            background: rgba(255, 255, 255, 0.05);
+            transition: all 0.3s;
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.1);
+        }
+
+        .base.active {
+            transform: scale(1.2) translateZ(20px);
+            border-color: var(--neon-yellow);
+            box-shadow: 0 0 20px var(--neon-yellow);
+        }
+
+        .base.match {
+            border-color: var(--neon-green);
+            color: var(--neon-green);
+            box-shadow: 0 0 20px var(--neon-green);
+        }
+
+        .base.mismatch {
+            border-color: var(--neon-yellow);
+            color: var(--neon-yellow);
+            box-shadow: 0 0 20px var(--neon-yellow);
+        }
+
+        .base.gap {
+            border-color: var(--neon-red);
+            color: var(--neon-red);
+            box-shadow: 0 0 20px var(--neon-red);
+        }
+
+        /* DP Matrix Grid */
+        .matrix-container {
+            flex: 1;
+            border: 1px solid var(--hud-border);
+            background: var(--hud-bg);
+            padding: 20px;
+            border-radius: 5px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            overflow: auto;
+        }
+
+        table.dp-matrix {
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+
+        table.dp-matrix th, table.dp-matrix td {
+            width: 35px;
+            height: 35px;
+            text-align: center;
+            border: 1px solid var(--hud-border);
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+
+        table.dp-matrix th {
+            color: var(--neon-yellow);
+        }
+
+        table.dp-matrix td.active-cell {
+            background-color: rgba(0, 243, 255, 0.4);
+            box-shadow: inset 0 0 15px var(--neon-blue);
+            color: #fff;
+            transform: scale(1.1);
+        }
+
+        table.dp-matrix td.calculated {
+            color: var(--neon-green);
+        }
+
+        /* Telemetry Footer */
+        .telemetry {
+            margin-top: 20px;
+            display: flex;
+            gap: 20px;
+        }
+
+        .metric-box {
+            flex: 1;
+            border: 1px solid var(--hud-border);
+            padding: 10px;
+            background: rgba(0, 0, 0, 0.5);
+        }
+
+        .bar-container {
+            height: 10px;
+            background: #222;
+            margin-top: 5px;
+            border-radius: 5px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .bar-fill {
+            height: 100%;
+            width: 0%;
+            background: var(--neon-blue);
+            box-shadow: 0 0 10px var(--neon-blue);
+            transition: width 0.3s ease;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>[ J.A.R.V.I.S. ] - Evolutionary Sequence Aligner</h1>
+    </header>
+
+    <div class="controls">
+        <div>
+            <label>Species Comparison: </label>
+            <select id="speciesSelect">
+                <option value="human_chimp">Human vs Chimpanzee (High Homology)</option>
+                <option value="human_fish">Human vs Prehistoric Fish (Divergent)</option>
+                <option value="virus_mutation">COVID WildType vs Omicron (Mutations)</option>
+            </select>
+        </div>
+        <div>
+            <label>Algorithm: </label>
+            <select id="algoSelect">
+                <option value="dp">Dynamic Programming (Exact/Heavy)</option>
+                <option value="greedy">Greedy Heuristic (Fast/Suboptimal)</option>
+            </select>
+        </div>
+        <div>
+            <button id="btnStart">Execute Aligner</button>
+            <button id="btnReset">Reset Hologram</button>
+        </div>
+    </div>
+
+    <div class="main-workspace">
+        <div class="dna-visualizer" id="dnaView">
+            <h3 style="margin-top: 0;">Molecular Binding View</h3>
+            <div class="strand" id="strand1"></div>
+            <div id="bindingLines" style="height: 20px; color: var(--neon-yellow); letter-spacing: 2px;"></div>
+            <div class="strand" id="strand2"></div>
+            <div id="actionLog" style="margin-top: 20px; height: 40px; font-style: italic;">Awaiting instructions...</div>
+        </div>
+
+        <div class="matrix-container" id="matrixView">
+            <h3 style="margin-top: 0;">Computational Sub-space (Memory)</h3>
+            <div id="matrixWrapper"></div>
+        </div>
+    </div>
+
+    <div class="telemetry">
+        <div class="metric-box">
+            <div>Current Score: <span id="scoreVal">0</span></div>
+        </div>
+        <div class="metric-box">
+            <div>Memory Consumption (RAM / Cache)</div>
+            <div class="bar-container"><div class="bar-fill" id="memBar" style="background: var(--neon-yellow);"></div></div>
+        </div>
+        <div class="metric-box">
+            <div>Execution Time (Cycles)</div>
+            <div class="bar-container"><div class="bar-fill" id="timeBar" style="background: var(--neon-red);"></div></div>
+        </div>
+    </div>
+
+    <script>
+        /* ==========================================================================
+           MODEL: FUNCTIONAL UTILITIES & BIOLOGICAL LOGIC
+           ========================================================================== */
+
+        /**
+         * @brief Functional implementation of the biological scoring matrix.
+         * @param {string} a - Nucleotide from sequence 1
+         * @param {string} b - Nucleotide from sequence 2
+         * @returns {number} The evolutionary score based on hydrogen bonds.
+         */
+        const calculateScore = (a, b) => {
+            if ((a === 'A' && b === 'T') || (a === 'T' && b === 'A') || 
+                (a === 'C' && b === 'G') || (a === 'G' && b === 'C')) {
+                return 2; // Perfect complementary match
+            }
+            if (a === '-' || b === '-') {
+                return -2; // Gap (Frameshift mutation)
+            }
+            return -1; // Mismatch (Point mutation)
+        };
+
+        /**
+         * @brief Standard max3 function implemented functionally.
+         * @param {number} a 
+         * @param {number} b 
+         * @param {number} c 
+         * @returns {number} Maximum of the three
+         */
+        const max3 = (a, b, c) => Math.max(a, b, c);
+
+        // Database of symbolic instances for visualization
+        const Instances = {
+            human_chimp: { s1: "ATCGTA", s2: "TAGCAT" }, // Designed to have good complementary matches
+            human_fish: { s1: "ATCGTA", s2: "GCCCAA" }, // Highly divergent
+            virus_mutation: { s1: "GATTACA", s2: "GATAACA" } // Small mutation
+        };
+
+        /* ==========================================================================
+           MODEL: DESIGN PATTERN - STRATEGY (Algorithms)
+           ========================================================================== */
+
+        /**
+         * @brief Base Strategy interface/class for DNA Aligners.
+         */
+        class DNAAlignerStrategy {
+            constructor(s1, s2) {
+                this.s1 = s1;
+                this.s2 = s2;
+                this.states = []; // Stores execution steps for the View to animate
+            }
+            generateExecutionStates() { throw new Error("Method must be implemented."); }
+        }
+
+        /**
+         * @brief Dynamic Programming implementation (Exact Solution).
+         * @details Computes the Needleman-Wunsch matrix and logs every state for the visualization.
+         */
+        class DynamicProgrammingAligner extends DNAAlignerStrategy {
+            generateExecutionStates() {
+                const n = this.s1.length;
+                const m = this.s2.length;
+                const dp = Array.from({ length: n + 1 }, () => Array(m + 1).fill(0));
+                
+                // Initialize borders
+                for (let i = 1; i <= n; i++) {
+                    dp[i][0] = dp[i - 1][0] - 2;
+                    this.states.push({ type: 'init', i, j: 0, val: dp[i][0], log: `Init edge gap penalty: ${dp[i][0]}` });
+                }
+                for (let j = 1; j <= m; j++) {
+                    dp[0][j] = dp[0][j - 1] - 2;
+                    this.states.push({ type: 'init', i: 0, j, val: dp[0][j], log: `Init edge gap penalty: ${dp[0][j]}` });
+                }
+
+                // Fill matrix
+                for (let i = 1; i <= n; i++) {
+                    for (let j = 1; j <= m; j++) {
+                        const score = calculateScore(this.s1[i - 1], this.s2[j - 1]);
+                        const matchMismatch = dp[i - 1][j - 1] + score;
+                        const gapS1 = dp[i - 1][j] - 2;
+                        const gapS2 = dp[i][j - 1] - 2;
+                        
+                        dp[i][j] = max3(matchMismatch, gapS1, gapS2);
+                        
+                        // Determine what action won for the log
+                        let action = "Mismatch (-1)";
+                        let classType = "mismatch";
+                        if (score === 2 && dp[i][j] === matchMismatch) { action = "Complementary Match (+2)"; classType = "match"; }
+                        else if (dp[i][j] === gapS1 || dp[i][j] === gapS2) { action = "Gap Insertion (-2)"; classType = "gap"; }
+
+                        this.states.push({
+                            type: 'calc',
+                            i, j,
+                            val: dp[i][j],
+                            char1: this.s1[i - 1],
+                            char2: this.s2[j - 1],
+                            classType: classType,
+                            log: `Comparing ${this.s1[i - 1]} & ${this.s2[j - 1]} -> ${action}`
+                        });
+                    }
+                }
+                this.states.push({ type: 'done', finalScore: dp[n][m], log: `Optimal Alignment Found. Score: ${dp[n][m]}` });
+                return this.states;
+            }
+        }
+
+        /**
+         * @brief Greedy Heuristic implementation (Fast Solution).
+         * @details Applies lookahead heuristic and logs states for visualization.
+         */
+        class GreedyAligner extends DNAAlignerStrategy {
+            generateExecutionStates() {
+                const n = this.s1.length;
+                const m = this.s2.length;
+                let i = 0, j = 0;
+                let pontuacao = 0;
+
+                while (i < n && j < m) {
+                    let action = "";
+                    let classType = "";
+                    let valToAdd = 0;
+
+                    if (calculateScore(this.s1[i], this.s2[j]) === 2) {
+                        valToAdd = 2;
+                        action = "Perfect Match";
+                        classType = "match";
+                        this.states.push({ type: 'step', i, j, char1: this.s1[i], char2: this.s2[j], action, classType, valToAdd });
+                        i++; j++;
+                    } else if (i + 1 < n && calculateScore(this.s1[i + 1], this.s2[j]) === 2) {
+                        valToAdd = -2;
+                        action = "Lookahead: Gap S1";
+                        classType = "gap";
+                        this.states.push({ type: 'step', i, j: -1, char1: this.s1[i], char2: '-', action, classType, valToAdd });
+                        i++;
+                    } else if (j + 1 < m && calculateScore(this.s1[i], this.s2[j + 1]) === 2) {
+                        valToAdd = -2;
+                        action = "Lookahead: Gap S2";
+                        classType = "gap";
+                        this.states.push({ type: 'step', i: -1, j, char1: '-', char2: this.s2[j], action, classType, valToAdd });
+                        j++;
+                    } else {
+                        valToAdd = -1;
+                        action = "Mismatch accepted";
+                        classType = "mismatch";
+                        this.states.push({ type: 'step', i, j, char1: this.s1[i], char2: this.s2[j], action, classType, valToAdd });
+                        i++; j++;
+                    }
+                    pontuacao += valToAdd;
+                }
+
+                while (i < n) {
+                    pontuacao -= 2;
+                    this.states.push({ type: 'step', i, j: -1, char1: this.s1[i], char2: '-', action: "Trailing Gap", classType: "gap", valToAdd: -2 });
+                    i++;
+                }
+                while (j < m) {
+                    pontuacao -= 2;
+                    this.states.push({ type: 'step', i: -1, j, char1: '-', char2: this.s2[j], action: "Trailing Gap", classType: "gap", valToAdd: -2 });
+                    j++;
+                }
+
+                this.states.push({ type: 'done', finalScore: pontuacao, log: `Sub-optimal Alignment Found. Score: ${pontuacao}` });
+                return this.states;
+            }
+        }
+
+        /* ==========================================================================
+           VIEW CONTROLLER (Handling DOM and Animations)
+           ========================================================================== */
+
+        class SimulationController {
+            constructor() {
+                this.s1 = "";
+                this.s2 = "";
+                this.states = [];
+                this.currentStateIdx = 0;
+                this.timer = null;
+                this.currentScore = 0;
+                this.algoType = "";
+            }
+
+            initSimulation() {
+                clearInterval(this.timer);
+                const instanceKey = document.getElementById('speciesSelect').value;
+                this.algoType = document.getElementById('algoSelect').value;
+                this.s1 = Instances[instanceKey].s1;
+                this.s2 = Instances[instanceKey].s2;
+                
+                this.currentScore = 0;
+                this.currentStateIdx = 0;
+                
+                this.renderInitialUI();
+
+                // Strategy factory
+                let aligner;
+                if (this.algoType === 'dp') aligner = new DynamicProgrammingAligner(this.s1, this.s2);
+                else aligner = new GreedyAligner(this.s1, this.s2);
+
+                this.states = aligner.generateExecutionStates();
+                this.playSimulation();
+            }
+
+            renderInitialUI() {
+                // Render DNA Strands
+                const strand1Div = document.getElementById('strand1');
+                const strand2Div = document.getElementById('strand2');
+                strand1Div.innerHTML = '';
+                strand2Div.innerHTML = '';
+                
+                [...this.s1].forEach((char, idx) => {
+                    strand1Div.innerHTML += `<div class="base s1-base" id="s1-${idx}">${char}</div>`;
+                });
+                [...this.s2].forEach((char, idx) => {
+                    strand2Div.innerHTML += `<div class="base s2-base" id="s2-${idx}">${char}</div>`;
+                });
+
+                document.getElementById('scoreVal').innerText = "0";
+                document.getElementById('actionLog').innerText = "Initializing sequence buffer...";
+                document.getElementById('memBar').style.width = "0%";
+                document.getElementById('timeBar').style.width = "0%";
+
+                // Render DP Matrix if applicable
+                const matrixWrapper = document.getElementById('matrixWrapper');
+                if (this.algoType === 'dp') {
+                    let table = '<table class="dp-matrix"><tr><th></th><th>ε</th>';
+                    for(let j=0; j<this.s2.length; j++) table += `<th>${this.s2[j]}</th>`;
+                    table += '</tr>';
+                    
+                    for(let i=0; i<=this.s1.length; i++) {
+                        table += `<tr><th>${i===0 ? 'ε' : this.s1[i-1]}</th>`;
+                        for(let j=0; j<=this.s2.length; j++) {
+                            table += `<td id="cell-${i}-${j}">0</td>`;
+                        }
+                        table += '</tr>';
+                    }
+                    table += '</table>';
+                    matrixWrapper.innerHTML = table;
+                    matrixWrapper.style.display = 'block';
+                } else {
+                    matrixWrapper.innerHTML = '<div style="color:#555; text-align:center; padding:20px;">Matrix allocation bypassed.<br>Heuristic array active. O(N) memory mode.</div>';
+                }
+            }
+
+            playSimulation() {
+                const speed = this.algoType === 'dp' ? 200 : 400; // DP runs faster to cover matrix
+                
+                this.timer = setInterval(() => {
+                    if (this.currentStateIdx >= this.states.length) {
+                        clearInterval(this.timer);
+                        document.getElementById('actionLog').innerText += " [ SYSTEM HALTED ]";
+                        return;
+                    }
+
+                    const state = this.states[this.currentStateIdx];
+                    this.processState(state);
+                    this.updateTelemetry();
+                    
+                    this.currentStateIdx++;
+                }, speed);
+            }
+
+            processState(state) {
+                // Clear previous active highlights in 3D Strands
+                document.querySelectorAll('.base').forEach(b => { b.classList.remove('active'); });
+                if (this.algoType === 'dp') {
+                    document.querySelectorAll('.dp-matrix td').forEach(c => c.classList.remove('active-cell'));
+                }
+
+                if (state.type === 'init' || state.type === 'calc') {
+                    const cell = document.getElementById(`cell-${state.i}-${state.j}`);
+                    if (cell) {
+                        cell.innerText = state.val;
+                        cell.classList.add('active-cell', 'calculated');
+                    }
+                    document.getElementById('actionLog').innerText = state.log;
+                    
+                    if (state.type === 'calc') {
+                        this.highlightBases(state.i - 1, state.j - 1, state.classType);
+                    }
+                } 
+                else if (state.type === 'step') {
+                    this.currentScore += state.valToAdd;
+                    document.getElementById('scoreVal').innerText = this.currentScore;
+                    document.getElementById('actionLog').innerText = `Greedy Agent: ${state.action} (${state.valToAdd})`;
+                    this.highlightBases(state.i, state.j, state.classType);
+                }
+                else if (state.type === 'done') {
+                    document.getElementById('scoreVal').innerText = state.finalScore;
+                    document.getElementById('actionLog').innerText = state.log;
+                }
+            }
+
+            highlightBases(i, j, classType) {
+                if (i >= 0 && i < this.s1.length) {
+                    const el1 = document.getElementById(`s1-${i}`);
+                    el1.classList.add('active', classType);
+                }
+                if (j >= 0 && j < this.s2.length) {
+                    const el2 = document.getElementById(`s2-${j}`);
+                    el2.classList.add('active', classType);
+                }
+            }
+
+            updateTelemetry() {
+                const progress = (this.currentStateIdx / this.states.length) * 100;
+                document.getElementById('timeBar').style.width = `${progress}%`;
+
+                // Simulate memory behavior based on algorithm
+                if (this.algoType === 'dp') {
+                    // DP memory shoots up and stays there (O(N*M))
+                    document.getElementById('memBar').style.width = `95%`;
+                    document.getElementById('memBar').style.backgroundColor = 'var(--neon-red)';
+                } else {
+                    // Greedy uses almost nothing O(1) auxiliary
+                    document.getElementById('memBar').style.width = `10%`;
+                    document.getElementById('memBar').style.backgroundColor = 'var(--neon-green)';
+                }
+            }
+        }
+
+        /* ==========================================================================
+           BOOTSTRAP
+           ========================================================================== */
+        
+        const controller = new SimulationController();
+
+        document.getElementById('btnStart').addEventListener('click', () => {
+            controller.initSimulation();
+        });
+
+        document.getElementById('btnReset').addEventListener('click', () => {
+            clearInterval(controller.timer);
+            document.getElementById('strand1').innerHTML = '';
+            document.getElementById('strand2').innerHTML = '';
+            document.getElementById('matrixWrapper').innerHTML = '';
+            document.getElementById('scoreVal').innerText = '0';
+            document.getElementById('memBar').style.width = '0%';
+            document.getElementById('timeBar').style.width = '0%';
+            document.getElementById('actionLog').innerText = 'System ready.';
+        });
+
+    </script>
+</body>
+</html>
