@@ -1,622 +1,650 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>G.E.N.O.M.A. - DNA Alignment Visualizer</title>
-    <style>
-        /* ==========================================================================
-           VIEW: STYLESHEET (Holographic UI)
-           ========================================================================== */
-        :root {
-            --bg-color: #050510;
-            --neon-blue: #00f3ff;
-            --neon-green: #39ff14;
-            --neon-red: #ff073a;
-            --neon-yellow: #fce803;
-            --hud-border: rgba(0, 243, 255, 0.3);
-            --hud-bg: rgba(0, 243, 255, 0.05);
-            --font-main: 'Courier New', Courier, monospace;
-        }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>G.E.N.O.M.A. | Arquitetura Bio-Computacional</title>
+  
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "https://unpkg.com/three@0.128.0/build/three.module.js",
+        "three/addons/": "https://unpkg.com/three@0.128.0/examples/jsm/"
+      }
+    }
+  </script>
 
-        body {
-            background-color: var(--bg-color);
-            color: var(--neon-blue);
-            font-family: var(--font-main);
-            margin: 0;
-            padding: 20px;
-            overflow-x: hidden;
-            display: flex;
-            flex-direction: column;
-            height: 100vh;
-            box-sizing: border-box;
-        }
+  <style>
+    /* ===== ESTÉTICA HOLOGRÁFICA MODERNA ===== */
+    :root {
+      --bg: #010409;
+      --cyan: #00f3ff;
+      --cyan-glow: rgba(0, 243, 255, 0.4);
+      --green: #39ff14;
+      --yellow: #fce803;
+      --red: #ff073a;
+      --panel-bg: rgba(4, 15, 26, 0.7);
+      --glass-border: rgba(0, 243, 255, 0.2);
+      --font-main: 'Inter', 'Segoe UI', sans-serif;
+      --font-code: 'Courier New', 'Consolas', monospace;
+    }
 
-        header {
-            text-align: center;
-            text-transform: uppercase;
-            letter-spacing: 3px;
-            text-shadow: 0 0 10px var(--neon-blue);
-            border-bottom: 1px solid var(--hud-border);
-            padding-bottom: 10px;
-            margin-bottom: 20px;
-        }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
 
-        .controls {
-            display: flex;
-            justify-content: space-around;
-            background: var(--hud-bg);
-            border: 1px solid var(--hud-border);
-            padding: 15px;
-            border-radius: 5px;
-            box-shadow: inset 0 0 20px rgba(0, 243, 255, 0.1);
-            margin-bottom: 20px;
-        }
+    body {
+      background: radial-gradient(circle at 50% 50%, #06111f, var(--bg));
+      color: #c0e8ff;
+      font-family: var(--font-main);
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      padding: 12px;
+      overflow: hidden;
+    }
 
-        select, button {
-            background: transparent;
-            color: var(--neon-blue);
-            border: 1px solid var(--neon-blue);
-            padding: 8px 15px;
-            font-family: inherit;
-            font-size: 14px;
-            text-transform: uppercase;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            box-shadow: 0 0 5px var(--neon-blue);
-        }
+    /* Cabeçalho */
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid var(--glass-border);
+      padding-bottom: 12px;
+      margin-bottom: 12px;
+      flex-shrink: 0;
+    }
 
-        select:hover, button:hover {
-            background: var(--neon-blue);
-            color: var(--bg-color);
-            box-shadow: 0 0 15px var(--neon-blue);
-        }
+    .header h1 {
+      font-size: 1.2rem;
+      font-weight: 300;
+      letter-spacing: 2px;
+      font-family: var(--font-code);
+    }
 
-        button:disabled {
-            border-color: #555;
-            color: #555;
-            box-shadow: none;
-            cursor: not-allowed;
-        }
+    .header h1 span { color: var(--cyan); font-weight: 700; text-shadow: 0 0 12px var(--cyan-glow); }
+    .sys-badge { background: rgba(57, 255, 20, 0.1); border: 1px solid var(--green); color: var(--green); padding: 4px 12px; border-radius: 20px; font-size: 0.7rem; font-weight: bold; letter-spacing: 1px;}
 
-        .main-workspace {
-            display: flex;
-            flex: 1;
-            gap: 20px;
-            overflow: hidden;
-        }
+    /* Workspace Responsivo */
+    .workspace {
+      display: grid;
+      grid-template-columns: 1fr 400px;
+      grid-template-rows: 50% 1fr;
+      gap: 12px;
+      flex: 1;
+      min-height: 0;
+    }
 
-        /* 3D DNA Visualizer */
-        .dna-visualizer {
-            flex: 1;
-            border: 1px solid var(--hud-border);
-            background: var(--hud-bg);
-            padding: 20px;
-            border-radius: 5px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            perspective: 800px;
-        }
+    /* Painéis Glassmorphism */
+    .panel {
+      background: var(--panel-bg);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid var(--glass-border);
+      border-radius: 12px;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6), inset 0 0 20px rgba(0, 243, 255, 0.05);
+    }
 
-        .strand {
-            display: flex;
-            gap: 10px;
-            margin: 20px 0;
-            transform-style: preserve-3d;
-        }
+    .panel-title {
+      font-family: var(--font-code);
+      color: var(--cyan);
+      font-weight: 700;
+      font-size: 0.8rem;
+      letter-spacing: 2px;
+      margin-bottom: 12px;
+      text-transform: uppercase;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid rgba(0,243,255,0.1);
+      padding-bottom: 6px;
+    }
 
-        .base {
-            width: 40px;
-            height: 40px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 20px;
-            font-weight: bold;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            background: rgba(255, 255, 255, 0.05);
-            transition: all 0.3s;
-            box-shadow: 0 0 10px rgba(255, 255, 255, 0.1);
-        }
+    /* Palco 3D */
+    .stage-3d { grid-column: 1; grid-row: 1; padding: 0; }
+    #canvas-container { width: 100%; height: 100%; border-radius: 12px; overflow: hidden; }
+    
+    .legend-overlay {
+      position: absolute; bottom: 16px; left: 16px;
+      background: rgba(0, 0, 0, 0.7);
+      backdrop-filter: blur(8px);
+      padding: 10px 14px; border-radius: 6px;
+      font-family: var(--font-code); font-size: 0.75rem;
+      border-left: 3px solid var(--cyan);
+      display: flex;
+      gap: 15px;
+    }
 
-        .base.active {
-            transform: scale(1.2) translateZ(20px);
-            border-color: var(--neon-yellow);
-            box-shadow: 0 0 20px var(--neon-yellow);
-        }
+    /* Área Didática e RAM */
+    .didactic-area { grid-column: 1; grid-row: 2; display: flex; gap: 16px; flex-direction: row; }
+    .explain-box { flex: 1; overflow-y: auto; font-size: 0.85rem; line-height: 1.6; color: #a5cce0; padding-right: 8px; }
+    .explain-box h4 { color: var(--cyan); margin: 12px 0 4px; font-weight: 600; font-family: var(--font-code); letter-spacing: 1px; }
+    .explain-box p { margin-bottom: 10px; text-align: justify; }
+    .explain-box .highlight-text { color: var(--yellow); font-weight: bold; }
+    
+    .ram-box { flex: 1; display: flex; flex-direction: column; background: rgba(0,0,0,0.4); border-radius: 8px; padding: 12px; border: 1px solid rgba(255,255,255,0.05); }
+    .ram-formula { font-family: var(--font-code); font-size: 0.7rem; color: #7fb; margin-bottom: 8px; background: rgba(0,255,150,0.1); padding: 6px; border-radius: 4px;}
+    .ram-array { display: flex; flex-wrap: wrap; gap: 4px; overflow-y: auto; align-content: flex-start; }
+    .ram-cell {
+      width: 26px; height: 26px; display: flex; align-items: center; justify-content: center;
+      background: #0a1a2a; color: #5f9fbf; border: 1px solid #1a4860; border-radius: 4px;
+      font-family: var(--font-code); font-size: 0.65rem; transition: all 0.2s;
+    }
+    .ram-cell.highlight {
+      background: var(--cyan); color: #000; font-weight: bold; transform: scale(1.2);
+      box-shadow: 0 0 15px var(--cyan); border-color: #fff; z-index: 10;
+    }
 
-        .base.match {
-            border-color: var(--neon-green);
-            color: var(--neon-green);
-            box-shadow: 0 0 20px var(--neon-green);
-        }
+    /* Painel de Controle Direito */
+    .control-panel { grid-column: 2; grid-row: 1 / 3; display: flex; flex-direction: column; gap: 12px; overflow-y: auto; }
+    
+    .ctrl-group { display: flex; flex-direction: column; gap: 8px; background: rgba(0,0,0,0.2); padding: 12px; border-radius: 8px;}
+    label { font-size: 0.7rem; color: #78a2c2; text-transform: uppercase; letter-spacing: 1px; font-weight: 600; }
+    
+    select, .btn {
+      background: rgba(5, 26, 40, 0.8); color: var(--cyan);
+      border: 1px solid rgba(0, 243, 255, 0.3); padding: 8px 12px;
+      border-radius: 6px; font-family: var(--font-code); font-size: 0.75rem; font-weight: 700;
+      cursor: pointer; transition: 0.2s; outline: none;
+    }
+    select:hover, .btn:hover { background: rgba(0, 243, 255, 0.1); border-color: var(--cyan); }
+    
+    .btn-row { display: flex; gap: 8px; }
+    .btn-row .btn { flex: 1; }
+    .btn.active { background: var(--cyan); color: #000; box-shadow: 0 0 10px var(--cyan-glow); }
+    .btn-play { color: var(--green); border-color: var(--green); margin-top: 4px;}
+    .btn-play:hover { background: rgba(57, 255, 20, 0.15); }
+    
+    /* Telemetria e Matriz */
+    .matrix-wrapper { max-height: 200px; overflow: auto; background: rgba(0,0,0,0.5); padding: 8px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.05); }
+    table.dp-grid { border-collapse: separate; border-spacing: 2px; font-family: var(--font-code); font-size: 0.65rem; margin: auto; }
+    table.dp-grid td, table.dp-grid th { width: 24px; height: 24px; text-align: center; background: #07121c; color: #88aadd; border-radius: 3px; transition: 0.15s; }
+    table.dp-grid th { background: rgba(0,243,255,0.1); color: var(--yellow); }
+    table.dp-grid td.active { background: var(--cyan); color: #000; transform: scale(1.15); font-weight: bold; box-shadow: 0 0 8px var(--cyan); }
 
-        .base.mismatch {
-            border-color: var(--neon-yellow);
-            color: var(--neon-yellow);
-            box-shadow: 0 0 20px var(--neon-yellow);
-        }
+    .telemetry-row { display: flex; justify-content: space-between; background: rgba(0,0,0,0.3); padding: 12px; border-radius: 6px; text-align: center; }
+    .metric-val { font-family: var(--font-code); font-size: 1.4rem; font-weight: 700; display: block; margin-top: 4px; }
+    
+    .chart-container { height: 160px; position: relative; margin-top: 8px; }
+    .chart-toggle { display: flex; justify-content: flex-end; margin-bottom: 4px; gap: 4px; }
+    .chart-toggle button { background: transparent; border: 1px solid #444; color: #aaa; font-size: 0.6rem; padding: 2px 8px; border-radius: 4px; cursor: pointer; }
+    .chart-toggle button.active { border-color: var(--cyan); color: var(--cyan); }
 
-        .base.gap {
-            border-color: var(--neon-red);
-            color: var(--neon-red);
-            box-shadow: 0 0 20px var(--neon-red);
-        }
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: rgba(0,0,0,0.2); }
+    ::-webkit-scrollbar-thumb { background: rgba(0, 243, 255, 0.4); border-radius: 10px; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--cyan); }
 
-        /* DP Matrix Grid */
-        .matrix-container {
-            flex: 1;
-            border: 1px solid var(--hud-border);
-            background: var(--hud-bg);
-            padding: 20px;
-            border-radius: 5px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            overflow: auto;
-        }
-
-        table.dp-matrix {
-            border-collapse: collapse;
-            margin-top: 10px;
-        }
-
-        table.dp-matrix th, table.dp-matrix td {
-            width: 35px;
-            height: 35px;
-            text-align: center;
-            border: 1px solid var(--hud-border);
-            font-size: 14px;
-            transition: all 0.2s;
-        }
-
-        table.dp-matrix th {
-            color: var(--neon-yellow);
-        }
-
-        table.dp-matrix td.active-cell {
-            background-color: rgba(0, 243, 255, 0.4);
-            box-shadow: inset 0 0 15px var(--neon-blue);
-            color: #fff;
-            transform: scale(1.1);
-        }
-
-        table.dp-matrix td.calculated {
-            color: var(--neon-green);
-        }
-
-        /* Telemetry Footer */
-        .telemetry {
-            margin-top: 20px;
-            display: flex;
-            gap: 20px;
-        }
-
-        .metric-box {
-            flex: 1;
-            border: 1px solid var(--hud-border);
-            padding: 10px;
-            background: rgba(0, 0, 0, 0.5);
-        }
-
-        .bar-container {
-            height: 10px;
-            background: #222;
-            margin-top: 5px;
-            border-radius: 5px;
-            overflow: hidden;
-            position: relative;
-        }
-
-        .bar-fill {
-            height: 100%;
-            width: 0%;
-            background: var(--neon-blue);
-            box-shadow: 0 0 10px var(--neon-blue);
-            transition: width 0.3s ease;
-        }
-    </style>
+    @media (max-width: 900px) {
+      .workspace { grid-template-columns: 1fr; grid-template-rows: auto auto auto; }
+      .stage-3d { height: 40vh; }
+      .control-panel { grid-column: 1; grid-row: 2; }
+      .didactic-area { grid-column: 1; grid-row: 3; flex-direction: column; }
+    }
+  </style>
 </head>
 <body>
 
-    <header>
-        <h1>[ G.E.N.O.M.A. ] - Evolutionary Sequence Aligner</h1>
-    </header>
+<div class="header">
+  <h1><span>G.E.N.O.M.A.</span> // ENGENHARIA BIO-COMPUTACIONAL</h1>
+  <div class="sys-badge">TP_02: MONITORAMENTO DE ALOCAÇÃO C</div>
+</div>
 
-    <div class="controls">
-        <div>
-            <label>Species Comparison: </label>
-            <select id="speciesSelect">
-                <option value="human_chimp">Human vs Chimpanzee (High Homology)</option>
-                <option value="human_fish">Human vs Prehistoric Fish (Divergent)</option>
-                <option value="virus_mutation">COVID WildType vs Omicron (Mutations)</option>
-            </select>
-        </div>
-        <div>
-            <label>Algorithm: </label>
-            <select id="algoSelect">
-                <option value="dp">Dynamic Programming (Exact/Heavy)</option>
-                <option value="greedy">Greedy Heuristic (Fast/Suboptimal)</option>
-            </select>
-        </div>
-        <div>
-            <button id="btnStart">Execute Aligner</button>
-            <button id="btnReset">Reset Hologram</button>
-        </div>
+<div class="workspace">
+  <div class="panel stage-3d">
+    <div id="canvas-container"></div>
+    <div class="legend-overlay">
+      <span style="color:var(--green);">[+2] MATCH (Pontes H)</span>
+      <span style="color:var(--yellow);">[-1] MISMATCH (Distorção)</span>
+      <span style="color:var(--red);">[-2] GAP (Mutação/Erro)</span>
+    </div>
+  </div>
+
+  <div class="panel didactic-area">
+    <div class="explain-box" id="didactic-text">
+      </div>
+    
+    <div class="ram-box">
+      <div class="panel-title">MONITOR DE MEMÓRIA (FLAT ARRAY)</div>
+      <div class="ram-formula" id="ram-formula">
+        Em C, evitamos <code>int **dp</code>. A matriz virtual é alocada como:<br>
+        <span style="color:#fff;">malloc((N+1) * cols * sizeof(long));</span><br>
+        Acesso: <code>vetor[i * cols + j]</code> (Locality de Cache L1)
+      </div>
+      <div class="ram-array" id="ram-container"></div>
+    </div>
+  </div>
+
+  <div class="panel control-panel">
+    
+    <div class="ctrl-group">
+      <label>Instância Biológica (Amostra 20 bases)</label>
+      <select id="species-select">
+        <option value="inst_100">Instância 100-1 (Amostra Frontal)</option>
+        <option value="inst_500">Instância 500-1 (Amostra Frontal)</option>
+      </select>
     </div>
 
-    <div class="main-workspace">
-        <div class="dna-visualizer" id="dnaView">
-            <h3 style="margin-top: 0;">Molecular Binding View</h3>
-            <div class="strand" id="strand1"></div>
-            <div id="bindingLines" style="height: 20px; color: var(--neon-yellow); letter-spacing: 2px;"></div>
-            <div class="strand" id="strand2"></div>
-            <div id="actionLog" style="margin-top: 20px; height: 40px; font-style: italic;">Awaiting instructions...</div>
-        </div>
-
-        <div class="matrix-container" id="matrixView">
-            <h3 style="margin-top: 0;">Computational Sub-space (Memory)</h3>
-            <div id="matrixWrapper"></div>
-        </div>
+    <div class="ctrl-group">
+      <label>Paradigma Algorítmico</label>
+      <div class="btn-row">
+        <button id="btn-dp" class="btn active">O Oráculo (DP)</button>
+        <button id="btn-greedy" class="btn">O Caçador (Guloso)</button>
+      </div>
+      <button id="play-btn" class="btn btn-play">▶ EXECUTAR VARREDURA</button>
     </div>
 
-    <div class="telemetry">
-        <div class="metric-box">
-            <div>Current Score: <span id="scoreVal">0</span></div>
-        </div>
-        <div class="metric-box">
-            <div>Memory Consumption (RAM / Cache)</div>
-            <div class="bar-container"><div class="bar-fill" id="memBar" style="background: var(--neon-yellow);"></div></div>
-        </div>
-        <div class="metric-box">
-            <div>Execution Time (Cycles)</div>
-            <div class="bar-container"><div class="bar-fill" id="timeBar" style="background: var(--neon-red);"></div></div>
-        </div>
+    <div class="ctrl-group">
+      <div class="panel-title">SUBESPAÇO LÓGICO (Matriz DP)</div>
+      <div id="matrix-container" class="matrix-wrapper"></div>
     </div>
 
-    <script>
-        /* ==========================================================================
-           MODEL: FUNCTIONAL UTILITIES & BIOLOGICAL LOGIC
-           ========================================================================== */
+    <div class="ctrl-group">
+      <div class="panel-title">TELEMETRIA ASSINTÓTICA</div>
+      <div class="telemetry-row">
+        <div>SCORE FINAL<span class="metric-val" id="score-val" style="color:#fff; text-shadow:0 0 10px var(--cyan);">0</span></div>
+        <div>OPERAÇÕES<span class="metric-val" id="ops-val" style="color:var(--yellow);">0</span></div>
+      </div>
+      
+      <div class="chart-toggle">
+        <button id="chart-mem-btn" class="active">RAM $O(N \times M)$</button>
+        <button id="chart-time-btn">CPU $O(N^2)$ vs $O(N)$</button>
+      </div>
+      <div class="chart-container">
+        <canvas id="perf-chart"></canvas>
+      </div>
+    </div>
 
-        /**
-         * @brief Functional implementation of the biological scoring matrix.
-         * @param {string} a - Nucleotide from sequence 1
-         * @param {string} b - Nucleotide from sequence 2
-         * @returns {number} The evolutionary score based on hydrogen bonds.
-         */
-        const calculateScore = (a, b) => {
-            if ((a === 'A' && b === 'T') || (a === 'T' && b === 'A') || 
-                (a === 'C' && b === 'G') || (a === 'G' && b === 'C')) {
-                return 2; // Perfect complementary match
-            }
-            if (a === '-' || b === '-') {
-                return -2; // Gap (Frameshift mutation)
-            }
-            return -1; // Mismatch (Point mutation)
-        };
+  </div>
+</div>
 
-        /**
-         * @brief Standard max3 function implemented functionally.
-         * @param {number} a 
-         * @param {number} b 
-         * @param {number} c 
-         * @returns {number} Maximum of the three
-         */
-        const max3 = (a, b, c) => Math.max(a, b, c);
+<script type="module">
+  import * as THREE from 'three';
+  import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 
-        // Database of symbolic instances for visualization
-        const Instances = {
-            human_chimp: { s1: "ATCGTA", s2: "TAGCAT" }, // Designed to have good complementary matches
-            human_fish: { s1: "ATCGTA", s2: "GCCCAA" }, // Highly divergent
-            virus_mutation: { s1: "GATTACA", s2: "GATAACA" } // Small mutation
-        };
+  // --- LÓGICA BIOLÓGICA ---
+  const calcScore = (a, b) => {
+    if ((a === 'A' && b === 'T') || (a === 'T' && b === 'A') || (a === 'C' && b === 'G') || (a === 'G' && b === 'C')) return 2;
+    if (a === '-' || b === '-') return -2;
+    return -1; // Mismatch biológico
+  };
 
-        /* ==========================================================================
-           MODEL: DESIGN PATTERN - STRATEGY (Algorithms)
-           ========================================================================== */
+  // Usando um snippet das instâncias reais para visualização real-time sem travar a DOM.
+  const Species = {
+    inst_100: { 
+      s1: "TATTTTGGAGTCACGTGGGA", // Primeiras 20 da 100-1
+      s2: "TGTGAATCAGCGGTACGATC"  
+    },
+    inst_500: { 
+      s1: "TGGTGACGCATCCGGGCGAC", // Primeiras 20 da 500-1
+      s2: "TACGGATTCTCACATGTCAG"  
+    }
+  };
 
-        /**
-         * @brief Base Strategy interface/class for DNA Aligners.
-         */
-        class DNAAlignerStrategy {
-            constructor(s1, s2) {
-                this.s1 = s1;
-                this.s2 = s2;
-                this.states = []; // Stores execution steps for the View to animate
-            }
-            generateExecutionStates() { throw new Error("Method must be implemented."); }
-        }
+  const DP_DIDACTIC = `
+    <h4>1. A TABELA VERDADE (O ORÁCULO)</h4>
+    <p>A Programação Dinâmica constrói uma matriz avaliando todo o subespaço genético. A fórmula de <b>Needleman-Wunsch</b> define a otimalidade global:</p>
+    <p style="background:rgba(0,0,0,0.5); padding:8px; border-radius:4px; font-family:monospace; font-size:0.8rem; border-left: 2px solid var(--cyan);">
+      DP(i,j) = max(<br>
+      &nbsp;&nbsp;DP(i-1, j-1) + score,<br>
+      &nbsp;&nbsp;DP(i-1, j) - 2,<br>
+      &nbsp;&nbsp;DP(i, j-1) - 2<br>
+      )
+    </p>
+    <h4>2. A REALIDADE QUÍMICA</h4>
+    <p>Bases complementares formam ligamentos: <span class="highlight-text">A-T exigem 2 pontes</span> de hidrogênio; <span class="highlight-text">C-G exigem 3 pontes</span>. Gaps distorcem a fita (-2).</p>
+  `;
 
-        /**
-         * @brief Dynamic Programming implementation (Exact Solution).
-         * @details Computes the Needleman-Wunsch matrix and logs every state for the visualization.
-         */
-        class DynamicProgrammingAligner extends DNAAlignerStrategy {
-            generateExecutionStates() {
-                const n = this.s1.length;
-                const m = this.s2.length;
-                const dp = Array.from({ length: n + 1 }, () => Array(m + 1).fill(0));
-                
-                // Initialize borders
-                for (let i = 1; i <= n; i++) {
-                    dp[i][0] = dp[i - 1][0] - 2;
-                    this.states.push({ type: 'init', i, j: 0, val: dp[i][0], log: `Init edge gap penalty: ${dp[i][0]}` });
-                }
-                for (let j = 1; j <= m; j++) {
-                    dp[0][j] = dp[0][j - 1] - 2;
-                    this.states.push({ type: 'init', i: 0, j, val: dp[0][j], log: `Init edge gap penalty: ${dp[0][j]}` });
-                }
+  const GREEDY_DIDACTIC = `
+    <h4>1. A MIOPIA TÁTICA (O CAÇADOR)</h4>
+    <p>O algoritmo guloso toma decisões imediatas percorrendo a fita linearmente <span class="highlight-text">O(N)</span>. Ele utiliza uma heurística de <b>Lookahead (olhar 1 passo à frente)</b>. Se inserir um Gap (-2) garantir um Match (+2) imediato, ele aceita.</p>
+    <h4>2. O CHOQUE DE PARADIGMAS</h4>
+    <p>Diferente do Oráculo, o Guloso nunca aceitaria sofrer pesadas penalidades de Gaps iniciais para alinhar a fita perfeitamente no final. É rápido, tem consumo de memória <span class="highlight-text">O(1)</span>, mas o Score Final é estatisticamente inferior à DP.</p>
+  `;
 
-                // Fill matrix
-                for (let i = 1; i <= n; i++) {
-                    for (let j = 1; j <= m; j++) {
-                        const score = calculateScore(this.s1[i - 1], this.s2[j - 1]);
-                        const matchMismatch = dp[i - 1][j - 1] + score;
-                        const gapS1 = dp[i - 1][j] - 2;
-                        const gapS2 = dp[i][j - 1] - 2;
-                        
-                        dp[i][j] = max3(matchMismatch, gapS1, gapS2);
-                        
-                        // Determine what action won for the log
-                        let action = "Mismatch (-1)";
-                        let classType = "mismatch";
-                        if (score === 2 && dp[i][j] === matchMismatch) { action = "Complementary Match (+2)"; classType = "match"; }
-                        else if (dp[i][j] === gapS1 || dp[i][j] === gapS2) { action = "Gap Insertion (-2)"; classType = "gap"; }
-
-                        this.states.push({
-                            type: 'calc',
-                            i, j,
-                            val: dp[i][j],
-                            char1: this.s1[i - 1],
-                            char2: this.s2[j - 1],
-                            classType: classType,
-                            log: `Comparing ${this.s1[i - 1]} & ${this.s2[j - 1]} -> ${action}`
-                        });
-                    }
-                }
-                this.states.push({ type: 'done', finalScore: dp[n][m], log: `Optimal Alignment Found. Score: ${dp[n][m]}` });
-                return this.states;
-            }
-        }
-
-        /**
-         * @brief Greedy Heuristic implementation (Fast Solution).
-         * @details Applies lookahead heuristic and logs states for visualization.
-         */
-        class GreedyAligner extends DNAAlignerStrategy {
-            generateExecutionStates() {
-                const n = this.s1.length;
-                const m = this.s2.length;
-                let i = 0, j = 0;
-                let pontuacao = 0;
-
-                while (i < n && j < m) {
-                    let action = "";
-                    let classType = "";
-                    let valToAdd = 0;
-
-                    if (calculateScore(this.s1[i], this.s2[j]) === 2) {
-                        valToAdd = 2;
-                        action = "Perfect Match";
-                        classType = "match";
-                        this.states.push({ type: 'step', i, j, char1: this.s1[i], char2: this.s2[j], action, classType, valToAdd });
-                        i++; j++;
-                    } else if (i + 1 < n && calculateScore(this.s1[i + 1], this.s2[j]) === 2) {
-                        valToAdd = -2;
-                        action = "Lookahead: Gap S1";
-                        classType = "gap";
-                        this.states.push({ type: 'step', i, j: -1, char1: this.s1[i], char2: '-', action, classType, valToAdd });
-                        i++;
-                    } else if (j + 1 < m && calculateScore(this.s1[i], this.s2[j + 1]) === 2) {
-                        valToAdd = -2;
-                        action = "Lookahead: Gap S2";
-                        classType = "gap";
-                        this.states.push({ type: 'step', i: -1, j, char1: '-', char2: this.s2[j], action, classType, valToAdd });
-                        j++;
-                    } else {
-                        valToAdd = -1;
-                        action = "Mismatch accepted";
-                        classType = "mismatch";
-                        this.states.push({ type: 'step', i, j, char1: this.s1[i], char2: this.s2[j], action, classType, valToAdd });
-                        i++; j++;
-                    }
-                    pontuacao += valToAdd;
-                }
-
-                while (i < n) {
-                    pontuacao -= 2;
-                    this.states.push({ type: 'step', i, j: -1, char1: this.s1[i], char2: '-', action: "Trailing Gap", classType: "gap", valToAdd: -2 });
-                    i++;
-                }
-                while (j < m) {
-                    pontuacao -= 2;
-                    this.states.push({ type: 'step', i: -1, j, char1: '-', char2: this.s2[j], action: "Trailing Gap", classType: "gap", valToAdd: -2 });
-                    j++;
-                }
-
-                this.states.push({ type: 'done', finalScore: pontuacao, log: `Sub-optimal Alignment Found. Score: ${pontuacao}` });
-                return this.states;
-            }
-        }
-
-        /* ==========================================================================
-           VIEW CONTROLLER (Handling DOM and Animations)
-           ========================================================================== */
-
-        class SimulationController {
-            constructor() {
-                this.s1 = "";
-                this.s2 = "";
-                this.states = [];
-                this.currentStateIdx = 0;
-                this.timer = null;
-                this.currentScore = 0;
-                this.algoType = "";
-            }
-
-            initSimulation() {
-                clearInterval(this.timer);
-                const instanceKey = document.getElementById('speciesSelect').value;
-                this.algoType = document.getElementById('algoSelect').value;
-                this.s1 = Instances[instanceKey].s1;
-                this.s2 = Instances[instanceKey].s2;
-                
-                this.currentScore = 0;
-                this.currentStateIdx = 0;
-                
-                this.renderInitialUI();
-
-                // Strategy factory
-                let aligner;
-                if (this.algoType === 'dp') aligner = new DynamicProgrammingAligner(this.s1, this.s2);
-                else aligner = new GreedyAligner(this.s1, this.s2);
-
-                this.states = aligner.generateExecutionStates();
-                this.playSimulation();
-            }
-
-            renderInitialUI() {
-                // Render DNA Strands
-                const strand1Div = document.getElementById('strand1');
-                const strand2Div = document.getElementById('strand2');
-                strand1Div.innerHTML = '';
-                strand2Div.innerHTML = '';
-                
-                [...this.s1].forEach((char, idx) => {
-                    strand1Div.innerHTML += `<div class="base s1-base" id="s1-${idx}">${char}</div>`;
-                });
-                [...this.s2].forEach((char, idx) => {
-                    strand2Div.innerHTML += `<div class="base s2-base" id="s2-${idx}">${char}</div>`;
-                });
-
-                document.getElementById('scoreVal').innerText = "0";
-                document.getElementById('actionLog').innerText = "Initializing sequence buffer...";
-                document.getElementById('memBar').style.width = "0%";
-                document.getElementById('timeBar').style.width = "0%";
-
-                // Render DP Matrix if applicable
-                const matrixWrapper = document.getElementById('matrixWrapper');
-                if (this.algoType === 'dp') {
-                    let table = '<table class="dp-matrix"><tr><th></th><th>ε</th>';
-                    for(let j=0; j<this.s2.length; j++) table += `<th>${this.s2[j]}</th>`;
-                    table += '</tr>';
-                    
-                    for(let i=0; i<=this.s1.length; i++) {
-                        table += `<tr><th>${i===0 ? 'ε' : this.s1[i-1]}</th>`;
-                        for(let j=0; j<=this.s2.length; j++) {
-                            table += `<td id="cell-${i}-${j}">0</td>`;
-                        }
-                        table += '</tr>';
-                    }
-                    table += '</table>';
-                    matrixWrapper.innerHTML = table;
-                    matrixWrapper.style.display = 'block';
-                } else {
-                    matrixWrapper.innerHTML = '<div style="color:#555; text-align:center; padding:20px;">Matrix allocation bypassed.<br>Heuristic array active. O(N) memory mode.</div>';
-                }
-            }
-
-            playSimulation() {
-                const speed = this.algoType === 'dp' ? 200 : 400; // DP runs faster to cover matrix
-                
-                this.timer = setInterval(() => {
-                    if (this.currentStateIdx >= this.states.length) {
-                        clearInterval(this.timer);
-                        document.getElementById('actionLog').innerText += " [ SYSTEM HALTED ]";
-                        return;
-                    }
-
-                    const state = this.states[this.currentStateIdx];
-                    this.processState(state);
-                    this.updateTelemetry();
-                    
-                    this.currentStateIdx++;
-                }, speed);
-            }
-
-            processState(state) {
-                // Clear previous active highlights in 3D Strands
-                document.querySelectorAll('.base').forEach(b => { b.classList.remove('active'); });
-                if (this.algoType === 'dp') {
-                    document.querySelectorAll('.dp-matrix td').forEach(c => c.classList.remove('active-cell'));
-                }
-
-                if (state.type === 'init' || state.type === 'calc') {
-                    const cell = document.getElementById(`cell-${state.i}-${state.j}`);
-                    if (cell) {
-                        cell.innerText = state.val;
-                        cell.classList.add('active-cell', 'calculated');
-                    }
-                    document.getElementById('actionLog').innerText = state.log;
-                    
-                    if (state.type === 'calc') {
-                        this.highlightBases(state.i - 1, state.j - 1, state.classType);
-                    }
-                } 
-                else if (state.type === 'step') {
-                    this.currentScore += state.valToAdd;
-                    document.getElementById('scoreVal').innerText = this.currentScore;
-                    document.getElementById('actionLog').innerText = `Greedy Agent: ${state.action} (${state.valToAdd})`;
-                    this.highlightBases(state.i, state.j, state.classType);
-                }
-                else if (state.type === 'done') {
-                    document.getElementById('scoreVal').innerText = state.finalScore;
-                    document.getElementById('actionLog').innerText = state.log;
-                }
-            }
-
-            highlightBases(i, j, classType) {
-                if (i >= 0 && i < this.s1.length) {
-                    const el1 = document.getElementById(`s1-${i}`);
-                    el1.classList.add('active', classType);
-                }
-                if (j >= 0 && j < this.s2.length) {
-                    const el2 = document.getElementById(`s2-${j}`);
-                    el2.classList.add('active', classType);
-                }
-            }
-
-            updateTelemetry() {
-                const progress = (this.currentStateIdx / this.states.length) * 100;
-                document.getElementById('timeBar').style.width = `${progress}%`;
-
-                // Simulate memory behavior based on algorithm
-                if (this.algoType === 'dp') {
-                    // DP memory shoots up and stays there (O(N*M))
-                    document.getElementById('memBar').style.width = `95%`;
-                    document.getElementById('memBar').style.backgroundColor = 'var(--neon-red)';
-                } else {
-                    // Greedy uses almost nothing O(1) auxiliary
-                    document.getElementById('memBar').style.width = `10%`;
-                    document.getElementById('memBar').style.backgroundColor = 'var(--neon-green)';
-                }
-            }
-        }
-
-        /* ==========================================================================
-           BOOTSTRAP
-           ========================================================================== */
+  // --- MODELO ALGORÍTMICO SIMULADO ---
+  class AlignmentSim {
+    constructor(s1, s2, algo) {
+      this.s1 = s1.toUpperCase(); this.s2 = s2.toUpperCase();
+      this.n = this.s1.length; this.m = this.s2.length;
+      this.algo = algo; this.cols = this.m + 1;
+      this.states = [];
+      this.generate();
+    }
+    generate() {
+      if (this.algo === 'dp') {
+        const dp = new Array((this.n+1)*this.cols).fill(0);
+        // Inicialização das bordas
+        for(let i=1; i<=this.n; i++) { dp[i*this.cols] = dp[(i-1)*this.cols]-2; this.states.push({i, j:0, val:dp[i*this.cols]}); }
+        for(let j=1; j<=this.m; j++) { dp[j] = dp[j-1]-2; this.states.push({i:0, j, val:dp[j]}); }
         
-        const controller = new SimulationController();
+        // Preenchimento da Tabela Verdade
+        for(let i=1; i<=this.n; i++) {
+          for(let j=1; j<=this.m; j++) {
+            const match = dp[(i-1)*this.cols+(j-1)] + calcScore(this.s1[i-1], this.s2[j-1]);
+            const up = dp[(i-1)*this.cols+j] - 2;
+            const left = dp[i*this.cols+(j-1)] - 2;
+            const best = Math.max(match, up, left);
+            dp[i*this.cols+j] = best;
+            
+            let action = (best===match && calcScore(this.s1[i-1],this.s2[j-1])===2) ? 'match' : (best===up||best===left) ? 'gap' : 'mismatch';
+            this.states.push({i, j, val:best, action, base1: this.s1[i-1], base2: this.s2[j-1]});
+          }
+        }
+        this.finalScore = dp[this.n*this.cols + this.m];
+      } else {
+        // Algoritmo Guloso (O Caçador)
+        let i=0, j=0, score=0;
+        while(i < this.n && j < this.m) {
+          if (calcScore(this.s1[i], this.s2[j]) === 2) { 
+            score+=2; this.states.push({i, j, val:score, action:'match', base1:this.s1[i], base2:this.s2[j]}); i++; j++; 
+          } 
+          else if (i+1 < this.n && calcScore(this.s1[i+1], this.s2[j]) === 2) { 
+            score-=2; this.states.push({i, j:-1, val:score, action:'gap'}); i++; 
+          } 
+          else if (j+1 < this.m && calcScore(this.s1[i], this.s2[j+1]) === 2) { 
+            score-=2; this.states.push({i:-1, j, val:score, action:'gap'}); j++; 
+          } 
+          else { 
+            score-=1; this.states.push({i, j, val:score, action:'mismatch'}); i++; j++; 
+          }
+        }
+        while(i<this.n) { score-=2; this.states.push({i, j:-1, val:score, action:'gap'}); i++; }
+        while(j<this.m) { score-=2; this.states.push({i:-1, j, val:score, action:'gap'}); j++; }
+        this.finalScore = score;
+      }
+    }
+  }
 
-        document.getElementById('btnStart').addEventListener('click', () => {
-            controller.initSimulation();
+  // --- RENDERIZADOR 3D MODERNO ---
+  class ViscousHelixEngine {
+    constructor(containerId) {
+      this.container = document.getElementById(containerId);
+      this.scene = new THREE.Scene();
+      this.scene.background = new THREE.Color(0x02060d);
+      this.scene.fog = new THREE.FogExp2(0x02060d, 0.04);
+      
+      this.camera = new THREE.PerspectiveCamera(45, this.container.clientWidth / this.container.clientHeight, 0.1, 100);
+      this.camera.position.set(0, 0, 18);
+      
+      this.renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false, powerPreference: "high-performance" });
+      this.renderer.setSize(this.container.clientWidth, this.container.clientHeight);
+      this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+      this.container.appendChild(this.renderer.domElement);
+      
+      this.controls = new OrbitControls(this.camera, this.renderer.domElement);
+      this.controls.enableDamping = true;
+      this.controls.autoRotate = true;
+      this.controls.autoRotateSpeed = 0.8;
+      
+      this.scene.add(new THREE.AmbientLight(0x112233, 2.0));
+      const key = new THREE.PointLight(0x00f3ff, 2.0, 50); key.position.set(5, 10, 5); this.scene.add(key);
+      const fill = new THREE.PointLight(0xff0055, 1.0, 50); fill.position.set(-5, -5, -5); this.scene.add(fill);
+      
+      this.dnaGroup = new THREE.Group();
+      this.scene.add(this.dnaGroup);
+      
+      this.nodes1 = []; this.nodes2 = []; this.bonds = [];
+      this.clock = new THREE.Clock();
+      
+      window.addEventListener('resize', () => this.onResize());
+      this.animate();
+    }
+    
+    onResize() {
+      const w = this.container.clientWidth, h = this.container.clientHeight;
+      this.renderer.setSize(w, h);
+      this.camera.aspect = w / h;
+      this.camera.updateProjectionMatrix();
+    }
+    
+    buildSuspension(s1, s2) {
+      this.dnaGroup.clear();
+      this.nodes1 = []; this.nodes2 = []; this.bonds = [];
+      
+      const radius = 3.0, heightStep = 0.85, total = Math.max(s1.length, s2.length);
+      const colors = { A: 0xff073a, T: 0x39ff14, C: 0x00f3ff, G: 0xfce803 };
+      const geo = new THREE.SphereGeometry(0.45, 32, 32);
+      
+      const createNode = (base, isLeft, index) => {
+        const mat = new THREE.MeshPhysicalMaterial({
+          color: colors[base] || 0xffffff,
+          transmission: 0.6, opacity: 0.9, transparent: true,
+          roughness: 0.2, metalness: 0.1,
+          emissive: colors[base], emissiveIntensity: 0.1,
+          clearcoat: 1.0
         });
-
-        document.getElementById('btnReset').addEventListener('click', () => {
-            clearInterval(controller.timer);
-            document.getElementById('strand1').innerHTML = '';
-            document.getElementById('strand2').innerHTML = '';
-            document.getElementById('matrixWrapper').innerHTML = '';
-            document.getElementById('scoreVal').innerText = '0';
-            document.getElementById('memBar').style.width = '0%';
-            document.getElementById('timeBar').style.width = '0%';
-            document.getElementById('actionLog').innerText = 'System ready.';
+        
+        const mesh = new THREE.Mesh(geo, mat);
+        const angle = (index / total) * Math.PI * 4 + (isLeft ? 0 : Math.PI);
+        const y = (index - total/2) * heightStep;
+        
+        mesh.userData = { 
+          basePos: new THREE.Vector3(-radius * Math.cos(angle), y, radius * Math.sin(angle)),
+          baseType: base, randomOffset: Math.random() * Math.PI * 2
+        };
+        mesh.position.copy(mesh.userData.basePos);
+        
+        this.dnaGroup.add(mesh);
+        return mesh;
+      };
+      
+      s1.split('').forEach((b, i) => this.nodes1.push(createNode(b, true, i)));
+      s2.split('').forEach((b, i) => this.nodes2.push(createNode(b, false, i)));
+    }
+    
+    highlightInteraction(i1, i2, action, base1, base2) {
+      // Reset Emissão
+      [...this.nodes1, ...this.nodes2].forEach(n => { n.material.emissiveIntensity = 0.1; n.scale.set(1,1,1); });
+      this.bonds.forEach(b => this.dnaGroup.remove(b));
+      this.bonds = [];
+      
+      if(i1<0 || i2<0 || i1>=this.nodes1.length || i2>=this.nodes2.length) return;
+      
+      const n1 = this.nodes1[i1], n2 = this.nodes2[i2];
+      let intensity = 1.0, color = 0xffffff;
+      
+      if(action === 'match') color = 0x39ff14; 
+      else if(action === 'mismatch') color = 0xfce803;
+      else color = 0xff073a;
+      
+      n1.material.emissive.setHex(color); n1.material.emissiveIntensity = intensity; n1.scale.set(1.4,1.4,1.4);
+      n2.material.emissive.setHex(color); n2.material.emissiveIntensity = intensity; n2.scale.set(1.4,1.4,1.4);
+      
+      // Biologia Realística: A-T = 2 Pontes | C-G = 3 Pontes
+      if(action === 'match' && base1 && base2) {
+        const isAT = (base1 === 'A' || base1 === 'T');
+        const numBonds = isAT ? 2 : 3;
+        
+        const dist = n1.position.distanceTo(n2.position);
+        const bondMat = new THREE.MeshBasicMaterial({ color: 0x39ff14, transparent: true, opacity: 0.8 });
+        
+        for(let b=0; b<numBonds; b++) {
+          const bond = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.06, dist, 8), bondMat);
+          bond.position.copy(n1.position).lerp(n2.position, 0.5);
+          bond.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0), new THREE.Vector3().subVectors(n2.position, n1.position).normalize());
+          // Deslocamento para as múltiplas pontes
+          bond.position.y += (b - (numBonds-1)/2) * 0.3;
+          this.dnaGroup.add(bond);
+          this.bonds.push(bond);
+        }
+      }
+    }
+    
+    animate() {
+      requestAnimationFrame(() => this.animate());
+      const t = this.clock.getElapsedTime();
+      
+      const applyViscosity = (nodes) => {
+        nodes.forEach(n => {
+          const bp = n.userData.basePos;
+          const off = n.userData.randomOffset;
+          n.position.x = bp.x + Math.sin(t * 1.5 + off) * 0.15;
+          n.position.y = bp.y + Math.cos(t * 1.2 + off) * 0.15;
+          n.position.z = bp.z + Math.sin(t * 1.8 + off) * 0.15;
         });
+      };
+      
+      applyViscosity(this.nodes1);
+      applyViscosity(this.nodes2);
+      
+      this.controls.update();
+      this.renderer.render(this.scene, this.camera);
+    }
+  }
 
-    </script>
+  // --- GERENCIADOR DE UI/UX ---
+  class App {
+    constructor() {
+      this.engine = new ViscousHelixEngine('canvas-container');
+      this.initChart();
+      this.bindEvents();
+      this.initSession();
+    }
+    
+    initChart() {
+      const ctx = document.getElementById('perf-chart').getContext('2d');
+      Chart.defaults.color = '#78a2c2';
+      Chart.defaults.font.family = "'Courier New', monospace";
+      
+      this.chartData = {
+        labels: ['100', '500', '1000', '5000', '10000'],
+        mem: [
+          { label: 'Matriz DP O(N×M)', data: [80, 2000, 8000, 200000, 800000], borderColor: '#00f3ff', backgroundColor: 'rgba(0, 243, 255, 0.1)', fill: true, tension: 0.4 },
+          { label: 'Guloso O(1)', data: [1, 1, 1, 1, 1], borderColor: '#39ff14', borderDash: [5,5], tension: 0.4 }
+        ],
+        time: [
+          { label: 'Matriz DP O(N×M)', data: [0.001, 0.005, 0.02, 0.5, 2.0], borderColor: '#ff073a', backgroundColor: 'rgba(255, 7, 58, 0.1)', fill: true, tension: 0.4 },
+          { label: 'Guloso O(1)', data: [0.0001, 0.0001, 0.0001, 0.0001, 0.0001], borderColor: '#39ff14', borderDash: [5,5], tension: 0.4 }
+        ]
+      };
+
+      this.chart = new Chart(ctx, {
+        type: 'line',
+        data: { labels: this.chartData.labels, datasets: this.chartData.mem },
+        options: {
+          responsive: true, maintainAspectRatio: false,
+          interaction: { mode: 'index', intersect: false },
+          scales: {
+            y: { type: 'logarithmic', title: { display: true, text: 'Memória (KB) - Log Scale' } },
+            x: { title: { display: true, text: 'Tamanho da Sequência (N)' } }
+          },
+          plugins: { legend: { position: 'top', labels: { boxWidth: 10, font: {size: 10} } } }
+        }
+      });
+    }
+
+    toggleChart(type) {
+      document.getElementById('chart-mem-btn').classList.toggle('active', type === 'mem');
+      document.getElementById('chart-time-btn').classList.toggle('active', type === 'time');
+      
+      this.chart.data.datasets = this.chartData[type];
+      this.chart.options.scales.y.type = type === 'mem' ? 'logarithmic' : 'linear';
+      this.chart.options.scales.y.title.text = type === 'mem' ? 'Memória (KB) - Log Scale' : 'Tempo (Segundos)';
+      this.chart.update();
+    }
+
+    bindEvents() {
+      document.getElementById('species-select').addEventListener('change', () => this.initSession());
+      document.getElementById('btn-dp').addEventListener('click', () => { this.switchAlgo('dp'); });
+      document.getElementById('btn-greedy').addEventListener('click', () => { this.switchAlgo('greedy'); });
+      document.getElementById('play-btn').addEventListener('click', () => this.play());
+      
+      document.getElementById('chart-mem-btn').addEventListener('click', () => this.toggleChart('mem'));
+      document.getElementById('chart-time-btn').addEventListener('click', () => this.toggleChart('time'));
+    }
+
+    switchAlgo(algo) {
+      document.getElementById('btn-dp').classList.toggle('active', algo === 'dp');
+      document.getElementById('btn-greedy').classList.toggle('active', algo === 'greedy');
+      this.initSession();
+    }
+
+    initSession() {
+      clearInterval(this.timer);
+      const key = document.getElementById('species-select').value;
+      const algo = document.getElementById('btn-dp').classList.contains('active') ? 'dp' : 'greedy';
+      const {s1, s2} = Species[key];
+      
+      // Update Texto Didático
+      document.getElementById('didactic-text').innerHTML = algo === 'dp' ? DP_DIDACTIC : GREEDY_DIDACTIC;
+      
+      this.sim = new AlignmentSim(s1, s2, algo);
+      this.step = 0;
+      this.engine.buildSuspension(s1, s2);
+      
+      this.renderUI();
+    }
+
+    renderUI() {
+      document.getElementById('score-val').innerText = '0';
+      document.getElementById('ops-val').innerText = '0';
+      
+      const matDiv = document.getElementById('matrix-container');
+      const ramDiv = document.getElementById('ram-container');
+      
+      if (this.sim.algo === 'dp') {
+        let html = '<table class="dp-grid"><tr><th></th><th>-</th>';
+        for(let j=0; j<this.sim.m; j++) html += `<th>${this.sim.s2[j]}</th>`;
+        html += '</tr>';
+        for(let i=0; i<=this.sim.n; i++){
+          html += `<tr><th>${i===0?'-':this.sim.s1[i-1]}</th>`;
+          for(let j=0; j<=this.sim.m; j++) html += `<td id="c-${i}-${j}">0</td>`;
+          html += '</tr>';
+        }
+        matDiv.innerHTML = html + '</table>';
+        
+        let ramHtml = '';
+        for(let k=0; k<(this.sim.n+1)*this.sim.cols; k++) ramHtml += `<div class="ram-cell" id="r-${k}">0</div>`;
+        ramDiv.innerHTML = ramHtml;
+      } else {
+        matDiv.innerHTML = '<div style="color:var(--cyan); text-align:center; padding: 30px; font-weight:bold;">[ MATRIZ O(N×M) BYPASSED ]<br><span style="font-size:0.7rem; font-weight:normal; color:#88aadd;">O algoritmo guloso não cria matrizes.</span></div>';
+        ramDiv.innerHTML = '<div style="color:var(--green); font-family:monospace; font-size:0.8rem; padding: 10px;">[✓] Apenas variáveis ponteiros de char instanciadas. Alocação Linear O(1) confirmada.</div>';
+      }
+    }
+
+    play() {
+      clearInterval(this.timer);
+      const speed = this.sim.algo === 'dp' ? 50 : 150; // DP varre mais rápido por ter muitos passos init
+      
+      this.timer = setInterval(() => {
+        if (this.step >= this.sim.states.length) {
+          clearInterval(this.timer);
+          document.getElementById('score-val').innerText = this.sim.finalScore;
+          return;
+        }
+        this.processState(this.sim.states[this.step]);
+        this.step++;
+      }, speed);
+    }
+
+    processState(s) {
+      document.getElementById('ops-val').innerText = this.step + 1;
+      document.getElementById('score-val').innerText = s.val || '0';
+      
+      // Cleanup visual da matriz anterior
+      document.querySelectorAll('.dp-grid td').forEach(td => td.classList.remove('active'));
+      document.querySelectorAll('.ram-cell').forEach(c => c.classList.remove('highlight'));
+      
+      if (this.sim.algo === 'dp') {
+        const cell = document.getElementById(`c-${s.i}-${s.j}`);
+        const ramCell = document.getElementById(`r-${s.i * this.sim.cols + s.j}`);
+        
+        if(cell) { cell.innerText = s.val; cell.classList.add('active'); }
+        if(ramCell) { ramCell.innerText = s.val; ramCell.classList.add('highlight'); ramCell.scrollIntoView({block:'center', behavior:'smooth'}); }
+        
+        if(s.action) this.engine.highlightInteraction(s.i-1, s.j-1, s.action, s.base1, s.base2);
+      } else {
+        if(s.action) this.engine.highlightInteraction(s.i, s.j, s.action, s.base1, s.base2);
+      }
+    }
+  }
+
+  window.onload = () => { window.app = new App(); };
+</script>
 </body>
 </html>
