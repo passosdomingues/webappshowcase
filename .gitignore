@@ -1,0 +1,55 @@
+# Executáveis e binários
+*.exe
+*.class
+*.jar
+*.dll
+*.so
+*.dylib
+
+# Arquivos de mídia pesados
+*.mp3
+*.mp4
+*.stl
+*.wav
+*.mov
+
+# Arquivos compactados / pacotes
+*.zip
+*.rar
+*.tar.gz
+*.tgz
+*.ear
+*.war
+
+# Logs e arquivos temporários
+*.log
+*.tmp
+*.mtj
+*.ctxt
+
+# Ambientes virtuais / dependências locais
+venv/
+.venv/
+__pycache__/
+.pytest_cache/
+node_modules/
+.env
+
+# Arquivos do sistema e de editor
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+.idea/
+*.iml
+.vscode/
+*.project
+
+# Builds e outputs
+build/
+dist/
+out/
+target/
+ollama/
+deepseek/
+llm/
