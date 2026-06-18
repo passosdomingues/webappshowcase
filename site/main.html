@@ -1,1082 +1,379 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-BR" data-theme="light">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="description" content="Coleção de utilitários e projetos HTML interativos" />
-  <meta name="keywords" content="utilitários, ferramentas, projetos, HTML, JavaScript" />
-  <meta name="author" content="Rafael Passos Domingues" />
-  <meta name="theme-color" content="#1976d2" />
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <meta name="description" content="Coleção de utilitários e projetos HTML interativos — Rafael Passos Domingues"/>
+  <meta name="author" content="Rafael Passos Domingues"/>
+  <meta name="theme-color" content="#4f46e5"/>
   <title>Simple Utility App Suite</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
-    /* Reset e variáveis */
-    :root {
-      --color-primary: #1976d2;
-      --color-primary-dark: #0d47a1;
-      --color-primary-light: #bbdefb;
-      --color-text: #333;
-      --color-text-secondary: #555;
-      --color-background: #f5f7fa;
-      --color-card: #fff;
-      --color-card-hover: #e8f0fe;
-      --color-border: #e0e0e0;
-      --shadow-sm: 0 2px 6px rgba(0,0,0,0.08);
-      --shadow-md: 0 4px 12px rgba(0,0,0,0.12);
-      --shadow-lg: 0 8px 24px rgba(0,0,0,0.15);
-      --radius-sm: 8px;
-      --radius-md: 12px;
-      --radius-lg: 16px;
-      --transition: 0.3s ease;
-      --font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen,
-                   Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
+    :root{
+      --primary:#4f46e5;--primary-dark:#3730a3;--primary-light:#e0e7ff;
+      --accent:#f59e0b;--bg:#f1f5f9;--surface:#fff;--surface-2:#f8fafc;
+      --border:#e2e8f0;--text:#1e293b;--text-2:#64748b;
+      --shadow-sm:0 1px 3px rgba(0,0,0,.08);
+      --shadow-md:0 4px 14px rgba(0,0,0,.10);
+      --shadow-lg:0 10px 32px rgba(0,0,0,.13);
+      --radius-sm:8px;--radius-md:14px;--radius-lg:20px;
+      --transition:.25s ease;
+      --font:'Inter',-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
     }
-
-    /* Dark mode variables */
-    [data-theme="dark"] {
-      --color-primary: #90caf9;
-      --color-primary-dark: #64b5f6;
-      --color-primary-light: #1e3a5f;
-      --color-text: #e0e0e0;
-      --color-text-secondary: #aaa;
-      --color-background: #121212;
-      --color-card: #1e1e1e;
-      --color-card-hover: #2c2c2c;
-      --color-border: #333;
-      --shadow-sm: 0 2px 6px rgba(0,0,0,0.3);
-      --shadow-md: 0 4px 12px rgba(0,0,0,0.4);
-      --shadow-lg: 0 8px 24px rgba(0,0,0,0.5);
+    [data-theme=dark]{
+      --primary:#818cf8;--primary-dark:#6366f1;--primary-light:#1e1b4b;
+      --accent:#fbbf24;--bg:#0f172a;--surface:#1e293b;--surface-2:#162032;
+      --border:#334155;--text:#e2e8f0;--text-2:#94a3b8;
     }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    html{scroll-behavior:smooth}
+    body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:100vh;display:flex;flex-direction:column;transition:background var(--transition),color var(--transition)}
 
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
+    /* Header */
+    header{background:linear-gradient(135deg,var(--primary),var(--primary-dark));color:#fff;padding:2.2rem 1.5rem 3.2rem;text-align:center;position:relative}
+    h1{font-size:clamp(1.6rem,4vw,2.6rem);font-weight:800;letter-spacing:-.03em;margin-bottom:.35rem}
+    .subtitle{color:rgba(255,255,255,.82);font-size:1rem}
+    .header-controls{position:absolute;top:1rem;right:1.25rem;display:flex;gap:.5rem}
+    .icon-btn{background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.2);color:#fff;border-radius:50%;width:40px;height:40px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:.95rem;transition:background var(--transition)}
+    .icon-btn:hover{background:rgba(255,255,255,.28)}
 
-    html {
-      scroll-behavior: smooth;
-    }
+    /* Controls card */
+    .controls{max-width:1100px;margin:-1.6rem auto 0;padding:1rem 1.25rem;background:var(--surface);border-radius:var(--radius-lg);box-shadow:var(--shadow-md);border:1px solid var(--border);display:flex;gap:.75rem;flex-wrap:wrap;position:relative;z-index:10}
+    .search-wrap{position:relative;flex:1;min-width:200px}
+    .search-wrap input{width:100%;padding:.65rem 2.2rem .65rem 2.5rem;border:1.5px solid var(--border);border-radius:50px;font-size:.95rem;font-family:var(--font);background:var(--surface-2);color:var(--text);transition:border-color var(--transition),box-shadow var(--transition)}
+    .search-wrap input:focus{outline:none;border-color:var(--primary);box-shadow:0 0 0 3px var(--primary-light)}
+    .search-icon{position:absolute;left:.85rem;top:50%;transform:translateY(-50%);color:var(--text-2);font-size:.9rem;pointer-events:none}
+    .clear-btn{position:absolute;right:.75rem;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--text-2);cursor:pointer;display:none;font-size:.85rem}
+    .search-wrap input:not(:placeholder-shown)~.clear-btn{display:block}
+    select{padding:.65rem 1rem;border:1.5px solid var(--border);border-radius:50px;font-size:.9rem;font-family:var(--font);background:var(--surface-2);color:var(--text);cursor:pointer;transition:border-color var(--transition)}
+    select:focus{outline:none;border-color:var(--primary)}
 
-    body {
-      font-family: var(--font-family);
-      background-color: var(--color-background);
-      color: var(--color-text);
-      display: flex;
-      flex-direction: column;
-      min-height: 100vh;
-      padding: 0;
-      transition: background-color var(--transition), color var(--transition);
-      line-height: 1.6;
-    }
+    /* Stats bar */
+    .stats-bar{max-width:1100px;margin:.9rem auto .2rem;padding:0 1.25rem;display:flex;align-items:center;justify-content:space-between;font-size:.83rem;color:var(--text-2);gap:.5rem;flex-wrap:wrap}
+    .bm25-badge{background:var(--primary-light);color:var(--primary);font-weight:600;padding:.15rem .55rem;border-radius:50px;font-size:.75rem}
 
-    /* Header e navegação */
-    header {
-      background-color: var(--color-primary);
-      color: white;
-      padding: 1.5rem 1rem;
-      text-align: center;
-      position: relative;
-      box-shadow: var(--shadow-sm);
-    }
+    /* Container */
+    .container{max-width:1100px;margin:0 auto;padding:1.2rem 1.25rem 3rem;flex:1}
 
-    .header-content {
-      max-width: 1200px;
-      margin: 0 auto;
-      position: relative;
-    }
+    /* Category section */
+    .category-section{margin-bottom:2.5rem}
+    .category-title{font-size:1.1rem;font-weight:700;color:var(--text);margin:0 0 1rem;padding-bottom:.5rem;border-bottom:2px solid var(--primary);display:flex;align-items:center;gap:.5rem}
+    .cat-count{background:var(--primary-light);color:var(--primary);font-size:.75rem;font-weight:600;padding:.15rem .5rem;border-radius:50px}
 
-    h1 {
-      font-size: 2.5rem;
-      margin-bottom: 0.5rem;
-      font-weight: 700;
-    }
+    /* Grid */
+    .cards-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:1.1rem}
 
-    p.subtitle {
-      color: rgba(255, 255, 255, 0.9);
-      font-size: 1.1rem;
-      margin-bottom: 1rem;
-      font-weight: 400;
-    }
+    /* Card */
+    .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-md);text-decoration:none;color:var(--text);display:flex;flex-direction:column;transition:transform var(--transition),box-shadow var(--transition),border-color var(--transition);overflow:hidden}
+    .card:hover,.card:focus{transform:translateY(-4px);box-shadow:var(--shadow-lg);border-color:var(--primary);outline:none}
+    .card:focus-visible{outline:3px solid var(--primary);outline-offset:2px}
+    .card-header{padding:1.1rem 1.1rem .6rem;display:flex;align-items:center;gap:.65rem}
+    .card-icon{font-size:2rem;user-select:none;line-height:1}
+    .card-title{font-weight:700;font-size:.97rem;color:var(--text);line-height:1.3}
+    .card-body{padding:.1rem 1.1rem 1.1rem;flex:1;display:flex;flex-direction:column;gap:.5rem}
+    .card-desc{font-size:.83rem;color:var(--text-2);line-height:1.4;flex:1}
+    mark{background:#fef08a;color:#713f12;border-radius:2px;padding:0 1px}
+    [data-theme=dark] mark{background:#854d0e;color:#fef08a}
+    .card-meta{display:flex;align-items:center;justify-content:space-between;gap:.4rem;flex-wrap:wrap}
+    .card-cat{background:var(--primary-light);color:var(--primary);padding:.18rem .55rem;border-radius:50px;font-weight:600;font-size:.73rem;white-space:nowrap}
+    .card-date{font-size:.72rem;color:var(--text-2)}
+    .score-bar{height:3px;border-radius:2px;background:var(--primary);opacity:.6;margin-top:.3rem;transition:width .3s}
 
-    /* Controles */
-    .controls {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      max-width: 1200px;
-      margin: 0 auto;
-      padding: 1rem;
-      background-color: var(--color-card);
-      border-radius: var(--radius-md);
-      box-shadow: var(--shadow-sm);
-      margin-top: -1.5rem;
-      position: relative;
-      z-index: 10;
-      flex-wrap: wrap;
-      gap: 0.5rem;
-    }
+    /* No results */
+    .no-results{text-align:center;padding:4rem 1rem;color:var(--text-2)}
+    .no-results svg{margin-bottom:1rem;opacity:.35}
 
-    .search-container {
-      position: relative;
-      flex: 1;
-      min-width: 200px;
-    }
+    /* Back to top */
+    #btt{position:fixed;bottom:1.75rem;right:1.75rem;width:48px;height:48px;border-radius:50%;background:var(--primary);color:#fff;border:none;cursor:pointer;font-size:1.3rem;display:flex;align-items:center;justify-content:center;box-shadow:var(--shadow-md);opacity:0;visibility:hidden;transition:all var(--transition)}
+    #btt.show{opacity:1;visibility:visible}
+    #btt:hover{background:var(--primary-dark);transform:translateY(-3px)}
 
-    #searchInput {
-      width: 100%;
-      padding: 0.75rem 1rem 0.75rem 2.5rem;
-      border: 1px solid var(--color-border);
-      border-radius: var(--radius-sm);
-      font-size: 1rem;
-      background-color: var(--color-card);
-      color: var(--color-text);
-      transition: all var(--transition);
-    }
+    /* Footer */
+    footer{background:var(--surface);border-top:1px solid var(--border);text-align:center;padding:1.25rem;font-size:.82rem;color:var(--text-2)}
+    footer a{color:var(--primary);text-decoration:none}
 
-    #searchInput:focus {
-      outline: none;
-      border-color: var(--color-primary);
-      box-shadow: 0 0 0 3px var(--color-primary-light);
-    }
+    /* SR-only */
+    .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
 
-    .search-icon {
-      position: absolute;
-      left: 0.75rem;
-      top: 50%;
-      transform: translateY(-50%);
-      color: var(--color-text-secondary);
-      pointer-events: none;
-    }
-
-    .filter-container {
-      display: flex;
-      gap: 0.5rem;
-      align-items: center;
-    }
-
-    #categoryFilter {
-      padding: 0.75rem 1rem;
-      border: 1px solid var(--color-border);
-      border-radius: var(--radius-sm);
-      font-size: 1rem;
-      background-color: var(--color-card);
-      color: var(--color-text);
-      cursor: pointer;
-      transition: all var(--transition);
-    }
-
-    #categoryFilter:focus {
-      outline: none;
-      border-color: var(--color-primary);
-    }
-
-    #darkModeToggle {
-      background: none;
-      border: none;
-      width: 40px;
-      height: 40px;
-      font-size: 1.5rem;
-      line-height: 1;
-      cursor: pointer;
-      color: var(--color-text);
-      transition: all var(--transition);
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    #darkModeToggle:hover {
-      background-color: rgba(0,0,0,0.1);
-    }
-
-    #darkModeToggle:focus {
-      outline: 3px solid var(--color-primary-light);
-      outline-offset: 2px;
-    }
-
-    /* Conteúdo principal */
-    .container {
-      max-width: 1200px;
-      margin: 0 auto;
-      padding: 2rem 1rem;
-      width: 100%;
-      flex-grow: 1;
-    }
-
-    .category-title {
-      margin: 2rem 0 1rem;
-      padding-bottom: 0.5rem;
-      border-bottom: 2px solid var(--color-primary);
-      color: var(--color-text);
-      font-size: 1.5rem;
-      font-weight: 600;
-    }
-
-    .category-title:first-of-type {
-      margin-top: 0;
-    }
-
-    .cards-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-      gap: 1.5rem;
-      margin-bottom: 2rem;
-    }
-
-    .card {
-      display: flex;
-      flex-direction: column;
-      background-color: var(--color-card);
-      border-radius: var(--radius-md);
-      box-shadow: var(--shadow-sm);
-      text-decoration: none;
-      color: var(--color-text);
-      transition: all var(--transition);
-      overflow: hidden;
-      height: 100%;
-      border: 1px solid var(--color-border);
-    }
-
-    .card:hover,
-    .card:focus {
-      transform: translateY(-4px);
-      box-shadow: var(--shadow-md);
-      border-color: var(--color-primary);
-      outline: none;
-    }
-
-    .card:focus-visible {
-      outline: 3px solid var(--color-primary);
-      outline-offset: 2px;
-    }
-
-    .card-header {
-      padding: 1.25rem 1.25rem 0.75rem;
-      display: flex;
-      align-items: center;
-      gap: 0.75rem;
-    }
-
-    .card-icon {
-      font-size: 2.5rem;
-      user-select: none;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .card-title {
-      font-weight: 600;
-      font-size: 1.2rem;
-      color: var(--color-text);
-      flex-grow: 1;
-    }
-
-    .card-body {
-      padding: 0 1.25rem 1.25rem;
-      flex-grow: 1;
-      display: flex;
-      flex-direction: column;
-    }
-
-    .card-desc {
-      font-size: 0.95rem;
-      color: var(--color-text-secondary);
-      margin-bottom: 1rem;
-      flex-grow: 1;
-    }
-
-    .card-meta {
-      display: flex;
-      flex-direction: column;
-      gap: 0.5rem;
-      font-size: 0.85rem;
-      color: var(--color-text-secondary);
-    }
-
-    .meta-row {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    .card-category {
-      background-color: var(--color-primary-light);
-      color: var(--color-primary-dark);
-      padding: 0.25rem 0.5rem;
-      border-radius: var(--radius-sm);
-      font-weight: 500;
-      font-size: 0.8rem;
-    }
-
-    .card-hash {
-      font-family: monospace;
-      font-size: 0.7rem;
-      opacity: 0.7;
-      word-break: break-all;
-    }
-
-    .card-date {
-      font-size: 0.8rem;
-    }
-
-    [data-theme="dark"] .card-category {
-      background-color: var(--color-primary-dark);
-      color: var(--color-primary-light);
-    }
-
-    /* Rodapé */
-    footer {
-      background-color: var(--color-card);
-      color: var(--color-text-secondary);
-      text-align: center;
-      padding: 1.5rem;
-      margin-top: auto;
-      border-top: 1px solid var(--color-border);
-    }
-
-    .footer-content {
-      max-width: 1200px;
-      margin: 0 auto;
-    }
-
-    /* Mensagem de nenhum resultado */
-    .no-results {
-      text-align: center;
-      padding: 3rem 1rem;
-      color: var(--color-text-secondary);
-      font-size: 1.2rem;
-    }
-
-    /* Animações */
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(10px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-    .card {
-      animation: fadeIn 0.3s ease-out;
-    }
-
-    /* Responsividade */
-    @media (max-width: 768px) {
-      h1 {
-        font-size: 2rem;
-      }
-
-      .controls {
-        flex-direction: column;
-        align-items: stretch;
-      }
-
-      .filter-container {
-        justify-content: space-between;
-      }
-
-      .cards-grid {
-        grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-      }
-    }
-
-    @media (max-width: 480px) {
-      h1 {
-        font-size: 1.75rem;
-      }
-
-      .cards-grid {
-        grid-template-columns: 1fr;
-      }
-
-      .card-header {
-        flex-direction: column;
-        text-align: center;
-      }
-
-      .card-title {
-        margin-top: 0.5rem;
-      }
-    }
-
-    /* Acessibilidade */
-    .sr-only {
-      position: absolute;
-      width: 1px;
-      height: 1px;
-      padding: 0;
-      margin: -1px;
-      overflow: hidden;
-      clip: rect(0, 0, 0, 0);
-      white-space: nowrap;
-      border-width: 0;
-    }
-
-    /* Botão de voltar ao topo */
-    #backToTop {
-      position: fixed;
-      bottom: 2rem;
-      right: 2rem;
-      width: 50px;
-      height: 50px;
-      border-radius: 50%;
-      background-color: var(--color-primary);
-      color: white;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 1.5rem;
-      cursor: pointer;
-      box-shadow: var(--shadow-md);
-      opacity: 0;
-      visibility: hidden;
-      transition: all var(--transition);
-      border: none;
-    }
-
-    #backToTop.visible {
-      opacity: 1;
-      visibility: visible;
-    }
-
-    #backToTop:hover {
-      background-color: var(--color-primary-dark);
-      transform: translateY(-4px);
-    }
-
-    /* Skeleton loading */
-    .skeleton {
-      background: linear-gradient(90deg, var(--color-card) 25%, var(--color-card-hover) 50%, var(--color-card) 75%);
-      background-size: 200% 100%;
-      animation: loading 1.5s infinite;
-      border-radius: var(--radius-sm);
-    }
-
-    @keyframes loading {
-      0% { background-position: 200% 0; }
-      100% { background-position: -200% 0; }
+    @media(prefers-reduced-motion:reduce){*{transition-duration:.01ms!important}}
+    @media(max-width:640px){
+      header{padding:1.75rem 1rem 2.8rem}
+      .controls{flex-direction:column}
+      .header-controls{top:.75rem;right:.75rem}
     }
   </style>
 </head>
 <body>
-  <header>
-    <div class="header-content">
-      <h1>Simple Utility App Suite</h1>
-      <p class="subtitle">by Rafael Passos Domingues</p>
-    </div>
-  </header>
-
-  <div class="container">
-    <div class="controls">
-      <div class="search-container">
-        <span class="search-icon" aria-hidden="true">🔍</span>
-        <input type="text" id="searchInput" placeholder="Buscar projetos..." aria-label="Buscar projetos">
-      </div>
-      <div class="filter-container">
-        <label for="categoryFilter" class="sr-only">Filtrar por categoria</label>
-        <select id="categoryFilter" aria-label="Filtrar por categoria">
-          <option value="all">Todas as categorias</option>
-          <!-- Categorias serão adicionadas via JavaScript -->
-        </select>
-        <button id="darkModeToggle" aria-pressed="false" aria-label="Alternar modo escuro">🌙</button>
-      </div>
-    </div>
-
-    <div id="projectsContainer">
-      <!-- Conteúdo será gerado dinamicamente -->
-    </div>
+<header>
+  <div class="header-controls">
+    <button class="icon-btn" id="darkToggle" aria-pressed="false" aria-label="Alternar modo escuro">🌙</button>
   </div>
+  <h1>Simple Utility App Suite</h1>
+  <p class="subtitle">by Rafael Passos Domingues</p>
+</header>
 
-  <button id="backToTop" aria-label="Voltar ao topo" title="Voltar ao topo">↑</button>
+<div class="controls">
+  <div class="search-wrap" role="search">
+    <span class="search-icon" aria-hidden="true">🔍</span>
+    <input type="search" id="searchInput" placeholder="Buscar projetos… (Okapi BM25)" aria-label="Buscar projetos">
+    <button class="clear-btn" id="clearSearch" aria-label="Limpar busca">✕</button>
+  </div>
+  <select id="catFilter" aria-label="Filtrar por categoria">
+    <option value="">Todas as categorias</option>
+  </select>
+  <select id="sortSelect" aria-label="Ordenar por">
+    <option value="relevance">Relevância BM25</option>
+    <option value="date">Data de modificação</option>
+    <option value="name">Nome A→Z</option>
+  </select>
+</div>
 
-  <script>
-    // Dados dos projetos
-    const BASE_URL = "${BASE_URL}";  // Base URL para links diretos no GitHub Pages
-    const projects = [
-      {
-        id: "3DPrintScultor",
-        title: "3D Print Scultor",
-        icon: "🧑‍💻⛰️",
-        category: "Outros",
-        path: "https://passosdomingues.github.io/webappshowcase/site/utilities/3DPrintScultor.html",
-        lastModified: "2025-10-25 00:21",
-        fileHash: "b836e4d21840d80b2bbaa3b711c6314a"
-      },
-      {
-        id: "algoritmos",
-        title: "Aula de Algoritmos - Controle de Estoque",
-        icon: "🧑‍💻⛰️",
-        category: "Outros",
-        path: "https://passosdomingues.github.io/webappshowcase/site/utilities/algoritmos.html",
-        lastModified: "2026-01-20 09:55",
-        fileHash: "3f57342ec136545cb7fb37281679113a"
-      },
-      {
-        id: "barber",
-        title: "BarberAI",
-        icon: "💈",
-        category: "Outros",
-        path: "https://passosdomingues.github.io/webappshowcase/site/utilities/barber.html",
-        lastModified: "2025-06-08 02:44",
-        fileHash: "c65380382d88b75fe26f2630529a4f1f"
-      },
-      {
-        id: "blueParking",
-        title: "VagAI",
-        icon: "🧑‍💻⛰️",
-        category: "Outros",
-        path: "https://passosdomingues.github.io/webappshowcase/site/utilities/blueParking.html",
-        lastModified: "2025-06-12 07:18",
-        fileHash: "22411e0d632a4ec39d8f16583a186a46"
-      },
-      {
-        id: "brailleTouch",
-        title: "BrailleTouch - Conversor com Feedback Tátil",
-        icon: "🧑‍💻⛰️",
-        category: "Outros",
-        path: "https://passosdomingues.github.io/webappshowcase/site/utilities/brailleTouch.html",
-        lastModified: "2025-06-22 17:16",
-        fileHash: "e3a408a2d40baa2b6b46d14dc9bc23e6"
-      },
-      {
-        id: "buscaContextoPDFs",
-        title: "Context Hunter",
-        icon: "🔎📄",
-        category: "Outros",
-        path: "https://passosdomingues.github.io/webappshowcase/site/utilities/buscaContextoPDFs.html",
-        lastModified: "2025-06-08 02:48",
-        fileHash: "55b2c6823d6a172aaca8195e539d5ffd"
-      },
-      {
-        id: "busHour",
-        title: "BusAI",
-        icon: "🔎🚌",
-        category: "Outros",
-        path: "https://passosdomingues.github.io/webappshowcase/site/utilities/busHour.html",
-        lastModified: "2025-06-09 19:14",
-        fileHash: "ac23aced16e8b8cb18198a8c4a3b58b4"
-      },
-      {
-        id: "CNCImageConversor",
-        title: "Generative Path Laser CO2 CAM",
-        icon: "🖼️",
-        category: "Outros",
-        path: "https://passosdomingues.github.io/webappshowcase/site/utilities/CNCImageConversor.html",
-        lastModified: "2025-10-27 15:30",
-        fileHash: "2c3488232114b1ef4a43e0d4b7992b1a"
-      },
-      {
-        id: "comandaDigital",
-        title: "ComandAI",
-        icon: "🍢",
-        category: "Outros",
-        path: "https://passosdomingues.github.io/webappshowcase/site/utilities/comandaDigital.html",
-        lastModified: "2025-06-08 02:34",
-        fileHash: "1cc61a34ebe28ea66306b385b1a1e387"
-      },
-      {
-        id: "confereListaSupermercado",
-        title: "ConfereAI",
-        icon: "🛒",
-        category: "Outros",
-        path: "https://passosdomingues.github.io/webappshowcase/site/utilities/confereListaSupermercado.html",
-        lastModified: "2025-06-08 02:16",
-        fileHash: "374e74fd1366e781e8b6dd815cae7888"
-      },
-      {
-        id: "cras",
-        title: "CRAS ODS - Sistema de Visitas Domiciliares",
-        icon: "🧑‍💻⛰️",
-        category: "Outros",
-        path: "https://passosdomingues.github.io/webappshowcase/site/utilities/cras.html",
-        lastModified: "2026-01-09 19:53",
-        fileHash: "077ff38294f180e1e559fc9a60cd0c55"
-      },
-      {
-        id: "dengueZero",
-        title: "DengueAI",
-        icon: "🔎🦟",
-        category: "Outros",
-        path: "https://passosdomingues.github.io/webappshowcase/site/utilities/dengueZero.html",
-        lastModified: "2025-09-02 21:16",
-        fileHash: "9023d12dd7a81363f5af4b77a6b79915"
-      },
-      {
-        id: "dentaLog",
-        title: "DentAI - Sistema Odontológico",
-        icon: "🦷",
-        category: "Outros",
-        path: "https://passosdomingues.github.io/webappshowcase/site/utilities/dentaLog.html",
-        lastModified: "2025-06-08 22:06",
-        fileHash: "9ed5406c49bad695c19b2803454cd1e8"
-      },
-      {
-        id: "devHorizons",
-        title: "Dev Horizons",
-        icon: "🧑‍💻⛰️",
-        category: "Outros",
-        path: "https://passosdomingues.github.io/webappshowcase/site/utilities/devHorizons.html",
-        lastModified: "2025-10-02 21:50",
-        fileHash: "eaae1150595036d261c72e6cd20aedfe"
-      },
-      {
-        id: "dogGuest",
-        title: "DogNB",
-        icon: "🐶",
-        category: "Outros",
-        path: "https://passosdomingues.github.io/webappshowcase/site/utilities/dogGuest.html",
-        lastModified: "2025-06-08 02:37",
-        fileHash: "8d71fccae3756a801fd6025db671cb73"
-      },
-      {
-        id: "encomendUAI",
-        title: "EncomendUAI",
-        icon: "🍞🧀",
-        category: "Outros",
-        path: "https://passosdomingues.github.io/webappshowcase/site/utilities/encomendUAI.html",
-        lastModified: "2025-06-11 18:43",
-        fileHash: "0b46343f148d1c2b4e26fcb0de7cc65d"
-      },
-      {
-        id: "essenceExtractor",
-        title: "Essence Extractor Pro - Briefing Atômico para Websites",
-        icon: "🧑‍💻⛰️",
-        category: "Outros",
-        path: "https://passosdomingues.github.io/webappshowcase/site/utilities/essenceExtractor.html",
-        lastModified: "2025-10-24 15:38",
-        fileHash: "520c751be7df87acd19dd891114fc80a"
-      },
-      {
-        id: "essenceMatch",
-        title: "ESSENCE MATCH - Classificador Comportamental PMBOK 7 &amp; Belbin",
-        icon: "🧑‍💻⛰️",
-        category: "Outros",
-        path: "https://passosdomingues.github.io/webappshowcase/site/utilities/essenceMatch.html",
-        lastModified: "2026-01-06 12:47",
-        fileHash: "b3cbee278f91e4ad73344078ad69257f"
-      },
-      {
-        id: "fitMotivation",
-        title: "FitMotivation+",
-        icon: "🏋️‍♂️💪",
-        category: "Outros",
-        path: "https://passosdomingues.github.io/webappshowcase/site/utilities/fitMotivation.html",
-        lastModified: "2025-06-08 01:26",
-        fileHash: "bd612f9ee0841f28ad3c92ac215c330b"
-      },
-      {
-        id: "genoma",
-        title: "G.E.N.O.M.A. | Arquitetura Bio-Computacional",
-        icon: "🧑‍💻⛰️",
-        category: "Outros",
-        path: "https://passosdomingues.github.io/webappshowcase/site/utilities/genoma.html",
-        lastModified: "2026-04-12 12:38",
-        fileHash: "7cd1b2e8506cc0cd9b15df45943165d7"
-      },
-      {
-        id: "geraConviteEstrategico",
-        title: "Invitation Strategic Generator",
-        icon: "🧑‍💻⛰️",
-        category: "Outros",
-        path: "https://passosdomingues.github.io/webappshowcase/site/utilities/geraConviteEstrategico.html",
-        lastModified: "2025-10-25 07:08",
-        fileHash: "da60d1f73c2c40770ec7c935f5e283d3"
-      },
-      {
-        id: "gitCommands",
-        title: "Comandos Git - Busca Inteligente",
-        icon: "🧑‍💻⛰️",
-        category: "Outros",
-        path: "https://passosdomingues.github.io/webappshowcase/site/utilities/gitCommands.html",
-        lastModified: "2025-10-02 21:44",
-        fileHash: "c87eff1e5e880e21e91979662ca9dc7a"
-      },
-      {
-        id: "guiaImpostoRenda",
-        title: "Guia IRPF 2025 - Seu Assistente Pessoal",
-        icon: "🧑‍💻⛰️",
-        category: "Outros",
-        path: "https://passosdomingues.github.io/webappshowcase/site/utilities/guiaImpostoRenda.html",
-        lastModified: "2025-11-02 17:15",
-        fileHash: "6c81abbbc7741477fbd47b997f32dbb8"
-      },
-      {
-        id: "InnovaLens",
-        title: "InnovaLens | Decodificador Semântico de Patentes",
-        icon: "🧑‍💻⛰️",
-        category: "Outros",
-        path: "https://passosdomingues.github.io/webappshowcase/site/utilities/InnovaLens.html",
-        lastModified: "2025-10-25 09:06",
-        fileHash: "fb62b81c58cbd778c257484b80ea36d5"
-      },
-      {
-        id: "investAI",
-        title: "InvestAI - Avaliação Completa para Startups",
-        icon: "🧑‍💻⛰️",
-        category: "Outros",
-        path: "https://passosdomingues.github.io/webappshowcase/site/utilities/investAI.html",
-        lastModified: "2025-06-18 15:01",
-        fileHash: "3676041e9e02b65624cdbf0fc1045383"
-      },
-      {
-        id: "jurisCopilot",
-        title: "JurisCopilot - Assistente Jurídico",
-        icon: "🧑‍💻⛰️",
-        category: "Outros",
-        path: "https://passosdomingues.github.io/webappshowcase/site/utilities/jurisCopilot.html",
-        lastModified: "2025-06-13 19:56",
-        fileHash: "2bc38d160675e06e2c4dc4e8044dd891"
-      },
-      {
-        id: "marmitAI",
-        title: "MarmitAI - Planejador Inteligente de Marmitas",
-        icon: "🍱",
-        category: "Outros",
-        path: "https://passosdomingues.github.io/webappshowcase/site/utilities/marmitAI.html",
-        lastModified: "2025-06-10 21:10",
-        fileHash: "67f117c44c08a34f95e2e6c3fa1020f5"
-      },
-      {
-        id: "maturityPro",
-        title: "MaturityPro - Diagnóstico Completo para Startups",
-        icon: "🧑‍💻⛰️",
-        category: "Outros",
-        path: "https://passosdomingues.github.io/webappshowcase/site/utilities/maturityPro.html",
-        lastModified: "2025-10-19 13:12",
-        fileHash: "7f27e98723380c7521708cb6213cca23"
-      },
-      {
-        id: "meetMotions",
-        title: "Meet Motions Tracking",
-        icon: "🎤",
-        category: "Outros",
-        path: "https://passosdomingues.github.io/webappshowcase/site/utilities/meetMotions.html",
-        lastModified: "2025-06-08 01:27",
-        fileHash: "e68a25e74a5df72aa733634cce33f791"
-      },
-      {
-        id: "montaHorariosEnsinoMedio",
-        title: "Planejador de Horários - Novo Ensino Médio MG",
-        icon: "🧑‍💻⛰️",
-        category: "Outros",
-        path: "https://passosdomingues.github.io/webappshowcase/site/utilities/montaHorariosEnsinoMedio.html",
-        lastModified: "2025-10-25 08:36",
-        fileHash: "b1e04fa248548d4e65acf0485ff57d18"
-      },
-      {
-        id: "motoboyDanger",
-        title: "Moto Guardian",
-        icon: "⚠️🛵",
-        category: "Outros",
-        path: "https://passosdomingues.github.io/webappshowcase/site/utilities/motoboyDanger.html",
-        lastModified: "2025-06-08 01:46",
-        fileHash: "34f4c2e6e79d2faee81d591cf4d4a9de"
-      },
-      {
-        id: "oraculoCerne",
-        title: "CerneOracle",
-        icon: "🧑‍💻⛰️",
-        category: "Outros",
-        path: "https://passosdomingues.github.io/webappshowcase/site/utilities/oraculoCerne.html",
-        lastModified: "2025-10-24 23:42",
-        fileHash: "ed57f0a9ebf60ff3a6e149f853a43815"
-      },
-      {
-        id: "orbitasEstrelasViaLactea",
-        title: "Simulador de Dinâmica Galáctica",
-        icon: "🧑‍💻⛰️",
-        category: "Outros",
-        path: "https://passosdomingues.github.io/webappshowcase/site/utilities/orbitasEstrelasViaLactea.html",
-        lastModified: "2025-10-31 18:17",
-        fileHash: "249a23deb6ec11f81b8f109af5abafb8"
-      },
-      {
-        id: "pawgel",
-        title: "Pawgel",
-        icon: "🔎🐾🪽",
-        category: "Outros",
-        path: "https://passosdomingues.github.io/webappshowcase/site/utilities/pawgel.html",
-        lastModified: "2025-06-08 01:30",
-        fileHash: "af1ac5e2733a35a0f8dcae63ab837565"
-      },
-      {
-        id: "pedreiroBot",
-        title: "PedreiroBot",
-        icon: "🧱",
-        category: "Outros",
-        path: "https://passosdomingues.github.io/webappshowcase/site/utilities/pedreiroBot.html",
-        lastModified: "2025-06-08 01:47",
-        fileHash: "084d0026041c25933763d33ff79a3778"
-      },
-      {
-        id: "peregrinApp",
-        title: "PeregrinApp",
-        icon: "🔎🗺️🚴‍♂️",
-        category: "Outros",
-        path: "https://passosdomingues.github.io/webappshowcase/site/utilities/peregrinApp.html",
-        lastModified: "2025-06-09 00:54",
-        fileHash: "97ba267991e815260244f8b95982fc86"
-      },
-      {
-        id: "personaLLM",
-        title: "Construtor de Persona LLM",
-        icon: "🧑‍💻⛰️",
-        category: "Outros",
-        path: "https://passosdomingues.github.io/webappshowcase/site/utilities/personaLLM.html",
-        lastModified: "2025-11-05 14:37",
-        fileHash: "971135451b75e9c246c7b0ae3070d22f"
-      },
-      {
-        id: "planejaMercado",
-        title: "ComprAI",
-        icon: "🛒",
-        category: "Outros",
-        path: "https://passosdomingues.github.io/webappshowcase/site/utilities/planejaMercado.html",
-        lastModified: "2025-06-08 01:35",
-        fileHash: "54a5e775d553760f7bfad483565f3708"
-      },
-      {
-        id: "planoPerfeito",
-        title: "Plano Perfeito - Gerador de Estratégias Empresariais",
-        icon: "🧑‍💻⛰️",
-        category: "Outros",
-        path: "https://passosdomingues.github.io/webappshowcase/site/utilities/planoPerfeito.html",
-        lastModified: "2025-10-25 07:37",
-        fileHash: "3097c7a6f9056a28c93aada681c7dd07"
-      },
-      {
-        id: "plantAI",
-        title: "PlantAI",
-        icon: "🛰️🌱",
-        category: "Outros",
-        path: "https://passosdomingues.github.io/webappshowcase/site/utilities/plantAI.html",
-        lastModified: "2025-06-08 01:36",
-        fileHash: "4c62ad6a18dc2eeece739e48b5c93ee7"
-      },
-      {
-        id: "previMax",
-        title: "PreviMax - Engenharia Contra Incêndio - Elói Mendes e Região",
-        icon: "🧑‍💻⛰️",
-        category: "engenharia contra incêndio",
-        path: "https://passosdomingues.github.io/webappshowcase/site/utilities/previMax.html",
-        lastModified: "2025-10-21 21:42",
-        fileHash: "0e4c5252897c0bbbf12e38564778da3c"
-      },
-      {
-        id: "qrCodeGenerator",
-        title: "QR Code Safe Generator",
-        icon: "🔒🔳",
-        category: "Outros",
-        path: "https://passosdomingues.github.io/webappshowcase/site/utilities/qrCodeGenerator.html",
-        lastModified: "2025-06-08 01:38",
-        fileHash: "f56640a9baf4a8842989fef942828ac0"
-      },
-      {
-        id: "radaresFixosAlfenasMG",
-        title: "Radares Fixos · Alfenas-MG",
-        icon: "🧑‍💻⛰️",
-        category: "Outros",
-        path: "https://passosdomingues.github.io/webappshowcase/site/utilities/radaresFixosAlfenasMG.html",
-        lastModified: "2026-05-12 07:22",
-        fileHash: "9c730366eb2d53f81688e77e4242f5fa"
-      },
-      {
-        id: "retroRadio",
-        title: "Rádio Retrô",
-        icon: "📻",
-        category: "Outros",
-        path: "https://passosdomingues.github.io/webappshowcase/site/utilities/retroRadio.html",
-        lastModified: "2025-06-08 17:04",
-        fileHash: "a09f678593e84628d5d624226674d4e7"
-      },
-      {
-        id: "revisaoCarro",
-        title: "AutoCheck",
-        icon: "🔎🚗",
-        category: "Outros",
-        path: "https://passosdomingues.github.io/webappshowcase/site/utilities/revisaoCarro.html",
-        lastModified: "2025-06-08 01:39",
-        fileHash: "9fa2ae6ff62e0e915c61fd437aeb3c20"
-      },
-      {
-        id: "rondaSegura",
-        title: "RondAI",
-        icon: "⚠️👮‍♂️📝",
-        category: "Outros",
-        path: "https://passosdomingues.github.io/webappshowcase/site/utilities/rondaSegura.html",
-        lastModified: "2025-06-08 02:39",
-        fileHash: "525b8b51f826f51aba1209453262a1fa"
-      },
-      {
-        id: "startupFinances",
-        title: "Análise Financeira Avançada - Monte Carlo",
-        icon: "🧑‍💻⛰️",
-        category: "Outros",
-        path: "https://passosdomingues.github.io/webappshowcase/site/utilities/startupFinances.html",
-        lastModified: "2025-07-07 13:55",
-        fileHash: "3b3928bf0ea8754a292b8a0b40244513"
-      },
-      {
-        id: "teleprompter",
-        title: "MINI PROMPTER",
-        icon: "🧑‍💻⛰️",
-        category: "Outros",
-        path: "https://passosdomingues.github.io/webappshowcase/site/utilities/teleprompter.html",
-        lastModified: "2025-10-25 07:44",
-        fileHash: "2d345a982aff51836c841cebcae34fcb"
-      },
-    ];
+<div class="stats-bar" id="statsBar" aria-live="polite">
+  <span id="statsText"></span>
+  <span class="bm25-badge">Okapi BM25</span>
+</div>
 
-    // Função para aplicar tema escuro/claro
-    function applyTheme() {
-      const darkPref = localStorage.getItem('darkMode') === 'true';
-      document.body.setAttribute('data-theme', darkPref ? 'dark' : 'light');
-      const toggleBtn = document.getElementById('darkModeToggle');
-      toggleBtn.setAttribute('aria-pressed', darkPref.toString());
-      toggleBtn.textContent = darkPref ? '☀️' : '🌙';
+<main class="container" id="projectsContainer" aria-label="Projetos"></main>
+
+<button id="btt" aria-label="Voltar ao topo" title="Voltar ao topo">↑</button>
+
+<footer>
+  <p>© 2026 <a href="https://github.com/passosdomingues" target="_blank" rel="noopener">Rafael Passos Domingues</a> — Simple Utility App Suite</p>
+</footer>
+
+<script>
+  const BASE_URL = 'https://passosdomingues.github.io/webappshowcase/site';
+  const projects = [
+    {id:"3DPrintScultor",title:"3D Print Scultor",description:"Clique para visualizar este projeto.",category:"Outros",icon:"🖨️",path:"https://passosdomingues.github.io/webappshowcase/site/utilities/3DPrintScultor.html",lastModified:"2026-06-18 12:39",mtime:1781797194},
+    {id:"algoritmos",title:"Aula de Algoritmos - Controle de Estoque",description:"Problema corporativo: Rede de supermercados com prejuízo de R$120.000/mês",category:"Outros",icon:"🧬",path:"https://passosdomingues.github.io/webappshowcase/site/utilities/algoritmos.html",lastModified:"2026-06-18 12:39",mtime:1781797194},
+    {id:"barber",title:"BarberAI",description:"Sistema de agendamento premium para Barbearia - Corte de cabelo, barba e serviços completos",category:"Outros",icon:"💈",path:"https://passosdomingues.github.io/webappshowcase/site/utilities/barber.html",lastModified:"2026-06-18 12:39",mtime:1781797194},
+    {id:"blueParking",title:"VagAI",description:"Importante: Este sistema (NÃO-OFICIAL) é meramente ilustrativo, demonstrando um controle de estacionamento rotativo na",category:"Outros",icon:"🅿️",path:"https://passosdomingues.github.io/webappshowcase/site/utilities/blueParking.html",lastModified:"2026-06-18 12:39",mtime:1781797194},
+    {id:"brailleTouch",title:"BrailleTouch - Conversor com Feedback Tátil",description:"Passe o dedo sobre os caracteres em Braille para sentir diferentes vibrações. Cada letra tem um padrão de vibração ",category:"Outros",icon:"👆♿",path:"https://passosdomingues.github.io/webappshowcase/site/utilities/brailleTouch.html",lastModified:"2026-06-18 12:39",mtime:1781797194},
+    {id:"buscaContextoPDFs",title:"Context Hunter",description:"Clique para visualizar este projeto.",category:"Outros",icon:"🔎📄",path:"https://passosdomingues.github.io/webappshowcase/site/utilities/buscaContextoPDFs.html",lastModified:"2026-06-18 12:39",mtime:1781797194},
+    {id:"busHour",title:"BusAI",description:"(Alfenas-MG) Que horas passa o próximo Ônibus?  [Obs: Itinerários e horários podem variar.]",category:"Outros",icon:"🔎🚌",path:"https://passosdomingues.github.io/webappshowcase/site/utilities/busHour.html",lastModified:"2026-06-18 12:39",mtime:1781797194},
+    {id:"CNCImageConversor",title:"Generative Path Laser CO2 CAM",description:"Clique para visualizar este projeto.",category:"Outros",icon:"🖨️",path:"https://passosdomingues.github.io/webappshowcase/site/utilities/CNCImageConversor.html",lastModified:"2026-06-18 12:39",mtime:1781797194},
+    {id:"comandaDigital",title:"ComandAI",description:"Clique para visualizar este projeto.",category:"Outros",icon:"🍢",path:"https://passosdomingues.github.io/webappshowcase/site/utilities/comandaDigital.html",lastModified:"2026-06-18 12:39",mtime:1781797194},
+    {id:"confereListaSupermercado",title:"ConfereAI",description:"Nenhum item na lista ainda",category:"Outros",icon:"🛒",path:"https://passosdomingues.github.io/webappshowcase/site/utilities/confereListaSupermercado.html",lastModified:"2026-06-18 12:39",mtime:1781797194},
+    {id:"cras",title:"CRAS ODS - Sistema de Visitas Domiciliares",description:"Local selecionado: Nenhum local selecionado",category:"Outros",icon:"🩺",path:"https://passosdomingues.github.io/webappshowcase/site/utilities/cras.html",lastModified:"2026-06-18 12:39",mtime:1781797194},
+    {id:"dengueZero",title:"DengueAI",description:"Clique para visualizar este projeto.",category:"Outros",icon:"🦟",path:"https://passosdomingues.github.io/webappshowcase/site/utilities/dengueZero.html",lastModified:"2026-06-18 12:39",mtime:1781797194},
+    {id:"dentaLog",title:"DentAI - Sistema Odontológico",description:"Clique para visualizar este projeto.",category:"Outros",icon:"🦷",path:"https://passosdomingues.github.io/webappshowcase/site/utilities/dentaLog.html",lastModified:"2026-06-18 12:39",mtime:1781797194},
+    {id:"devHorizons",title:"Dev Horizons",description:"This tool provides a personalized recommendation to guide your tech career choices, analyzing your profile against data …",category:"Outros",icon:"💻",path:"https://passosdomingues.github.io/webappshowcase/site/utilities/devHorizons.html",lastModified:"2026-06-18 12:39",mtime:1781797194},
+    {id:"dogGuest",title:"DogNB",description:" 0 dias de hospedagem",category:"Outros",icon:"🐶",path:"https://passosdomingues.github.io/webappshowcase/site/utilities/dogGuest.html",lastModified:"2026-06-18 12:39",mtime:1781797194},
+    {id:"encomendUAI",title:"EncomendUAI",description:"Seu carrinho está vazio",category:"Outros",icon:"🍞🧀",path:"https://passosdomingues.github.io/webappshowcase/site/utilities/encomendUAI.html",lastModified:"2026-06-18 12:39",mtime:1781797194},
+    {id:"essenceExtractor",title:"Essence Extractor Pro - Briefing Atômico para Websites",description:"100% Privado. Todas as informações são processadas apenas no seu navegador.",category:"Outros",icon:"💎",path:"https://passosdomingues.github.io/webappshowcase/site/utilities/essenceExtractor.html",lastModified:"2026-06-18 12:39",mtime:1781797194},
+    {id:"essenceMatch",title:"ESSENCE MATCH - Classificador Comportamental PMBOK 7 & Belbin",description:"ESSENCE MATCH &copy; 2026 | Sistema de Classificação Comportamental para Squads",category:"Outros",icon:"💎",path:"https://passosdomingues.github.io/webappshowcase/site/utilities/essenceMatch.html",lastModified:"2026-06-18 12:39",mtime:1781797194},
+    {id:"fitMotivation",title:"FitMotivation+",description:" ${formatarData(ag.data)} às ${ag.hora} - ${ag.tipo}",category:"Outros",icon:"🏋️",path:"https://passosdomingues.github.io/webappshowcase/site/utilities/fitMotivation.html",lastModified:"2026-06-18 12:39",mtime:1781797194},
+    {id:"genoma",title:"G.E.N.O.M.A. | Arquitetura Bio-Computacional",description:"A Programação Dinâmica constrói uma matriz avaliando todo o subespaço genético. A fórmula de Needleman-Wunsch def",category:"Outros",icon:"🧬",path:"https://passosdomingues.github.io/webappshowcase/site/utilities/genoma.html",lastModified:"2026-06-18 12:39",mtime:1781797194},
+    {id:"geraConviteEstrategico",title:"Invitation Strategic Generator",description:"Paste a text (news, article, insight) for each selected theme below. For best results, use reliable sources.",category:"Outros",icon:"🎉",path:"https://passosdomingues.github.io/webappshowcase/site/utilities/geraConviteEstrategico.html",lastModified:"2026-06-18 12:39",mtime:1781797194},
+    {id:"gitCommands",title:"Comandos Git - Busca Inteligente",description:"Baseado no curso \"Distributed Version Control with Git\" - Última atualização: 26/01/2023",category:"Outros",icon:"💻",path:"https://passosdomingues.github.io/webappshowcase/site/utilities/gitCommands.html",lastModified:"2026-06-18 12:39",mtime:1781797194},
+    {id:"guiaImpostoRenda",title:"Guia IRPF 2025 - Seu Assistente Pessoal",description:"Detalhes Técnicos: Utilizamos localStorage do navegador para armazenar suas respostas. Esses dados são criptografados ",category:"Outros",icon:"🤖",path:"https://passosdomingues.github.io/webappshowcase/site/utilities/guiaImpostoRenda.html",lastModified:"2026-06-18 12:39",mtime:1781797194},
+    {id:"InnovaLens",title:"InnovaLens | Decodificador Semântico de Patentes",description:"Cole o resumo (abstract) ou a descrição da patente abaixo para análise.",category:"Outros",icon:"🔭",path:"https://passosdomingues.github.io/webappshowcase/site/utilities/InnovaLens.html",lastModified:"2026-06-18 12:39",mtime:1781797194},
+    {id:"investAI",title:"InvestAI - Avaliação Completa para Startups",description:"Documentos gerados com sucesso!",category:"Outros",icon:"📈",path:"https://passosdomingues.github.io/webappshowcase/site/utilities/investAI.html",lastModified:"2026-06-18 12:39",mtime:1781797194},
+    {id:"jurisCopilot",title:"JurisCopilot - Assistente Jurídico",description:"Constituição Federal, Art. 5º, LVI: \"são inadmissíveis, no processo, as provas obtidas por meios ilícitos\".",category:"Outros",icon:"⚖️",path:"https://passosdomingues.github.io/webappshowcase/site/utilities/jurisCopilot.html",lastModified:"2026-06-18 12:39",mtime:1781797194},
+    {id:"marmitAI",title:"MarmitAI - Planejador Inteligente de Marmitas",description:"Seu planejamento semanal aparecerá aqui",category:"Outros",icon:"🍱",path:"https://passosdomingues.github.io/webappshowcase/site/utilities/marmitAI.html",lastModified:"2026-06-18 12:39",mtime:1781797194},
+    {id:"maturityPro",title:"MaturityPro - Diagnóstico Completo para Startups",description:"Bem-vindo ao MaturityPro - Startup Assessment Tool!",category:"Outros",icon:"📋",path:"https://passosdomingues.github.io/webappshowcase/site/utilities/maturityPro.html",lastModified:"2026-06-18 12:39",mtime:1781797194},
+    {id:"meetMotions",title:"Meet Motions Tracking",description:"Um copiloto para moderadores de eventos online",category:"Outros",icon:"🎤",path:"https://passosdomingues.github.io/webappshowcase/site/utilities/meetMotions.html",lastModified:"2026-06-18 12:39",mtime:1781797194},
+    {id:"montaHorariosEnsinoMedio",title:"Planejador de Horários - Novo Ensino Médio MG",description:"Clique para visualizar este projeto.",category:"Outros",icon:"🔎🚌",path:"https://passosdomingues.github.io/webappshowcase/site/utilities/montaHorariosEnsinoMedio.html",lastModified:"2026-06-18 12:39",mtime:1781797194},
+    {id:"motoboyDanger",title:"Moto Guardian",description:"Clique para visualizar este projeto.",category:"Outros",icon:"🛵",path:"https://passosdomingues.github.io/webappshowcase/site/utilities/motoboyDanger.html",lastModified:"2026-06-18 12:39",mtime:1781797194},
+    {id:"oraculoCerne",title:"CerneOracle — Guardião do Modelo CERNE",description:"CerneOracle — guia interativo do Modelo CERNE para incubadoras de inovação. Explore práticas, quizzes e conquistas dos 4 níveis do modelo.…",category:"CERNE",icon:"🏛️🤖",path:"https://passosdomingues.github.io/webappshowcase/site/utilities/oraculoCerne.html",lastModified:"2026-06-18 12:39",mtime:1781797194},
+    {id:"orbitasEstrelasViaLactea",title:"Simulador de Dinâmica Galáctica",description:"Tempo: N/A Myr atrás",category:"Outros",icon:"⭐🌌",path:"https://passosdomingues.github.io/webappshowcase/site/utilities/orbitasEstrelasViaLactea.html",lastModified:"2026-06-18 12:39",mtime:1781797194},
+    {id:"pawgel",title:"Pawgel",description:"Clique para visualizar este projeto.",category:"Outros",icon:"🐾🪽",path:"https://passosdomingues.github.io/webappshowcase/site/utilities/pawgel.html",lastModified:"2026-06-18 12:39",mtime:1781797194},
+    {id:"pedreiroBot",title:"PedreiroBot",description:"Informe o preço de cada material para esta obra:",category:"Outros",icon:"🧱",path:"https://passosdomingues.github.io/webappshowcase/site/utilities/pedreiroBot.html",lastModified:"2026-06-18 12:39",mtime:1781797194},
+    {id:"peregrinApp",title:"PeregrinApp",description:" Distância: 0 km",category:"Outros",icon:"🗺️🚴",path:"https://passosdomingues.github.io/webappshowcase/site/utilities/peregrinApp.html",lastModified:"2026-06-18 12:39",mtime:1781797194},
+    {id:"personaLLM",title:"Construtor de Persona LLM",description:"Antes de utilizar o Construtor de Persona LLM, leia atentamente os seguintes termos:",category:"Outros",icon:"🤖",path:"https://passosdomingues.github.io/webappshowcase/site/utilities/personaLLM.html",lastModified:"2026-06-18 12:39",mtime:1781797194},
+    {id:"planejaMercado",title:"ComprAI",description:"Seu carrinho está vazio",category:"Outros",icon:"🛒",path:"https://passosdomingues.github.io/webappshowcase/site/utilities/planejaMercado.html",lastModified:"2026-06-18 12:39",mtime:1781797194},
+    {id:"planoPerfeito",title:"Plano Perfeito - Gerador de Estratégias Empresariais",description:"Coletamos apenas as informações necessárias para gerar seu plano estratégico personalizado. Os dados coletados inclu",category:"Outros",icon:"📋",path:"https://passosdomingues.github.io/webappshowcase/site/utilities/planoPerfeito.html",lastModified:"2026-06-18 12:39",mtime:1781797194},
+    {id:"plantAI",title:"PlantAI",description:"Gestão de Irrigação de Commodities Agrícolas",category:"Outros",icon:"🛰️🌱",path:"https://passosdomingues.github.io/webappshowcase/site/utilities/plantAI.html",lastModified:"2026-06-18 12:39",mtime:1781797194},
+    {id:"previMax",title:"PreviMax - Engenharia Contra Incêndio - Elói Mendes e Região",description:"PreviMax - Engenharia Contra Incêndio em Elói Mendes. Projetos, laudos e sistemas completos de segurança contra incêndio para Elói Mendes e região Sul de Minas.…",category:"engenharia contra incêndio",icon:"🤖",path:"https://passosdomingues.github.io/webappshowcase/site/utilities/previMax.html",lastModified:"2026-06-18 12:39",mtime:1781797194},
+    {id:"qrCodeGenerator",title:"QR Code Safe Generator",description:"Gere e compartilhe QR Codes de forma responsável, prática e segura.",category:"Outros",icon:"🔒🔳",path:"https://passosdomingues.github.io/webappshowcase/site/utilities/qrCodeGenerator.html",lastModified:"2026-06-18 12:39",mtime:1781797194},
+    {id:"radaresFixosAlfenasMG",title:"Radares Fixos · Alfenas-MG",description:"Clique para visualizar este projeto.",category:"Outros",icon:"📡🚨",path:"https://passosdomingues.github.io/webappshowcase/site/utilities/radaresFixosAlfenasMG.html",lastModified:"2026-06-18 12:39",mtime:1781797194},
+    {id:"retroRadio",title:"Rádio Retrô",description:"Ouça estações de rádio de todo o mundo em um player retrô moderno",category:"Outros",icon:"📻",path:"https://passosdomingues.github.io/webappshowcase/site/utilities/retroRadio.html",lastModified:"2026-06-18 12:39",mtime:1781797194},
+    {id:"revisaoCarro",title:"AutoCheck",description:"Clique para visualizar este projeto.",category:"Outros",icon:"🔎🚗",path:"https://passosdomingues.github.io/webappshowcase/site/utilities/revisaoCarro.html",lastModified:"2026-06-18 12:39",mtime:1781797194},
+    {id:"rondaSegura",title:"RondAI",description:"Clique para visualizar este projeto.",category:"Outros",icon:"👮📝",path:"https://passosdomingues.github.io/webappshowcase/site/utilities/rondaSegura.html",lastModified:"2026-06-18 12:39",mtime:1781797194},
+    {id:"startupFinances",title:"Análise Financeira Avançada - Monte Carlo",description:"Simulação Temporal Holística com Método Monte Carlo",category:"Outros",icon:"📈",path:"https://passosdomingues.github.io/webappshowcase/site/utilities/startupFinances.html",lastModified:"2026-06-18 12:39",mtime:1781797194},
+    {id:"teleprompter",title:"MINI PROMPTER",description:"Clique para visualizar este projeto.",category:"Outros",icon:"🎬",path:"https://passosdomingues.github.io/webappshowcase/site/utilities/teleprompter.html",lastModified:"2026-06-18 12:39",mtime:1781797194},
+  ];
+
+  /* ── BM25 ENGINE ─────────────────────────────────────────── */
+  const BM25 = (() => {
+    const K1 = 1.5, B = 0.75;
+    const SW = new Set("de a o que e do da em um para com uma os no se na por mais as dos como mas foi ao ele das tem à seu sua ou ser quando muito há nos já também só pelo pela até isso ela entre era depois sem mesmo aos ter seus quem nas me esse eles estão você tinha foram essa num nem suas meu às minha têm numa pelos pelas este del te lo".split(" "));
+
+    function tok(t) {
+      return t.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"")
+        .replace(/[^a-z0-9\s]/g," ").split(/\s+/).filter(w => w.length > 2 && !SW.has(w));
     }
 
-    // Aplicar tema inicial
-    applyTheme();
+    const N = projects.length;
+    const tfs = [], lens = [];
+    const df = {};
 
-    // Função para organizar projetos por categoria
-    function organizeByCategory(projects) {
-      const categories = {};
-      projects.forEach(project => {
-        if (!categories[project.category]) {
-          categories[project.category] = [];
-        }
-        categories[project.category].push(project);
-      });
-      return categories;
-    }
-
-    // Função para renderizar projetos
-    function renderProjects(filteredProjects) {
-      const container = document.getElementById('projectsContainer');
-      container.innerHTML = '';
-
-      if (filteredProjects.length === 0) {
-        container.innerHTML = `<div class="no-results">...</div>`;
-        return;
-      }
-
-      const organizedProjects = organizeByCategory(filteredProjects);
-
-      Object.keys(organizedProjects).sort().forEach(category => {
-        const categoryProjects = organizedProjects[category];
-
-        const section = document.createElement('section');
-        section.innerHTML = `
-          <h2 class="category-title">${category}</h2>
-          <div class="cards-grid" id="grid-${category.toLowerCase().replace(/\s+/g, '-')}"></div>
-        `;
-        container.appendChild(section);
-
-        const grid = section.querySelector('.cards-grid');
-
-        categoryProjects.forEach(proj => {
-          const card = document.createElement('a');
-          card.className = 'card';
-          card.href = proj.path;
-          card.setAttribute('target', '_blank');
-          card.setAttribute('rel', 'noopener');
-          card.setAttribute('aria-label', `${proj.title} – abre em nova aba`);
-          card.setAttribute('data-category', proj.category);
-          card.setAttribute('data-id', proj.id);
-          card.setAttribute('data-hash', proj.fileHash);
-
-          card.innerHTML = `
-            <div class="card-header">
-              <div class="card-icon" aria-hidden="true">${proj.icon}</div>
-              <div class="card-title">${proj.title}</div>
-            </div>
-            <div class="card-body">
-              <div class="card-meta">
-                <div class="meta-row">
-                  <span class="card-category">${proj.category}</span>
-                  <span class="card-date">${proj.lastModified}</span>
-                </div>
-                <div class="meta-row">
-                  <span class="card-hash" title="Hash MD5 do arquivo">${proj.fileHash}</span>
-                </div>
-              </div>
-            </div>
-          `;
-
-          grid.appendChild(card);
-        });
-      });
-    }
-
-    // Função para popular o filtro de categorias
-    function populateCategoryFilter(projects) {
-      const categories = [...new Set(projects.map(p => p.category))].sort();
-      const select = document.getElementById('categoryFilter');
-      categories.forEach(cat => {
-        const option = document.createElement('option');
-        option.value = cat;
-        option.textContent = cat;
-        select.appendChild(option);
-      });
-    }
-
-    // Função para filtrar projetos
-    function filterProjects() {
-      const term = document.getElementById('searchInput').value.toLowerCase();
-      const catFilter = document.getElementById('categoryFilter').value;
-
-      let filtered = projects;
-      if (catFilter !== 'all') {
-        filtered = filtered.filter(p => p.category === catFilter);
-      }
-      if (term) {
-        filtered = filtered.filter(p =>
-          p.title.toLowerCase().includes(term) ||
-          p.description.toLowerCase().includes(term) ||
-          p.category.toLowerCase().includes(term)
-        );
-      }
-
-      renderProjects(filtered);
-    }
-
-    // Inicialização
-    document.addEventListener('DOMContentLoaded', () => {
-      renderProjects(projects);
-      populateCategoryFilter(projects);
-      document.getElementById('searchInput').addEventListener('input', filterProjects);
-      document.getElementById('categoryFilter').addEventListener('change', filterProjects);
-
-      const toggleBtn = document.getElementById('darkModeToggle');
-      toggleBtn.addEventListener('click', () => {
-        const isDark = localStorage.getItem('darkMode') === 'true';
-        localStorage.setItem('darkMode', (!isDark).toString());
-        applyTheme();
-      });
-
-      // Botão voltar ao topo
-      const backToTop = document.getElementById('backToTop');
-      window.addEventListener('scroll', () => {
-        if (window.scrollY > 300) {
-          backToTop.classList.add('visible');
-        } else {
-          backToTop.classList.remove('visible');
-        }
-      });
-      backToTop.addEventListener('click', () => {
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-      });
-
-      // Preferência de tema
-      if (!localStorage.getItem('darkMode')) {
-        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-        localStorage.setItem('darkMode', prefersDark.toString());
-        applyTheme();
-      }
+    projects.forEach((p, i) => {
+      const tokens = tok([p.title, p.description, p.category].join(" "));
+      lens.push(tokens.length);
+      const freq = {};
+      tokens.forEach(w => { freq[w] = (freq[w]||0)+1; });
+      tfs.push(freq);
+      Object.keys(freq).forEach(w => { df[w] = (df[w]||0)+1; });
     });
-  </script>
+    const avgdl = lens.reduce((a,b)=>a+b,0) / N;
+
+    function score(qTokens, i) {
+      let s = 0;
+      const freq = tfs[i], dl = lens[i];
+      qTokens.forEach(w => {
+        if (!freq[w]) return;
+        const idf = Math.log((N-(df[w]||0)+0.5)/((df[w]||0)+0.5)+1);
+        const tf = freq[w]*(K1+1)/(freq[w]+K1*(1-B+B*dl/avgdl));
+        s += idf * tf;
+      });
+      return s;
+    }
+
+    function search(query) {
+      const qt = tok(query);
+      if (!qt.length) return projects.map((p,i)=>({...p,score:0,idx:i}));
+      return projects
+        .map((p,i) => ({...p, score: score(qt,i), idx:i}))
+        .filter(r => r.score > 0)
+        .sort((a,b) => b.score - a.score);
+    }
+
+    return { search, tok };
+  })();
+
+  /* ── HIGHLIGHT ────────────────────────────────────────────── */
+  function hl(text, tokens) {
+    if (!tokens.length) return text;
+    const re = new RegExp(`(${tokens.map(t=>t.replace(/[.*+?^${}()|[\]\\]/g,"\\$&")).join("|")})`, "gi");
+    return text.replace(re,"<mark>$1</mark>");
+  }
+
+  /* ── INIT ────────────────────────────────────────────────── */
+  const allCats = [...new Set(projects.map(p=>p.category))].sort();
+  const catSelect = document.getElementById("catFilter");
+  allCats.forEach(c => { const o=document.createElement("option"); o.value=c; o.textContent=c; catSelect.appendChild(o); });
+
+  const searchInput = document.getElementById("searchInput");
+  const clearBtn = document.getElementById("clearSearch");
+  const sortSelect = document.getElementById("sortSelect");
+  const container = document.getElementById("projectsContainer");
+  const statsText = document.getElementById("statsText");
+  const btt = document.getElementById("btt");
+  const darkToggle = document.getElementById("darkToggle");
+
+  function applyTheme() {
+    const dark = localStorage.getItem("agDark") === "1";
+    document.documentElement.setAttribute("data-theme", dark ? "dark" : "light");
+    darkToggle.textContent = dark ? "☀️" : "🌙";
+    darkToggle.setAttribute("aria-pressed", String(dark));
+    darkToggle.setAttribute("aria-label", dark ? "Alternar para modo claro" : "Alternar para modo escuro");
+  }
+  applyTheme();
+  darkToggle.addEventListener("click", () => {
+    localStorage.setItem("agDark", document.documentElement.getAttribute("data-theme")==="dark" ? "0" : "1");
+    applyTheme();
+  });
+
+  function maxScore(results) { return results.reduce((m,r)=>Math.max(m,r.score),0)||1; }
+
+  function render(results) {
+    container.innerHTML = "";
+    const query = searchInput.value.trim();
+    const qTokens = query.length >= 2 ? BM25.tok(query) : [];
+    const catFilter = catSelect.value;
+    const sort = sortSelect.value;
+
+    let filtered = catFilter ? results.filter(r=>r.category===catFilter) : results;
+
+    if (sort === "date") filtered = [...filtered].sort((a,b) => b.mtime - a.mtime);
+    else if (sort === "name") filtered = [...filtered].sort((a,b) => a.title.localeCompare(b.title));
+
+    statsText.textContent = `${filtered.length} de ${projects.length} projetos • ${allCats.length} categorias${query ? ` • busca: "${query}"` : ""}`;
+
+    if (!filtered.length) {
+      container.innerHTML = `<div class="no-results">
+        <svg width="64" height="64" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+        <p>Nenhum projeto encontrado para <strong>"${query}"</strong>.</p>
+        <p style="font-size:.85rem;margin-top:.5rem">Tente outros termos ou limpe a busca.</p>
+      </div>`;
+      return;
+    }
+
+    const maxS = query ? maxScore(filtered) : 1;
+    const byCategory = {};
+    filtered.forEach(p => { (byCategory[p.category]??=[]).push(p); });
+
+    Object.keys(byCategory).sort().forEach(cat => {
+      const sec = document.createElement("section");
+      sec.className = "category-section";
+      const h2 = document.createElement("h2");
+      h2.className = "category-title";
+      h2.innerHTML = `${cat}<span class="cat-count">${byCategory[cat].length}</span>`;
+      sec.appendChild(h2);
+      const grid = document.createElement("div");
+      grid.className = "cards-grid";
+
+      byCategory[cat].forEach(proj => {
+        const a = document.createElement("a");
+        a.className = "card";
+        a.href = proj.path;
+        a.target = "_blank";
+        a.rel = "noopener noreferrer";
+        a.setAttribute("aria-label", `${proj.title} — abre em nova aba`);
+        a.setAttribute("data-id", proj.id);
+
+        const hlTitle = hl(proj.title, qTokens);
+        const hlDesc  = hl(proj.description, qTokens);
+        const scoreWidth = query && proj.score > 0 ? Math.round((proj.score/maxS)*100) : 0;
+
+        a.innerHTML = `
+          <div class="card-header">
+            <div class="card-icon" aria-hidden="true">${proj.icon}</div>
+            <div class="card-title">${hlTitle}</div>
+          </div>
+          <div class="card-body">
+            <div class="card-desc">${hlDesc}</div>
+            ${scoreWidth > 0 ? `<div class="score-bar" style="width:${scoreWidth}%" title="Relevância BM25: ${proj.score.toFixed(2)}"></div>` : ""}
+            <div class="card-meta">
+              <span class="card-cat">${proj.category}</span>
+              <span class="card-date">${proj.lastModified}</span>
+            </div>
+          </div>`;
+        grid.appendChild(a);
+      });
+
+      sec.appendChild(grid);
+      container.appendChild(sec);
+    });
+  }
+
+  let allResults = projects.map((p,i) => ({...p, score:0, idx:i}));
+  render(allResults);
+
+  let debounce;
+  searchInput.addEventListener("input", () => {
+    clearTimeout(debounce);
+    debounce = setTimeout(() => {
+      const q = searchInput.value.trim();
+      allResults = q.length >= 2 ? BM25.search(q) : projects.map((p,i)=>({...p,score:0,idx:i}));
+      render(allResults);
+    }, 180);
+  });
+
+  clearBtn.addEventListener("click", () => { searchInput.value = ""; allResults = projects.map((p,i)=>({...p,score:0,idx:i})); render(allResults); searchInput.focus(); });
+  catSelect.addEventListener("change", () => render(allResults));
+  sortSelect.addEventListener("change", () => render(allResults));
+
+  window.addEventListener("scroll", () => { btt.classList.toggle("show", window.scrollY > 350); });
+  btt.addEventListener("click", () => window.scrollTo({top:0,behavior:"smooth"}));
+
+  if (!localStorage.getItem("agDark")) {
+    localStorage.setItem("agDark", window.matchMedia("(prefers-color-scheme:dark)").matches ? "1" : "0");
+    applyTheme();
+  }
+</script>
 </body>
 </html>
