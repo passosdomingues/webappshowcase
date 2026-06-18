@@ -10,6 +10,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="Clique para visualizar este projeto."/>
 <title>Pawgel</title>
 <!-- Bibliotecas externas -->
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
@@ -853,7 +854,7 @@
       <b>📝 Descrição:</b> ${descricao}<br>`;
       
     if (foto) {
-      popupContent += `<br><a href="${foto}" target="_blank">🔗 Ver foto do doguinho</a><br>`;
+      popupContent += `<br><a href="${foto}" target="_blank" rel="noopener noreferrer">🔗 Ver foto do doguinho</a><br>`;
     }
     
     popupContent += `<br><small>(Arraste para ajustar posição | Delete para remover)</small>`;
@@ -879,7 +880,7 @@
         <b>⚠️ Urgência:</b> ${urgencia === 'alta' ? 'Alta' : urgencia === 'media' ? 'Média' : 'Baixa'}<br>
         <b>⭐ Avaliação:</b> ${'★'.repeat(currentRating)}${'☆'.repeat(5-currentRating)}<br><br>
         <b>📝 Descrição:</b> ${descricao}<br>
-        ${foto ? `<br><a href="${foto}" target="_blank">🔗 Ver foto do doguinho</a><br>` : ''}
+        ${foto ? `<br><a href="${foto}" target="_blank" rel="noopener noreferrer">🔗 Ver foto do doguinho</a><br>` : ''}
         <br><small>(Arraste para ajustar posição | Delete para remover)</small>
       `).openPopup();
 
