@@ -1,0 +1,1718 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>InnovaLens | Decodificador Semântico de Patentes</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10.3.0/dist/mermaid.min.js"></script>
+    <style>
+        :root {
+            --primary: #2563eb;
+            --primary-dark: #1d4ed8;
+            --primary-light: #3b82f6;
+            --secondary: #4f46e5;
+            --accent: #ec4899;
+            --success: #10b981;
+            --success-dark: #059669;
+            --warning: #f59e0b;
+            --warning-dark: #d97706;
+            --error: #ef4444;
+            --error-dark: #dc2626;
+
+            --bg-main: #111827;
+            --bg-card: #1f2937;
+            --bg-input: #374151;
+            --bg-input-focus: #4b5563;
+            --text-primary: #f3f4f6;
+            --text-secondary: #9ca3af;
+            --text-tertiary: #6b7280;
+            --border-color: #374151;
+            --border-light: #4b5563;
+            
+            --gradient-bg: linear-gradient(135deg, #1f2937 0%, #111827 100%);
+            --gradient-primary: linear-gradient(135deg, #2563eb 0%, #4f46e5 100%);
+            --shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            --shadow-lg: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            --radius: 12px;
+            --radius-sm: 8px;
+            --transition: all 0.3s ease;
+            --transition-fast: all 0.15s ease;
+        }
+
+        [data-theme="light"] {
+            --bg-main: #f3f4f6;
+            --bg-card: #ffffff;
+            --bg-input: #ffffff;
+            --bg-input-focus: #f9fafb;
+            --text-primary: #1f2937;
+            --text-secondary: #6b7280;
+            --text-tertiary: #9ca3af;
+            --border-color: #e5e7eb;
+            --border-light: #d1d5db;
+            
+            --gradient-bg: linear-gradient(135deg, #f9fafb 0%, #e5e7eb 100%);
+            --shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.025);
+            --shadow-lg: 0 20px 25px -5px rgba(0, 0, 0, 0.05), 0 10px 10px -5px rgba(0, 0, 0, 0.02);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        body {
+            background: var(--bg-main);
+            color: var(--text-primary);
+            transition: var(--transition);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 1rem;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 0;
+            border-bottom: 2px solid var(--primary);
+            margin-bottom: 2rem;
+        }
+
+        h1 {
+            color: var(--primary);
+            font-size: 2rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        
+        .theme-switcher {
+            background: var(--bg-card);
+            border-radius: 50px;
+            padding: 5px;
+            display: flex;
+            cursor: pointer;
+            border: 1px solid var(--border-color);
+            transition: var(--transition);
+        }
+        
+        .theme-switcher:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow);
+        }
+        
+        .theme-switcher i {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-secondary);
+            transition: var(--transition);
+        }
+        
+        .theme-switcher i.active {
+            background: var(--primary);
+            color: white;
+        }
+
+        .main-layout {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 2rem;
+        }
+
+        @media (max-width: 1024px) {
+            .main-layout {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .card {
+            background: var(--bg-card);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            overflow: hidden;
+            border: 1px solid var(--border-color);
+            transition: var(--transition);
+        }
+        
+        .card:hover {
+            box-shadow: var(--shadow-lg);
+        }
+
+        .card-header {
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: var(--bg-main);
+        }
+        
+        .card-header h2, .card-header h3 {
+            color: var(--text-primary);
+            margin: 0;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .card-tabs {
+            display: flex;
+            border-bottom: 1px solid var(--border-color);
+            background: var(--bg-main);
+        }
+        
+        .tab-button {
+            padding: 1rem 1.5rem;
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: var(--text-secondary);
+            font-size: 1rem;
+            font-weight: 600;
+            transition: var(--transition);
+            border-bottom: 3px solid transparent;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .tab-button:hover {
+            color: var(--text-primary);
+            background: var(--bg-card);
+        }
+        
+        .tab-button.active {
+            color: var(--primary);
+            border-bottom-color: var(--primary);
+            background: var(--bg-card);
+        }
+
+        .tab-content {
+            display: none;
+            padding: 1.5rem;
+            animation: fadeIn 0.5s;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        textarea {
+            width: 100%;
+            min-height: 250px;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius);
+            padding: 1rem;
+            font-size: 1rem;
+            line-height: 1.6;
+            background: var(--bg-input);
+            color: var(--text-primary);
+            resize: vertical;
+            transition: var(--transition);
+        }
+        
+        textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.2);
+            background: var(--bg-input-focus);
+        }
+        
+        p {
+            color: var(--text-secondary);
+            margin-bottom: 1rem;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1rem;
+            flex-wrap: wrap;
+        }
+        
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: var(--radius);
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            text-decoration: none;
+        }
+        
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+        .btn-primary:hover { 
+            background: var(--primary-dark); 
+            transform: translateY(-2px);
+            box-shadow: var(--shadow);
+        }
+        .btn-primary:disabled { 
+            background: var(--text-secondary); 
+            cursor: not-allowed; 
+            transform: none;
+            box-shadow: none;
+        }
+        
+        .btn-secondary {
+            background: var(--bg-input);
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+        }
+        .btn-secondary:hover { 
+            background: var(--border-color); 
+            transform: translateY(-2px);
+            box-shadow: var(--shadow);
+        }
+
+        .btn-danger {
+            background: var(--error);
+            color: white;
+        }
+        .btn-danger:hover { 
+            background: var(--error-dark); 
+            transform: translateY(-2px);
+            box-shadow: var(--shadow);
+        }
+
+        .btn-success {
+            background: var(--success);
+            color: white;
+        }
+        .btn-success:hover { 
+            background: var(--success-dark); 
+            transform: translateY(-2px);
+            box-shadow: var(--shadow);
+        }
+
+        .result-group {
+            margin-bottom: 2rem;
+            background: var(--bg-main);
+            border-radius: var(--radius);
+            padding: 1.5rem;
+            border: 1px solid var(--border-color);
+        }
+        
+        .result-group h3 {
+            color: var(--primary);
+            border-bottom: 2px solid var(--border-color);
+            padding-bottom: 0.5rem;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .keyword-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+        }
+        
+        .keyword {
+            background: var(--primary);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: var(--transition);
+        }
+        
+        .keyword:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow);
+        }
+        
+        .keyword.placeholder {
+             background: var(--bg-input);
+             color: var(--text-secondary);
+             border: 1px dashed var(--border-color);
+        }
+        
+        .keyword-container .keyword i {
+            color: rgba(255,255,255,0.7);
+        }
+
+        .final-query-box {
+            background: var(--bg-main);
+            border: 1px dashed var(--primary);
+            padding: 1.5rem;
+            border-radius: var(--radius);
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 1.1rem;
+            color: var(--success);
+            position: relative;
+            overflow: auto;
+        }
+        
+        #finalQuery {
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+
+        #copyQueryBtn {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 0.5rem 0.75rem;
+            cursor: pointer;
+            opacity: 0.7;
+            transition: var(--transition);
+        }
+        #copyQueryBtn:hover { 
+            opacity: 1; 
+            transform: translateY(-2px);
+        }
+
+        .sidebar-card {
+            background: var(--bg-card);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border-color);
+            margin-bottom: 2rem;
+            transition: var(--transition);
+        }
+        
+        .sidebar-card:hover {
+            box-shadow: var(--shadow-lg);
+        }
+        
+        .sidebar-card .card-header {
+            background: var(--bg-main);
+        }
+        
+        .sidebar-card .card-body {
+            padding: 1.5rem;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+        }
+        
+        .stat-item {
+            background: var(--bg-main);
+            border-radius: var(--radius);
+            padding: 1rem;
+            text-align: center;
+            border: 1px solid var(--border-color);
+            transition: var(--transition);
+        }
+        
+        .stat-item:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow);
+        }
+        
+        .stat-item h4 {
+            color: var(--primary);
+            font-size: 2rem;
+            margin: 0;
+        }
+        
+        .stat-item p {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            margin: 0;
+        }
+
+        .area-suggestion {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            background: var(--bg-main);
+            padding: 1.5rem;
+            border-radius: var(--radius);
+            border: 1px solid var(--border-color);
+            transition: var(--transition);
+        }
+        
+        .area-suggestion:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow);
+        }
+        
+        .area-icon {
+            font-size: 2.5rem;
+            color: var(--primary);
+            flex-shrink: 0;
+        }
+        
+        .area-text h4 {
+            color: var(--text-primary);
+            margin: 0 0 0.25rem 0;
+            font-size: 1.2rem;
+        }
+        
+        .area-text p {
+            color: var(--text-secondary);
+            margin: 0;
+            font-size: 0.9rem;
+        }
+        
+        .mermaid-container {
+            width: 100%;
+            min-height: 300px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--bg-card);
+            padding: 1rem;
+            border-radius: var(--radius);
+            border: 1px solid var(--border-color);
+            overflow: auto;
+        }
+        
+        .mermaid-container svg {
+             color: var(--text-primary);
+        }
+
+        #dicionariosContainer {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+        
+        .dict-card {
+            background: var(--bg-main);
+            border-radius: var(--radius);
+            border: 1px solid var(--border-color);
+            padding: 1rem;
+            transition: var(--transition);
+        }
+        
+        .dict-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow);
+        }
+        
+        .dict-card h4 {
+            color: var(--primary);
+            margin-bottom: 1rem;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 0.5rem;
+        }
+        
+        .add-termo-form {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+        
+        .add-termo-form input {
+            flex-grow: 1;
+            border: 1px solid var(--border-color);
+            padding: 0.5rem;
+            border-radius: var(--radius-sm);
+            background: var(--bg-input);
+            color: var(--text-primary);
+            transition: var(--transition);
+        }
+        .add-termo-form input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2);
+        }
+        
+        .btn-add-termo {
+            padding: 0.5rem 0.75rem;
+            background: var(--success);
+            color: white;
+            border: none;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        .btn-add-termo:hover { 
+            background: var(--success-dark); 
+            transform: translateY(-2px);
+        }
+        
+        .termos-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        
+        .termos-list li {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.5rem;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-sm);
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+            color: var(--text-primary);
+            transition: var(--transition-fast);
+        }
+        
+        .termos-list li:hover {
+            background: var(--bg-input);
+            transform: translateX(2px);
+        }
+        
+        .btn-remove-termo {
+            background: none;
+            border: none;
+            color: var(--error);
+            cursor: pointer;
+            opacity: 0.6;
+            transition: var(--transition);
+        }
+        .btn-remove-termo:hover { 
+            opacity: 1; 
+            transform: scale(1.1);
+        }
+        
+        #btn-reset-dicionarios {
+            margin-top: 1.5rem;
+        }
+
+        .extracted-terms-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+        
+        .extracted-term {
+            background: var(--bg-main);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius);
+            padding: 1rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+            transition: var(--transition);
+        }
+        
+        .extracted-term:hover {
+            border-color: var(--primary);
+            transform: translateY(-2px);
+        }
+        
+        .extracted-term-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .extracted-term-text {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+        
+        .extracted-term-confidence {
+            background: var(--primary);
+            color: white;
+            padding: 0.25rem 0.5rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+        }
+        
+        .extracted-term-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        
+        .extracted-term-select {
+            width: 100%;
+            padding: 0.5rem;
+            border-radius: var(--radius-sm);
+            background: var(--bg-input);
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+        }
+        
+        .extracted-term-btn {
+            width: 100%;
+            padding: 0.5rem;
+            border: none;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            transition: var(--transition);
+            font-size: 0.9rem;
+        }
+        
+        .btn-add-extracted {
+            background: var(--success);
+            color: white;
+        }
+        
+        .btn-add-extracted:hover {
+            background: var(--success-dark);
+        }
+        
+        .btn-ignore-extracted {
+            background: var(--bg-input);
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+        }
+        
+        .btn-ignore-extracted:hover {
+            background: var(--border-color);
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s ease-in-out infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .exemplos-rapidos {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+        
+        .exemplo-btn {
+            padding: 0.5rem 1rem;
+            background: var(--bg-input);
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius);
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        
+        .exemplo-btn:hover {
+            background: var(--primary);
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            padding: 1rem 1.5rem;
+            background: var(--success);
+            color: white;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-lg);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            z-index: 1001;
+            transform: translateY(100px);
+            opacity: 0;
+            transition: all 0.3s ease;
+        }
+        
+        .toast.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+        
+        .toast.error {
+            background: var(--error);
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                margin: 1rem auto;
+                padding: 0.5rem;
+            }
+            
+            header {
+                flex-direction: column;
+                gap: 1rem;
+                text-align: center;
+            }
+            
+            h1 {
+                font-size: 1.75rem;
+            }
+            
+            .button-group {
+                flex-direction: column;
+            }
+            
+            .btn {
+                justify-content: center;
+            }
+            
+            .card-tabs {
+                flex-direction: column;
+            }
+            
+            .tab-button {
+                justify-content: center;
+            }
+            
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .area-suggestion {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            #dicionariosContainer {
+                grid-template-columns: 1fr;
+            }
+            
+            .extracted-terms-container {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body data-theme="dark">
+
+    <div class="container">
+        <header>
+            <h1><i class="fas fa-microscope"></i> InnovaLens</h1>
+            <div class="theme-switcher" id="themeSwitcher" title="Alternar tema">
+                <i class="fas fa-sun"></i>
+                <i class="fas fa-moon active"></i>
+            </div>
+        </header>
+
+        <div class="main-layout">
+            
+            <main>
+                <div class="card">
+                    <div class="card-tabs">
+                        <button class="tab-button active" data-tab="analisador"><i class="fas fa-search-plus"></i> Analisador</button>
+                        <button class="tab-button" data-tab="dicionarios"><i class="fas fa-book"></i> Dicionários</button>
+                        <button class="tab-button" data-tab="sobre"><i class="fas fa-info-circle"></i> Sobre</button>
+                    </div>
+
+                    <div class="tab-content active" id="tab-analisador">
+                        <h2><i class="fas fa-search"></i> Insira o Conteúdo da Patente</h2>
+                        <p>Cole o resumo (abstract) ou a descrição da patente abaixo para análise.</p>
+                        <textarea id="textoConteudo" placeholder="Cole o texto da patente aqui..."></textarea>
+                        
+                        <div class="exemplos-rapidos">
+                            <button class="exemplo-btn" data-exemplo="1">Exemplo 1: Dispositivo IoT</button>
+                            <button class="exemplo-btn" data-exemplo="2">Exemplo 2: Aplicativo Saúde</button>
+                            <button class="exemplo-btn" data-exemplo="3">Exemplo 3: Sistema Agricultura</button>
+                        </div>
+                        
+                        <div class="button-group">
+                            <button class="btn btn-primary" id="btnAnalisar">
+                                <i class="fas fa-search"></i> Analisar Conteúdo
+                            </button>
+                            <button class="btn btn-secondary" id="btnResetar">
+                                <i class="fas fa-redo"></i> Resetar
+                            </button>
+                        </div>
+                        
+                        <hr style="border: none; border-top: 1px solid var(--border-color); margin: 2rem 0;">
+                        
+                        <h2><i class="fas fa-chart-bar"></i> Resultados da Análise</h2>
+
+                        <div class="result-group">
+                            <h3><i class="fas fa-lightbulb"></i> Conceitos Centrais</h3>
+                            <div class="keyword-container" id="centralConcepts">
+                                <span class="keyword placeholder">Aguardando análise...</span>
+                            </div>
+                        </div>
+
+                        <div class="result-group">
+                            <h3><i class="fas fa-cogs"></i> Componentes do Dispositivo</h3>
+                            <div class="keyword-container" id="deviceComponents">
+                                <span class="keyword placeholder">Aguardando análise...</span>
+                            </div>
+                        </div>
+
+                        <div class="result-group">
+                            <h3><i class="fas fa-magic"></i> Funcionalidades "Smart"</h3>
+                            <div class="keyword-container" id="smartFeatures">
+                                <span class="keyword placeholder">Aguardando análise...</span>
+                            </div>
+                        </div>
+
+                        <div class="result-group">
+                            <h3><i class="fas fa-bullseye"></i> Alvo de Aplicação</h3>
+                            <div class="keyword-container" id="applicationTarget">
+                                <span class="keyword placeholder">Aguardando análise...</span>
+                            </div>
+                        </div>
+                        
+                        <div class="result-group" id="extractedTermsSection" style="display: none;">
+                            <h3><i class="fas fa-robot"></i> Termos Extraídos Automaticamente</h3>
+                            <p>Estes termos foram identificados no seu texto. Adicione-os aos dicionários para melhorar análises futuras.</p>
+                            <div class="extracted-terms-container" id="extractedTerms">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="tab-content" id="tab-dicionarios">
+                        <h2><i class="fas fa-book"></i> Gerenciador de Dicionários</h2>
+                        <p>Adicione ou remova termos para personalizar a análise. Suas alterações são salvas localmente.</p>
+                        
+                        <div id="dicionariosContainer">
+                        </div>
+                        
+                        <button class="btn btn-danger" id="btn-reset-dicionarios">
+                            <i class="fas fa-exclamation-triangle"></i> Restaurar Dicionários Padrão
+                        </button>
+                    </div>
+
+                    <div class="tab-content" id="tab-sobre">
+                        <h2><i class="fas fa-info-circle"></i> Sobre o InnovaLens</h2>
+                        <p>O InnovaLens é uma ferramenta de análise semântica de patentes que utiliza processamento de linguagem natural para extrair conceitos-chave, componentes, funcionalidades e aplicações de documentos de patentes.</p>
+                        
+                        <div class="result-group">
+                            <h3><i class="fas fa-rocket"></i> Funcionalidades</h3>
+                            <ul style="color: var(--text-secondary); padding-left: 1.5rem;">
+                                <li>Análise semântica de textos de patentes</li>
+                                <li>Extração automática de conceitos e componentes</li>
+                                <li>Geração de queries para busca no Espacenet</li>
+                                <li>Visualização de relacionamentos entre conceitos</li>
+                                <li>Dicionários personalizáveis</li>
+                                <li>Extração automática de termos do texto</li>
+                                <li>Interface responsiva com tema claro/escuro</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="result-group">
+                            <h3><i class="fas fa-code"></i> Tecnologias Utilizadas</h3>
+                            <div class="keyword-container">
+                                <span class="keyword"><i class="fab fa-html5"></i> HTML5</span>
+                                <span class="keyword"><i class="fab fa-css3-alt"></i> CSS3</span>
+                                <span class="keyword"><i class="fab fa-js"></i> JavaScript</span>
+                                <span class="keyword"><i class="fas fa-project-diagram"></i> Mermaid.js</span>
+                                <span class="keyword"><i class="fas fa-palette"></i> Font Awesome</span>
+                            </div>
+                        </div>
+                        
+                        <div class="button-group">
+                            <a href="https://worldwide.espacenet.com/patent/search" target="_blank" class="btn btn-primary">
+                                <i class="fas fa-external-link-alt"></i> Espacenet
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </main>
+
+            <aside>
+                <div class="sidebar-card">
+                    <div class="card-header">
+                        <h3><i class="fas fa-tachometer-alt"></i> Dashboard</h3>
+                    </div>
+                    <div class="card-body stats-grid">
+                        <div class="stat-item">
+                            <h4 id="totalTerms">0</h4>
+                            <p>Termos Relevantes</p>
+                        </div>
+                        <div class="stat-item">
+                            <h4 id="conceptsCount">0</h4>
+                            <p>Conceitos</p>
+                        </div>
+                        <div class="stat-item">
+                            <h4 id="componentsCount">0</h4>
+                            <p>Componentes</p>
+                        </div>
+                        <div class="stat-item">
+                            <h4 id="applicationsCount">0</h4>
+                            <p>Aplicações</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="sidebar-card">
+                    <div class="card-header">
+                        <h3><i class="fas fa-compass"></i> Área Tecnológica Sugerida</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="area-suggestion" id="areaSuggestion">
+                            <div class="area-icon">
+                                <i class="fas fa-cube"></i>
+                            </div>
+                            <div class="area-text">
+                                <h4>Aguardando análise...</h4>
+                                <p>A classificação será determinada após a análise.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="sidebar-card">
+                    <div class="card-header">
+                        <h3><i class="fas fa-project-diagram"></i> Diagrama de Conceitos (Dinâmico)</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="mermaid-container" id="mermaidContainer">
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="sidebar-card">
+                    <div class="card-header">
+                        <h3><i class="fas fa-code"></i> Query Final (Espacenet)</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="final-query-box">
+                            <button id="copyQueryBtn" title="Copiar query"><i class="fas fa-copy"></i></button>
+                            <code id="finalQuery">Aguardando análise...</code>
+                        </div>
+                        <a href="https://worldwide.espacenet.com/patent/search" target="_blank" class="btn btn-primary" style="width: 100%; margin-top: 1rem; justify-content: center;">
+                            <i class="fas fa-external-link-alt"></i> Abrir Espacenet
+                        </a>
+                    </div>
+                </div>
+            </aside>
+        </div>
+    </div>
+
+    <div id="toast" class="toast">
+        <i class="fas fa-check-circle"></i>
+        <span id="toastMessage">Operação realizada com sucesso!</span>
+    </div>
+
+    <script>
+        const DICIONARIOS_PADRAO = {
+            conceitos: ['sensor', 'monitoramento', 'sistema', 'dispositivo', 'método', 'rede', 'inteligência artificial', 'ia', 'machine learning', 'algoritmo', 'plataforma', 'iot', 'internet das coisas', 'big data', 'nuvem', 'blockchain', 'segurança', 'autenticação', 'robô', 'drone', 'veículo autônomo'],
+            componentes: ['microcontrolador', 'processador', 'bateria', 'led', 'display', 'câmera', 'microfone', 'gps', 'acelerômetro', 'giroscômetro', 'magnetômetro', 'rfid', 'nfc', 'bluetooth', 'wi-fi', 'antena', 'painel solar', 'atuador', 'motor'],
+            funcionalidades: ['sem fio', 'portátil', 'remoto', 'automatizado', 'tempo real', 'conectado', 'inteligente', 'adaptativo', 'interativo', 'preditivo', 'otimizado', 'eficiente', 'baixo custo', 'alta performance', 'seguro'],
+            aplicacoes: ['saúde', 'medicina', 'agricultura', 'agronegócio', 'indústria', 'manufatura', 'logística', 'transporte', 'energia', 'cidade inteligente', 'casa inteligente', 'varejo', 'finanças', 'educação', 'entretenimento', 'meio ambiente']
+        };
+
+        const AREAS_TECNOLOGICAS = {
+            'saúde': { nome: 'Saúde e Medicina', icon: 'fa-heartbeat' },
+            'medicina': { nome: 'Saúde e Medicina', icon: 'fa-heartbeat' },
+            'agricultura': { nome: 'Agronegócio (AgriTech)', icon: 'fa-leaf' },
+            'agronegócio': { nome: 'Agronegócio (AgriTech)', icon: 'fa-leaf' },
+            'indústria': { nome: 'Indústria 4.0', icon: 'fa-industry' },
+            'manufatura': { nome: 'Indústria 4.0', icon: 'fa-industry' },
+            'logística': { nome: 'Logística e Transporte', icon: 'fa-truck' },
+            'transporte': { nome: 'Logística e Transporte', icon: 'fa-truck' },
+            'energia': { nome: 'Energia (EnergyTech)', icon: 'fa-bolt' },
+            'cidade inteligente': { nome: 'Cidades Inteligentes (Smart Cities)', icon: 'fa-city' },
+            'casa inteligente': { nome: 'Cidades Inteligentes (Smart Cities)', icon: 'fa-city' },
+            'inteligência artificial': { nome: 'Inteligência Artificial', icon: 'fa-brain' },
+            'ia': { nome: 'Inteligência Artificial', icon: 'fa-brain' },
+            'iot': { nome: 'Internet das Coisas (IoT)', icon: 'fa-wifi' },
+            'internet das coisas': { nome: 'Internet das Coisas (IoT)', icon: 'fa-wifi' },
+        };
+
+        const EXEMPLOS = {
+            1: "Um dispositivo IoT para monitoramento de saúde que inclui sensores de batimento cardíaco, GPS e conectividade Bluetooth. O sistema coleta dados em tempo real e os envia para um aplicativo móvel que analisa as informações usando algoritmos de machine learning para detectar anomalias.",
+            2: "Um aplicativo móvel para gerenciamento de saúde que utiliza inteligência artificial para analisar sintomas e recomendar tratamentos. O sistema inclui funcionalidades de telemedicina, integração com dispositivos wearables e armazenamento seguro de dados na nuvem.",
+            3: "Um sistema de agricultura de precisão que utiliza drones equipados com câmeras multiespectrais para monitorar plantações. O sistema analisa as imagens usando algoritmos de IA para detectar pragas, doenças e deficiências nutricionais, gerando relatórios em tempo real para os agricultores."
+        };
+
+        class AnalisadorSemantico {
+            
+            constructor() {
+                this.areaTexto = document.getElementById('textoConteudo');
+                this.btnAnalisar = document.getElementById('btnAnalisar');
+                this.btnResetar = document.getElementById('btnResetar');
+                this.copyQueryBtn = document.getElementById('copyQueryBtn');
+                this.themeSwitcher = document.getElementById('themeSwitcher');
+                this.toast = document.getElementById('toast');
+                this.toastMessage = document.getElementById('toastMessage');
+                this.extractedTermsSection = document.getElementById('extractedTermsSection');
+                this.extractedTermsContainer = document.getElementById('extractedTerms');
+                
+                this.tabButtons = document.querySelectorAll('.tab-button');
+                this.tabContents = document.querySelectorAll('.tab-content');
+                this.dicionariosContainer = document.getElementById('dicionariosContainer');
+                
+                this.mermaidContainer = document.getElementById('mermaidContainer');
+                
+                this.dicionarios = this.carregarDicionarios() || this.deepCopy(DICIONARIOS_PADRAO);
+                
+                this.setupEventListeners();
+                this.detectTheme();
+                this.renderizarDiagramaEstatico(); 
+                this.renderizarDicionarios();
+                this.carregarUltimoTexto();
+                this.resetarResultados();
+                mermaid.initialize({ startOnLoad: false, theme: this.getMermaidTheme() });
+            }
+            
+            setupEventListeners() {
+                this.btnAnalisar.addEventListener('click', () => this.analisarConteudo());
+                this.btnResetar.addEventListener('click', () => this.resetarTudo());
+                this.copyQueryBtn.addEventListener('click', () => this.copiarQuery());
+                this.themeSwitcher.addEventListener('click', () => this.toggleTheme());
+                
+                this.areaTexto.addEventListener('input', () => this.salvarUltimoTexto());
+
+                this.tabButtons.forEach(button => {
+                    button.addEventListener('click', () => this.mudarAba(button.dataset.tab));
+                });
+                
+                document.querySelectorAll('.exemplo-btn').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        const exemploId = e.target.dataset.exemplo;
+                        this.carregarExemplo(exemploId);
+                    });
+                });
+                
+                this.dicionariosContainer.addEventListener('click', (e) => {
+                    const btnAdd = e.target.closest('.btn-add-termo');
+                    const btnRemove = e.target.closest('.btn-remove-termo');
+                    
+                    if (btnAdd) {
+                        e.preventDefault();
+                        this.adicionarTermo(btnAdd.dataset.key);
+                    }
+                    
+                    if (btnRemove) {
+                        e.preventDefault();
+                        this.removerTermo(btnRemove.dataset.key, btnRemove.dataset.termo);
+                    }
+                });
+                
+                this.dicionariosContainer.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter' && e.target.type === 'text') {
+                        e.preventDefault();
+                        const key = e.target.id.replace('add-termo-', '');
+                        this.adicionarTermo(key);
+                    }
+                });
+                
+                this.extractedTermsContainer.addEventListener('click', (e) => {
+                    const btnAdd = e.target.closest('.btn-add-extracted');
+                    const btnIgnore = e.target.closest('.btn-ignore-extracted');
+                    
+                    if (btnAdd) {
+                        const termo = btnAdd.dataset.termo;
+                        const select = btnAdd.parentElement.querySelector('.extracted-term-select');
+                        const categoria = select.value;
+                        this.adicionarTermoExtraido(termo, categoria, btnAdd.parentElement.parentElement);
+                    }
+                    
+                    if (btnIgnore) {
+                        const termoEl = btnIgnore.parentElement.parentElement;
+                        termoEl.remove();
+                        this.verificarTermosExtraidos();
+                    }
+                });
+            }
+            
+            async analisarConteudo() {
+                const conteudo = this.areaTexto.value;
+                if (!conteudo.trim()) {
+                    this.mostrarToast('Por favor, insira um texto para analisar.', true);
+                    return;
+                }
+                
+                this.btnAnalisar.disabled = true;
+                this.btnAnalisar.innerHTML = '<div class="spinner"></div> Analisando...';
+                
+                try {
+                    await new Promise(resolve => setTimeout(resolve, 500));
+
+                    const resultados = {
+                        conceitos: this.extrairTermos(conteudo, this.dicionarios.conceitos),
+                        componentes: this.extrairTermos(conteudo, this.dicionarios.componentes),
+                        funcionalidades: this.extrairTermos(conteudo, this.dicionarios.funcionalidades),
+                        aplicacoes: this.extrairTermos(conteudo, this.dicionarios.aplicacoes),
+                    };
+
+                    this.exibirResultados(resultados);
+                    
+                    const query = this.gerarQueryFinal(resultados);
+                    this.exibirQuery(query);
+                    
+                    this.sugerirAreaTecnologica(resultados);
+                    
+                    this.renderizarDiagramaDinamico(resultados);
+                    
+                    this.extrairTermosAutomaticamente(conteudo, resultados);
+                    
+                    this.mostrarToast('Análise concluída com sucesso!');
+
+                } catch (error) {
+                    console.error("Erro durante a análise:", error);
+                    this.mostrarToast("Ocorreu um erro durante a análise.", true);
+                } finally {
+                    this.btnAnalisar.disabled = false;
+                    this.btnAnalisar.innerHTML = '<i class="fas fa-search"></i> Analisar Conteúdo';
+                }
+            }
+
+            extrairTermos(conteudo, dicionario) {
+                return dicionario.filter(termo => conteudo.toLowerCase().includes(termo.toLowerCase()));
+            }
+
+            extrairTermosAutomaticamente(conteudo, resultadosExistentes) {
+                const texto = conteudo.toLowerCase();
+                
+                const stopWords = [
+                    'de', 'a', 'o', 'que', 'e', 'do', 'da', 'em', 'um', 'para', 'é', 'com', 'não', 'uma', 
+                    'os', 'no', 'se', 'na', 'por', 'mais', 'as', 'dos', 'como', 'mas', 'foi', 'ao', 'ele', 
+                    'das', 'tem', 'à', 'seu', 'sua', 'ou', 'ser', 'quando', 'muito', 'há', 'nos', 'já', 
+                    'está', 'eu', 'também', 'só', 'pelo', 'pela', 'até', 'isso', 'ela', 'entre', 'era', 
+                    'depois', 'sem', 'mesmo', 'aos', 'ter', 'seus', 'quem', 'nas', 'me', 'esse', 'eles', 
+                    'estão', 'você', 'tinha', 'foram', 'essa', 'num', 'nem', 'suas', 'meu', 'às', 'minha', 
+                    'têm', 'numa', 'pelos', 'elas', 'havia', 'seja', 'qual', 'será', 'nós', 'tenho', 'lhe', 
+                    'deles', 'essas', 'esses', 'pelas', 'este', 'fosse', 'dele', 'tu', 'te', 'vocês', 'vos', 
+                    'lhes', 'meus', 'minhas', 'teu', 'tua', 'teus', 'tuas', 'nosso', 'nossa', 'nossos', 
+                    'nossas', 'dela', 'delas', 'esta', 'estes', 'estas', 'aquele', 'aquela', 'aqueles', 
+                    'aquelas', 'isto', 'aquilo', 'estou', 'está', 'estamos', 'estão', 'estive', 'esteve', 
+                    'estivemos', 'estiveram', 'estava', 'estávamos', 'estavam', 'estivera', 'estivéramos', 
+                    'esteja', 'estejamos', 'estejam', 'estivesse', 'estivéssemos', 'estivessem', 'estiver', 
+                    'estivermos', 'estiverem', 'hei', 'há', 'havemos', 'hão', 'houve', 'houvemos', 'houveram', 
+                    'houvera', 'houvéramos', 'haja', 'hajamos', 'hajam', 'houvesse', 'houvéssemos', 'houvessem', 
+                    'houver', 'houvermos', 'houverem', 'houverei', 'houverá', 'houveremos', 'houverão', 
+                    'houveria', 'houveríamos', 'houveriam', 'sou', 'somos', 'são', 'era', 'éramos', 'eram', 
+                    'fui', 'foi', 'fomos', 'foram', 'fora', 'fôramos', 'seja', 'sejamos', 'sejam', 'fosse', 
+                    'fôssemos', 'fossem', 'for', 'formos', 'forem', 'serei', 'será', 'seremos', 'serão', 
+                    'seria', 'seríamos', 'seriam', 'tenho', 'tem', 'temos', 'tém', 'tinha', 'tínhamos', 
+                    'tinham', 'tive', 'teve', 'tivemos', 'tiveram', 'tivera', 'tivéramos', 'tenha', 'tenhamos', 
+                    'tenham', 'tivesse', 'tivéssemos', 'tivessem', 'tiver', 'tivermos', 'tiverem', 'terei', 
+                    'terá', 'teremos', 'terão', 'teria', 'teríamos', 'teriam', 'o', 'a', 'os', 'as', 'um', 'uns', 'uma', 'umas'
+                ];
+                
+                const tokens = texto
+                    .replace(/[^\w\s]/g, ' ')
+                    .split(/\s+/)
+                    .filter(token => 
+                        token.length > 2 &&
+                        !stopWords.includes(token) &&
+                        !/\d/.test(token)
+                    );
+                
+                const frequencia = {};
+                tokens.forEach(token => {
+                    frequencia[token] = (frequencia[token] || 0) + 1;
+                });
+                
+                const todosTermosExistentes = [
+                    ...this.dicionarios.conceitos,
+                    ...this.dicionarios.componentes,
+                    ...this.dicionarios.funcionalidades,
+                    ...this.dicionarios.aplicacoes
+                ];
+                
+                const termosNovos = Object.keys(frequencia)
+                    .filter(termo => 
+                        !todosTermosExistentes.includes(termo) &&
+                        frequencia[termo] >= 2
+                    )
+                    .sort((a, b) => frequencia[b] - frequencia[a])
+                    .slice(0, 10);
+                
+                this.exibirTermosExtraidos(termosNovos, frequencia);
+            }
+
+            exibirTermosExtraidos(termos, frequencia) {
+                this.extractedTermsContainer.innerHTML = '';
+                
+                if (termos.length === 0) {
+                    this.extractedTermsSection.style.display = 'none';
+                    return;
+                }
+                
+                termos.forEach(termo => {
+                    const confianca = Math.min(100, Math.round((frequencia[termo] / 5) * 100));
+                    
+                    const termoEl = document.createElement('div');
+                    termoEl.className = 'extracted-term';
+                    termoEl.innerHTML = `
+                        <div class="extracted-term-header">
+                            <span class="extracted-term-text">${termo}</span>
+                            <span class="extracted-term-confidence">${confianca}%</span>
+                        </div>
+                        <div class="extracted-term-actions">
+                            <select class="extracted-term-select">
+                                <option value="conceitos">Conceitos</option>
+                                <option value="componentes">Componentes</option>
+                                <option value="funcionalidades">Funcionalidades</option>
+                                <option value="aplicacoes">Aplicações</option>
+                            </select>
+                            <button class="extracted-term-btn btn-add-extracted" data-termo="${termo}">
+                                <i class="fas fa-plus"></i> Adicionar
+                            </button>
+                            <button class="extracted-term-btn btn-ignore-extracted">
+                                <i class="fas fa-times"></i> Ignorar
+                            </button>
+                        </div>
+                    `;
+                    this.extractedTermsContainer.appendChild(termoEl);
+                });
+                
+                this.extractedTermsSection.style.display = 'block';
+            }
+
+            adicionarTermoExtraido(termo, categoria, elemento) {
+                if (!this.dicionarios[categoria].includes(termo)) {
+                    this.dicionarios[categoria].push(termo);
+                    this.salvarDicionarios();
+                    elemento.remove();
+                    this.mostrarToast(`Termo "${termo}" adicionado a ${categoria}.`);
+                    this.verificarTermosExtraidos();
+                    
+                    this.analisarConteudo();
+                } else {
+                    this.mostrarToast(`O termo "${termo}" já existe em ${categoria}.`, true);
+                }
+            }
+
+            verificarTermosExtraidos() {
+                if (this.extractedTermsContainer.children.length === 0) {
+                    this.extractedTermsSection.style.display = 'none';
+                }
+            }
+
+            gerarQueryFinal(resultados) {
+                const { conceitos, componentes, funcionalidades, aplicacoes } = resultados;
+
+                const formatarGrupo = (grupo) => {
+                    return grupo.length > 0 ? `(${grupo.map(t => `"${t}"`).join(' OR ')})` : '';
+                };
+
+                const gruposFormatados = [
+                    formatarGrupo(conceitos),
+                    formatarGrupo(componentes),
+                    formatarGrupo(funcionalidades),
+                    formatarGrupo(aplicacoes)
+                ].filter(g => g.length > 0);
+
+                return gruposFormatados.join(' AND \n');
+            }
+            
+            exibirResultados(resultados) {
+                const { conceitos, componentes, funcionalidades, aplicacoes } = resultados;
+                
+                this.renderizarKeywords('centralConcepts', conceitos, 'fa-lightbulb');
+                this.renderizarKeywords('deviceComponents', componentes, 'fa-cogs');
+                this.renderizarKeywords('smartFeatures', funcionalidades, 'fa-magic');
+                this.renderizarKeywords('applicationTarget', aplicacoes, 'fa-bullseye');
+                
+                const total = conceitos.length + componentes.length + funcionalidades.length + aplicacoes.length;
+                document.getElementById('totalTerms').textContent = total;
+                document.getElementById('conceptsCount').textContent = conceitos.length;
+                document.getElementById('componentsCount').textContent = componentes.length;
+                document.getElementById('applicationsCount').textContent = aplicacoes.length;
+            }
+            
+            renderizarKeywords(elementId, lista, icon) {
+                const container = document.getElementById(elementId);
+                container.innerHTML = '';
+                if (lista.length === 0) {
+                    container.innerHTML = '<span class="keyword placeholder">Nenhum termo encontrado</span>';
+                    return;
+                }
+                lista.forEach(termo => {
+                    container.innerHTML += `
+                        <span class="keyword">
+                            <i class="fas ${icon}"></i> ${termo}
+                        </span>
+                    `;
+                });
+            }
+            
+            exibirQuery(query) {
+                document.getElementById('finalQuery').textContent = query || 'Nenhum termo relevante encontrado para gerar a query.';
+            }
+
+            sugerirAreaTecnologica(resultados) {
+                const container = document.getElementById('areaSuggestion');
+                const todosTermos = [...resultados.conceitos, ...resultados.aplicacoes];
+                
+                for (const termo of todosTermos) {
+                    if (AREAS_TECNOLOGICAS[termo]) {
+                        const area = AREAS_TECNOLOGICAS[termo];
+                        container.innerHTML = `
+                            <div class="area-icon">
+                                <i class="fas ${area.icon}"></i>
+                            </div>
+                            <div class="area-text">
+                                <h4>${area.nome}</h4>
+                                <p>Alta relevância detectada para esta área tecnológica.</p>
+                            </div>
+                        `;
+                        return;
+                    }
+                }
+                
+                this.resetarAreaSugerida();
+            }
+            
+            copiarQuery() {
+                const query = document.getElementById('finalQuery').textContent;
+                if (!query || query.startsWith('Aguardando') || query.startsWith('Nenhum termo')) {
+                    this.mostrarToast("Nenhuma query válida para copiar.", true);
+                    return;
+                }
+                
+                navigator.clipboard.writeText(query).then(() => {
+                    this.mostrarToast('Query copiada para a área de transferência!');
+                    const originalText = this.copyQueryBtn.innerHTML;
+                    this.copyQueryBtn.innerHTML = '<i class="fas fa-check"></i>';
+                    setTimeout(() => {
+                        this.copyQueryBtn.innerHTML = originalText;
+                    }, 2000);
+                }).catch(err => {
+                    this.mostrarToast('Falha ao copiar: ' + err, true);
+                });
+            }
+
+            resetarTudo() {
+                this.areaTexto.value = '';
+                this.salvarUltimoTexto();
+                this.resetarResultados();
+                this.mostrarToast('Todos os campos foram resetados.');
+            }
+            
+            resetarResultados() {
+                const elementos = ['centralConcepts', 'deviceComponents', 'smartFeatures', 'applicationTarget'];
+                elementos.forEach(id => {
+                    document.getElementById(id).innerHTML = '<span class="keyword placeholder">Aguardando análise...</span>';
+                });
+                
+                document.getElementById('finalQuery').textContent = 'Aguardando análise...';
+                document.getElementById('totalTerms').textContent = '0';
+                document.getElementById('conceptsCount').textContent = '0';
+                document.getElementById('componentsCount').textContent = '0';
+                document.getElementById('applicationsCount').textContent = '0';
+                
+                this.resetarAreaSugerida();
+                this.renderizarDiagramaEstatico();
+                
+                this.extractedTermsSection.style.display = 'none';
+            }
+            
+            resetarAreaSugerida() {
+                 document.getElementById('areaSuggestion').innerHTML = `
+                    <div class="area-icon">
+                        <i class="fas fa-cube"></i>
+                    </div>
+                    <div class="area-text">
+                        <h4>Aguardando análise...</h4>
+                        <p>A classificação será determinada após a análise.</p>
+                    </div>
+                `;
+            }
+            
+            mudarAba(tabId) {
+                this.tabContents.forEach(content => {
+                    content.classList.remove('active');
+                });
+                this.tabButtons.forEach(button => {
+                    button.classList.remove('active');
+                });
+                
+                document.getElementById(`tab-${tabId}`).classList.add('active');
+                document.querySelector(`.tab-button[data-tab="${tabId}"]`).classList.add('active');
+            }
+            
+            toggleTheme() {
+                const currentTheme = document.body.getAttribute('data-theme');
+                const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+                document.body.setAttribute('data-theme', newTheme);
+                localStorage.setItem('theme', newTheme);
+                
+                this.updateThemeIcons(newTheme);
+                
+                this.mermaidContainer.innerHTML = '';
+                mermaid.initialize({ startOnLoad: false, theme: this.getMermaidTheme() });
+                
+                if(this.areaTexto.value.trim() !== '' && document.getElementById('totalTerms').textContent !== '0') {
+                    this.analisarConteudo(); 
+                } else {
+                    this.renderizarDiagramaEstatico();
+                }
+                
+                this.mostrarToast(`Tema ${newTheme === 'dark' ? 'escuro' : 'claro'} ativado.`);
+            }
+
+            detectTheme() {
+                const savedTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+                document.body.setAttribute('data-theme', savedTheme);
+                this.updateThemeIcons(savedTheme);
+            }
+            
+            updateThemeIcons(theme) {
+                const sunIcon = this.themeSwitcher.querySelector('.fa-sun');
+                const moonIcon = this.themeSwitcher.querySelector('.fa-moon');
+                if (theme === 'dark') {
+                    sunIcon.classList.remove('active');
+                    moonIcon.classList.add('active');
+                } else {
+                    sunIcon.classList.add('active');
+                    moonIcon.classList.remove('active');
+                }
+            }
+            
+            getMermaidTheme() {
+                return document.body.getAttribute('data-theme') === 'dark' ? 'dark' : 'default';
+            }
+            
+            async renderizarDiagramaEstatico() {
+                const theme = this.getMermaidTheme();
+                
+                const styles = theme === 'dark' 
+                    ? `classDef default fill:#1f2937,stroke:#f3f4f6,stroke-width:2px,color:#f3f4f6;`
+                    : `classDef default fill:#ffffff,stroke:#1f2937,stroke-width:2px,color:#1f2937;`;
+                    
+                const graphDefinition = `
+                    graph TD;
+                        A[<i class='fas fa-paste'></i> Cole o Texto da Patente] --> B{<i class='fas fa-search'></i> Analisar Conteúdo};
+                        B --> C[<i class='fas fa-lightbulb'></i> Conceitos];
+                        B --> D[<i class='fas fa-cogs'></i> Componentes];
+                        B --> E[<i class='fas fa-magic'></i> Funcionalidades];
+                        B --> F[<i class='fas fa-bullseye'></i> Aplicações];
+                        C & D & E & F --> G(<i class='fas fa-code'></i> Query Espacenet);
+                        
+                        ${styles}
+                `;
+                
+                try {
+                    this.mermaidContainer.innerHTML = '';
+                    const { svg } = await mermaid.render('mermaid-static', graphDefinition);
+                    this.mermaidContainer.innerHTML = svg;
+                } catch (e) {
+                    console.error("Erro ao renderizar diagrama estático:", e);
+                    this.mermaidContainer.innerHTML = "Erro ao renderizar diagrama.";
+                }
+            }
+            
+            async renderizarDiagramaDinamico(resultados) {
+                const theme = this.getMermaidTheme();
+                let mermaidString = `graph TD;\n`;
+                
+                const textPrimary = theme === 'dark' ? '#f3f4f6' : '#1f2937';
+                
+                mermaidString += `    classDef conceito fill:${theme === 'dark' ? '#1d4ed8' : '#dbeafe'},stroke:#1d4ed8,color:${theme === 'dark' ? 'white' : '#1d4ed8'};\n`;
+                mermaidString += `    classDef componente fill:${theme === 'dark' ? '#059669' : '#d1fae5'},stroke:#059669,color:${theme === 'dark' ? 'white' : '#059669'};\n`;
+                mermaidString += `    classDef feature fill:${theme === 'dark' ? '#d97706' : '#fef3c7'},stroke:#d97706,color:${theme === 'dark' ? 'white' : '#d97706'};\n`;
+                mermaidString += `    classDef app fill:${theme === 'dark' ? '#dc2626' : '#fee2e2'},stroke:#dc2626,color:${theme === 'dark' ? 'white' : '#dc2626'};\n`;
+                mermaidString += `    classDef default fill:${theme === 'dark' ? '#1f2937' : '#ffffff'},stroke:${textPrimary},stroke-width:1px,color:${textPrimary};\n`;
+
+                const central = resultados.conceitos[0] || "Patente Analisada";
+                const centralLimpo = this.escapeMermaid(central);
+                mermaidString += `    A["<i class='fas fa-lightbulb'></i> ${centralLimpo}"]:::conceito;\n`;
+                
+                const criarNos = (lista, categoria, noPai, classe) => {
+                    if (lista.length > 0) {
+                        const noCategoria = `${categoria}[<i class='${this.getIconFor(categoria)}'></i> ${categoria}]`;
+                        mermaidString += `    ${noPai} --> ${noCategoria};\n`;
+                        lista.forEach((item, i) => {
+                            const nodeId = `${categoria.substring(0, 3)}_${i}`;
+                            const itemLimpo = this.escapeMermaid(item);
+                            mermaidString += `    ${noCategoria} --o ${nodeId}["${itemLimpo}"]:::${classe};\n`;
+                        });
+                    }
+                };
+                
+                criarNos(resultados.conceitos.slice(1), "Conceitos", "A", "conceito");
+                criarNos(resultados.componentes, "Componentes", "A", "componente");
+                criarNos(resultados.funcionalidades, "Funcionalidades", "A", "feature");
+                criarNos(resultados.aplicacoes, "Aplicações", "A", "app");
+
+                try {
+                    this.mermaidContainer.innerHTML = '';
+                    const { svg } = await mermaid.render('mermaid-dynamic', mermaidString);
+                    this.mermaidContainer.innerHTML = svg;
+                } catch (e) {
+                    console.error("Erro ao renderizar diagrama dinâmico:", e, mermaidString);
+                    this.mermaidContainer.innerHTML = "Erro ao renderizar diagrama.";
+                }
+            }
+
+            getIconFor(categoria) {
+                const map = {
+                    "Conceitos": "fa-lightbulb",
+                    "Componentes": "fa-cogs",
+                    "Funcionalidades": "fa-magic",
+                    "Aplicações": "fa-bullseye"
+                };
+                return map[categoria] || "fa-question";
+            }
+            
+            carregarDicionarios() {
+                try {
+                    const salvo = localStorage.getItem('dicionariosSemanticos');
+                    return salvo ? JSON.parse(salvo) : null;
+                } catch (e) {
+                    console.error("Erro ao carregar dicionários:", e);
+                    return null;
+                }
+            }
+            
+            salvarDicionarios() {
+                try {
+                    localStorage.setItem('dicionariosSemanticos', JSON.stringify(this.dicionarios));
+                    this.mostrarToast('Dicionários salvos com sucesso!');
+                    return true;
+                } catch (e) {
+                    console.error("Erro ao salvar dicionários:", e);
+                    this.mostrarToast("Erro ao salvar dicionários. O armazenamento pode estar cheio.", true);
+                    return false;
+                }
+            }
+            
+            renderizarDicionarios() {
+                this.dicionariosContainer.innerHTML = '';
+                const nomes = {
+                    conceitos: "Conceitos Centrais",
+                    componentes: "Componentes",
+                    funcionalidades: "Funcionalidades 'Smart'",
+                    aplicacoes: "Alvos de Aplicação"
+                };
+                
+                for (const key in this.dicionarios) {
+                    const card = document.createElement('div');
+                    card.className = 'dict-card';
+                    
+                    let termosList = '';
+                    this.dicionarios[key].sort().forEach(termo => {
+                        termosList += `
+                            <li>
+                                <span>${termo}</span>
+                                <button class="btn-remove-termo" data-key="${key}" data-termo="${termo}" title="Remover termo">
+                                    <i class="fas fa-trash-alt"></i>
+                                </button>
+                            </li>
+                        `;
+                    });
+                    
+                    card.innerHTML = `
+                        <h4>${nomes[key] || key}</h4>
+                        <form class="add-termo-form">
+                            <input type="text" id="add-termo-${key}" placeholder="Novo termo..." />
+                            <button class="btn-add-termo" data-key="${key}" title="Adicionar termo">
+                                <i class="fas fa-plus"></i>
+                            </button>
+                        </form>
+                        <ul class="termos-list">
+                            ${termosList}
+                        </ul>
+                    `;
+                    this.dicionariosContainer.appendChild(card);
+                }
+                
+                document.getElementById('btn-reset-dicionarios').addEventListener('click', () => this.resetarDicionarios());
+            }
+
+            adicionarTermo(key) {
+                const input = document.getElementById(`add-termo-${key}`);
+                const termo = input.value.trim().toLowerCase();
+                
+                if (termo && !this.dicionarios[key].includes(termo)) {
+                    this.dicionarios[key].push(termo);
+                    if (this.salvarDicionarios()) {
+                        this.renderizarDicionarios();
+                    }
+                } else if (!termo) {
+                    this.mostrarToast('Por favor, digite um termo.', true);
+                } else {
+                    this.mostrarToast('Este termo já existe na lista.', true);
+                }
+                input.value = '';
+                input.focus();
+            }
+            
+            removerTermo(key, termo) {
+                if (confirm(`Tem certeza que deseja remover o termo "${termo}"?`)) {
+                    this.dicionarios[key] = this.dicionarios[key].filter(t => t !== termo);
+                    if (this.salvarDicionarios()) {
+                        this.renderizarDicionarios();
+                    }
+                }
+            }
+            
+            resetarDicionarios() {
+                if (confirm('Isso apagará todas as suas customizações e restaurará os dicionários padrão. Deseja continuar?')) {
+                    localStorage.removeItem('dicionariosSemanticos');
+                    this.dicionarios = this.deepCopy(DICIONARIOS_PADRAO);
+                    this.renderizarDicionarios();
+                    this.mostrarToast('Dicionários restaurados para o padrão.');
+                }
+            }
+            
+            salvarUltimoTexto() {
+                localStorage.setItem('ultimoTextoAnalisador', this.areaTexto.value);
+            }
+            
+            carregarUltimoTexto() {
+                const texto = localStorage.getItem('ultimoTextoAnalisador');
+                if (texto) {
+                    this.areaTexto.value = texto;
+                }
+            }
+
+            carregarExemplo(id) {
+                if (EXEMPLOS[id]) {
+                    this.areaTexto.value = EXEMPLOS[id];
+                    this.salvarUltimoTexto();
+                    this.mostrarToast(`Exemplo ${id} carregado. Clique em "Analisar Conteúdo".`);
+                }
+            }
+
+            mostrarToast(mensagem, isError = false) {
+                this.toastMessage.textContent = mensagem;
+                this.toast.className = 'toast';
+                this.toast.classList.add(isError ? 'error' : 'show');
+                
+                setTimeout(() => {
+                    this.toast.classList.add('show');
+                }, 10);
+                
+                setTimeout(() => {
+                    this.toast.classList.remove('show');
+                }, 3000);
+            }
+            
+            escapeMermaid(string) {
+                return string.replace(/"/g, '#quot;').replace(/'/g, '#39;').replace(/</g, '#lt;').replace(/>/g, '#gt;');
+            }
+
+            deepCopy(obj) {
+                return JSON.parse(JSON.stringify(obj));
+            }
+        }
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            new AnalisadorSemantico();
+        });
+    </script>
+</body>
+</html>

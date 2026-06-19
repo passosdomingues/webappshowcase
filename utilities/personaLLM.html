@@ -1,0 +1,802 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Construtor de Persona LLM</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+        }
+        .main-container {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+        }
+        .card {
+            background-color: rgba(30, 41, 59, 0.8);
+            backdrop-filter: blur(10px);
+            border-radius: 1.5rem;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3), 0 10px 10px -5px rgba(0, 0, 0, 0.2);
+            max-width: 95%;
+            width: 800px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .btn-option {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            transform-origin: center;
+            color: #e2e8f0;
+            background-color: #334155;
+            border: 1px solid #475569;
+            border-radius: 0.75rem;
+            position: relative;
+            overflow: hidden;
+        }
+        .btn-option:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.2);
+            background-color: #475569;
+        }
+        .btn-option.selected {
+            border: 2px solid #10b981;
+            background: linear-gradient(135deg, #065f46 0%, #047857 100%);
+            color: #d1fae5;
+            font-weight: 600;
+            box-shadow: 0 10px 15px -3px rgba(16, 185, 129, 0.2);
+        }
+        .btn-option.selected::after {
+            content: '\f00c';
+            font-family: 'Font Awesome 6 Free';
+            font-weight: 900;
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #10b981;
+        }
+        .prompt-block {
+            font-family: 'Courier New', monospace;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            padding: 1.5rem;
+            background-color: #0f172a;
+            color: #f0fdf4;
+            border-radius: 0.75rem;
+            min-height: 150px;
+            overflow-x: auto;
+            margin-bottom: 1rem;
+            border: 1px solid #1e293b;
+        }
+        .fade-in {
+            animation: fadeIn 0.5s ease-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .btn-copy {
+            transition: all 0.3s;
+        }
+        .btn-copy:hover {
+            transform: translateY(-2px);
+        }
+        .progress-bar {
+            height: 10px;
+            background-color: #334155;
+            border-radius: 5px;
+            overflow: hidden;
+        }
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #10b981 0%, #34d399 100%);
+            transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            border-radius: 5px;
+        }
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+            padding: 1rem;
+        }
+        .modal-content {
+            background-color: #1e293b;
+            border-radius: 1.5rem;
+            padding: 2rem;
+            max-width: 600px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .reward-notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: linear-gradient(135deg, #10b981 0%, #34d399 100%);
+            color: white;
+            padding: 1rem 1.5rem;
+            border-radius: 0.75rem;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.2);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            z-index: 50;
+            transform: translateX(150%);
+            transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .reward-notification.show {
+            transform: translateX(0);
+        }
+        .section-indicator {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+            justify-content: center;
+        }
+        .section-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background-color: #475569;
+            transition: all 0.3s;
+        }
+        .section-dot.active {
+            background-color: #10b981;
+            transform: scale(1.2);
+        }
+        .question-counter {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 0.5rem 1rem;
+            border-radius: 2rem;
+            font-size: 0.875rem;
+            margin-bottom: 1rem;
+            display: inline-block;
+        }
+        .tooltip {
+            position: relative;
+            display: inline-block;
+        }
+        .tooltip .tooltip-text {
+            visibility: hidden;
+            width: 280px;
+            background-color: #0f172a;
+            color: #e2e8f0;
+            text-align: center;
+            border-radius: 0.5rem;
+            padding: 0.75rem;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%;
+            left: 50%;
+            transform: translateX(-50%);
+            opacity: 0;
+            transition: opacity 0.3s;
+            font-size: 0.875rem;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.2);
+            border: 1px solid #334155;
+        }
+        .tooltip:hover .tooltip-text {
+            visibility: visible;
+            opacity: 1;
+        }
+    </style>
+</head>
+<body class="text-gray-100">
+    <!-- Modal de Termos -->
+    <div id="terms-modal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="flex items-center mb-6">
+                <div class="bg-emerald-500 p-3 rounded-xl mr-4">
+                    <i class="fas fa-shield-alt text-white text-xl"></i>
+                </div>
+                <h2 class="text-2xl font-bold">Termos de Uso e Privacidade</h2>
+            </div>
+            
+            <div class="mb-6 space-y-4 text-gray-300">
+                <p>Antes de utilizar o Construtor de Persona LLM, leia atentamente os seguintes termos:</p>
+                
+                <div class="bg-slate-800 p-4 rounded-lg">
+                    <h3 class="font-semibold text-emerald-400 mb-2">Privacidade e LGPD</h3>
+                    <p>Este aplicativo funciona inteiramente no seu navegador. Nenhum dado pessoal é coletado, armazenado ou enviado para servidores externos. Todas as suas respostas permanecem no seu dispositivo.</p>
+                </div>
+                
+                <div class="bg-slate-800 p-4 rounded-lg">
+                    <h3 class="font-semibold text-emerald-400 mb-2">Uso de LLMs Externos</h3>
+                    <p>Ao exportar os JSONs gerados e utilizá-los em LLMs (Large Language Models), você assume total responsabilidade:</p>
+                    <ul class="list-disc pl-5 mt-2 space-y-1">
+                        <li>Procure LLMs que permitam desativar o uso de dados para treinamento</li>
+                        <li>Prefira LLMs open-source que possam ser executados localmente</li>
+                        <li>Nunca compartilhe informações sensíveis ou pessoais</li>
+                        <li>Configure hyperparâmetros para maior controle sobre as respostas</li>
+                    </ul>
+                </div>
+                
+                <div class="bg-slate-800 p-4 rounded-lg">
+                    <h3 class="font-semibold text-emerald-400 mb-2">Limitações e Cautela</h3>
+                    <p>LLMs podem gerar informações incorretas ("alucinações"). Sempre verifique fatos importantes com fontes confiáveis. Este construtor apenas ajusta o tom e estilo das respostas conforme sua personalidade e método de aprendizado.</p>
+                </div>
+            </div>
+            
+            <div class="flex items-center mb-6">
+                <input type="checkbox" id="agree-terms" class="w-5 h-5 rounded border-gray-300 text-emerald-600 focus:ring-emerald-500">
+                <label for="agree-terms" class="ml-2 text-gray-300">Concordo com os termos e compreendo as limitações e responsabilidades</label>
+            </div>
+            
+            <div class="flex justify-end">
+                <button id="accept-terms" class="px-6 py-3 bg-emerald-600 hover:bg-emerald-500 rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed" disabled>
+                    Aceitar e Continuar
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notificação de Recompensa -->
+    <div id="reward-notification" class="reward-notification">
+        <i class="fas fa-trophy text-xl"></i>
+        <div>
+            <div class="font-semibold" id="reward-title">Progresso Incrível!</div>
+            <div class="text-sm" id="reward-message">Você completou 25% do questionário!</div>
+        </div>
+    </div>
+
+    <div class="main-container">
+        <div class="card p-8 mb-6">
+            <div class="flex items-center justify-center mb-2">
+                <div class="bg-gradient-to-r from-emerald-500 to-cyan-500 p-3 rounded-xl mr-3">
+                    <i class="fas fa-robot text-white text-xl"></i>
+                </div>
+                <h1 class="text-3xl font-bold text-center bg-gradient-to-r from-emerald-400 to-cyan-400 bg-clip-text text-transparent">Construtor de Persona LLM</h1>
+            </div>
+            <p class="text-center text-gray-400 mb-8">Responda 40 perguntas para criar sua persona personalizada e otimizar suas interações com LLMs</p>
+            
+            <!-- Indicador de Seção -->
+            <div class="section-indicator">
+                <div class="section-dot active" id="section-persona"></div>
+                <div class="section-dot" id="section-learning"></div>
+            </div>
+            
+            <!-- Barra de Progresso -->
+            <div class="mb-8">
+                <div class="flex justify-between text-sm text-gray-400 mb-2">
+                    <span><i class="fas fa-list-ol mr-1"></i> Progresso: <span id="current-progress">0</span>/40</span>
+                    <span id="progress-percent">0%</span>
+                </div>
+                <div class="progress-bar">
+                    <div id="progress-fill" class="progress-fill" style="width: 0%"></div>
+                </div>
+            </div>
+            
+            <!-- Área de Perguntas -->
+            <div id="question-container" class="mb-8">
+                <div class="question-counter">
+                    <i class="fas fa-question-circle mr-1"></i> Pergunta <span id="current-question">1</span> de 40
+                </div>
+                <h2 id="question-text" class="text-xl font-semibold mb-6 text-center"></h2>
+                <div id="options-container" class="grid grid-cols-1 md:grid-cols-2 gap-3"></div>
+            </div>
+            
+            <!-- Navegação -->
+            <div class="flex justify-between mt-8">
+                <button id="prev-btn" class="px-6 py-3 bg-slate-700 hover:bg-slate-600 rounded-lg font-medium transition-colors flex items-center" disabled>
+                    <i class="fas fa-arrow-left mr-2"></i> Anterior
+                </button>
+                <button id="next-btn" class="px-6 py-3 bg-gradient-to-r from-emerald-600 to-cyan-600 hover:from-emerald-500 hover:to-cyan-500 rounded-lg font-medium transition-colors flex items-center">
+                    Próxima <i class="fas fa-arrow-right ml-2"></i>
+                </button>
+                <button id="finish-btn" class="px-6 py-3 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 rounded-lg font-medium transition-colors flex items-center hidden">
+                    Finalizar <i class="fas fa-check ml-2"></i>
+                </button>
+            </div>
+        </div>
+        
+        <!-- Área de Resultados -->
+        <div id="results-container" class="card p-8 hidden fade-in">
+            <div class="flex items-center justify-center mb-6">
+                <div class="bg-gradient-to-r from-emerald-500 to-cyan-500 p-3 rounded-xl mr-3">
+                    <i class="fas fa-star text-white text-xl"></i>
+                </div>
+                <h2 class="text-2xl font-bold text-center">Sua Persona foi Criada!</h2>
+            </div>
+            
+            <div class="mb-8 text-center">
+                <h3 class="text-xl font-semibold mb-2 text-emerald-400" id="persona-name"></h3>
+                <p class="text-gray-400">Use os prompts abaixo para personalizar sua experiência com LLMs</p>
+            </div>
+            
+            <div class="mb-8">
+                <div class="flex justify-between items-center mb-2">
+                    <h4 class="text-lg font-medium flex items-center">
+                        <i class="fas fa-user-circle mr-2 text-emerald-400"></i> Prompt de Detalhes do Usuário
+                    </h4>
+                    <button id="copy-persona-btn" class="btn-copy px-4 py-2 bg-emerald-600 hover:bg-emerald-500 rounded-lg font-medium text-sm flex items-center">
+                        <i class="fas fa-copy mr-2"></i> Copiar JSON
+                    </button>
+                </div>
+                <div id="persona-prompt" class="prompt-block"></div>
+            </div>
+            
+            <div class="mb-8">
+                <div class="flex justify-between items-center mb-2">
+                    <h4 class="text-lg font-medium flex items-center">
+                        <i class="fas fa-graduation-cap mr-2 text-cyan-400"></i> Prompt de Instruções de Aprendizado
+                    </h4>
+                    <button id="copy-learning-btn" class="btn-copy px-4 py-2 bg-cyan-600 hover:bg-cyan-500 rounded-lg font-medium text-sm flex items-center">
+                        <i class="fas fa-copy mr-2"></i> Copiar JSON
+                    </button>
+                </div>
+                <div id="learning-prompt" class="prompt-block"></div>
+            </div>
+            
+            <div class="bg-slate-800 p-4 rounded-lg mb-6">
+                <h4 class="font-semibold text-amber-400 mb-2 flex items-center">
+                    <i class="fas fa-exclamation-triangle mr-2"></i> Recomendações de Segurança
+                </h4>
+                <ul class="list-disc pl-5 text-gray-300 space-y-1 text-sm">
+                    <li>Utilize LLMs que permitam desativar o treinamento com seus dados</li>
+                    <li>Prefira soluções open-source que possam ser executadas localmente</li>
+                    <li>Nunca compartilhe informações sensíveis ou pessoais</li>
+                    <li>Verifique sempre as respostas com fontes confiáveis</li>
+                </ul>
+            </div>
+            
+            <div class="text-center mt-6">
+                <button id="restart-btn" class="px-6 py-3 bg-slate-700 hover:bg-slate-600 rounded-lg font-medium transition-colors flex items-center mx-auto">
+                    <i class="fas fa-redo mr-2"></i> Recomeçar
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Modelo de Dados
+        const Model = {
+            state: {
+                currentStep: 0,
+                totalQuestions: 40,
+                answers: [],
+            },
+            
+            questions: [
+                // PARTE 1: SUA ESSÊNCIA (A Persona) - Nodal Points 1 a 20
+                { id: 1, type: 'persona', key: 'analytical_focus', text: 'Você prefere analisar dados e fatos antes de tomar uma decisão.', weight: 0 },
+                { id: 2, type: 'persona', key: 'creative_drive', text: 'Você se sente mais motivado(a) ao explorar ideias novas e não convencionais.', weight: 0 },
+                { id: 3, type: 'persona', key: 'detail_orientation', text: 'A atenção aos detalhes é mais importante do que a visão geral para o sucesso.', weight: 0 },
+                { id: 4, type: 'persona', key: 'communicative_tone', text: 'Ao se comunicar, você prefere um tom formal e profissional.', weight: 0 },
+                { id: 5, type: 'persona', key: 'risk_tolerance', text: 'Em um projeto, você prefere correr um risco moderado em troca de um grande ganho.', weight: 0 },
+                { id: 6, type: 'persona', key: 'goal_priority', text: 'O foco principal deve ser sempre alcançar o objetivo final, e não o processo.', weight: 0 },
+                { id: 7, type: 'persona', key: 'collaborative_preference', text: 'Você é mais produtivo(a) quando trabalha em equipe.', weight: 0 },
+                { id: 8, type: 'persona', key: 'intuitive_approach', text: 'Confiar na sua intuição geralmente leva a melhores resultados do que seguir um plano rígido.', weight: 0 },
+                { id: 9, type: 'persona', key: 'structured_need', text: 'Um ambiente de trabalho/estudo altamente estruturado é essencial para sua concentração.', weight: 0 },
+                { id: 10, type: 'persona', key: 'historical_perspective', text: 'Aprender sobre o contexto histórico de um assunto é crucial para entendê-lo.', weight: 0 },
+                { id: 11, type: 'persona', key: 'critical_skepticism', text: 'Você tende a questionar a fonte de toda informação que recebe.', weight: 0 },
+                { id: 12, type: 'persona', key: 'empathy_focus', text: 'A empatia e as considerações humanas são os fatores mais importantes em qualquer análise.', weight: 0 },
+                { id: 13, type: 'persona', key: 'concise_preference', text: 'Você valoriza a concisão e ir direto ao ponto na comunicação.', weight: 0 },
+                { id: 14, type: 'persona', key: 'narrative_style', text: 'Ao explicar algo, você prefere usar narrativas e exemplos longos para envolver o leitor.', weight: 0 },
+                { id: 15, type: 'persona', key: 'future_orientation', text: 'Seu foco está sempre mais nas possibilidades futuras do que nas realidades atuais.', weight: 0 },
+                { id: 16, type: 'persona', key: 'process_adherence', text: 'Aderir ao protocolo correto é mais importante do que acelerar os resultados.', weight: 0 },
+                { id: 17, type: 'persona', key: 'technical_affinity', text: 'Você se sente confortável usando jargões técnicos e especializados.', weight: 0 },
+                { id: 18, type: 'persona', key: 'simplicity_value', text: 'A explicação mais simples é quase sempre a melhor.', weight: 0 },
+                { id: 19, type: 'persona', key: 'challenge_seeker', text: 'Você se sente mais estimulado(a) por problemas complexos e desafiadores.', weight: 0 },
+                { id: 20, type: 'persona', key: 'humor_inclusion', text: 'Você gosta de usar humor e leveza em suas interações.', weight: 0 },
+                
+                // PARTE 2: SEU MÉTODO DE APRENDIZADO (O Estilo) - Nodal Points 21 a 40
+                { id: 21, type: 'learning', key: 'visual_preference', text: 'Gráficos, diagramas e mapas mentais são essenciais para você entender um conceito.', weight: 0 },
+                { id: 22, type: 'learning', key: 'auditory_preference', text: 'Ouvir podcasts, palestras ou explicações em voz alta ajuda você a fixar melhor o conteúdo.', weight: 0 },
+                { id: 23, type: 'learning', key: 'kinesthetic_need', text: 'Você aprende melhor fazendo, experimentando ou aplicando o que aprendeu (hands-on).', weight: 0 },
+                { id: 24, type: 'learning', key: 'quick_pace', text: 'Você prefere que o conteúdo seja entregue em um ritmo rápido, sem repetições.', weight: 0 },
+                { id: 25, type: 'learning', key: 'deep_dive_demand', text: 'Você precisa de profundidade em um único tópico antes de passar para o próximo.', weight: 0 },
+                { id: 26, type: 'learning', key: 'practical_application', text: 'O valor de um conceito é medido principalmente por sua utilidade no mundo real.', weight: 0 },
+                { id: 27, type: 'learning', key: 'theory_foundation', text: 'Você precisa entender a teoria fundamental (por que funciona) antes de aprender a aplicá-la (como funciona).', weight: 0 },
+                { id: 28, type: 'learning', key: 'example_driven', text: 'Exemplos concretos e estudos de caso são mais eficazes do que definições abstratas.', weight: 0 },
+                { id: 29, type: 'learning', key: 'interactive_demand', text: 'Você precisa fazer perguntas e interagir com o conteúdo para consolidar o aprendizado.', weight: 0 },
+                { id: 30, type: 'learning', key: 'solitary_focus', text: 'O estudo individual e silencioso é a maneira mais eficiente de aprender.', weight: 0 },
+                { id: 31, type: 'learning', key: 'analogical_reasoning', text: 'Entender um conceito através de analogias e metáforas é muito útil.', weight: 0 },
+                { id: 32, type: 'learning', key: 'summary_need', text: 'Resumos e takeaways (pontos-chave) são cruciais no final de cada sessão.', weight: 0 },
+                { id: 33, type: 'learning', key: 'error_tolerance', text: 'Aprender com os próprios erros (tentativa e erro) é o melhor método.', weight: 0 },
+                { id: 34, type: 'learning', key: 'self_assessment_focus', text: 'Você prefere ser testado(a) imediatamente após aprender um bloco de informação.', weight: 0 },
+                { id: 35, type: 'learning', key: 'multimedia_engagement', text: 'O uso de vídeos e animações acelera significativamente seu aprendizado.', weight: 0 },
+                { id: 36, type: 'learning', key: 'step_by_step_demand', text: 'Você exige instruções rigorosamente sequenciais e passo a passo.', weight: 0 },
+                { id: 37, type: 'learning', key: 'peer_teaching_benefit', text: 'Ensinar o conteúdo a outra pessoa ajuda você a dominar o assunto.', weight: 0 },
+                { id: 38, type: 'learning', key: 'resource_diversity', text: 'Você precisa de múltiplas fontes e perspectivas sobre o mesmo tópico.', weight: 0 },
+                { id: 39, type: 'learning', key: 'repetition_value', text: 'A repetição espaçada e a revisão são mais valiosas do que a primeira exposição ao conteúdo.', weight: 0 },
+                { id: 40, type: 'learning', key: 'jargon_acceptance', text: 'Você prefere que os termos sejam apresentados com o jargão técnico correto desde o início.', weight: 0 },
+            ],
+            
+            options: [
+                { text: 'Discordo Fortemente', value: 0.0, icon: 'fas fa-times-circle' },
+                { text: 'Discordo', value: 0.25, icon: 'fas fa-thumbs-down' },
+                { text: 'Neutro', value: 0.5, icon: 'fas fa-minus-circle' },
+                { text: 'Concordo', value: 0.75, icon: 'fas fa-thumbs-up' },
+                { text: 'Concordo Fortemente', value: 1.0, icon: 'fas fa-check-circle' }
+            ],
+
+            selectedAnswers: new Array(40).fill(null),
+
+            NamingMaps: {
+                Logic: ['analytical_focus', 'structured_need', 'process_adherence', 'technical_affinity'],
+                Creativity: ['creative_drive', 'intuitive_approach', 'narrative_style', 'future_orientation'],
+                Leadership: ['risk_tolerance', 'goal_priority', 'challenge_seeker'],
+                Communication: ['communicative_tone', 'concise_preference', 'simplicity_value'],
+                Human: ['historical_perspective', 'empathy_focus', 'humor_inclusion']
+            },
+            Titles: {
+                Logic: 'O Lógico', Creativity: 'O Inovador', Leadership: 'O Estrategista',
+                Communication: 'O Comunicador', Human: 'O Analista Humano'
+            },
+            Names: {
+                High: ['Fênix', 'Orion', 'Zênite', 'Aura', 'Magnum', 'Vetor', 'Nexus'],
+                Medium: ['Alfa', 'Ícaro', 'Delta', 'Sigma', 'Beta', 'Gama', 'Épsilon'],
+                Low: ['Eixo', 'Padrão', 'Caminho', 'Sintaxe', 'Modelo', 'Prosa', 'Termo']
+            },
+            
+            descriptionMap: {
+                'analytical_focus': 'Foco em análise e dados', 'creative_drive': 'Impulso criativo', 'detail_orientation': 'Orientação a detalhes',
+                'communicative_tone': 'Tom de comunicação formal', 'risk_tolerance': 'Tolerância a riscos moderada', 'goal_priority': 'Prioridade no objetivo final',
+                'collaborative_preference': 'Preferência por colaboração', 'intuitive_approach': 'Abordagem intuitiva', 'structured_need': 'Necessidade de estrutura',
+                'historical_perspective': 'Valoriza a perspectiva histórica', 'critical_skepticism': 'Ceticismo crítico', 'empathy_focus': 'Foco em empatia/humanidade',
+                'concise_preference': 'Preferência por concisão', 'narrative_style': 'Estilo narrativo e envolvente', 'future_orientation': 'Orientação para o futuro',
+                'process_adherence': 'Adesão ao protocolo', 'technical_affinity': 'Afinidade técnica', 'simplicity_value': 'Valoriza a simplicidade',
+                'challenge_seeker': 'Procura desafios complexos', 'humor_inclusion': 'Inclui humor e leveza',
+                // Learning
+                'visual_preference': 'Aprendizado Visual', 'auditory_preference': 'Aprendizado Auditivo', 'kinesthetic_need': 'Aprendizado Cinestésico/Hands-on',
+                'quick_pace': 'Ritmo de aprendizado rápido', 'deep_dive_demand': 'Demanda por aprofundamento', 'practical_application': 'Foco em aplicação prática',
+                'theory_foundation': 'Necessidade de base teórica', 'example_driven': 'Aprendizado baseado em exemplos concretos', 'interactive_demand': 'Demanda por interação/perguntas',
+                'solitary_focus': 'Foco em estudo solitário', 'analogical_reasoning': 'Raciocínio analógico/metáforas', 'summary_need': 'Necessidade de resumos e takeaways',
+                'error_tolerance': 'Tolerância e aprendizado com erros', 'self_assessment_focus': 'Foco em autoavaliação imediata', 'multimedia_engagement': 'Uso de multimídia (vídeos)',
+                'step_by_step_demand': 'Demanda por passos sequenciais', 'peer_teaching_benefit': 'Benefício de ensinar a pares', 'resource_diversity': 'Valoriza a diversidade de recursos',
+                'repetition_value': 'Valoriza a repetição e revisão', 'jargon_acceptance': 'Aceitação de jargão técnico imediato'
+            },
+
+            generateFinalJSON() {
+                const personaScores = {};
+                const learningScores = {};
+
+                // 1. Calcular Scores
+                Model.questions.forEach((q, index) => {
+                    const selectedWeight = Model.selectedAnswers[index];
+                    const percentage = Math.round(selectedWeight * 100);
+
+                    if (q.type === 'persona') {
+                        personaScores[q.key] = percentage;
+                    } else if (q.type === 'learning') {
+                        learningScores[q.key] = percentage;
+                    }
+                });
+
+                // 2. Gerar Listas Ordenadas de Relevância (Score > 50, Decrescente)
+                const getSortedScores = (scores) => {
+                    return Object.entries(scores)
+                        .filter(([, score]) => score > 50) // Apenas relevante
+                        .sort(([, a], [, b]) => b - a) // Ordem DECRESCENTE
+                        .map(([key, score]) => ({ trait: Model.descriptionMap[key], score }));
+                };
+
+                const sortedPersona = getSortedScores(personaScores);
+                const sortedLearning = getSortedScores(learningScores);
+
+                // 3. Gerar Nome da Persona
+                const categoryAverages = {};
+                for (const category in Model.NamingMaps) {
+                    let totalScore = 0;
+                    Model.NamingMaps[category].forEach(key => {
+                        totalScore += personaScores[key] || 0;
+                    });
+                    categoryAverages[category] = totalScore / Model.NamingMaps[category].length;
+                }
+
+                const dominantCategory = Object.entries(categoryAverages).sort(([, a], [, b]) => b - a)[0][0];
+                const averageScore = categoryAverages[dominantCategory];
+                
+                let personaAdjective = Model.Titles[dominantCategory];
+                let personaName;
+
+                if (averageScore > 80) {
+                    personaName = Model.Names.High[Math.floor(Math.random() * Model.Names.High.length)];
+                } else if (averageScore > 50) {
+                    personaName = Model.Names.Medium[Math.floor(Math.random() * Model.Names.Medium.length)];
+                } else {
+                    personaName = Model.Names.Low[Math.floor(Math.random() * Model.Names.Low.length)];
+                }
+
+                const finalPersonaName = `${personaAdjective} ${personaName}`;
+
+                // 4. Construir Prompts Finais
+                const listPersona = sortedPersona.map(item => `* ${item.trait} (${item.score}%)`).join('\n');
+                const listLearning = sortedLearning.map(item => `* ${item.trait} (${item.score}%)`).join('\n');
+
+                // A) Prompt de Detalhes da Pessoa
+                const personaPrompt = `# DETALHES DO USUÁRIO: ${finalPersonaName}
+Você deve assumir o papel de assistente para ${finalPersonaName}.
+
+## RELEVÂNCIA DE PERSONA (Pontos Nodais - Ordem Decrescente):
+${listPersona}
+
+## REGRAS DE PERSONA:
+* **Tom de Comunicação:** ${personaScores.communicative_tone >= 75 ? 'Mantenha um tom estritamente formal, profissional e direto.' : (personaScores.humor_inclusion > 50 ? 'Use um tom amigável e inclua leveza/humor.' : 'Mantenha um tom neutro e tutor amigável.')}
+* **Foco na Saída:** ${personaScores.concise_preference > 75 ? 'Sempre priorize a concisão e vá direto ao ponto.' : 'Prefiro explicações abrangentes e detalhadas.'}
+* **Detalhes vs. Geral:** ${personaScores.detail_orientation > 75 ? 'Foque nos detalhes. A micro-visão é crucial.' : 'Foque na visão geral e na estrutura ampla dos conceitos.'}
+* **Ceticismo:** Por favor, forneça fontes ou justificativas para suas afirmações quando possível, devido ao meu alto ceticismo (${personaScores.critical_skepticism}%).`;
+
+                // B) Prompt de Instruções de Aprendizado (com aprimoramentos)
+                const learningPrompt = `# INSTRUÇÕES ATÔMICAS DE APRENDIZADO
+Siga rigorosamente as regras abaixo para otimizar a experiência de aprendizado, com base nos meus estudos.
+
+## ESTILO PRIORITÁRIO (Pontos Nodais - Ordem Decrescente):
+${listLearning}
+
+## REGRAS DE ENTREGA (DO's e DONT's):
+1.  **Formato de Conteúdo:** ${learningScores.visual_preference > 50 ? 'Sempre use listas, negrito e diagramas em texto (ASCII/Markdown) para estruturar a resposta.' : 'Use prosa bem escrita e focada, ideal para aprendizado auditivo.'}
+2.  **Ritmo e Profundidade:** ${learningScores.deep_dive_demand > 75 ? 'Sempre mergulhe profundamente no assunto, explorando nuances e complexidades.' : (learningScores.quick_pace > 75 ? 'Vá direto ao ponto, priorizando a concisão (menos de 200 palavras por bloco).' : 'Use um ritmo moderado, dividindo em seções lógicas.')}
+3.  **Base Conceitual:** ${learningScores.theory_foundation > 75 ? 'Comece sempre pela teoria e princípios antes de mostrar a aplicação.' : 'Comece com um exemplo de aplicação prática antes de entrar na teoria.'}
+4.  **Verificação:** ${learningScores.self_assessment_focus > 50 ? 'Sugira uma micro-pergunta ou exercício de autoavaliação após cada seção principal.' : 'Não interrompa com perguntas, entregue o conteúdo completo.'}
+5.  **Jargão:** ${learningScores.jargon_acceptance > 50 ? 'Use o jargão técnico correto imediatamente.' : 'Simplifique jargões complexos antes de usá-los.'}
+6.  **Ceticismo Ativo:** Seja cético com minhas perguntas. Questionar premissas e forçar-me a reformular perguntas é valioso.
+7.  **Atomicidade:** Quebre explicações complexas em partes atômicas. Cada conceito deve ser explicado de forma isolada antes de conectar com outros.
+8.  **Evite Bajulação:** Nunca me elogie ou faça comentários subjetivos sobre minhas perguntas. Foque apenas no conteúdo objetivo.
+9.  **Clareza de Limites:** Se não tiver certeza sobre algo, declare explicitamente as limitações do seu conhecimento.`;
+
+                // Montar JSON final
+                const finalJson = {
+                    "generated_persona_name": finalPersonaName,
+                    "system_prompt_builder": {
+                        "user_details_prompt": personaPrompt,
+                        "learning_style_instructions_prompt": learningPrompt
+                    },
+                    "full_scores_data": {
+                        "persona_scores": personaScores,
+                        "learning_scores": learningScores
+                    }
+                };
+
+                return JSON.stringify(finalJson, null, 2);
+            }
+        };
+
+        // Controlador
+        const Controller = {
+            init() {
+                this.bindEvents();
+                this.showTermsModal();
+            },
+            
+            showTermsModal() {
+                // Mostrar modal de termos ao carregar a página
+                document.getElementById('terms-modal').classList.remove('hidden');
+            },
+            
+            bindEvents() {
+                document.getElementById('agree-terms').addEventListener('change', (e) => {
+                    document.getElementById('accept-terms').disabled = !e.target.checked;
+                });
+                
+                document.getElementById('accept-terms').addEventListener('click', () => {
+                    document.getElementById('terms-modal').classList.add('hidden');
+                    this.renderQuestion();
+                });
+                
+                document.getElementById('next-btn').addEventListener('click', () => this.nextQuestion());
+                document.getElementById('prev-btn').addEventListener('click', () => this.prevQuestion());
+                document.getElementById('finish-btn').addEventListener('click', () => this.finishQuiz());
+                document.getElementById('restart-btn').addEventListener('click', () => this.restartQuiz());
+                document.getElementById('copy-persona-btn').addEventListener('click', () => this.copyToClipboard('persona-prompt'));
+                document.getElementById('copy-learning-btn').addEventListener('click', () => this.copyToClipboard('learning-prompt'));
+            },
+            
+            renderQuestion() {
+                const currentQuestion = Model.questions[Model.state.currentStep];
+                const questionText = document.getElementById('question-text');
+                const optionsContainer = document.getElementById('options-container');
+                const currentQuestionElement = document.getElementById('current-question');
+                
+                questionText.textContent = currentQuestion.text;
+                currentQuestionElement.textContent = Model.state.currentStep + 1;
+                optionsContainer.innerHTML = '';
+                
+                Model.options.forEach((option, index) => {
+                    const button = document.createElement('button');
+                    button.className = 'btn-option p-4 rounded-lg text-left flex items-center';
+                    
+                    const icon = document.createElement('i');
+                    icon.className = `${option.icon} mr-3 text-lg`;
+                    button.appendChild(icon);
+                    
+                    const text = document.createElement('span');
+                    text.textContent = option.text;
+                    button.appendChild(text);
+                    
+                    // Verificar se esta opção está selecionada
+                    if (Model.selectedAnswers[Model.state.currentStep] === option.value) {
+                        button.classList.add('selected');
+                    }
+                    
+                    button.addEventListener('click', () => {
+                        // Remover seleção de todos os botões
+                        document.querySelectorAll('.btn-option').forEach(btn => {
+                            btn.classList.remove('selected');
+                        });
+                        
+                        // Selecionar este botão
+                        button.classList.add('selected');
+                        
+                        // Salvar resposta
+                        Model.selectedAnswers[Model.state.currentStep] = option.value;
+                        
+                        // Atualizar navegação
+                        this.updateNavigation();
+                        
+                        // Mostrar notificação de progresso em marcos específicos
+                        this.showProgressReward();
+                    });
+                    
+                    optionsContainer.appendChild(button);
+                });
+                
+                this.updateNavigation();
+                this.updateProgress();
+                this.updateSectionIndicator();
+            },
+            
+            updateNavigation() {
+                const prevBtn = document.getElementById('prev-btn');
+                const nextBtn = document.getElementById('next-btn');
+                const finishBtn = document.getElementById('finish-btn');
+                
+                // Atualizar botão anterior
+                prevBtn.disabled = Model.state.currentStep === 0;
+                
+                // Atualizar botão próximo/finalizar
+                const hasAnswer = Model.selectedAnswers[Model.state.currentStep] !== null;
+                
+                if (Model.state.currentStep === Model.state.totalQuestions - 1) {
+                    nextBtn.classList.add('hidden');
+                    finishBtn.classList.remove('hidden');
+                    finishBtn.disabled = !hasAnswer;
+                } else {
+                    nextBtn.classList.remove('hidden');
+                    finishBtn.classList.add('hidden');
+                    nextBtn.disabled = !hasAnswer;
+                }
+            },
+            
+            updateProgress() {
+                const answeredCount = Model.selectedAnswers.filter(answer => answer !== null).length;
+                const progressPercent = (answeredCount / Model.state.totalQuestions) * 100;
+                
+                document.getElementById('current-progress').textContent = answeredCount;
+                document.getElementById('progress-percent').textContent = `${Math.round(progressPercent)}%`;
+                document.getElementById('progress-fill').style.width = `${progressPercent}%`;
+            },
+            
+            updateSectionIndicator() {
+                const sectionPersona = document.getElementById('section-persona');
+                const sectionLearning = document.getElementById('section-learning');
+                
+                if (Model.state.currentStep < 20) {
+                    sectionPersona.classList.add('active');
+                    sectionLearning.classList.remove('active');
+                } else {
+                    sectionPersona.classList.remove('active');
+                    sectionLearning.classList.add('active');
+                }
+            },
+            
+            showProgressReward() {
+                const answeredCount = Model.selectedAnswers.filter(answer => answer !== null).length;
+                const notification = document.getElementById('reward-notification');
+                const rewardTitle = document.getElementById('reward-title');
+                const rewardMessage = document.getElementById('reward-message');
+                
+                // Mostrar notificação em marcos específicos
+                if (answeredCount === 10) {
+                    rewardTitle.textContent = 'Primeira Metade Concluída!';
+                    rewardMessage.textContent = 'Você completou 25% do questionário! Continue assim!';
+                    notification.classList.add('show');
+                    setTimeout(() => notification.classList.remove('show'), 3000);
+                } else if (answeredCount === 20) {
+                    rewardTitle.textContent = 'Metade do Caminho!';
+                    rewardMessage.textContent = 'Você completou 50%! A segunda parte é sobre seu estilo de aprendizado.';
+                    notification.classList.add('show');
+                    setTimeout(() => notification.classList.remove('show'), 3000);
+                } else if (answeredCount === 30) {
+                    rewardTitle.textContent = 'Quase Lá!';
+                    rewardMessage.textContent = 'Você completou 75%! Só mais um pouco para finalizar.';
+                    notification.classList.add('show');
+                    setTimeout(() => notification.classList.remove('show'), 3000);
+                }
+            },
+            
+            nextQuestion() {
+                if (Model.state.currentStep < Model.state.totalQuestions - 1) {
+                    Model.state.currentStep++;
+                    this.renderQuestion();
+                }
+            },
+            
+            prevQuestion() {
+                if (Model.state.currentStep > 0) {
+                    Model.state.currentStep--;
+                    this.renderQuestion();
+                }
+            },
+            
+            finishQuiz() {
+                // Gerar resultados
+                const finalJSON = Model.generateFinalJSON();
+                const result = JSON.parse(finalJSON);
+                
+                // Exibir nome da persona
+                document.getElementById('persona-name').textContent = result.generated_persona_name;
+                
+                // Exibir prompts
+                document.getElementById('persona-prompt').textContent = result.system_prompt_builder.user_details_prompt;
+                document.getElementById('learning-prompt').textContent = result.system_prompt_builder.learning_style_instructions_prompt;
+                
+                // Mostrar resultados e ocultar questionário
+                document.getElementById('question-container').classList.add('hidden');
+                document.getElementById('results-container').classList.remove('hidden');
+                
+                // Mostrar notificação final
+                const notification = document.getElementById('reward-notification');
+                const rewardTitle = document.getElementById('reward-title');
+                const rewardMessage = document.getElementById('reward-message');
+                
+                rewardTitle.textContent = 'Questionário Concluído!';
+                rewardMessage.textContent = 'Sua persona foi criada com sucesso!';
+                notification.classList.add('show');
+                setTimeout(() => notification.classList.remove('show'), 4000);
+            },
+            
+            restartQuiz() {
+                // Resetar estado
+                Model.state.currentStep = 0;
+                Model.selectedAnswers.fill(null);
+                
+                // Mostrar questionário e ocultar resultados
+                document.getElementById('question-container').classList.remove('hidden');
+                document.getElementById('results-container').classList.add('hidden');
+                
+                // Renderizar primeira pergunta
+                this.renderQuestion();
+            },
+            
+            copyToClipboard(elementId) {
+                const text = document.getElementById(elementId).textContent;
+                navigator.clipboard.writeText(text).then(() => {
+                    // Feedback visual
+                    const button = document.getElementById(`copy-${elementId === 'persona-prompt' ? 'persona' : 'learning'}-btn`);
+                    const originalText = button.innerHTML;
+                    button.innerHTML = '<i class="fas fa-check mr-2"></i> Copiado!';
+                    button.classList.add('bg-green-600');
+                    
+                    setTimeout(() => {
+                        button.innerHTML = originalText;
+                        button.classList.remove('bg-green-600');
+                    }, 2000);
+                }).catch(err => {
+                    console.error('Erro ao copiar: ', err);
+                });
+            }
+        };
+
+        // Inicializar a aplicação quando o DOM estiver carregado
+        document.addEventListener('DOMContentLoaded', () => {
+            Controller.init();
+        });
+    </script>
+</body>
+</html>

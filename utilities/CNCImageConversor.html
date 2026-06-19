@@ -1,0 +1,2874 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generative Path Laser CO2 CAM</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --accent-color: #e74c3c;
+            --success-color: #27ae60;
+            --warning-color: #f39c12;
+            --light-bg: #f4f7f9;
+            --dark-bg: #ffffff;
+            --border-color: #e0e6ed;
+            --text-color: #34495e;
+            --light-text: #ffffff;
+            --shadow: 0 4px 12px rgba(0,0,0,0.08);
+            --radius: 8px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background-color: var(--light-bg);
+            color: var(--text-color);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+
+        .container {
+            display: grid;
+            grid-template-rows: auto 1fr auto;
+            height: 100vh;
+        }
+
+        /* Header Styles */
+        header {
+            background-color: var(--dark-bg);
+            border-bottom: 1px solid var(--border-color);
+            padding: 12px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        .logo h1 {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: var(--secondary-color);
+        }
+
+        .logo span {
+            color: var(--primary-color);
+            font-weight: 300;
+        }
+
+        .toolbar {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn {
+            padding: 10px 18px;
+            border: none;
+            border-radius: var(--radius);
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.9rem;
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .btn-primary {
+            background-color: var(--secondary-color);
+            color: var(--light-text);
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            background-color: #2980b9;
+        }
+
+        .btn-success {
+            background-color: var(--success-color);
+            color: var(--light-text);
+        }
+
+        .btn-success:hover:not(:disabled) {
+            background-color: #219653;
+        }
+
+        .btn-warning {
+            background-color: var(--warning-color);
+            color: var(--light-text);
+        }
+
+        .btn-warning:hover:not(:disabled) {
+            background-color: #e67e22;
+        }
+
+        .btn-danger {
+            background-color: var(--accent-color);
+            color: var(--light-text);
+        }
+
+        .btn-danger:hover:not(:disabled) {
+            background-color: #c0392b;
+        }
+
+        .btn:hover:not(:disabled) {
+            transform: translateY(-1px);
+            box-shadow: var(--shadow);
+        }
+
+        .dropdown {
+            position: relative;
+            display: inline-block;
+        }
+
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            background-color: var(--dark-bg);
+            min-width: 160px;
+            box-shadow: var(--shadow);
+            z-index: 100;
+            border-radius: var(--radius);
+            overflow: hidden;
+            top: 100%;
+            right: 0;
+        }
+
+        .dropdown-content button {
+            width: 100%;
+            text-align: left;
+            border: none;
+            padding: 10px 15px;
+            background: none;
+            cursor: pointer;
+            font-size: 0.9rem;
+            color: var(--text-color);
+        }
+
+        .dropdown-content button:hover {
+            background-color: var(--light-bg);
+        }
+
+        .dropdown:hover .dropdown-content {
+            display: block;
+        }
+
+        /* Main Content Styles */
+        .main-content {
+            display: grid;
+            grid-template-columns: 300px 1fr;
+            height: 100%;
+            overflow: hidden;
+        }
+
+        /* Control Panel Styles */
+        .control-panel {
+            background-color: var(--dark-bg);
+            border-right: 1px solid var(--border-color);
+            overflow-y: auto;
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .section {
+            background-color: var(--light-bg);
+            border-radius: var(--radius);
+            overflow: hidden;
+            border: 1px solid var(--border-color);
+        }
+
+        .section-header {
+            background-color: var(--dark-bg);
+            border-bottom: 1px solid var(--border-color);
+            padding: 12px 15px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .section-header:hover {
+            background-color: #f0f3f6;
+        }
+
+        .toggle-icon {
+            transition: transform 0.2s ease-in-out;
+        }
+
+        .section-header.collapsed .toggle-icon {
+            transform: rotate(-90deg);
+        }
+
+        .section-content {
+            padding: 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .section-content.collapsed {
+            display: none;
+        }
+
+        .form-group {
+            margin-bottom: 10px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+            font-size: 0.85rem;
+            color: var(--primary-color);
+        }
+
+        .form-group select,
+        .form-group input:not([type="range"]) {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius);
+            background-color: var(--dark-bg);
+            font-size: 0.9rem;
+        }
+
+        .slider-container {
+            margin-bottom: 8px;
+        }
+
+        .slider-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 5px;
+        }
+
+        .slider-header label {
+            font-weight: 500;
+            font-size: 0.85rem;
+            color: var(--primary-color);
+        }
+
+        .slider-value {
+            font-weight: 600;
+            font-size: 0.85rem;
+            color: var(--secondary-color);
+        }
+
+        input[type="range"] {
+            width: 100%;
+            height: 6px;
+            background: var(--border-color);
+            border-radius: 5px;
+            -webkit-appearance: none;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: var(--secondary-color);
+            cursor: pointer;
+        }
+
+        .section-btn {
+            width: 100%;
+            text-align: left;
+            padding: 10px;
+            background-color: var(--dark-bg);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius);
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 0.9rem;
+        }
+
+        .section-btn:hover:not(:disabled) {
+            background-color: #e8f4fd;
+        }
+
+        /* Content Area Styles */
+        .content-area {
+            display: grid;
+            grid-template-rows: 1fr auto;
+            overflow: hidden;
+        }
+
+        .tab-container {
+            display: grid;
+            grid-template-rows: auto 1fr;
+            height: 100%;
+            overflow: hidden;
+            background-color: var(--dark-bg);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            margin: 15px;
+        }
+
+        .tab-headers {
+            display: flex;
+            background-color: var(--primary-color);
+        }
+
+        .tab-header {
+            padding: 12px 18px;
+            color: rgba(255, 255, 255, 0.7);
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.9rem;
+        }
+
+        .tab-header.active {
+            border-bottom-color: var(--secondary-color);
+            color: var(--light-text);
+        }
+
+        .tab-header:hover:not(.active) {
+            background-color: rgba(255, 255, 255, 0.05);
+        }
+
+        .tab-content-wrapper {
+            position: relative;
+            height: 100%;
+            background-color: #1c2833;
+        }
+
+        .tab-content {
+            display: none;
+            overflow: hidden;
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            padding: 10px;
+            flex-direction: column;
+        }
+
+        .tab-content.active {
+            display: flex;
+        }
+
+        .image-info {
+            background-color: var(--dark-bg);
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            font-size: 0.9rem;
+        }
+
+        /* Viewport Pan/Zoom Styling */
+        .image-container {
+            background-color: #1c2833;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            flex: 1;
+            min-height: 0;
+            position: relative;
+            cursor: grab;
+            border-radius: var(--radius);
+        }
+
+        .image-container:active {
+            cursor: grabbing;
+        }
+
+        #imageCanvas, #simulationCanvas {
+            position: absolute;
+            background-color: #fff;
+            box-shadow: 0 0 10px rgba(0,0,0,0.3);
+        }
+
+        #simulationCanvas {
+            background-color: #101010;
+        }
+
+        #laserHead {
+            position: absolute;
+            width: 16px;
+            height: 16px;
+            background-color: rgba(255, 0, 0, 0.9);
+            border: 3px solid white;
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            display: none;
+            pointer-events: none;
+            box-shadow: 0 0 15px rgba(255, 0, 0, 0.8);
+            z-index: 10;
+        }
+
+        .sim-controls {
+            display: flex;
+            gap: 5px;
+            align-items: center;
+            padding: 10px;
+            background-color: rgba(255,255,255,0.9);
+            border-radius: var(--radius);
+            margin-bottom: 10px;
+        }
+
+        .sim-controls input[type="range"] {
+            flex-grow: 1;
+        }
+
+        /* Footer Styles */
+        footer {
+            background-color: var(--primary-color);
+            color: rgba(255, 255, 255, 0.8);
+            padding: 8px 20px;
+            font-size: 0.9rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        #jobTimeLabel {
+            font-weight: 600;
+            color: var(--success-color);
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background-color: var(--dark-bg);
+            padding: 25px;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            max-width: 95%;
+            max-height: 95%;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 10px;
+        }
+
+        .modal-header h2 {
+            font-size: 1.5rem;
+            color: var(--primary-color);
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--text-color);
+        }
+
+        .modal-body {
+            flex: 1;
+            overflow: auto;
+            min-height: 200px;
+        }
+
+        .modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        /* Layer Panel Styles in Modal */
+        .layer-panel-modal .modal-content {
+            width: 90%;
+            max-width: 1200px;
+            height: 80%;
+        }
+
+        .layer-header {
+            padding: 10px 15px;
+            background-color: var(--primary-color);
+            color: var(--light-text);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            border-radius: var(--radius);
+        }
+
+        .layer-toolbar {
+            display: flex;
+            gap: 5px;
+            padding: 5px 0;
+            background-color: #f8f9fa;
+            border-bottom: 1px solid var(--border-color);
+            margin-bottom: 10px;
+        }
+
+        .layer-table-container {
+            overflow: auto;
+            flex: 1;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.85rem;
+        }
+
+        th, td {
+            padding: 8px 12px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        th {
+            background-color: #f1f2f6;
+            position: sticky;
+            top: 0;
+            font-weight: 600;
+        }
+
+        tr:hover {
+            background-color: #f8f9fa;
+        }
+
+        tr.selected {
+            background-color: var(--secondary-color) !important;
+            color: white;
+        }
+
+        tr.selected input, tr.selected select {
+            color: var(--text-color);
+            background-color: white;
+        }
+
+        input[type="text"], input[type="number"], select {
+            width: 100%;
+            padding: 5px;
+            border: 1px solid var(--border-color);
+            border-radius: 3px;
+            font-size: 0.85rem;
+        }
+
+        input[type="color"] {
+            width: 40px;
+            height: 25px;
+            border: 1px solid var(--border-color);
+            border-radius: 3px;
+            cursor: pointer;
+            padding: 2px;
+            background-color: white;
+        }
+
+        input[type="color"]::-webkit-color-swatch-wrapper {
+            padding: 0;
+        }
+
+        input[type="color"]::-webkit-color-swatch {
+            border: none;
+            border-radius: 2px;
+        }
+
+        input[type="color"]::-moz-color-swatch {
+            border: none;
+            border-radius: 2px;
+        }
+
+        /* Loading indicator */
+        .loading {
+            display: none;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(255, 255, 255, 0.9);
+            padding: 15px 20px;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            z-index: 100;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 1024px) {
+            .main-content {
+                grid-template-columns: 280px 1fr;
+            }
+
+            .control-panel {
+                padding: 10px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+                grid-template-rows: auto 1fr;
+            }
+
+            .control-panel {
+                max-height: 300px;
+                border-right: none;
+                border-bottom: 1px solid var(--border-color);
+            }
+
+            header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+
+            .toolbar {
+                width: 100%;
+                justify-content: space-between;
+                flex-wrap: wrap;
+            }
+
+            .btn {
+                padding: 6px 12px;
+                font-size: 0.9rem;
+            }
+
+            .dropdown-content {
+                position: fixed;
+                top: auto;
+                left: 10px;
+                right: 10px;
+                bottom: 10px;
+                max-height: 200px;
+                overflow-y: auto;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">
+                <h1>Generative Path <span>Laser CO2 CAM</span></h1>
+            </div>
+            <div class="toolbar">
+                <button id="uploadBtn" class="btn btn-primary"><i class="fas fa-upload"></i> Carregar Imagem</button>
+                <button id="magicBtn" class="btn btn-success"><i class="fas fa-magic"></i> Aplicar Preset</button>
+                <button id="layersBtn" class="btn btn-primary"><i class="fas fa-layer-group"></i> Gerenciar Camadas</button>
+                <button id="exportGcodeBtn" class="btn btn-warning"><i class="fas fa-code"></i> Exportar G-Code</button>
+                <div class="dropdown">
+                    <button id="exportMoreBtn" class="btn btn-warning"><i class="fas fa-download"></i> Exportar Mais ▽</button>
+                    <div class="dropdown-content">
+                        <button id="exportJpgBtn"><i class="fas fa-file-image"></i> JPG</button>
+                        <button id="exportPngBtn"><i class="fas fa-file-image"></i> PNG</button>
+                        <button id="exportDxfBtn"><i class="fas fa-drafting-compass"></i> DXF</button>
+                        <button id="exportPltBtn"><i class="fas fa-pen-fancy"></i> PLT</button>
+                        <button id="exportRldBtn"><i class="fas fa-microchip"></i> RLD</button>
+                        <button id="exportSvgBtn"><i class="fas fa-project-diagram"></i> SVG</button>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <div class="main-content">
+            <div class="control-panel">
+                <div class="section">
+                    <div class="section-header">
+                        <span><i class="fas fa-cube"></i> Material (Preset 100W CO2)</span>
+                        <span class="toggle-icon"><i class="fas fa-chevron-down"></i></span>
+                    </div>
+                    <div class="section-content">
+                        <div class="form-group">
+                            <label for="materialPreset">Selecionar Material</label>
+                            <select id="materialPreset">
+                                <option value="mdf_3mm_corte">MDF 3mm - Corte</option>
+                                <option value="mdf_3mm_scan">MDF 3mm - Gravação (Scan)</option>
+                                <option value="mdf_3mm_raster">MDF 3mm - Foto (Raster)</option>
+                                <option value="acrilico_3mm_corte">Acrílico 3mm - Corte</option>
+                                <option value="acrilico_3mm_scan">Acrílico 3mm - Gravação (Scan)</option>
+                                <option value="papelao_corte">Papelão - Corte Rápido</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <div class="section-header">
+                        <span><i class="fas fa-sliders-h"></i> Ajustes Finos (Pipeline)</span>
+                        <span class="toggle-icon"><i class="fas fa-chevron-down"></i></span>
+                    </div>
+                    <div class="section-content">
+                        <div class="slider-container">
+                            <div class="slider-header">
+                                <label for="edgeDetailSlider">Detalhe da Borda</label>
+                                <span id="edgeDetailValue" class="slider-value">1.5</span>
+                            </div>
+                            <input type="range" id="edgeDetailSlider" min="0.5" max="5.0" step="0.1" value="1.5">
+                        </div>
+                        <div class="slider-container">
+                            <div class="slider-header">
+                                <label for="fillGroupingSlider">Agrupar Cores (Fill)</label>
+                                <span id="fillGroupingValue" class="slider-value">8</span>
+                            </div>
+                            <input type="range" id="fillGroupingSlider" min="2" max="32" step="1" value="8">
+                        </div>
+                        <div class="slider-container">
+                            <div class="slider-header">
+                                <label for="noiseReductionSlider">Redução de Ruído</label>
+                                <span id="noiseReductionValue" class="slider-value">3</span>
+                            </div>
+                            <input type="range" id="noiseReductionSlider" min="0" max="10" step="1" value="3">
+                        </div>
+                        <div class="slider-container">
+                            <div class="slider-header">
+                                <label for="pathOptimizationSlider">Otimização de Caminhos</label>
+                                <span id="pathOptimizationValue" class="slider-value">85</span>
+                            </div>
+                            <input type="range" id="pathOptimizationSlider" min="0" max="100" step="1" value="85">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <div class="section-header collapsed">
+                        <span><i class="fas fa-hand-paper"></i> Pré-Processamento Manual</span>
+                        <span class="toggle-icon"><i class="fas fa-chevron-down"></i></span>
+                    </div>
+                    <div class="section-content collapsed">
+                        <button class="section-btn" data-action="removeBackground"><i class="fas fa-eraser"></i> Remover Fundo</button>
+                        <button class="section-btn" data-action="binarize"><i class="fas fa-adjust"></i> Binarizar (Alto Contraste)</button>
+                        <button class="section-btn" data-action="edgeDetect"><i class="fas fa-border-style"></i> Detectar Bordas</button>
+                        <button class="section-btn" data-action="negative"><i class="fas fa-moon"></i> Negativo</button>
+                        <button class="section-btn" data-action="enhanceDetails"><i class="fas fa-search-plus"></i> Melhorar Detalhes</button>
+                        <button class="section-btn" data-action="reduceNoise"><i class="fas fa-wave-square"></i> Reduzir Ruído</button>
+                        <button class="section-btn" data-action="resetImage"><i class="fas fa-undo"></i> Resetar Imagem</button>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <div class="section-header collapsed">
+                        <span><i class="fas fa-cogs"></i> Configurações da Máquina</span>
+                        <span class="toggle-icon"><i class="fas fa-chevron-down"></i></span>
+                    </div>
+                    <div class="section-content collapsed">
+                        <button class="section-btn" id="settingsBtn"><i class="fas fa-tools"></i> Configurações Globais CNC</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="content-area">
+                <div class="tab-container">
+                    <div class="tab-headers">
+                        <div class="tab-header active" data-tab="preview"><i class="fas fa-eye"></i> Pré-visualização</div>
+                        <div class="tab-header" data-tab="simulation"><i class="fas fa-running"></i> Simulação de Percurso</div>
+                    </div>
+
+                    <div class="tab-content-wrapper">
+                        <div class="loading" id="loadingIndicator">
+                            <i class="fas fa-spinner fa-spin"></i> Processando imagem...
+                        </div>
+
+                        <div class="tab-content active" id="previewTab">
+                            <div class="image-info" id="imageInfo">Nenhuma imagem carregada.</div>
+                            <div class="image-container" id="previewContainer">
+                                <canvas id="imageCanvas"></canvas>
+                            </div>
+                        </div>
+
+                        <div class="tab-content" id="simulationTab">
+                            <div class="sim-controls">
+                                <button id="simPlayBtn" class="btn btn-primary"><i class="fas fa-play"></i> Play</button>
+                                <button id="simPauseBtn" class="btn btn-primary" disabled><i class="fas fa-pause"></i> Pause</button>
+                                <button id="simStopBtn" class="btn btn-primary"><i class="fas fa-stop"></i> Stop</button>
+                                <input type="range" id="simPlaybackSlider" min="0" max="1" step="0.001" value="0">
+                                <span id="simProgressText">0%</span>
+                            </div>
+                            <div class="image-container" id="simulationContainer">
+                                <canvas id="simulationCanvas"></canvas>
+                                <div id="laserHead"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <footer>
+                    <div id="statusLabel">Pronto. Carregue uma imagem para começar.</div>
+                    <div id="jobTimeLabel">Tempo de Job: N/A</div>
+                </footer>
+            </div>
+        </div>
+    </div>
+
+    <!-- Settings Modal -->
+    <div id="settingsModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Configurações Globais CNC</h2>
+                <button type="button" class="modal-close"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="scaleFactor">Escala (mm por pixel):</label>
+                    <input type="number" id="scaleFactor" step="0.001" value="0.1" min="0.001">
+                </div>
+                <div class="form-group">
+                    <label for="travelSpeed">Veloc. Movimentação (G0) mm/min:</label>
+                    <input type="number" id="travelSpeed" value="4000" min="1">
+                </div>
+                <div class="form-group">
+                    <label for="laserMaxSValue">Valor S-MAX (ex: 255 ou 1000):</label>
+                    <input type="number" id="laserMaxSValue" value="1000" min="1">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" id="saveSettingsBtn" class="btn btn-primary">Salvar</button>
+                <button type="button" id="cancelSettingsBtn" class="btn btn-secondary">Cancelar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Layers Modal -->
+    <div id="layersModal" class="modal layer-panel-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Gerenciamento de Camadas</h2>
+                <button type="button" class="modal-close"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="modal-body">
+                <div class="layer-header">
+                    <span>Painel de Camadas (Editável)</span>
+                    <span id="layerCount">0 camadas</span>
+                </div>
+                <div class="layer-toolbar">
+                    <button id="addLayerBtn" class="btn btn-primary"><i class="fas fa-plus"></i> Adicionar</button>
+                    <button id="removeLayerBtn" class="btn btn-danger"><i class="fas fa-minus"></i> Remover</button>
+                    <button id="moveUpBtn" class="btn btn-primary"><i class="fas fa-arrow-up"></i> Mover para Cima</button>
+                    <button id="moveDownBtn" class="btn btn-primary"><i class="fas fa-arrow-down"></i> Mover para Baixo</button>
+                    <button id="toggleAllBtn" class="btn btn-primary"><i class="fas fa-eye"></i> Ativar/Desativar Todas</button>
+                </div>
+                <div class="layer-table-container">
+                    <table id="layerTable">
+                        <thead>
+                            <tr>
+                                <th scope="col">Ativa</th>
+                                <th scope="col">Cor</th>
+                                <th scope="col">Nome da Camada</th>
+                                <th scope="col">Operação</th>
+                                <th scope="col">Veloc. (mm/min)</th>
+                                <th scope="col">Potência (%)</th>
+                                <th scope="col">Intervalo (mm)</th>
+                            </tr>
+                        </thead>
+                        <tbody id="layerTableBody"></tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" id="saveLayersBtn" class="btn btn-primary">Salvar & Fechar</button>
+                <button type="button" id="cancelLayersBtn" class="btn btn-secondary">Cancelar</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        "use strict";
+
+        // ========================================================================
+        // --- CONSTANTES E CLASSES DE DADOS ---
+        // ========================================================================
+
+        class GCodeMove {
+            constructor(x, y, isCut, sValue, speed) {
+                this.x = x;
+                this.y = y;
+                this.isCut = isCut;
+                this.sValue = sValue;
+                this.speed = speed;
+            }
+        }
+
+        class PathSegment {
+            constructor(x1, y1, x2, y2, speed, sValue, op) {
+                this.x1 = x1;
+                this.y1 = y1;
+                this.x2 = x2;
+                this.y2 = y2;
+                this.speed = speed;
+                this.sValue = sValue;
+                this.op = op;
+            }
+
+            distanceToStart(x, y) {
+                return Math.sqrt(Math.pow(this.x1 - x, 2) + Math.pow(this.y1 - y, 2));
+            }
+        }
+
+        const OperationType = {
+            CUT: "Cut",
+            SCAN: "Scan",
+            RASTER: "Raster"
+        };
+
+        const OperationTypeOptions = Object.values(OperationType);
+
+        const PRESETS = {
+            'mdf_3mm_corte': {
+                name: "MDF 3mm - Corte",
+                analysis: { edgeDetail: 2.0, colorGrouping: 2, noiseReduction: 3, pathOptimization: 85 },
+                layers: [
+                    { op: OperationType.CUT, speed: 1500, power: 85, interval: 0.1 },
+                    { op: OperationType.SCAN, speed: 12000, power: 30, interval: 0.1 }
+                ]
+            },
+            'mdf_3mm_scan': {
+                name: "MDF 3mm - Gravação (Scan)",
+                analysis: { edgeDetail: 1.0, colorGrouping: 8, noiseReduction: 5, pathOptimization: 75 },
+                layers: [
+                    { op: OperationType.CUT, speed: 1500, power: 85, interval: 0.1 },
+                    { op: OperationType.SCAN, speed: 18000, power: 25, interval: 0.08 }
+                ]
+            },
+            'mdf_3mm_raster': {
+                name: "MDF 3mm - Foto (Raster)",
+                analysis: { edgeDetail: 1.0, colorGrouping: 32, noiseReduction: 7, pathOptimization: 90 },
+                layers: [
+                    { op: OperationType.RASTER, speed: 18000, power: 20, interval: 0.1 }
+                ]
+            },
+            'acrilico_3mm_corte': {
+                name: "Acrílico 3mm - Corte",
+                analysis: { edgeDetail: 2.5, colorGrouping: 2, noiseReduction: 2, pathOptimization: 80 },
+                layers: [
+                    { op: OperationType.CUT, speed: 900, power: 75, interval: 0.1 },
+                    { op: OperationType.SCAN, speed: 12000, power: 40, interval: 0.1 }
+                ]
+            },
+            'acrilico_3mm_scan': {
+                name: "Acrílico 3mm - Gravação (Scan)",
+                analysis: { edgeDetail: 1.0, colorGrouping: 8, noiseReduction: 4, pathOptimization: 70 },
+                layers: [
+                    { op: OperationType.CUT, speed: 900, power: 75, interval: 0.1 },
+                    { op: OperationType.SCAN, speed: 24000, power: 35, interval: 0.07 }
+                ]
+            },
+            'papelao_corte': {
+                name: "Papelão - Corte Rápido",
+                analysis: { edgeDetail: 1.5, colorGrouping: 2, noiseReduction: 6, pathOptimization: 95 },
+                layers: [
+                    { op: OperationType.CUT, speed: 6000, power: 30, interval: 0.1 },
+                    { op: OperationType.SCAN, speed: 24000, power: 15, interval: 0.2 }
+                ]
+            }
+        };
+
+        // ========================================================================
+        // --- MÓDULO 1: VIEWPORT (Pan/Zoom) ---
+        // ========================================================================
+        class Viewport {
+            constructor(canvas, container, laserHead, redrawCallback) {
+                this.canvas = canvas;
+                this.ctx = canvas.getContext('2d');
+                this.container = container;
+                this.laserHead = laserHead;
+                this.redraw = redrawCallback;
+
+                this.transform = new DOMMatrix();
+                this.isPanning = false;
+                this.lastPan = { x: 0, y: 0 };
+                this.zoomFactor = 1.1;
+
+                this.registerListeners(this.container);
+            }
+
+            registerListeners(container) {
+                container.addEventListener('wheel', (e) => this.onWheel(e), { passive: false });
+                container.addEventListener('mousedown', (e) => this.onMouseDown(e));
+                container.addEventListener('mousemove', (e) => this.onMouseMove(e));
+                container.addEventListener('mouseup', () => this.onMouseUp());
+                container.addEventListener('mouseleave', () => this.onMouseUp());
+
+                // Suporte a toque para dispositivos móveis
+                container.addEventListener('touchstart', (e) => this.onTouchStart(e));
+                container.addEventListener('touchmove', (e) => this.onTouchMove(e));
+                container.addEventListener('touchend', () => this.onTouchEnd());
+            }
+
+            getMousePos(evt) {
+                const rect = this.container.getBoundingClientRect();
+                return { x: evt.clientX - rect.left, y: evt.clientY - rect.top };
+            }
+
+            onMouseDown(e) {
+                e.preventDefault();
+                this.isPanning = true;
+                this.lastPan = { x: e.clientX, y: e.clientY };
+                e.target.style.cursor = 'grabbing';
+            }
+
+            onMouseMove(e) {
+                if (!this.isPanning) return;
+                e.preventDefault();
+                const dx = e.clientX - this.lastPan.x;
+                const dy = e.clientY - this.lastPan.y;
+
+                this.transform.translateSelf(dx / this.transform.a, dy / this.transform.d);
+
+                this.lastPan = { x: e.clientX, y: e.clientY };
+                this.redraw();
+            }
+
+            onMouseUp() {
+                this.isPanning = false;
+                document.querySelectorAll('.image-container').forEach(container => {
+                    container.style.cursor = 'grab';
+                });
+            }
+
+            onWheel(e) {
+                e.preventDefault();
+                const { x, y } = this.getMousePos(e);
+
+                const scale = e.deltaY < 0 ? this.zoomFactor : (1 / this.zoomFactor);
+
+                // Ponto antes do zoom
+                const p1 = this.transform.inverse().transformPoint({x, y});
+
+                // Aplicar zoom
+                this.transform.scaleSelf(scale, scale, 1, p1.x, p1.y, 0);
+
+                this.redraw();
+            }
+
+            // Métodos para suporte a toque
+            onTouchStart(e) {
+                if (e.touches.length === 1) {
+                    this.isPanning = true;
+                    this.lastPan = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+                }
+            }
+
+            onTouchMove(e) {
+                if (!this.isPanning || e.touches.length !== 1) return;
+                e.preventDefault();
+                const dx = e.touches[0].clientX - this.lastPan.x;
+                const dy = e.touches[0].clientY - this.lastPan.y;
+
+                this.transform.translateSelf(dx / this.transform.a, dy / this.transform.d);
+
+                this.lastPan = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+                this.redraw();
+            }
+
+            onTouchEnd() {
+                this.isPanning = false;
+            }
+
+            applyTransform() {
+                this.ctx.setTransform(this.transform);
+            }
+
+            clear() {
+                this.ctx.save();
+                this.ctx.setTransform(1, 0, 0, 1, 0, 0);
+                this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+                this.ctx.restore();
+            }
+
+            // Centraliza a imagem no viewport
+            centerImage(imageWidth, imageHeight) {
+                if (!imageWidth || !imageHeight) return;
+
+                const cw = this.container.clientWidth;
+                const ch = this.container.clientHeight;
+                const iw = imageWidth;
+                const ih = imageHeight;
+
+                const scale = Math.min(cw / iw, ch / ih) * 0.9;
+                const x = (cw - iw * scale) / 2;
+                const y = (ch - ih * scale) / 2;
+
+                this.transform = new DOMMatrix([scale, 0, 0, scale, x, y]);
+                this.redraw();
+            }
+
+            // Atualiza a cabeça do laser com a transformação
+            updateLaserHead(x_world, y_world) {
+                if (!this.laserHead) return;
+                const p = this.transform.transformPoint({ x: x_world, y: y_world });
+                this.laserHead.style.left = `${p.x}px`;
+                this.laserHead.style.top = `${p.y}px`;
+                this.laserHead.style.display = 'block';
+            }
+
+            // Reseta o viewport para a visualização padrão
+            resetView() {
+                this.transform = new DOMMatrix();
+                this.redraw();
+            }
+        }
+
+        // ========================================================================
+        // --- MÓDULO 2: PROCESSADOR DE IMAGEM AVANÇADO ---
+        // ========================================================================
+        class AdvancedImageProcessor {
+            constructor() {
+                this.processingCanvas = document.createElement('canvas');
+                this.processingCtx = this.processingCanvas.getContext('2d', { willReadFrequently: true });
+            }
+
+            _prepareProcessingCanvas(image) {
+                this.processingCanvas.width = image.width;
+                this.processingCanvas.height = image.height;
+                this.processingCtx.drawImage(image, 0, 0);
+                return this.processingCtx.getImageData(0, 0, image.width, image.height);
+            }
+
+            _getImageFromProcessingCanvas() {
+                return new Promise((resolve) => {
+                    const img = new Image();
+                    img.onload = () => resolve(img);
+                    img.src = this.processingCanvas.toDataURL();
+                });
+            }
+
+            // Exporta como JPG
+            getImageAsJpg(quality = 0.9) {
+                return new Promise((resolve) => {
+                    const dataURL = this.processingCanvas.toDataURL('image/jpeg', quality);
+                    resolve(dataURL);
+                });
+            }
+
+            // Exporta como PNG
+            getImageAsPng() {
+                return new Promise((resolve) => {
+                    const dataURL = this.processingCanvas.toDataURL('image/png');
+                    resolve(dataURL);
+                });
+            }
+
+            // Exporta como SVG (simplificado - apenas contornos)
+            getImageAsSvg(width, height) {
+                return new Promise((resolve) => {
+                    // Esta é uma implementação simplificada
+                    // Em uma aplicação real, você converteria os caminhos para SVG
+                    const svgContent = `<svg width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg">
+                        <image href="${this.processingCanvas.toDataURL('image/png')}" width="${width}" height="${height}" />
+                    </svg>`;
+                    resolve(svgContent);
+                });
+            }
+
+            async removeBackground(image) {
+                const imageData = this._prepareProcessingCanvas(image);
+                const data = imageData.data;
+                const bgR = data[0], bgG = data[1], bgB = data[2];
+                for (let i = 0; i < data.length; i += 4) {
+                    if (this._isColorSimilar(data[i], data[i+1], data[i+2], bgR, bgG, bgB, 0.1)) {
+                        data[i+3] = 0;
+                    }
+                }
+                this.processingCtx.putImageData(imageData, 0, 0);
+                return this._getImageFromProcessingCanvas();
+            }
+
+            async applyNegative(image) {
+                const imageData = this._prepareProcessingCanvas(image);
+                const data = imageData.data;
+                for (let i = 0; i < data.length; i += 4) {
+                    data[i] = 255 - data[i];
+                    data[i+1] = 255 - data[i+1];
+                    data[i+2] = 255 - data[i+2];
+                }
+                this.processingCtx.putImageData(imageData, 0, 0);
+                return this._getImageFromProcessingCanvas();
+            }
+
+            async binarize(image, threshold) {
+                const imageData = this._prepareProcessingCanvas(image);
+                const data = imageData.data;
+                for (let i = 0; i < data.length; i += 4) {
+                    const brightness = (data[i] * 0.299 + data[i+1] * 0.587 + data[i+2] * 0.114) / 255.0;
+                    const val = (brightness > threshold) ? 255 : 0;
+                    data[i] = val; data[i+1] = val; data[i+2] = val;
+                }
+                this.processingCtx.putImageData(imageData, 0, 0);
+                return this._getImageFromProcessingCanvas();
+            }
+
+            async edgeDetect(image, sensitivity) {
+                const imageData = this._prepareProcessingCanvas(image);
+                const width = imageData.width, height = imageData.height;
+                const data = imageData.data;
+                const grayData = new Uint8ClampedArray(width * height);
+                for (let i = 0, j = 0; i < data.length; i += 4, j++) {
+                    grayData[j] = data[i] * 0.299 + data[i+1] * 0.587 + data[i+2] * 0.114;
+                }
+                const resultData = new Uint8ClampedArray(data.length);
+                const sobelX = [-1, 0, 1, -2, 0, 2, -1, 0, 1];
+                const sobelY = [-1, -2, -1, 0, 0, 0, 1, 2, 1];
+                for (let y = 0; y < height; y++) {
+                    for (let x = 0; x < width; x++) {
+                        const i = (y * width + x) * 4;
+                        if (x === 0 || x === width - 1 || y === 0 || y === height - 1) {
+                            resultData[i] = resultData[i+1] = resultData[i+2] = 255;
+                            resultData[i+3] = 255;
+                        } else {
+                            let gx = 0, gy = 0;
+                            for (let ky = -1; ky <= 1; ky++) {
+                                for (let kx = -1; kx <= 1; kx++) {
+                                    const gray = grayData[(y + ky) * width + (x + kx)];
+                                    const kernelIdx = (ky + 1) * 3 + (kx + 1);
+                                    gx += gray * sobelX[kernelIdx];
+                                    gy += gray * sobelY[kernelIdx];
+                                }
+                            }
+                            const magnitude = 1.0 - Math.min(1.0, Math.max(0.0, Math.sqrt(gx * gx + gy * gy) * sensitivity));
+                            const val = magnitude * 255;
+                            resultData[i] = resultData[i+1] = resultData[i+2] = val;
+                            resultData[i+3] = 255;
+                        }
+                    }
+                }
+                this.processingCtx.putImageData(new ImageData(resultData, width, height), 0, 0);
+                return this._getImageFromProcessingCanvas();
+            }
+
+            async quantizeColors(image, k) {
+                const imageData = this._prepareProcessingCanvas(image);
+                const width = imageData.width, height = imageData.height;
+                const data = imageData.data;
+                let pixels = [];
+                const step = Math.max(1, Math.floor((width * height) / 50000));
+                for (let i = 0; i < data.length; i += (4 * step)) {
+                    const r = data[i], g = data[i+1], b = data[i+2], a = data[i+3];
+                    const brightness = (r * 0.299 + g * 0.587 + b * 0.114);
+                    if (a > 128 && brightness < 240) { pixels.push({r, g, b}); }
+                }
+                if (pixels.length === 0) return image;
+                let centroids = [];
+                for (let i = 0; i < k; i++) {
+                    const idx = Math.floor((i * pixels.length) / k);
+                    if (pixels[idx]) centroids.push(pixels[idx]);
+                }
+                if (centroids.length === 0) centroids.push(pixels[0]);
+                const resultData = new Uint8ClampedArray(data.length);
+                for (let i = 0; i < data.length; i += 4) {
+                    const r = data[i], g = data[i+1], b = data[i+2], a = data[i+3];
+                    if (a < 128) { resultData[i+3] = 0; continue; }
+                    let bestCentroid = null, minDistance = Infinity;
+                    for (const centroid of centroids) {
+                        const dist = this._colorDistanceSqr(r,g,b, centroid.r, centroid.g, centroid.b);
+                        if (dist < minDistance) { minDistance = dist; bestCentroid = centroid; }
+                    }
+                    const brightness = (bestCentroid.r * 0.299 + bestCentroid.g * 0.587 + bestCentroid.b * 0.114);
+                    if (brightness > 240 || minDistance > (0.5 * 0.5 * 255*255*3)) {
+                        resultData[i+3] = 0;
+                    } else {
+                        resultData[i] = bestCentroid.r; resultData[i+1] = bestCentroid.g;
+                        resultData[i+2] = bestCentroid.b; resultData[i+3] = 255;
+                    }
+                }
+                this.processingCtx.putImageData(new ImageData(resultData, width, height), 0, 0);
+                return this._getImageFromProcessingCanvas();
+            }
+
+            async enhanceDetails(image, strength = 1.0) {
+                const imageData = this._prepareProcessingCanvas(image);
+                const width = imageData.width, height = imageData.height;
+                const data = imageData.data;
+                
+                // Aplicar um filtro de nitidez
+                const sharpenKernel = [
+                    0, -1, 0,
+                    -1, 5, -1,
+                    0, -1, 0
+                ];
+                
+                const resultData = new Uint8ClampedArray(data.length);
+                
+                for (let y = 0; y < height; y++) {
+                    for (let x = 0; x < width; x++) {
+                        const i = (y * width + x) * 4;
+                        
+                        if (x === 0 || x === width - 1 || y === 0 || y === height - 1) {
+                            resultData[i] = data[i];
+                            resultData[i+1] = data[i+1];
+                            resultData[i+2] = data[i+2];
+                            resultData[i+3] = data[i+3];
+                        } else {
+                            let r = 0, g = 0, b = 0;
+                            
+                            for (let ky = -1; ky <= 1; ky++) {
+                                for (let kx = -1; kx <= 1; kx++) {
+                                    const kernelIdx = (ky + 1) * 3 + (kx + 1);
+                                    const weight = sharpenKernel[kernelIdx];
+                                    
+                                    const pixelIdx = ((y + ky) * width + (x + kx)) * 4;
+                                    
+                                    r += data[pixelIdx] * weight;
+                                    g += data[pixelIdx+1] * weight;
+                                    b += data[pixelIdx+2] * weight;
+                                }
+                            }
+                            
+                            // Aplicar força do filtro
+                            r = data[i] + (r - data[i]) * strength;
+                            g = data[i+1] + (g - data[i+1]) * strength;
+                            b = data[i+2] + (b - data[i+2]) * strength;
+                            
+                            resultData[i] = Math.max(0, Math.min(255, r));
+                            resultData[i+1] = Math.max(0, Math.min(255, g));
+                            resultData[i+2] = Math.max(0, Math.min(255, b));
+                            resultData[i+3] = data[i+3];
+                        }
+                    }
+                }
+                
+                this.processingCtx.putImageData(new ImageData(resultData, width, height), 0, 0);
+                return this._getImageFromProcessingCanvas();
+            }
+
+            async reduceNoise(image, strength = 3) {
+                const imageData = this._prepareProcessingCanvas(image);
+                const width = imageData.width, height = imageData.height;
+                const data = imageData.data;
+                
+                const resultData = new Uint8ClampedArray(data.length);
+                const kernelSize = Math.max(1, Math.floor(strength / 2));
+                
+                for (let y = 0; y < height; y++) {
+                    for (let x = 0; x < width; x++) {
+                        const i = (y * width + x) * 4;
+                        
+                        let rValues = [], gValues = [], bValues = [];
+                        
+                        for (let ky = -kernelSize; ky <= kernelSize; ky++) {
+                            for (let kx = -kernelSize; kx <= kernelSize; kx++) {
+                                const ny = Math.max(0, Math.min(height - 1, y + ky));
+                                const nx = Math.max(0, Math.min(width - 1, x + kx));
+                                const pixelIdx = (ny * width + nx) * 4;
+                                
+                                rValues.push(data[pixelIdx]);
+                                gValues.push(data[pixelIdx+1]);
+                                bValues.push(data[pixelIdx+2]);
+                            }
+                        }
+                        
+                        // Usar mediana para reduzir ruído
+                        resultData[i] = this._median(rValues);
+                        resultData[i+1] = this._median(gValues);
+                        resultData[i+2] = this._median(bValues);
+                        resultData[i+3] = data[i+3];
+                    }
+                }
+                
+                this.processingCtx.putImageData(new ImageData(resultData, width, height), 0, 0);
+                return this._getImageFromProcessingCanvas();
+            }
+
+            _median(values) {
+                values.sort((a, b) => a - b);
+                const half = Math.floor(values.length / 2);
+                
+                if (values.length % 2) {
+                    return values[half];
+                }
+                
+                return (values[half - 1] + values[half]) / 2.0;
+            }
+
+            _rgbToHex(r, g, b) {
+                return "#" + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1).toUpperCase();
+            }
+
+            _hexToRgb(hex) {
+                const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+                return result ? {
+                    r: parseInt(result[1], 16),
+                    g: parseInt(result[2], 16),
+                    b: parseInt(result[3], 16)
+                } : null;
+            }
+
+            _colorDistanceSqr(r1, g1, b1, r2, g2, b2) {
+                const dr = r1 - r2, dg = g1 - g2, db = b1 - b2;
+                return (dr*dr + dg*dg + db*db);
+            }
+
+            _isColorSimilar(r1, g1, b1, r2, g2, b2, tolerance) {
+                const distSqr = this._colorDistanceSqr(r1, g1, b1, r2, g2, b2);
+                return distSqr < (tolerance * tolerance * 255*255*3);
+            }
+
+            isColorSimilarHex(hex1, hex2, tolerance) {
+                const c1 = this._hexToRgb(hex1), c2 = this._hexToRgb(hex2);
+                if (!c1 || !c2) return false;
+                return this._isColorSimilar(c1.r, c1.g, c1.b, c2.r, c2.g, c2.b, tolerance);
+            }
+        }
+
+        // ========================================================================
+        // --- MÓDULO 3: GERADOR DE CAMINHO AVANÇADO (G-Code) ---
+        // ========================================================================
+        class AdvancedPathGenerator {
+            constructor(settingsProvider) {
+                this.getSettings = settingsProvider;
+                this.df = new Intl.NumberFormat('en-US', { minimumFractionDigits: 3, maximumFractionDigits: 3, useGrouping: false });
+                this.pf = new Intl.NumberFormat('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0, useGrouping: false });
+            }
+
+            async generatePaths(layers, processedImage, originalImage, processor, optimizationLevel = 85) {
+                const settings = this.getSettings();
+                const pixelMap = await this._buildPixelMap(layers, processedImage, originalImage, processor, settings);
+                
+                let allMoves = [];
+                let allPaths = [];
+                let cumulativeTimes = [0];
+                let totalTimeMin = 0;
+                let lastX = 0, lastY = 0;
+
+                for (const layer of layers) {
+                    if (!layer.enabled) continue;
+
+                    let layerPaths = await this._generatePathsForLayer(layer, pixelMap, originalImage, processor, settings);
+                    
+                    // Otimizar APENAS camadas de corte
+                    if (layer.operation === OperationType.CUT) {
+                        layerPaths = this._optimizeCutPaths(layerPaths, lastX, lastY, optimizationLevel);
+                    }
+                    
+                    allPaths.push(...layerPaths); 
+
+                    const { moves, time } = this._convertPathsToMoves(layerPaths, lastX, lastY, settings, totalTimeMin, cumulativeTimes);
+                    allMoves.push(...moves);
+
+                    if (moves.length > 0) {
+                        const lastMove = moves[moves.length - 1];
+                        lastX = lastMove.x;
+                        lastY = lastMove.y;
+                        totalTimeMin = time;
+                    }
+                }
+
+                const { moves, time } = this._convertPathsToMoves([new PathSegment(lastX, lastY, 0, 0, settings.travelSpeed, 0, null)], lastX, lastY, settings, totalTimeMin, cumulativeTimes, false);
+                allMoves.push(...moves);
+
+                return {
+                    moves: allMoves,
+                    paths: allPaths,
+                    cumulativeTimes,
+                    totalTime: totalTimeMin
+                };
+            }
+            
+            async _buildPixelMap(layers, image, originalImage, processor, settings) {
+                const width = image.width;
+                const height = image.height;
+                const reader = processor._prepareProcessingCanvas(image);
+                const data = reader.data;
+                const map = Array(width).fill(0).map(() => Array(height).fill(-1));
+                
+                let edgeImageData = null;
+                let edgeLayerIndex = -1;
+
+                for (let i = 0; i < layers.length; i++) {
+                    if (layers[i].operation === OperationType.CUT && layers[i].enabled) {
+                        const edgeImage = await processor.edgeDetect(image, settings.edgeDetail);
+                        edgeImageData = processor._prepareProcessingCanvas(edgeImage).data;
+                        edgeLayerIndex = i;
+                        break; 
+                    }
+                }
+
+                for (let y = 0; y < height; y++) {
+                    for (let x = 0; x < width; x++) {
+                        const idx = (y * width + x) * 4;
+                        if (edgeLayerIndex !== -1 && edgeImageData) {
+                            const brightness = edgeImageData[idx] * 0.299 + edgeImageData[idx+1] * 0.587 + edgeImageData[idx+2] * 0.114;
+                            if (brightness < 128) {
+                                map[x][y] = edgeLayerIndex;
+                                continue;
+                            }
+                        }
+                        
+                        const a = data[idx+3];
+                        if (a < 128) continue;
+                        const r = data[idx], g = data[idx+1], b = data[idx+2];
+
+                        for (let i = 0; i < layers.length; i++) {
+                            if (i === edgeLayerIndex) continue;
+                            const layer = layers[i];
+                            if (!layer.enabled || layer.operation === OperationType.CUT) continue;
+                            if (processor.isColorSimilarHex(processor._rgbToHex(r,g,b), layer.color, 0.15)) {
+                                map[x][y] = i;
+                                break;
+                            }
+                        }
+                    }
+                }
+                return map;
+            }
+
+            async _generatePathsForLayer(layer, pixelMap, originalImage, processor, settings) {
+                const w = pixelMap.length;
+                const h = w > 0 ? pixelMap[0].length : 0;
+                if (h === 0) return [];
+
+                const sVal = settings.laserMaxSValue * (layer.power / 100.0);
+
+                if (layer.operation === OperationType.RASTER) {
+                    const grayscaleData = processor._prepareProcessingCanvas(originalImage).data;
+                    return this._generateGrayscalePaths(grayscaleData, w, h, layer, sVal, settings);
+                } else {
+                    const layerIdx = settings.layers.indexOf(layer);
+                    return this._generateFillPaths(pixelMap, w, h, layerIdx, layer, sVal, settings);
+                }
+            }
+            
+            _generateFillPaths(map, w, h, layerIdx, layer, sVal, settings) {
+                let paths = [];
+                const stepY_mm = (layer.operation === OperationType.CUT) ? settings.scaleFactor : layer.interval;
+                const stepY_px = Math.max(1.0, stepY_mm / settings.scaleFactor);
+
+                for (let y_px = 0; y_px < h; y_px += stepY_px) {
+                    const y = Math.min(h - 1, Math.floor(y_px));
+                    const currentY_mm = y_px * settings.scaleFactor;
+                    let startSegmentX = -1;
+                    for (let x = 0; x < w; x++) {
+                        if (map[x][y] === layerIdx) {
+                            if (startSegmentX === -1) startSegmentX = x;
+                        } else {
+                            if (startSegmentX !== -1) {
+                                paths.push(new PathSegment(
+                                    startSegmentX * settings.scaleFactor, currentY_mm,
+                                    (x - 1) * settings.scaleFactor, currentY_mm,
+                                    layer.speed, sVal, layer.operation
+                                ));
+                                startSegmentX = -1;
+                            }
+                        }
+                    }
+                    if (startSegmentX !== -1) {
+                        paths.push(new PathSegment(
+                            startSegmentX * settings.scaleFactor, currentY_mm,
+                            (w - 1) * settings.scaleFactor, currentY_mm,
+                            layer.speed, sVal, layer.operation
+                        ));
+                    }
+                }
+                return paths;
+            }
+            
+            _generateGrayscalePaths(grayscaleData, w, h, layer, sMax, settings) {
+                let paths = [];
+                const sMin = 0;
+                const sRange = sMax - sMin;
+                const stepY_mm = layer.interval;
+                const stepY_px = Math.max(1.0, stepY_mm / settings.scaleFactor);
+                
+                for (let y_px = 0; y_px < h; y_px += stepY_px) {
+                    const y = Math.min(h - 1, Math.floor(y_px));
+                    const currentY_mm = y_px * settings.scaleFactor;
+                    for (let x = 0; x < w; x++) {
+                        const idx = (y * w + x) * 4;
+                        const r = grayscaleData[idx], g = grayscaleData[idx+1], b = grayscaleData[idx+2];
+                        const brightness = 1.0 - (r * 0.299 + g * 0.587 + b * 0.114) / 255.0; // Invertido
+                        let sVal = sMin + (sRange * brightness);
+                        if (sVal < 0.1) sVal = 0;
+                        if (sVal > 0) {
+                            paths.push(new PathSegment(
+                                x * settings.scaleFactor, currentY_mm,
+                                (x + 1) * settings.scaleFactor, currentY_mm,
+                                layer.speed, sVal, layer.operation
+                            ));
+                        }
+                    }
+                }
+                return paths;
+            }
+            
+            _optimizeCutPaths(paths, startX, startY, optimizationLevel) {
+                if (paths.length === 0) return [];
+                
+                // Aplicar diferentes níveis de otimização baseado no parâmetro
+                let optimizedPaths = [];
+                
+                if (optimizationLevel >= 80) {
+                    // Otimização avançada: Nearest Neighbor com clustering
+                    optimizedPaths = this._advancedOptimization(paths, startX, startY);
+                } else if (optimizationLevel >= 50) {
+                    // Otimização média: Nearest Neighbor simples
+                    optimizedPaths = this._nearestNeighborOptimization(paths, startX, startY);
+                } else {
+                    // Sem otimização
+                    optimizedPaths = paths;
+                }
+                
+                // Remover segmentos muito curtos (se otimização alta)
+                if (optimizationLevel >= 70) {
+                    optimizedPaths = optimizedPaths.filter(path => {
+                        const length = Math.sqrt(Math.pow(path.x2 - path.x1, 2) + Math.pow(path.y2 - path.y1, 2));
+                        return length >= 0.05; // Remover segmentos menores que 0.05mm
+                    });
+                }
+                
+                return optimizedPaths;
+            }
+
+            _nearestNeighborOptimization(paths, startX, startY) {
+                let sortedPaths = [];
+                let remainingPaths = new Set(paths);
+                let currentX = startX, currentY = startY;
+                
+                while (remainingPaths.size > 0) {
+                    let bestPath = null;
+                    let minDistance = Infinity;
+                    
+                    for (const path of remainingPaths) {
+                        const distToStart = path.distanceToStart(currentX, currentY);
+                        if (distToStart < minDistance) {
+                            minDistance = distToStart;
+                            bestPath = path;
+                        }
+                    }
+                    
+                    sortedPaths.push(bestPath);
+                    remainingPaths.delete(bestPath);
+                    currentX = bestPath.x2;
+                    currentY = bestPath.y2;
+                }
+                
+                return sortedPaths;
+            }
+
+            _advancedOptimization(paths, startX, startY) {
+                // Agrupar caminhos por proximidade
+                const clusters = this._clusterPaths(paths);
+                let sortedPaths = [];
+                let currentX = startX, currentY = startY;
+                
+                // Ordenar clusters por proximidade
+                clusters.sort((a, b) => {
+                    const distA = this._distanceToCluster(a, currentX, currentY);
+                    const distB = this._distanceToCluster(b, currentX, currentY);
+                    return distA - distB;
+                });
+                
+                // Processar cada cluster
+                for (const cluster of clusters) {
+                    // Ordenar caminhos dentro do cluster
+                    const clusterPaths = this._nearestNeighborOptimization(cluster, currentX, currentY);
+                    sortedPaths.push(...clusterPaths);
+                    
+                    if (clusterPaths.length > 0) {
+                        const lastPath = clusterPaths[clusterPaths.length - 1];
+                        currentX = lastPath.x2;
+                        currentY = lastPath.y2;
+                    }
+                }
+                
+                return sortedPaths;
+            }
+
+            _clusterPaths(paths, maxClusterDistance = 5.0) {
+                if (paths.length === 0) return [];
+                
+                const clusters = [];
+                const used = new Set();
+                
+                for (let i = 0; i < paths.length; i++) {
+                    if (used.has(i)) continue;
+                    
+                    const cluster = [paths[i]];
+                    used.add(i);
+                    
+                    for (let j = i + 1; j < paths.length; j++) {
+                        if (used.has(j)) continue;
+                        
+                        const path = paths[j];
+                        let isClose = false;
+                        
+                        // Verificar se o caminho está próximo de algum caminho no cluster
+                        for (const clusterPath of cluster) {
+                            const dist = Math.min(
+                                path.distanceToStart(clusterPath.x1, clusterPath.y1),
+                                path.distanceToStart(clusterPath.x2, clusterPath.y2)
+                            );
+                            
+                            if (dist <= maxClusterDistance) {
+                                isClose = true;
+                                break;
+                            }
+                        }
+                        
+                        if (isClose) {
+                            cluster.push(path);
+                            used.add(j);
+                        }
+                    }
+                    
+                    clusters.push(cluster);
+                }
+                
+                return clusters;
+            }
+
+            _distanceToCluster(cluster, x, y) {
+                let minDistance = Infinity;
+                
+                for (const path of cluster) {
+                    const dist = path.distanceToStart(x, y);
+                    if (dist < minDistance) {
+                        minDistance = dist;
+                    }
+                }
+                
+                return minDistance;
+            }
+
+            _convertPathsToMoves(paths, lastX, lastY, settings, time, cumulativeTimes, isCutting = true) {
+                let moves = [];
+                let totalTimeMin = time;
+                
+                for (const path of paths) {
+                    let dist = Math.sqrt(Math.pow(path.x1 - lastX, 2) + Math.pow(path.y1 - lastY, 2));
+                    if (dist > 0.001) { // Evitar movimentos G0 desnecessários
+                        totalTimeMin += dist / settings.travelSpeed;
+                        cumulativeTimes.push(totalTimeMin);
+                        moves.push(new GCodeMove(path.x1, path.y1, false, 0, settings.travelSpeed));
+                    }
+                    
+                    if (isCutting) {
+                        dist = Math.sqrt(Math.pow(path.x2 - path.x1, 2) + Math.pow(path.y2 - path.y1, 2));
+                        totalTimeMin += dist / path.speed;
+                        cumulativeTimes.push(totalTimeMin);
+                        moves.push(new GCodeMove(path.x1, path.y1, true, path.sValue, path.speed)); 
+                        cumulativeTimes.push(totalTimeMin);
+                        moves.push(new GCodeMove(path.x2, path.y2, true, path.sValue, path.speed));
+                    }
+                    
+                    lastX = path.x2;
+                    lastY = path.y2;
+                }
+                return { moves, time: totalTimeMin };
+            }
+
+            writeGcodeFromMoves(moves) {
+                let gcode = [
+                    "; G-code de Laser - Gerado por Generative CAM v3.0",
+                    "; Caminho Otimizado Atomicamente",
+                    "G90 ; Posicionamento absoluto", "G21 ; Unidades em milímetros",
+                    "M5 S0 ; Laser desligado"
+                ];
+                let laserWasOn = false, lastS = -1, lastF = -1;
+                for (const move of moves) {
+                    let fCmd = "";
+                    if (move.speed !== lastF) {
+                        fCmd = ` F${this.pf.format(move.speed)}`;
+                        lastF = move.speed;
+                    }
+                    if (move.isCut) {
+                        let sCmd = "";
+                        if (move.sValue !== lastS) {
+                            sCmd = ` S${this.pf.format(move.sValue)}`;
+                            lastS = move.sValue;
+                        }
+                        if (!laserWasOn) {
+                            gcode.push("M3" + sCmd.trim());
+                            laserWasOn = true;
+                        }
+                        gcode.push(`G1 X${this.df.format(move.x)} Y${this.df.format(move.y)}${sCmd}${fCmd}`);
+                    } else {
+                        if (laserWasOn) {
+                            gcode.push("M5 S0");
+                            laserWasOn = false;
+                            lastS = 0;
+                        }
+                        gcode.push(`G0 X${this.df.format(move.x)} Y${this.df.format(move.y)}${fCmd}`);
+                    }
+                }
+                gcode.push("M5 S0 ; Desligar laser", "G0 X0 Y0 ; Retornar à origem");
+                return gcode.join('\n');
+            }
+
+            // Exportar para DXF (formato simplificado)
+            exportToDxf(paths, width, height) {
+                let dxf = "0\nSECTION\n2\nHEADER\n0\nENDSEC\n0\nSECTION\n2\nENTITIES\n";
+                
+                for (const path of paths) {
+                    dxf += `0\nLINE\n8\n0\n10\n${path.x1.toFixed(3)}\n20\n${path.y1.toFixed(3)}\n30\n0.0\n11\n${path.x2.toFixed(3)}\n21\n${path.y2.toFixed(3)}\n31\n0.0\n`;
+                }
+                
+                dxf += "0\nENDSEC\n0\nEOF";
+                return dxf;
+            }
+
+            // Exportar para PLT (formato HPGL simplificado)
+            exportToPlt(moves) {
+                let plt = "IN;\n"; // Inicializar
+                plt += "SP1;\n";   // Selecionar caneta 1
+                
+                for (const move of moves) {
+                    if (move.isCut) {
+                        plt += `PD${Math.round(move.x * 40)},${Math.round(move.y * 40)};\n`; // 40 unidades por mm
+                    } else {
+                        plt += `PU${Math.round(move.x * 40)},${Math.round(move.y * 40)};\n`;
+                    }
+                }
+                
+                plt += "SP0;\n";   // Selecionar caneta 0 (nenhuma)
+                plt += "IN;\n";    // Finalizar
+                return plt;
+            }
+
+            // Exportar para RLD (formato Ruida simplificado)
+            exportToRld(moves) {
+                let rld = "; Ruida Laser Data\n";
+                rld += "M5\n"; // Desligar laser
+                
+                for (const move of moves) {
+                    if (move.isCut) {
+                        rld += `G1 X${move.x.toFixed(3)} Y${move.y.toFixed(3)} S${Math.round(move.sValue)}\n`;
+                    } else {
+                        rld += `G0 X${move.x.toFixed(3)} Y${move.y.toFixed(3)}\n`;
+                    }
+                }
+                
+                rld += "M5\n"; // Desligar laser
+                rld += "G0 X0 Y0\n"; // Retornar à origem
+                return rld;
+            }
+
+            // Exportar para SVG (formato simplificado)
+            exportToSvg(paths, width, height) {
+                let svg = `<svg width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg">\n`;
+                
+                for (const path of paths) {
+                    const strokeColor = path.op === OperationType.CUT ? "red" : 
+                                      path.op === OperationType.SCAN ? "blue" : "green";
+                    const strokeWidth = path.op === OperationType.CUT ? "1" : "0.5";
+                    
+                    svg += `<line x1="${path.x1}" y1="${path.y1}" x2="${path.x2}" y2="${path.y2}" stroke="${strokeColor}" stroke-width="${strokeWidth}" />\n`;
+                }
+                
+                svg += "</svg>";
+                return svg;
+            }
+        }
+
+        // ========================================================================
+        // --- MÓDULO 4: SIMULADOR (Estado de Playback) ---
+        // ========================================================================
+        class Simulator {
+            constructor(slider, playBtn, pauseBtn, stopBtn, redrawCallback) {
+                this.slider = slider;
+                this.playBtn = playBtn;
+                this.pauseBtn = pauseBtn;
+                this.stopBtn = stopBtn;
+                this.redraw = redrawCallback;
+
+                this.animationFrameId = null;
+                this.isSimPlaying = false;
+                this.lastSimUpdate = 0;
+                this.totalTime = 0;
+                this.simulationTime = 0;
+
+                this.slider.addEventListener('input', () => this.onSliderInput());
+                this.playBtn.addEventListener('click', () => this.play());
+                this.pauseBtn.addEventListener('click', () => this.pause());
+                this.stopBtn.addEventListener('click', () => this.stop());
+                
+                this.animationFrameId = requestAnimationFrame((t) => this._step(t));
+            }
+
+            setData(totalTime) {
+                this.totalTime = totalTime || 1;
+                this.stop();
+            }
+
+            onSliderInput() {
+                if (!this.isSimPlaying) {
+                    this.simulationTime = this.slider.value * this.totalTime;
+                    this.redraw(this.slider.value);
+                }
+            }
+            
+            _step(timestamp) {
+                if (this.lastSimUpdate === 0) this.lastSimUpdate = timestamp;
+                const elapsedSeconds = (timestamp - this.lastSimUpdate) / 1000.0;
+                this.lastSimUpdate = timestamp;
+                
+                if (this.isSimPlaying) {
+                    const playbackSpeed = 10.0;
+                    this.simulationTime += (elapsedSeconds / 60.0) * playbackSpeed;
+                    
+                    let progress = this.simulationTime / this.totalTime;
+                    
+                    if (progress >= 1.0) {
+                        progress = 1.0;
+                        this.simulationTime = this.totalTime;
+                        this.pause();
+                    }
+                    
+                    this.slider.value = progress;
+                    this.redraw(progress);
+                }
+                
+                this.animationFrameId = requestAnimationFrame((t) => this._step(t));
+            }
+
+            play() {
+                if (this.totalTime === 0) return;
+                if (this.simulationTime >= this.totalTime) {
+                    this.simulationTime = 0;
+                }
+                this.isSimPlaying = true;
+                this.lastSimUpdate = 0;
+                this.playBtn.disabled = true;
+                this.pauseBtn.disabled = false;
+            }
+            
+            pause() {
+                this.isSimPlaying = false;
+                this.playBtn.disabled = false;
+                this.pauseBtn.disabled = true;
+            }
+            
+            stop() {
+                this.pause();
+                this.simulationTime = 0;
+                this.slider.value = 0;
+                this.redraw(0);
+            }
+        }
+
+        // ========================================================================
+        // --- MÓDULO 5: APLICAÇÃO PRINCIPAL (Orquestrador) ---
+        // ========================================================================
+        class CNCLaserApp {
+            constructor() {
+                this.originalImage = null;
+                this.processedImage = null;
+                this.layers = [];
+                
+                this.simulationMoves = [];
+                this.simulationPaths = [];
+                this.cumulativeTimes = [];
+                this.totalTime = 0;
+                this.ghostCanvas = document.createElement('canvas'); 
+                this.progressCanvas = document.createElement('canvas');
+
+                this.scaleFactor = 0.1;
+                this.travelSpeed = 4000.0;
+                this.laserMaxSValue = 1000.0;
+                
+                this.cacheDOMElements();
+
+                // --- Instanciar Módulos ---
+                this.viewport = new Viewport(
+                    this.imageCanvas, 
+                    this.pContainer,
+                    null,
+                    () => this.redrawViewports(this.simulator.slider.value)
+                );
+                
+                this.simViewport = new Viewport(
+                    this.simulationCanvas,
+                    this.sContainer,
+                    this.laserHead,
+                    (progress) => this.redrawViewports(this.simulator.slider.value)
+                );
+                
+                this.imageProcessor = new AdvancedImageProcessor();
+
+                this.pathGenerator = new AdvancedPathGenerator(() => ({
+                    scaleFactor: this.scaleFactor,
+                    travelSpeed: this.travelSpeed,
+                    laserMaxSValue: this.laserMaxSValue,
+                    edgeDetail: parseFloat(this.edgeDetailSlider.value),
+                    layers: this.layers
+                }));
+                
+                this.simulator = new Simulator(
+                    this.simPlaybackSlider,
+                    this.simPlayBtn,
+                    this.simPauseBtn,
+                    this.simStopBtn,
+                    (progress) => this.redrawViewports(progress)
+                );
+
+                this.initializeEventListeners();
+                this.updateImageInfo();
+                this.collapseSectionsByDefault();
+                this.resizeAndRedraw();
+            }
+
+            cacheDOMElements() {
+                this.imageCanvas = document.getElementById('imageCanvas');
+                this.imageCtx = this.imageCanvas.getContext('2d');
+                this.simulationCanvas = document.getElementById('simulationCanvas');
+                this.simulationCtx = this.simulationCanvas.getContext('2d');
+                this.laserHead = document.getElementById('laserHead');
+                
+                this.pContainer = document.getElementById('previewContainer');
+                this.sContainer = document.getElementById('simulationContainer');
+                
+                this.statusLabel = document.getElementById('statusLabel');
+                this.jobTimeLabel = document.getElementById('jobTimeLabel');
+                this.imageInfo = document.getElementById('imageInfo');
+                this.layerTableBody = document.getElementById('layerTableBody');
+                this.layerCount = document.getElementById('layerCount');
+                this.loadingIndicator = document.getElementById('loadingIndicator');
+                this.simProgressText = document.getElementById('simProgressText');
+                
+                this.materialPreset = document.getElementById('materialPreset');
+                this.edgeDetailSlider = document.getElementById('edgeDetailSlider');
+                this.fillGroupingSlider = document.getElementById('fillGroupingSlider');
+                this.noiseReductionSlider = document.getElementById('noiseReductionSlider');
+                this.pathOptimizationSlider = document.getElementById('pathOptimizationSlider');
+                
+                this.settingsModal = document.getElementById('settingsModal');
+                this.layersModal = document.getElementById('layersModal');
+                this.scaleFactorInput = document.getElementById('scaleFactor');
+                this.travelSpeedInput = document.getElementById('travelSpeed');
+                this.laserMaxSValueInput = document.getElementById('laserMaxSValue');
+
+                this.simPlayBtn = document.getElementById('simPlayBtn');
+                this.simPauseBtn = document.getElementById('simPauseBtn');
+                this.simStopBtn = document.getElementById('simStopBtn');
+                this.simPlaybackSlider = document.getElementById('simPlaybackSlider');
+            }
+            
+            initializeEventListeners() {
+                document.getElementById('uploadBtn').addEventListener('click', () => this.uploadImage());
+                document.getElementById('magicBtn').addEventListener('click', () => this.runPresetPipeline());
+                document.getElementById('layersBtn').addEventListener('click', () => this.showLayersModal());
+                document.getElementById('exportGcodeBtn').addEventListener('click', () => this.exportGcode());
+                document.getElementById('exportJpgBtn').addEventListener('click', () => this.exportJpg());
+                document.getElementById('exportPngBtn').addEventListener('click', () => this.exportPng());
+                document.getElementById('exportDxfBtn').addEventListener('click', () => this.exportDxf());
+                document.getElementById('exportPltBtn').addEventListener('click', () => this.exportPlt());
+                document.getElementById('exportRldBtn').addEventListener('click', () => this.exportRld());
+                document.getElementById('exportSvgBtn').addEventListener('click', () => this.exportSvg());
+                
+                document.querySelectorAll('.section-btn').forEach(btn => {
+                    btn.addEventListener('click', (e) => this.handleManualProcessing(e.target.getAttribute('data-action')));
+                });
+                
+                this.edgeDetailSlider.addEventListener('input', (e) => {
+                    document.getElementById('edgeDetailValue').textContent = e.target.value;
+                });
+                
+                this.fillGroupingSlider.addEventListener('input', (e) => {
+                    document.getElementById('fillGroupingValue').textContent = e.target.value;
+                });
+
+                this.noiseReductionSlider.addEventListener('input', (e) => {
+                    document.getElementById('noiseReductionValue').textContent = e.target.value;
+                });
+
+                this.pathOptimizationSlider.addEventListener('input', (e) => {
+                    document.getElementById('pathOptimizationValue').textContent = e.target.value;
+                });
+
+                document.getElementById('addLayerBtn').addEventListener('click', () => this.addLayer());
+                document.getElementById('removeLayerBtn').addEventListener('click', () => this.removeSelectedLayer());
+                document.getElementById('moveUpBtn').addEventListener('click', () => this.moveLayer(-1));
+                document.getElementById('moveDownBtn').addEventListener('click', () => this.moveLayer(1));
+                document.getElementById('toggleAllBtn').addEventListener('click', () => this.toggleAllLayers());
+                document.getElementById('saveLayersBtn').addEventListener('click', () => this.hideLayersModal());
+                document.getElementById('cancelLayersBtn').addEventListener('click', () => this.hideLayersModal());
+                
+                document.querySelectorAll('.tab-header').forEach(tab => {
+                    tab.addEventListener('click', (e) => {
+                        document.querySelectorAll('.tab-header').forEach(t => t.classList.remove('active'));
+                        document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                        e.target.classList.add('active');
+                        document.getElementById(e.target.getAttribute('data-tab') + 'Tab').classList.add('active');
+                        
+                        this.resizeAndRedraw();
+                    });
+                });
+                
+                document.getElementById('settingsBtn').addEventListener('click', () => this.showSettingsModal());
+                this.settingsModal.querySelector('.modal-close').addEventListener('click', () => this.hideSettingsModal());
+                document.getElementById('cancelSettingsBtn').addEventListener('click', () => this.hideSettingsModal());
+                document.getElementById('saveSettingsBtn').addEventListener('click', () => this.saveSettings());
+
+                document.querySelectorAll('.section-header').forEach(header => {
+                    header.addEventListener('click', () => {
+                        const content = header.nextElementSibling;
+                        header.classList.toggle('collapsed');
+                        content.classList.toggle('collapsed');
+                    });
+                });
+                
+                // Fechar modais ao clicar fora
+                window.addEventListener('click', (e) => {
+                    if (e.target === this.settingsModal) {
+                        this.hideSettingsModal();
+                    }
+                    if (e.target === this.layersModal) {
+                        this.hideLayersModal();
+                    }
+                });
+                
+                // Redimensionar canvas quando a janela for redimensionada
+                window.addEventListener('resize', () => this.resizeAndRedraw());
+            }
+
+            resizeAndRedraw() {
+                const pRect = this.pContainer.getBoundingClientRect();
+                this.imageCanvas.width = pRect.width;
+                this.imageCanvas.height = pRect.height;
+                
+                const sRect = this.sContainer.getBoundingClientRect();
+                this.simulationCanvas.width = sRect.width;
+                this.simulationCanvas.height = sRect.height;
+
+                this.redrawViewports(this.simulator.slider.value);
+            }
+
+            collapseSectionsByDefault() {
+                document.querySelectorAll('.section').forEach((section, index) => {
+                    if (index > 1) {
+                        section.querySelector('.section-header').classList.add('collapsed');
+                        section.querySelector('.section-content').classList.add('collapsed');
+                    }
+                });
+            }
+            
+            updateStatus(message) {
+                this.statusLabel.textContent = message;
+                console.log(message);
+            }
+            
+            updateImageInfo() {
+                if (this.processedImage) {
+                    const w = this.processedImage.width;
+                    const h = this.processedImage.height;
+                    this.imageInfo.textContent = 
+                        `Img: ${w}x${h}px | Área: ${(w * this.scaleFactor).toFixed(1)}x${(h * this.scaleFactor).toFixed(1)}mm (Escala: ${this.scaleFactor.toFixed(3)} mm/px)`;
+                } else {
+                    this.imageInfo.textContent = 'Nenhuma imagem carregada.';
+                }
+            }
+            
+            showLoading(message = "Processando...") {
+                this.loadingIndicator.textContent = message;
+                this.loadingIndicator.style.display = 'block';
+            }
+            
+            hideLoading() {
+                this.loadingIndicator.style.display = 'none';
+            }
+
+            // ========================================================================
+            // --- LÓGICA DE RENDERIZAÇÃO E UI ---
+            // ========================================================================
+
+            redrawViewports(progress = 0) {
+                // --- Redesenhar Canvas de Preview ---
+                this.viewport.clear();
+                this.viewport.applyTransform();
+                if (this.processedImage) {
+                    this.imageCtx.imageSmoothingEnabled = false;
+                    this.imageCtx.drawImage(this.processedImage, 0, 0);
+                }
+
+                // --- Redesenhar Canvas de Simulação ---
+                this.simViewport.clear();
+                this.simViewport.applyTransform();
+                this._drawSimulationPaths(progress);
+            }
+
+            _drawSimulationPaths(progress = 0) {
+                const ctx = this.simulationCtx;
+                if (this.simulationPaths.length === 0 || !this.processedImage) {
+                    ctx.save();
+                    ctx.setTransform(1, 0, 0, 1, 0, 0);
+                    ctx.fillStyle = '#666';
+                    ctx.font = '16px Inter';
+                    ctx.textAlign = 'center';
+                    ctx.fillText('Nenhuma simulação. Gere o G-code primeiro.', ctx.canvas.width / 2, 50);
+                    ctx.restore();
+                    if (this.laserHead) this.laserHead.style.display = 'none';
+                    return;
+                }
+
+                const imgWidthPx = this.processedImage.width;
+                const imgHeightPx = this.processedImage.height;
+                
+                ctx.strokeStyle = '#555';
+                ctx.lineWidth = 1 / this.simViewport.transform.a;
+                ctx.strokeRect(0, 0, imgWidthPx, imgHeightPx);
+
+                // Renderização Otimizada com Buffers
+                ctx.globalAlpha = 0.2;
+                ctx.drawImage(this.ghostCanvas, 0, 0);
+                ctx.globalAlpha = 1.0;
+
+                ctx.save();
+                const currentTime = progress * this.totalTime;
+                let low = 0, high = this.cumulativeTimes.length - 1;
+                let moveIndex = 0;
+                while (low <= high) {
+                    const mid = Math.floor((low + high) / 2);
+                    if (this.cumulativeTimes[mid] <= currentTime) {
+                        moveIndex = mid;
+                        low = mid + 1;
+                    } else {
+                        high = mid - 1;
+                    }
+                }
+                
+                const currentMove = this.simulationMoves[moveIndex];
+                let clipY_px = imgHeightPx;
+                let isRasterLike = false;
+                
+                if (currentMove) {
+                    const path = this.simulationPaths.find(p => p.x1 === (currentMove.x / this.scaleFactor) || p.y1 === (currentMove.y / this.scaleFactor));
+                    if (path && (path.op === OperationType.RASTER || path.op === OperationType.SCAN)) {
+                        isRasterLike = true;
+                        clipY_px = currentMove.y / this.scaleFactor;
+                    }
+                }
+                
+                if (!isRasterLike && progress < 1.0 && progress > 0) {
+                   this._drawSimulationProgressManually(ctx, moveIndex);
+                } else {
+                   ctx.beginPath();
+                   ctx.rect(0, 0, imgWidthPx, clipY_px + 2);
+                   ctx.clip();
+                   ctx.drawImage(this.progressCanvas, 0, 0);
+                   ctx.restore();
+                }
+
+                if (currentMove) {
+                    this.simViewport.updateLaserHead(currentMove.x / this.scaleFactor, currentMove.y / this.scaleFactor);
+                }
+            }
+            
+            _drawSimulationProgressManually(ctx, movesToDraw) {
+                const mmToPx = (mm) => mm / this.scaleFactor;
+                let lastX_mm = 0, lastY_mm = 0;
+                ctx.lineWidth = 2.0 / this.simViewport.transform.a;
+                
+                for (let i = 0; i < movesToDraw; i++) {
+                    const move = this.simulationMoves[i];
+                    if (move.isCut) {
+                        const from = { x: mmToPx(lastX_mm), y: mmToPx(lastY_mm) };
+                        const to = { x: mmToPx(move.x), y: mmToPx(move.y) };
+                        
+                        ctx.beginPath();
+                        ctx.moveTo(from.x, from.y);
+                        ctx.lineTo(to.x, to.y);
+                        
+                        const powerRatio = move.sValue / this.laserMaxSValue;
+                        ctx.strokeStyle = `rgba(255, 50, 50, ${Math.max(0.2, powerRatio)})`;
+                        ctx.stroke();
+                    }
+                    lastX_mm = move.x; lastY_mm = move.y;
+                }
+            }
+
+            _preRenderSimulationBuffers() {
+                if (!this.processedImage) return;
+
+                const w = this.processedImage.width;
+                const h = this.processedImage.height;
+                this.ghostCanvas.width = w; this.ghostCanvas.height = h;
+                this.progressCanvas.width = w; this.progressCanvas.height = h;
+                
+                const gCtx = this.ghostCanvas.getContext('2d');
+                const pCtx = this.progressCanvas.getContext('2d');
+                gCtx.imageSmoothingEnabled = false;
+                pCtx.imageSmoothingEnabled = false;
+
+                const mmToPx = (mm) => mm / this.scaleFactor;
+                let lastX_mm = 0, lastY_mm = 0;
+
+                for (const move of this.simulationMoves) {
+                    const from = { x: mmToPx(lastX_mm), y: mmToPx(lastY_mm) };
+                    const to = { x: mmToPx(move.x), y: mmToPx(move.y) };
+                    
+                    gCtx.beginPath(); gCtx.moveTo(from.x, from.y); gCtx.lineTo(to.x, to.y);
+                    pCtx.beginPath(); pCtx.moveTo(from.x, from.y); pCtx.lineTo(to.x, to.y);
+
+                    if (move.isCut) {
+                        const powerRatio = move.sValue / this.laserMaxSValue;
+                        gCtx.strokeStyle = 'rgba(128, 128, 128, 0.5)';
+                        gCtx.lineWidth = 0.5;
+                        pCtx.strokeStyle = `rgba(255, 50, 50, ${Math.max(0.2, powerRatio)})`;
+                        pCtx.lineWidth = 2;
+                    } else {
+                        gCtx.strokeStyle = 'rgba(50, 255, 50, 0.3)';
+                        gCtx.lineWidth = 0.5;
+                        pCtx.strokeStyle = 'rgba(50, 255, 50, 0.3)';
+                        pCtx.lineWidth = 1;
+                    }
+                    gCtx.stroke();
+                    pCtx.stroke();
+                    
+                    lastX_mm = move.x; lastY_mm = move.y;
+                }
+            }
+
+            // ========================================================================
+            // --- AÇÕES DE UI ---
+            // ========================================================================
+
+            uploadImage() {
+                const input = document.createElement('input');
+                input.type = 'file';
+                input.accept = 'image/*';
+                input.onchange = (e) => {
+                    const file = e.target.files[0];
+                    if (!file) return;
+                    
+                    // Verificar tamanho do arquivo (limite de 10MB)
+                    if (file.size > 10 * 1024 * 1024) {
+                        this.updateStatus('Arquivo muito grande. Use imagens menores que 10MB.');
+                        return;
+                    }
+                    
+                    this.showLoading('Carregando imagem...');
+                    const reader = new FileReader();
+                    reader.onload = (event) => {
+                        const img = new Image();
+                        img.onload = () => {
+                            this.originalImage = img;
+                            this.processedImage = img;
+                            
+                            this.updateStatus(`Imagem carregada: ${file.name}`);
+                            this.updateImageInfo();
+                            this.layers = []; 
+                            this.renderLayerTable();
+                            this.simulationMoves = []; 
+                            this.simulationPaths = [];
+                            this.simulator.setData(0);
+                            this.jobTimeLabel.textContent = "Tempo de Job: N/A";
+                            
+                            this.viewport.centerImage(img.width, img.height);
+                            this.simViewport.transform = this.viewport.transform;
+                            this.redrawViewports();
+                            this.hideLoading();
+                        };
+                        
+                        img.onerror = () => {
+                            this.updateStatus('Erro ao carregar a imagem.');
+                            this.hideLoading();
+                        };
+                        
+                        img.src = event.target.result;
+                    };
+                    
+                    reader.onerror = () => {
+                        this.updateStatus('Erro ao ler o arquivo.');
+                        this.hideLoading();
+                    };
+                    
+                    reader.readAsDataURL(file);
+                };
+                input.click();
+            }
+            
+            async handleManualProcessing(action) {
+                if (!this.processedImage) {
+                    this.updateStatus('Carregue uma imagem primeiro!');
+                    return;
+                }
+                
+                this.updateStatus(`Executando: ${action}...`);
+                this.showLoading(`Aplicando ${action}...`);
+                let newImage = null;
+
+                try {
+                    switch (action) {
+                        case 'removeBackground': 
+                            newImage = await this.imageProcessor.removeBackground(this.processedImage); 
+                            break;
+                        case 'binarize': 
+                            newImage = await this.imageProcessor.binarize(this.processedImage, 0.5); 
+                            break;
+                        case 'edgeDetect': 
+                            newImage = await this.imageProcessor.edgeDetect(this.processedImage, parseFloat(this.edgeDetailSlider.value)); 
+                            break;
+                        case 'negative': 
+                            newImage = await this.imageProcessor.applyNegative(this.processedImage); 
+                            break;
+                        case 'enhanceDetails':
+                            newImage = await this.imageProcessor.enhanceDetails(this.processedImage, 1.5);
+                            break;
+                        case 'reduceNoise':
+                            newImage = await this.imageProcessor.reduceNoise(this.processedImage, parseInt(this.noiseReductionSlider.value));
+                            break;
+                        case 'resetImage':
+                            this.processedImage = this.originalImage;
+                            this.updateStatus('Imagem resetada para o original');
+                            this.updateImageInfo();
+                            this.layers = [];
+                            this.renderLayerTable();
+                            this.jobTimeLabel.textContent = "Tempo de Job: N/A";
+                            this.redrawViewports();
+                            this.hideLoading();
+                            return;
+                    }
+                    
+                    if (newImage) {
+                        this.processedImage = newImage;
+                        this.redrawViewports();
+                        this.updateStatus(`${action} aplicado.`);
+                    }
+                } catch (error) {
+                    this.updateStatus(`Erro em ${action}: ${error.message}`);
+                    console.error(error);
+                } finally {
+                    this.hideLoading();
+                }
+            }
+            
+            async runPresetPipeline() {
+                if (!this.originalImage) {
+                    this.updateStatus('Carregue uma imagem primeiro!');
+                    return;
+                }
+                
+                this.updateStatus("Aplicando preset...");
+                this.showLoading("Aplicando preset...");
+                
+                const presetID = this.materialPreset.value;
+                const preset = PRESETS[presetID];
+                if (!preset) {
+                    this.updateStatus("Preset inválido!");
+                    this.hideLoading();
+                    return;
+                }
+
+                try {
+                    this.edgeDetailSlider.value = preset.analysis.edgeDetail;
+                    document.getElementById('edgeDetailValue').textContent = preset.analysis.edgeDetail;
+                    this.fillGroupingSlider.value = preset.analysis.colorGrouping;
+                    document.getElementById('fillGroupingValue').textContent = preset.analysis.colorGrouping;
+                    this.noiseReductionSlider.value = preset.analysis.noiseReduction;
+                    document.getElementById('noiseReductionValue').textContent = preset.analysis.noiseReduction;
+                    this.pathOptimizationSlider.value = preset.analysis.pathOptimization;
+                    document.getElementById('pathOptimizationValue').textContent = preset.analysis.pathOptimization;
+
+                    await this.runMagicPipeline();
+
+                    this.layers.forEach(layer => {
+                        let presetLayer = null;
+                        if (layer.operation === OperationType.RASTER) {
+                            presetLayer = preset.layers.find(p => p.op === OperationType.RASTER);
+                        } else if (layer.name.includes("Contorno")) {
+                            presetLayer = preset.layers.find(p => p.op === OperationType.CUT);
+                            if (presetLayer) layer.operation = OperationType.CUT;
+                        } else if (layer.name.includes("Preenchimento")) {
+                            presetLayer = preset.layers.find(p => p.op === OperationType.SCAN);
+                            if (presetLayer) layer.operation = OperationType.SCAN;
+                        }
+                        
+                        if (presetLayer) {
+                            layer.speed = presetLayer.speed;
+                            layer.power = presetLayer.power;
+                            layer.interval = presetLayer.interval;
+                        } else {
+                            if (layer.operation !== OperationType.CUT && preset.layers.every(p => p.op !== OperationType.SCAN && p.op !== OperationType.RASTER)) {
+                                layer.enabled = false;
+                            }
+                        }
+                    });
+                    
+                    this.renderLayerTable();
+                    this.updateStatus(`Preset '${preset.name}' aplicado.`);
+                } catch (error) {
+                    this.updateStatus(`Erro ao aplicar preset: ${error.message}`);
+                    console.error(error);
+                } finally {
+                    this.hideLoading();
+                }
+            }
+
+            async runMagicPipeline() {
+                this.updateStatus("Processando pipeline...");
+                this.showLoading("Processando pipeline...");
+                
+                try {
+                    let processedImage = await this.imageProcessor.removeBackground(this.originalImage);
+                    processedImage = await this.imageProcessor.reduceNoise(processedImage, parseInt(this.noiseReductionSlider.value));
+                    processedImage = await this.imageProcessor.enhanceDetails(processedImage, 1.2);
+                    
+                    const numColors = parseInt(this.fillGroupingSlider.value);
+                    processedImage = await this.imageProcessor.quantizeColors(processedImage, numColors);
+
+                    const edgeSensitivity = parseFloat(this.edgeDetailSlider.value);
+                    const edgeImage = await this.imageProcessor.edgeDetect(processedImage, edgeSensitivity);
+
+                    this.layers = [];
+                    this.analyzeForFillLayers(processedImage);
+                    this.analyzeForEdgeLayers(edgeImage); 
+
+                    this.processedImage = processedImage;
+                    this.redrawViewports();
+                    this.renderLayerTable();
+                    this.updateStatus(`Pipeline concluído. ${this.layers.length} camadas geradas.`);
+                } catch (error) {
+                    this.updateStatus(`Erro no pipeline: ${error.message}`);
+                    console.error(error);
+                } finally {
+                    this.hideLoading();
+                }
+            }
+            
+            analyzeForFillLayers(quantizedImage) {
+                const imageData = this.imageProcessor._prepareProcessingCanvas(quantizedImage);
+                const data = imageData.data;
+                const colorCounts = new Map();
+
+                for (let i = 0; i < data.length; i += 4) {
+                    const r = data[i], g = data[i+1], b = data[i+2], a = data[i+3];
+                    if (a < 128 || (r > 240 && g > 240 && b > 240)) continue;
+                    const hex = this.imageProcessor._rgbToHex(r, g, b);
+                    colorCounts.set(hex, (colorCounts.get(hex) || 0) + 1);
+                }
+                
+                colorCounts.forEach((count, hex) => {
+                    const op = colorCounts.size > 16 ? OperationType.RASTER : OperationType.SCAN;
+                    this.addLayer(`Preenchimento ${hex}`, hex, op, 2000, 30, 0.2);
+                });
+            }
+
+            analyzeForEdgeLayers(edgeImage) {
+                this.addLayer("Contorno (Bordas)", '#000000', OperationType.CUT, 300, 90, 0.1);
+            }
+
+            // ========================================================================
+            // --- GERENCIAMENTO DE CAMADAS (UI) ---
+            // ========================================================================
+
+            showLayersModal() {
+                this.renderLayerTable();
+                this.layersModal.style.display = 'flex';
+            }
+            
+            hideLayersModal() {
+                this.layersModal.style.display = 'none';
+            }
+
+            addLayer(name = 'Nova Camada', color = '#000000', operation = OperationType.CUT, speed = 1000, power = 80, interval = 0.15) {
+                const layer = {
+                    id: Date.now() + Math.random(),
+                    enabled: true, 
+                    name, 
+                    color, 
+                    operation, 
+                    speed, 
+                    power, 
+                    interval
+                };
+                this.layers.push(layer);
+                this.renderLayerTable();
+            }
+            
+            removeSelectedLayer() {
+                const selectedRow = this.layerTableBody.querySelector('tr.selected');
+                if (selectedRow) {
+                    const id = parseInt(selectedRow.getAttribute('data-id'));
+                    this.layers = this.layers.filter(layer => layer.id !== id);
+                    this.renderLayerTable();
+                    this.updateStatus('Camada removida.');
+                } else {
+                    this.updateStatus('Selecione uma camada para remover.');
+                }
+            }
+            
+            moveLayer(direction) {
+                const selectedRow = this.layerTableBody.querySelector('tr.selected');
+                if (!selectedRow) {
+                    this.updateStatus('Selecione uma camada para mover.');
+                    return;
+                }
+                
+                const id = parseInt(selectedRow.getAttribute('data-id'));
+                const index = this.layers.findIndex(layer => layer.id === id);
+                const newIndex = index + direction;
+                
+                if (newIndex < 0 || newIndex >= this.layers.length) {
+                    this.updateStatus('Não é possível mover a camada para esta posição.');
+                    return;
+                }
+                
+                [this.layers[index], this.layers[newIndex]] = [this.layers[newIndex], this.layers[index]];
+                this.renderLayerTable();
+                this.layerTableBody.querySelector(`tr[data-id="${id}"]`).classList.add('selected');
+            }
+            
+            toggleAllLayers() {
+                const allEnabled = this.layers.every(layer => layer.enabled);
+                this.layers.forEach(layer => {
+                    layer.enabled = !allEnabled;
+                });
+                this.renderLayerTable();
+                this.updateStatus(allEnabled ? 'Todas as camadas desativadas.' : 'Todas as camadas ativadas.');
+            }
+            
+            renderLayerTable() {
+                this.layerTableBody.innerHTML = '';
+                this.layers.forEach(layer => {
+                    const row = document.createElement('tr');
+                    row.setAttribute('data-id', layer.id);
+                    
+                    const opOptions = OperationTypeOptions.map(op => 
+                        `<option value="${op}" ${layer.operation === op ? 'selected' : ''}>${op}</option>`
+                    ).join('');
+
+                    row.innerHTML = `
+                        <td><input type="checkbox" ${layer.enabled ? 'checked' : ''} aria-label="Toggle layer visibility"></td>
+                        <td><input type="color" value="${layer.color}" aria-label="Layer color"></td>
+                        <td><input type="text" value="${layer.name}" aria-label="Layer name"></td>
+                        <td><select aria-label="Layer operation">${opOptions}</select></td>
+                        <td><input type="number" value="${layer.speed}" min="1" aria-label="Layer speed"></td>
+                        <td><input type="number" value="${layer.power}" min="0" max="100" aria-label="Layer power"></td>
+                        <td><input type="number" value="${layer.interval}" step="0.01" min="0.01" aria-label="Layer interval"></td>
+                    `;
+                    
+                    row.addEventListener('click', (e) => {
+                        if (e.target.tagName !== 'INPUT' && e.target.tagName !== 'SELECT') {
+                            this.layerTableBody.querySelectorAll('tr').forEach(r => r.classList.remove('selected'));
+                            row.classList.add('selected');
+                        }
+                    });
+                    
+                    row.querySelectorAll('input, select').forEach(input => {
+                        input.addEventListener('change', () => this.updateLayerFromRow(layer.id, row));
+                    });
+                    
+                    this.layerTableBody.appendChild(row);
+                });
+                
+                this.layerCount.textContent = `${this.layers.length} camada${this.layers.length !== 1 ? 's' : ''}`;
+            }
+            
+            updateLayerFromRow(id, row) {
+                const layer = this.layers.find(l => l.id === id);
+                if (!layer) return;
+                const inputs = row.querySelectorAll('input, select');
+                layer.enabled = inputs[0].checked;
+                layer.color = inputs[1].value; 
+                layer.name = inputs[2].value;
+                layer.operation = inputs[3].value;
+                layer.speed = parseFloat(inputs[4].value);
+                layer.power = parseFloat(inputs[5].value);
+                layer.interval = parseFloat(inputs[6].value);
+            }
+            
+            // ========================================================================
+            // --- MODAL DE CONFIGURAÇÕES (UI) ---
+            // ========================================================================
+
+            showSettingsModal() {
+                this.scaleFactorInput.value = this.scaleFactor;
+                this.travelSpeedInput.value = this.travelSpeed;
+                this.laserMaxSValueInput.value = this.laserMaxSValue;
+                this.settingsModal.style.display = 'flex';
+            }
+            
+            hideSettingsModal() { 
+                this.settingsModal.style.display = 'none'; 
+            }
+            
+            saveSettings() {
+                this.scaleFactor = parseFloat(this.scaleFactorInput.value);
+                this.travelSpeed = parseFloat(this.travelSpeedInput.value);
+                this.laserMaxSValue = parseFloat(this.laserMaxSValueInput.value);
+                this.updateImageInfo();
+                this.hideSettingsModal();
+                this.updateStatus('Configurações salvas.');
+            }
+            
+            // ========================================================================
+            // --- FUNÇÕES DE EXPORTAÇÃO ---
+            // ========================================================================
+
+            async exportGcode() {
+                if (!this.processedImage) {
+                    this.updateStatus("Nenhuma imagem carregada!");
+                    return;
+                }
+                
+                if (this.layers.length === 0) {
+                    this.updateStatus("Nenhuma camada definida para exportar!");
+                    return;
+                }
+                
+                if (!this.layers.some(layer => layer.enabled)) {
+                    this.updateStatus("Nenhuma camada ativada para exportar!");
+                    return;
+                }
+
+                this.updateStatus("Gerando G-code...");
+                this.showLoading("Gerando G-code...");
+                
+                try {
+                    const optimizationLevel = parseInt(this.pathOptimizationSlider.value);
+                    const result = await this.pathGenerator.generatePaths(
+                        this.layers, this.processedImage, this.originalImage, this.imageProcessor, optimizationLevel
+                    );
+                    
+                    this.simulationMoves = result.moves;
+                    this.simulationPaths = result.paths;
+                    this.cumulativeTimes = result.cumulativeTimes;
+                    this.totalTime = result.totalTime;
+
+                    const gcode = this.pathGenerator.writeGcodeFromMoves(this.simulationMoves);
+                    this.downloadFile('generative_job.gcode', gcode, 'text/plain');
+
+                    this._preRenderSimulationBuffers();
+
+                    this.jobTimeLabel.textContent = `Tempo de Job: ${this.totalTime.toFixed(1)} min`;
+                    this.simulator.setData(this.totalTime);
+                    
+                    document.querySelector('.tab-header[data-tab="simulation"]').click();
+                    this.updateStatus("G-code otimizado exportado!");
+                    
+                } catch (ex) {
+                    this.updateStatus("Erro ao exportar G-code: " + ex.message);
+                    console.error(ex);
+                } finally {
+                    this.hideLoading();
+                }
+            }
+
+            async exportJpg() {
+                if (!this.processedImage) {
+                    this.updateStatus("Nenhuma imagem para exportar!");
+                    return;
+                }
+                this.updateStatus("Gerando JPG...");
+                this.imageProcessor._prepareProcessingCanvas(this.processedImage);
+                const dataURL = await this.imageProcessor.getImageAsJpg(0.9);
+                this.downloadFile('imagem_processada.jpg', dataURL);
+                this.updateStatus("Imagem JPG exportada.");
+            }
+
+            async exportPng() {
+                if (!this.processedImage) {
+                    this.updateStatus("Nenhuma imagem para exportar!");
+                    return;
+                }
+                this.updateStatus("Gerando PNG...");
+                this.imageProcessor._prepareProcessingCanvas(this.processedImage);
+                const dataURL = await this.imageProcessor.getImageAsPng();
+                this.downloadFile('imagem_processada.png', dataURL);
+                this.updateStatus("Imagem PNG exportada.");
+            }
+
+            async exportDxf() {
+                if (!this.processedImage || this.simulationPaths.length === 0) {
+                    this.updateStatus("Gere o G-code primeiro para exportar DXF!");
+                    return;
+                }
+                this.updateStatus("Gerando DXF...");
+                const dxf = this.pathGenerator.exportToDxf(this.simulationPaths, this.processedImage.width, this.processedImage.height);
+                this.downloadFile('imagem_processada.dxf', dxf, 'application/dxf');
+                this.updateStatus("Arquivo DXF exportado.");
+            }
+
+            async exportPlt() {
+                if (!this.processedImage || this.simulationMoves.length === 0) {
+                    this.updateStatus("Gere o G-code primeiro para exportar PLT!");
+                    return;
+                }
+                this.updateStatus("Gerando PLT...");
+                const plt = this.pathGenerator.exportToPlt(this.simulationMoves);
+                this.downloadFile('imagem_processada.plt', plt, 'application/plt');
+                this.updateStatus("Arquivo PLT exportado.");
+            }
+
+            async exportRld() {
+                if (!this.processedImage || this.simulationMoves.length === 0) {
+                    this.updateStatus("Gere o G-code primeiro para exportar RLD!");
+                    return;
+                }
+                this.updateStatus("Gerando RLD...");
+                const rld = this.pathGenerator.exportToRld(this.simulationMoves);
+                this.downloadFile('imagem_processada.rld', rld, 'text/plain');
+                this.updateStatus("Arquivo RLD exportado.");
+            }
+
+            async exportSvg() {
+                if (!this.processedImage || this.simulationPaths.length === 0) {
+                    this.updateStatus("Gere o G-code primeiro para exportar SVG!");
+                    return;
+                }
+                this.updateStatus("Gerando SVG...");
+                const svg = this.pathGenerator.exportToSvg(this.simulationPaths, this.processedImage.width, this.processedImage.height);
+                this.downloadFile('imagem_processada.svg', svg, 'image/svg+xml');
+                this.updateStatus("Arquivo SVG exportado.");
+            }
+            
+            downloadFile(filename, content, mimeType = 'text/plain') {
+                const blob =
+                    typeof content === 'string' && content.startsWith('data:')
+                        ? this._dataURLToBlob(content)
+                        : new Blob([content], { type: mimeType });
+
+                const url = URL.createObjectURL(blob);
+                const element = document.createElement('a');
+                element.href = url;
+                element.download = filename;
+                element.style.display = 'none';
+                document.body.appendChild(element);
+                element.click();
+                document.body.removeChild(element);
+                URL.revokeObjectURL(url);
+            }
+
+            _dataURLToBlob(dataURL) {
+                const [meta, data] = dataURL.split(',');
+                const mime = meta.match(/:(.*?);/)[1];
+                const binary = atob(data);
+                const array = new Uint8Array(binary.length);
+                for (let i = 0; i < binary.length; i++) array[i] = binary.charCodeAt(i);
+                return new Blob([array], { type: mime });
+            }
+        }
+        
+        window.addEventListener('DOMContentLoaded', () => { 
+            const app = new CNCLaserApp();
+            window.app = app; // Para debugging
+        });
+    </script>
+</body>
+</html>
