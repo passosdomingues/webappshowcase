@@ -6,13 +6,36 @@
 -->
 
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-BR" data-theme="light">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Calculadora de orçamento de materiais e mão de obra para pedreiros e construção civil. Planeje e gere orçamentos de forma rápida e envie por WhatsApp.">
     <title>PedreiroBot</title>
 
     <style>
+        :root {
+            --primary: #4a90e2;
+            --primary-hover: #3a78c2;
+            --bg: #f0f4f8;
+            --surface: #ffffff;
+            --text: #333333;
+            --text-muted: #777777;
+            --border: #cccccc;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --radius: 12px;
+            --input-bg: #ffffff;
+        }
+
+        [data-theme="dark"] {
+            --bg: #0f172a;
+            --surface: #1e293b;
+            --text: #f1f5f9;
+            --text-muted: #94a3b8;
+            --border: #334155;
+            --input-bg: #0f172a;
+        }
+
         /* Reset e tipografia básica */
         * {
             box-sizing: border-box;
@@ -21,40 +44,70 @@
         }
 
         body {
-            font-family: 'Segoe UI', sans-serif;
-            background: #f0f4f8;
-            color: #333;
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            background: var(--bg);
+            color: var(--text);
             display: flex;
             flex-direction: column;
             min-height: 100vh;
-            padding: 1rem;
+            padding: 1.5rem 1rem;
+            transition: background 0.3s, color 0.3s;
         }
 
         header {
-            background: #4a90e2;
+            background: var(--primary);
             color: #fff;
-            padding: 1rem;
+            padding: 1.25rem;
             text-align: center;
             font-size: 1.3rem;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            margin-bottom: 1rem;
+            font-weight: 700;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            margin-bottom: 1.5rem;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+        }
+
+        .theme-toggle-btn {
+            position: absolute;
+            right: 1.25rem;
+            background: rgba(255,255,255,0.2);
+            border: none;
+            border-radius: 50%;
+            width: 36px;
+            height: 36px;
+            cursor: pointer;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+            transition: background 0.2s;
+        }
+
+        .theme-toggle-btn:hover {
+            background: rgba(255,255,255,0.3);
         }
 
         main {
             max-width: 799px;
+            width: 100%;
             margin: auto;
             flex-grow: 1;
         }
 
         /* Estrutura das etapas */
         .etapa {
-            background: #fff;
-            border-radius: 8px;
-            box-shadow: 0 0 8px rgba(0,0,0,0.05);
+            background: var(--surface);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
             padding: 1.5rem;
-            margin-bottom: 1rem;
-            transition: opacity 0.3s ease;
+            margin-bottom: 1.5rem;
+            border: 1px solid var(--border);
+            transition: opacity 0.3s ease, background 0.3s, border-color 0.3s;
         }
 
         .etapa.hidden {
@@ -62,50 +115,73 @@
         }
 
         h3 {
-            margin-bottom: 1rem;
-            color: #4a90e2;
-            font-size: 1.2rem;
+            margin-bottom: 1.25rem;
+            color: var(--primary);
+            font-size: 1.3rem;
+            font-weight: 700;
+        }
+
+        h4 {
+            margin: 1.5rem 0 0.75rem;
+            font-weight: 700;
         }
 
         label {
             display: block;
             margin: 0.8rem 0 0.3rem;
             font-weight: 600;
+            font-size: 0.95rem;
         }
 
         input[type="text"],
         input[type="number"],
         select {
             width: 100%;
-            padding: 0.7rem;
-            border: 1px solid #ccc;
-            border-radius: 6px;
+            padding: 0.75rem;
+            border: 1px solid var(--border);
+            border-radius: 8px;
             font-size: 1rem;
-            transition: box-shadow 0.29s;
+            background: var(--input-bg);
+            color: var(--text);
+            transition: box-shadow 0.25s, border-color 0.25s;
         }
 
         input:focus,
         select:focus {
             outline: none;
-            box-shadow: 0 0 5px rgba(74,144,226,0.4);
-            border-color: #4a90e2;
+            box-shadow: 0 0 0 3px rgba(74,144,226,0.3);
+            border-color: var(--primary);
         }
 
         /* Lista de serviços em duas colunas */
         .servicos-lista {
             display: flex;
             flex-wrap: wrap;
-            gap: 1rem;
+            gap: 0.75rem;
             list-style: none;
-            margin-bottom: 1rem;
+            margin-bottom: 1.25rem;
         }
 
         .servicos-lista li {
             flex: 1 1 45%;
+            background: var(--bg);
+            padding: 0.5rem 0.75rem;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+        }
+
+        .servicos-lista label {
+            margin: 0;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
         }
 
         .servicos-lista input[type="checkbox"] {
-            margin-right: 6px;
+            margin-right: 8px;
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
         }
 
         /* Botões de navegação entre etapas */
@@ -113,35 +189,35 @@
             display: flex;
             justify-content: space-between;
             margin-top: 1.5rem;
+            gap: 1rem;
         }
 
         .botoes-fluxo button {
             flex: 1;
             padding: 0.8rem;
-            margin: 0 0.5rem;
             border: none;
-            border-radius: 6px;
+            border-radius: 8px;
             font-size: 1rem;
+            font-weight: 600;
             cursor: pointer;
-            transition: background 0.3s, transform 0.2s;
+            transition: background 0.2s, transform 0.1s;
             color: #fff;
         }
 
-        .botoes-fluxo button:first-child {
-            margin-left: 0;
+        .botoes-fluxo button:hover {
+            transform: translateY(-1px);
         }
 
-        .botoes-fluxo button:last-child {
-            margin-right: 0;
+        .botoes-fluxo button:active {
+            transform: translateY(1px);
         }
 
         .btn-avancar {
-            background: #4a90e2;
+            background: var(--primary);
         }
 
         .btn-avancar:hover {
-            background: #3a78c2;
-            transform: scale(1.02);
+            background: var(--primary-hover);
         }
 
         .btn-voltar {
@@ -150,16 +226,16 @@
 
         .btn-voltar:hover {
             background: #5a6268;
-            transform: scale(1.02);
         }
 
         /* Seção de resultado final */
         .resultado-secao {
-            background: #fff;
-            border-radius: 8px;
-            box-shadow: 0 0 8px rgba(0,0,0,0.05);
+            background: var(--surface);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
             padding: 1.5rem;
-            margin: 1rem 0;
+            margin: 1.5rem 0;
+            border: 1px solid var(--border);
             animation: fadeIn 0.4s ease;
         }
 
@@ -167,7 +243,7 @@
             display: flex;
             justify-content: space-between;
             margin: 0.5rem 0;
-            border-bottom: 1px solid #eee;
+            border-bottom: 1px solid var(--border);
             padding-bottom: 0.5rem;
         }
 
@@ -175,7 +251,6 @@
             border-bottom: none;
         }
 
-        /* Alterado de .acoes-final para .botoes-acoes para corresponder ao JS */
         .botoes-acoes {
             display: flex;
             gap: 1rem;
@@ -186,21 +261,20 @@
             flex: 1;
             padding: 0.8rem;
             border: none;
-            border-radius: 6px;
+            border-radius: 8px;
             font-size: 1rem;
+            font-weight: 600;
             cursor: pointer;
-            transition: background 0.3s, transform 0.2s;
+            transition: background 0.2s, transform 0.1s;
             color: #fff;
         }
 
-        /* Renomeado classes de botão para btn-whatsapp e btn-exportar conforme JS */
         .btn-whatsapp {
             background: #25D366;
         }
 
         .btn-whatsapp:hover {
             background: #1DAE50;
-            transform: scale(1.02);
         }
 
         .btn-exportar {
@@ -209,15 +283,14 @@
 
         .btn-exportar:hover {
             background: #4cae4c;
-            transform: scale(1.02);
         }
 
         footer {
             text-align: center;
             font-size: 0.9rem;
-            color: #777;
+            color: var(--text-muted);
             margin-top: auto;
-            padding: 1rem 0;
+            padding: 1.5rem 0;
         }
 
         .hidden {
@@ -235,10 +308,13 @@
             }
         }
     </style>
-    </head>
+</head>
 <body>
 
-    <header>👷‍♂️ PedreiroBot - O Copiloto da Construção Civil 🧱🔨</header>
+    <header>
+        <span>👷‍♂️ PedreiroBot - O Copiloto da Construção Civil 🧱🔨</span>
+        <button id="themeToggle" class="theme-toggle-btn" onclick="toggleTheme()" aria-label="Alternar tema">🌙</button>
+    </header>
 
     <main>
         <div class="etapa" id="etapaCliente">
@@ -310,6 +386,21 @@
     <footer>Estimativas aproximadas. Consulte profissionais para valores exatos.</footer>
 
 <script>
+    // Theme switcher logic
+    function applyTheme() {
+        const dark = localStorage.getItem("pedreiroDark") === "1" || 
+                     (!localStorage.getItem("pedreiroDark") && window.matchMedia("(prefers-color-scheme: dark)").matches);
+        document.documentElement.setAttribute("data-theme", dark ? "dark" : "light");
+        const toggleBtn = document.getElementById("themeToggle");
+        if (toggleBtn) toggleBtn.textContent = dark ? "☀️" : "🌙";
+    }
+    function toggleTheme() {
+        const isDark = document.documentElement.getAttribute("data-theme") === "dark";
+        localStorage.setItem("pedreiroDark", isDark ? "0" : "1");
+        applyTheme();
+    }
+    applyTheme();
+
     // ======= servicos.js =======
 
     /*
