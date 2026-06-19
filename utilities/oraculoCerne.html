@@ -239,6 +239,119 @@
 
   .search-wrap input:not(:placeholder-shown) ~ .search-clear { display: block; }
 
+  /* ====== Autocomplete Dropdown ====== */
+  .ac-dropdown {
+    position: absolute;
+    top: calc(100% + 6px);
+    left: 0; right: 0;
+    background: var(--surface);
+    border: 1.5px solid var(--primary);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-lg);
+    overflow: hidden;
+    z-index: 200;
+    display: none;
+    flex-direction: column;
+  }
+  .ac-dropdown.open { display: flex; }
+
+  .ac-item {
+    display: flex;
+    align-items: center;
+    gap: .6rem;
+    padding: .6rem .9rem;
+    cursor: pointer;
+    font-size: .88rem;
+    border-left: 3px solid transparent;
+    transition: background var(--transition), border-color var(--transition);
+  }
+  .ac-item:hover, .ac-item.ac-active {
+    background: var(--primary-light);
+    border-left-color: var(--primary);
+  }
+  .ac-item .ac-label { flex: 1; }
+  .ac-item .ac-hint { font-size: .72rem; color: var(--text-2); }
+  .ac-item .ac-score {
+    font-size: .72rem; font-weight: 700;
+    background: var(--primary-light); color: var(--primary);
+    padding: .1rem .4rem; border-radius: 50px;
+  }
+  .ac-tab-hint {
+    padding: .4rem .9rem;
+    font-size: .72rem;
+    color: var(--text-2);
+    background: var(--surface-2);
+    border-top: 1px solid var(--border);
+    display: flex;
+    gap: .8rem;
+  }
+  .ac-tab-hint kbd {
+    background: var(--border);
+    border-radius: 4px;
+    padding: .05rem .3rem;
+    font-size: .7rem;
+    font-family: monospace;
+  }
+
+  /* ====== Did You Mean ====== */
+  .did-you-mean {
+    font-size: .87rem;
+    color: var(--text-2);
+    padding: .3rem .5rem;
+    display: none;
+    align-items: center;
+    gap: .4rem;
+    flex-wrap: wrap;
+  }
+  .did-you-mean.show { display: flex; }
+  .dym-link {
+    color: var(--primary);
+    font-weight: 600;
+    cursor: pointer;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+
+  /* ====== Result Cards (busca) ====== */
+  .result-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-left: 4px solid var(--primary);
+    border-radius: var(--radius-md);
+    padding: .85rem 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: .4rem;
+    cursor: pointer;
+    transition: transform var(--transition), box-shadow var(--transition), border-color var(--transition);
+    width: 100%;
+    text-align: left;
+    font-family: var(--font);
+    animation: fadeUp .25s ease both;
+  }
+  .result-card:nth-child(2) { animation-delay:.04s; }
+  .result-card:nth-child(3) { animation-delay:.08s; }
+  .result-card:nth-child(4) { animation-delay:.12s; }
+  .result-card:nth-child(5) { animation-delay:.16s; }
+  .result-card:nth-child(n+6) { animation-delay:.20s; }
+  .result-card:hover { transform: translateX(4px); box-shadow: var(--shadow-md); border-left-color: var(--accent); }
+  .result-card:focus-visible { outline: 3px solid var(--primary); outline-offset:2px; }
+
+  .rc-top { display:flex; align-items:center; gap:.5rem; justify-content:space-between; }
+  .rc-title { font-weight:700; font-size:.97rem; color:var(--text); }
+  .rc-score-bar {
+    height:3px; border-radius:2px;
+    background: linear-gradient(90deg, var(--primary), var(--accent));
+    transition: width .4s ease;
+  }
+  .rc-snippet {
+    font-size:.85rem; color:var(--text-2); line-height:1.5;
+    border-left: 2px solid var(--border);
+    padding-left: .6rem;
+    font-style:italic;
+  }
+  .rc-snippet mark { font-style:normal; }
+
   /* ====== Chat Container ====== */
   #chat-container {
     background: var(--surface);
@@ -594,11 +707,28 @@
     <div id="breadcrumb" class="breadcrumb" aria-label="Breadcrumb">
       <span data-id="start">Início</span>
     </div>
-    <div class="search-wrap" role="search">
+    <div class="search-wrap" role="search" aria-label="Busca de práticas">
       <i class="fas fa-search search-icon-left" aria-hidden="true"></i>
-      <input type="search" id="search-input" placeholder="Buscar práticas… (BM25)" aria-label="Pesquisar práticas CERNE" autocomplete="off">
+      <input type="text" id="search-input"
+        placeholder="Buscar práticas… (Tab para autocompletar)"
+        aria-label="Pesquisar práticas CERNE"
+        aria-autocomplete="list"
+        aria-controls="ac-list"
+        aria-expanded="false"
+        autocomplete="off" role="combobox">
       <i class="fas fa-times search-clear" id="search-clear" aria-hidden="true" role="button" tabindex="0" aria-label="Limpar busca"></i>
+      <!-- Autocomplete dropdown -->
+      <div class="ac-dropdown" id="ac-dropdown" role="listbox" id="ac-list" aria-label="Sugestões">
+        <!-- items injected by JS -->
+        <div class="ac-tab-hint">
+          <span><kbd>Tab</kbd> aceitar</span>
+          <span><kbd>↑↓</kbd> navegar</span>
+          <span><kbd>Esc</kbd> fechar</span>
+        </div>
+      </div>
     </div>
+    <!-- Did you mean -->
+    <div class="did-you-mean" id="did-you-mean" aria-live="polite"></div>
   </nav>
 
   <!-- Chat -->
@@ -1152,21 +1282,26 @@ const BM25 = (() => {
   const K1 = 1.5, B = 0.75;
   const STOPWORDS_PT = new Set(["de","a","o","que","e","do","da","em","um","para","com","uma","os","no","se","na","por","mais","as","dos","como","mas","foi","ao","ele","das","tem","à","seu","sua","ou","ser","quando","muito","há","nos","já","também","só","pelo","pela","até","isso","ela","entre","era","depois","sem","mesmo","aos","ter","seus","quem","nas","me","esse","eles","estão","você","tinha","foram","essa","num","nem","suas","meu","às","minha","têm","numa","pelos","pelas","essa","este","del","te","lo"]);
 
+  function normalize(text) {
+    return text.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[^a-z0-9\s]/g," ");
+  }
+
   function tokenize(text) {
-    return text.toLowerCase()
-      .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
-      .replace(/[^a-z0-9\s]/g, " ")
-      .split(/\s+/)
-      .filter(t => t.length > 2 && !STOPWORDS_PT.has(t));
+    return normalize(text).split(/\s+/).filter(t => t.length > 2 && !STOPWORDS_PT.has(t));
+  }
+
+  // Raw tokens (shorter, for highlight matching)
+  function rawTokens(text) {
+    return normalize(text).split(/\s+/).filter(t => t.length > 1);
   }
 
   function buildIndex(docs) {
-    // docs: [{id, text}]
-    const tf = [], docLen = [];
+    const tf = [], docLen = [], rawTexts = [];
     const df = {};
     const N = docs.length;
 
     docs.forEach((doc, i) => {
+      rawTexts.push(doc.text);
       const tokens = tokenize(doc.text);
       docLen.push(tokens.length);
       const freq = {};
@@ -1179,12 +1314,11 @@ const BM25 = (() => {
 
     function score(queryTokens, docIdx) {
       let s = 0;
-      const freq = tf[docIdx];
-      const dl = docLen[docIdx];
+      const freq = tf[docIdx], dl = docLen[docIdx];
       queryTokens.forEach(t => {
         if (!freq[t]) return;
-        const idf = Math.log((N - (df[t]||0) + 0.5) / ((df[t]||0) + 0.5) + 1);
-        const tfVal = freq[t] * (K1 + 1) / (freq[t] + K1 * (1 - B + B * dl / avgdl));
+        const idf = Math.log((N-(df[t]||0)+0.5)/((df[t]||0)+0.5)+1);
+        const tfVal = freq[t]*(K1+1)/(freq[t]+K1*(1-B+B*dl/avgdl));
         s += idf * tfVal;
       });
       return s;
@@ -1200,10 +1334,56 @@ const BM25 = (() => {
         .slice(0, topK);
     }
 
-    return { search, tokenize };
+    // Returns top-N autocomplete suggestions (fast prefix BM25)
+    function autocomplete(query, topN = 6) {
+      const q = normalize(query).trim();
+      if (q.length < 2) return [];
+      const partial = q.split(/\s+/).pop(); // last word for prefix match
+      const fullTokens = tokenize(query);
+      // Boost docs where the partial matches a token prefix
+      return docs.map((doc, i) => {
+        const baseScore = score(fullTokens, i);
+        const prefixBoost = Object.keys(tf[i]).some(t => t.startsWith(partial)) ? 1.5 : 1;
+        return { id: doc.id, score: baseScore * prefixBoost };
+      })
+      .filter(r => r.score > 0)
+      .sort((a,b) => b.score - a.score)
+      .slice(0, topN);
+    }
+
+    // Extract best context snippet (150 chars) around matched term
+    function snippet(docId, rawToks, maxLen = 160) {
+      const idx = docs.findIndex(d => d.id === docId);
+      if (idx < 0) return "";
+      const text = rawTexts[idx];
+      const norm = normalize(text);
+      if (!rawToks.length) return text.slice(0, maxLen);
+      // Find position of first matching token
+      let bestPos = -1;
+      for (const tok of rawToks) {
+        const p = norm.indexOf(tok);
+        if (p !== -1 && (bestPos === -1 || p < bestPos)) bestPos = p;
+      }
+      if (bestPos === -1) return text.slice(0, maxLen) + "…";
+      const start = Math.max(0, bestPos - 55);
+      const end = Math.min(text.length, start + maxLen);
+      const snip = (start > 0 ? "…" : "") + text.slice(start, end).trim() + (end < text.length ? "…" : "");
+      return snip;
+    }
+
+    return { search, autocomplete, snippet, tokenize, rawTokens };
   }
 
-  return { buildIndex };
+  // Levenshtein distance for did-you-mean
+  function levenshtein(a, b) {
+    const m = a.length, n = b.length;
+    const dp = Array.from({length: m+1}, (_,i) => Array.from({length: n+1}, (_,j) => i===0?j:j===0?i:0));
+    for (let i=1;i<=m;i++) for(let j=1;j<=n;j++)
+      dp[i][j] = a[i-1]===b[j-1] ? dp[i-1][j-1] : 1+Math.min(dp[i-1][j],dp[i][j-1],dp[i-1][j-1]);
+    return dp[m][n];
+  }
+
+  return { buildIndex, levenshtein, normalize };
 })();
 
 // Build corpus from groundings
@@ -1212,6 +1392,15 @@ const bm25Corpus = Object.entries(groundings).map(([id, g]) => ({
   text: [g.pratica, g.descricao, g.objetivo, g.acoes, g.metricas, g.exemplos, g.dicas].filter(Boolean).join(" ")
 }));
 const bm25Index = BM25.buildIndex(bm25Corpus);
+
+// All practice vocabulary for did-you-mean
+const corpusVocab = (() => {
+  const words = new Set();
+  bm25Corpus.forEach(d => {
+    BM25.normalize(d.text).split(/\s+/).filter(w => w.length > 3).forEach(w => words.add(w));
+  });
+  return [...words];
+})();
 
 /* =============================================================
    STATE
@@ -1260,23 +1449,129 @@ document.addEventListener("DOMContentLoaded", () => {
   updateProgressBar();
 });
 
+/* =============================================================
+   AUTOCOMPLETE STATE
+   ============================================================= */
+let acActiveIdx = -1;
+let acSuggestions = [];
+
 function setupListeners() {
-  // Dark mode
   document.getElementById("dark-mode-toggle").addEventListener("click", toggleDarkMode);
 
-  // Search
   const input = document.getElementById("search-input");
-  const clear = document.getElementById("search-clear");
-  let debounce;
+  const clear  = document.getElementById("search-clear");
+  const acDrop = document.getElementById("ac-dropdown");
+  const dym    = document.getElementById("did-you-mean");
+
+  let debounce, acDebounce;
+
   input.addEventListener("input", () => {
+    const q = input.value.trim();
+    // Autocomplete (fast, 100ms)
+    clearTimeout(acDebounce);
+    acDebounce = setTimeout(() => updateAutocomplete(q), 100);
+    // Full search (200ms)
     clearTimeout(debounce);
     debounce = setTimeout(() => {
-      if (input.value.trim().length >= 2) handleSearch(input.value.trim());
+      if (q.length >= 2) handleSearch(q);
+      else if (!q) { closeAutocomplete(); dym.classList.remove("show"); }
     }, 200);
   });
-  input.addEventListener("keydown", e => { if (e.key === "Escape") { input.value = ""; navigateTo(currentNode); } });
-  clear.addEventListener("click", () => { input.value = ""; navigateTo(currentNode); input.focus(); });
+
+  input.addEventListener("keydown", e => {
+    if (e.key === "Escape") {
+      if (acDrop.classList.contains("open")) { closeAutocomplete(); }
+      else { input.value = ""; closeAutocomplete(); dym.classList.remove("show"); navigateTo(currentNode); }
+      return;
+    }
+    if (!acDrop.classList.contains("open")) return;
+    if (e.key === "ArrowDown") {
+      e.preventDefault();
+      acActiveIdx = Math.min(acActiveIdx + 1, acSuggestions.length - 1);
+      updateAcHighlight();
+    } else if (e.key === "ArrowUp") {
+      e.preventDefault();
+      acActiveIdx = Math.max(acActiveIdx - 1, -1);
+      updateAcHighlight();
+    } else if (e.key === "Tab" || e.key === "Enter") {
+      e.preventDefault();
+      const idx = acActiveIdx >= 0 ? acActiveIdx : 0;
+      if (acSuggestions[idx]) applyAutocomplete(acSuggestions[idx]);
+    }
+  });
+
+  // Close on outside click
+  document.addEventListener("click", e => {
+    if (!e.target.closest(".search-wrap")) closeAutocomplete();
+  });
+
+  clear.addEventListener("click", () => {
+    input.value = "";
+    closeAutocomplete();
+    dym.classList.remove("show");
+    navigateTo(currentNode);
+    input.focus();
+  });
   clear.addEventListener("keydown", e => { if (e.key === "Enter") clear.click(); });
+}
+
+function updateAutocomplete(query) {
+  const acDrop = document.getElementById("ac-dropdown");
+  if (query.length < 2) { closeAutocomplete(); return; }
+
+  const sug = bm25Index.autocomplete(query, 6);
+  acSuggestions = sug.map(r => groundings[r.id]).filter(Boolean);
+  acActiveIdx = -1;
+
+  // Re-render items (keep hint at bottom)
+  const existingItems = acDrop.querySelectorAll(".ac-item");
+  existingItems.forEach(el => el.remove());
+  const hint = acDrop.querySelector(".ac-tab-hint");
+
+  if (!acSuggestions.length) { closeAutocomplete(); return; }
+
+  const levelColors = {1:"var(--c1)",2:"var(--c2)",3:"var(--c3)",4:"var(--c4)"};
+  const maxS = sug[0]?.score || 1;
+
+  acSuggestions.forEach((g, i) => {
+    const item = document.createElement("div");
+    item.className = "ac-item";
+    item.setAttribute("role", "option");
+    item.dataset.idx = i;
+    const barW = Math.round((sug[i].score / maxS) * 60);
+    item.innerHTML = `
+      <span class="level-badge level-${g.nivel}" style="flex-shrink:0">C${g.nivel}</span>
+      <span class="ac-label">${g.pratica}</span>
+      <svg width="${barW}" height="6" style="flex-shrink:0">
+        <rect width="${barW}" height="6" rx="3" fill="${levelColors[g.nivel]||'var(--primary)'}"/>
+      </svg>
+      <span class="ac-score">${sug[i].score.toFixed(1)}</span>`;
+    item.addEventListener("mousedown", e => { e.preventDefault(); applyAutocomplete(g); });
+    acDrop.insertBefore(item, hint);
+  });
+
+  acDrop.classList.add("open");
+  document.getElementById("search-input").setAttribute("aria-expanded","true");
+}
+
+function updateAcHighlight() {
+  document.querySelectorAll(".ac-item").forEach((el, i) => {
+    el.classList.toggle("ac-active", i === acActiveIdx);
+  });
+}
+
+function closeAutocomplete() {
+  const d = document.getElementById("ac-dropdown");
+  d.classList.remove("open");
+  document.getElementById("search-input").setAttribute("aria-expanded","false");
+  acActiveIdx = -1;
+}
+
+function applyAutocomplete(g) {
+  const input = document.getElementById("search-input");
+  input.value = g.pratica;
+  closeAutocomplete();
+  navigateTo(g.praticaId);
 }
 
 /* =============================================================
@@ -1490,14 +1785,11 @@ function renderQuiz(quiz, nodeId) {
     div.tabIndex = 0;
     div.dataset.index = i;
     div.setAttribute("role", "button");
-
     const marker = document.createElement("div");
     marker.className = "quiz-marker";
     marker.textContent = String.fromCharCode(65 + i);
-
     const txt = document.createElement("div");
     txt.textContent = opt;
-
     div.append(marker, txt);
     div.addEventListener("click", () => handleQuizAnswer(nodeId, i));
     div.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); handleQuizAnswer(nodeId, i); }});
@@ -1588,46 +1880,108 @@ function handleSearch(query) {
   displaySearchResults(results, query);
 }
 
-function highlightTerms(text, tokens) {
-  if (!tokens.length) return text;
-  const re = new RegExp(`(${tokens.map(t => t.replace(/[.*+?^${}()|[\]\\]/g,"\\$&")).join("|")})`, "gi");
+function hlText(text, rawToks) {
+  if (!rawToks.length) return text;
+  const re = new RegExp(`(${rawToks.map(t => t.replace(/[.*+?^${}()|[\]\\]/g,"\\$&")).join("|")})`, "gi");
   return text.replace(re, "<mark>$1</mark>");
+}
+
+function didYouMean(query) {
+  const words = BM25.normalize(query).split(/\s+/).filter(w => w.length > 2);
+  if (!words.length) return null;
+  const suggestions = words.map(word => {
+    let best = null, bestDist = Infinity;
+    for (const vocab of corpusVocab) {
+      if (Math.abs(vocab.length - word.length) > 3) continue;
+      const d = BM25.levenshtein(word, vocab);
+      if (d < bestDist && d <= 2 && d > 0) { bestDist = d; best = vocab; }
+    }
+    return best;
+  });
+  if (suggestions.every(s => s === null)) return null;
+  return words.map((w,i) => suggestions[i] || w).join(" ");
 }
 
 function displaySearchResults(results, query) {
   clearContainers();
+  closeAutocomplete();
   renderRobot();
 
-  const qTokens = bm25Index.tokenize ? [] : [];
-  // Re-tokenize for highlighting
-  const rawTokens = query.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[^a-z0-9\s]/g," ").split(/\s+/).filter(t => t.length > 1);
+  const rawToks = BM25.normalize(query).split(/\s+/).filter(t => t.length > 1);
+  const maxScore = results[0]?.score || 1;
+  const dymEl = document.getElementById("did-you-mean");
 
+  // Did-you-mean
+  dymEl.classList.remove("show");
+  dymEl.innerHTML = "";
+  if (results.length === 0 || (results[0]?.score ?? 0) < 0.5) {
+    const suggestion = didYouMean(query);
+    if (suggestion && suggestion !== BM25.normalize(query).trim()) {
+      dymEl.innerHTML = `🤔 Você quis dizer: <span class="dym-link" role="button" tabindex="0" aria-label="Buscar por ${suggestion}">${suggestion}</span>?`;
+      dymEl.classList.add("show");
+      const link = dymEl.querySelector(".dym-link");
+      const applyDym = () => {
+        document.getElementById("search-input").value = suggestion;
+        handleSearch(suggestion);
+      };
+      link.addEventListener("click", applyDym);
+      link.addEventListener("keydown", e => { if (e.key==="Enter") applyDym(); });
+    }
+  }
+
+  // Status message
   const msgEl = document.createElement("div");
   msgEl.className = "message";
   msgEl.innerHTML = results.length > 0
-    ? `🔍 <strong>${results.length}</strong> resultado(s) encontrado(s) para "<em>${query}</em>" <span class="search-results-info">(Okapi BM25)</span>`
-    : `🔍 Nenhum resultado para "<em>${query}</em>". Tente outros termos.`;
+    ? `🔍 <strong>${results.length}</strong> resultado(s) para "<em>${query}</em>" <span class="search-results-info">(BM25 · score máx: ${maxScore.toFixed(2)})</span>`
+    : `🔍 Nenhum resultado para "<em>${query}</em>". Tente outros termos ou use o autocomplete.`;
   document.getElementById("chat-container").appendChild(msgEl);
 
+  // Result cards with context snippets
   const bc = document.getElementById("buttons-container");
-  results.forEach(r => {
+  bc.style.flexDirection = "column";
+  bc.style.alignItems = "stretch";
+
+  results.forEach((r, idx) => {
     const g = groundings[r.id];
     if (!g) return;
-    const btn = document.createElement("button");
-    btn.className = "btn btn-primary";
-    btn.style.justifyContent = "space-between";
-    btn.style.textAlign = "left";
-    const levelCls = `level-${g.nivel}`;
-    const highlighted = highlightTerms(g.pratica, rawTokens);
-    btn.innerHTML = `<span><span class="level-badge ${levelCls}" style="margin-right:.4rem">Cerne ${g.nivel}</span>${highlighted}</span><span class="result-score">${r.score.toFixed(2)}</span>`;
-    btn.addEventListener("click", () => navigateTo(r.id));
-    bc.appendChild(btn);
+    const barW = Math.round((r.score / maxScore) * 100);
+    const snip = bm25Index.snippet(r.id, rawToks);
+
+    const card = document.createElement("button");
+    card.className = "result-card";
+    card.style.animationDelay = `${idx * 0.04}s`;
+    card.setAttribute("aria-label", `${g.pratica} — score BM25 ${r.score.toFixed(2)}`);
+    card.innerHTML = `
+      <div class="rc-top">
+        <div style="display:flex;align-items:center;gap:.5rem">
+          <span class="level-badge level-${g.nivel}"><i class="fas fa-layer-group" aria-hidden="true"></i> Cerne ${g.nivel}</span>
+          <span class="rc-title">${hlText(g.pratica, rawToks)}</span>
+        </div>
+        <span class="result-score" title="BM25 score">${r.score.toFixed(2)}</span>
+      </div>
+      <div class="rc-score-bar" style="width:${barW}%" role="presentation"></div>
+      <div class="rc-snippet">${hlText(snip, rawToks)}</div>`;
+    card.addEventListener("click", () => {
+      bc.style.flexDirection = "";
+      bc.style.alignItems = "";
+      navigateTo(r.id);
+    });
+    bc.appendChild(card);
   });
 
   const homeBtn = document.createElement("button");
   homeBtn.className = "btn btn-home";
+  homeBtn.style.alignSelf = "center";
+  homeBtn.style.marginTop = ".5rem";
   homeBtn.innerHTML = '<i class="fas fa-home" aria-hidden="true"></i> Início';
-  homeBtn.addEventListener("click", () => { document.getElementById("search-input").value = ""; navigateTo("start"); });
+  homeBtn.addEventListener("click", () => {
+    bc.style.flexDirection = "";
+    bc.style.alignItems = "";
+    document.getElementById("search-input").value = "";
+    document.getElementById("did-you-mean").classList.remove("show");
+    navigateTo("start");
+  });
   bc.appendChild(homeBtn);
 }
 
