@@ -6,14 +6,33 @@
   <meta name="description" content="100% Privado. Todas as informações são processadas apenas no seu navegador."/>
     <title>Essence Extractor Pro - Briefing Atômico para Websites</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class'
+        }
+    </script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
-  :root{--primary:#4f46e5;--accent:#f59e0b;--bg:#f1f5f9;--surface:#fff;--text:#1e293b;--text-2:#64748b;--border:#e2e8f0;font-family:system-ui,sans-serif}
+        :root {
+            --bg-color: #f3f4f6;
+            --text-color: #1f2937;
+            --card-bg: #ffffff;
+            --border-color: #e5e7eb;
+        }
+        .dark {
+            --bg-color: #0f172a;
+            --text-color: #f1f5f9;
+            --card-bg: #1e293b;
+            --border-color: #334155;
+        }
         body {
             font-family: 'Inter', sans-serif;
             scroll-behavior: smooth;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            transition: background-color 0.3s, color 0.3s;
         }
         .slider-label {
             transition: color 0.3s ease;
@@ -411,43 +430,44 @@
         }
     </style>
 </head>
-<body class="bg-gray-100 text-gray-800">
+<body class="bg-gray-100 text-gray-800 transition-colors duration-300 dark:bg-slate-950 dark:text-slate-100">
 
-    <div class="container mx-auto p-4 md:p-8 max-w-7xl">
+    <div class="container mx-auto p-4 md:p-8 max-w-7xl relative">
 
-        <header class="text-center mb-10">
-            <h1 class="text-4xl md:text-5xl font-bold text-blue-600 mb-2">Essence Extractor Pro</h1>
-            <p class="text-lg text-gray-600">Um briefing atômico para materializar o seu projeto web.</p>
+        <header class="text-center mb-10 relative">
+            <button id="themeToggle" class="absolute top-0 right-0 bg-blue-100 dark:bg-blue-900/50 text-blue-600 dark:text-blue-400 border-none rounded-full w-10 h-10 flex items-center justify-center cursor-pointer shadow-md transition-colors" onclick="toggleTheme()" aria-label="Alternar tema">🌙</button>
+            <h1 class="text-4xl md:text-5xl font-bold text-blue-600 dark:text-blue-500 mb-2">Essence Extractor Pro</h1>
+            <p class="text-lg text-gray-600 dark:text-gray-400">Um briefing atômico para materializar o seu projeto web.</p>
             
             <div class="progress-container mt-6">
                 <div class="progress-bar" id="progressBar"></div>
             </div>
         </header>
 
-        <div class="bg-white p-6 md:p-8 rounded-2xl shadow-lg border border-gray-200 mb-10">
-            <h2 class="text-2xl font-bold text-gray-800 mb-6 border-b pb-3">🚀 Presets Pré-definidos</h2>
-            <p class="text-gray-600 mb-6">Selecione um modelo pré-definido para começar mais rapidamente:</p>
+        <div class="bg-white dark:bg-slate-900 p-6 md:p-8 rounded-2xl shadow-lg border border-gray-200 dark:border-slate-800 mb-10">
+            <h2 class="text-2xl font-bold text-gray-800 dark:text-slate-100 mb-6 border-b dark:border-slate-800 pb-3">🚀 Presets Pré-definidos</h2>
+            <p class="text-gray-600 dark:text-gray-400 mb-6">Selecione um modelo pré-definido para começar mais rapidamente:</p>
             
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                <div class="preset-card bg-gray-50 p-4 rounded-lg border-2 border-gray-200 text-center" data-preset="landing">
+                <div class="preset-card bg-gray-50 dark:bg-slate-800/50 p-4 rounded-lg border-2 border-gray-200 dark:border-slate-700 text-center" data-preset="landing">
                     <div class="text-3xl mb-2">📱</div>
-                    <h3 class="font-bold text-gray-900">Landing Page</h3>
-                    <p class="text-gray-500 text-sm">Uma página de conversão focada em vendas ou captura de leads</p>
+                    <h3 class="font-bold text-gray-900 dark:text-slate-200">Landing Page</h3>
+                    <p class="text-gray-500 dark:text-gray-400 text-sm">Uma página de conversão focada em vendas ou captura de leads</p>
                 </div>
-                <div class="preset-card bg-gray-50 p-4 rounded-lg border-2 border-gray-200 text-center" data-preset="ecommerce">
+                <div class="preset-card bg-gray-50 dark:bg-slate-800/50 p-4 rounded-lg border-2 border-gray-200 dark:border-slate-700 text-center" data-preset="ecommerce">
                     <div class="text-3xl mb-2">🛒</div>
-                    <h3 class="font-bold text-gray-900">E-commerce</h3>
-                    <p class="text-gray-500 text-sm">Loja virtual completa com catálogo e carrinho de compras</p>
+                    <h3 class="font-bold text-gray-900 dark:text-slate-200">E-commerce</h3>
+                    <p class="text-gray-500 dark:text-gray-400 text-sm">Loja virtual completa com catálogo e carrinho de compras</p>
                 </div>
-                <div class="preset-card bg-gray-50 p-4 rounded-lg border-2 border-gray-200 text-center" data-preset="portfolio">
+                <div class="preset-card bg-gray-50 dark:bg-slate-800/50 p-4 rounded-lg border-2 border-gray-200 dark:border-slate-700 text-center" data-preset="portfolio">
                     <div class="text-3xl mb-2">🎨</div>
-                    <h3 class="font-bold text-gray-900">Portfólio</h3>
-                    <p class="text-gray-500 text-sm">Site para mostrar trabalhos e conquistas profissionais</p>
+                    <h3 class="font-bold text-gray-900 dark:text-slate-200">Portfólio</h3>
+                    <p class="text-gray-500 dark:text-gray-400 text-sm">Site para mostrar trabalhos e conquistas profissionais</p>
                 </div>
-                <div class="preset-card bg-gray-50 p-4 rounded-lg border-2 border-gray-200 text-center" data-preset="corporate">
+                <div class="preset-card bg-gray-50 dark:bg-slate-800/50 p-4 rounded-lg border-2 border-gray-200 dark:border-slate-700 text-center" data-preset="corporate">
                     <div class="text-3xl mb-2">🏢</div>
-                    <h3 class="font-bold text-gray-900">Site Corporativo</h3>
-                    <p class="text-gray-500 text-sm">Site institucional para empresas com múltiplas páginas</p>
+                    <h3 class="font-bold text-gray-900 dark:text-slate-200">Site Corporativo</h3>
+                    <p class="text-gray-500 dark:text-gray-400 text-sm">Site institucional para empresas com múltiplas páginas</p>
                 </div>
             </div>
         </div>
@@ -458,35 +478,35 @@
                 <form id="briefingForm" class="space-y-12">
                     <!-- As seções serão renderizadas via JavaScript -->
                 </form>
-
+ 
                 <div id="validationMessage" class="text-center text-red-600 font-semibold mt-8 mb-4 hidden">
                     Por favor, preencha todas as seções destacadas para continuar.
                 </div>
-
+ 
                 <div class="text-center mt-12">
                     <button type="button" id="generateAnalysisBtn" class="bg-blue-600 text-white font-bold py-4 px-10 rounded-full shadow-lg hover:bg-blue-700 transition-all duration-300 transform hover:scale-105 text-lg disabled:opacity-50 disabled:cursor-not-allowed">
                         Gerar Análise Estratégica
                     </button>
                 </div>
-
-                <div id="resultsSection" class="mt-16 bg-white p-8 rounded-2xl shadow-xl border border-gray-200 hidden">
+ 
+                <div id="resultsSection" class="mt-16 bg-white dark:bg-slate-900 p-8 rounded-2xl shadow-xl border border-gray-200 dark:border-slate-800 hidden">
                     <!-- Resultados serão inseridos aqui via JavaScript -->
                 </div>
             </div>
-
+ 
             <div class="lg:col-span-1">
-                <div class="bg-white p-6 rounded-2xl shadow-lg border border-gray-200 sticky top-4">
-                    <h2 class="text-2xl font-bold text-gray-800 mb-4 border-b pb-3">👁️ Prévia do Site</h2>
+                <div class="bg-white dark:bg-slate-900 p-6 rounded-2xl shadow-lg border border-gray-200 dark:border-slate-800 sticky top-4">
+                    <h2 class="text-2xl font-bold text-gray-800 dark:text-slate-100 mb-4 border-b dark:border-slate-800 pb-3">👁️ Prévia do Site</h2>
                     
                     <div class="mb-6">
-                        <h3 class="font-bold text-gray-700 mb-2">Layout Selecionado:</h3>
-                        <div id="layoutPreview" class="layout-preview" data-layout="standard">
+                        <h3 class="font-bold text-gray-700 dark:text-slate-200 mb-2">Layout Selecionado:</h3>
+                        <div id="layoutPreview" class="layout-preview dark:bg-slate-950 dark:border-slate-800" data-layout="standard">
                             <!-- Layout será renderizado via JavaScript -->
                         </div>
                     </div>
                     
                     <div class="mb-6">
-                        <h3 class="font-bold text-gray-700 mb-2">Paleta de Cores:</h3>
+                        <h3 class="font-bold text-gray-700 dark:text-slate-200 mb-2">Paleta de Cores:</h3>
                         <div class="flex flex-wrap gap-2">
                             <div class="color-preview" id="previewColor1"></div>
                             <div class="color-preview" id="previewColor2"></div>
@@ -497,26 +517,26 @@
                     </div>
                     
                     <div>
-                        <h3 class="font-bold text-gray-700 mb-2">Detalhes do Projeto:</h3>
+                        <h3 class="font-bold text-gray-700 dark:text-slate-200 mb-2">Detalhes do Projeto:</h3>
                         <div class="space-y-2 text-sm">
                             <div class="flex justify-between">
-                                <span class="text-gray-600">Tipo:</span>
+                                <span class="text-gray-600 dark:text-gray-400">Tipo:</span>
                                 <span id="previewType" class="font-medium text-right">-</span>
                             </div>
                             <div class="flex justify-between">
-                                <span class="text-gray-600">Objetivo:</span>
+                                <span class="text-gray-600 dark:text-gray-400">Objetivo:</span>
                                 <span id="previewGoal" class="font-medium text-right">-</span>
                             </div>
                             <div class="flex justify-between">
-                                <span class="text-gray-600">Público:</span>
+                                <span class="text-gray-600 dark:text-gray-400">Público:</span>
                                 <span id="previewAudience" class="font-medium text-right">-</span>
                             </div>
                             <div class="flex justify-between">
-                                <span class="text-gray-600">Estilo:</span>
+                                <span class="text-gray-600 dark:text-gray-400">Estilo:</span>
                                 <span id="previewStyle" class="font-medium text-right">-</span>
                             </div>
                             <div class="flex justify-between">
-                                <span class="text-gray-600">Funções:</span>
+                                <span class="text-gray-600 dark:text-gray-400">Funções:</span>
                                 <span id="previewFeatures" class="font-medium text-right">-</span>
                             </div>
                         </div>
@@ -554,6 +574,21 @@
     </div>
 
     <script>
+    // Theme switcher logic
+    function applyTheme() {
+        const dark = localStorage.getItem("essenceDark") === "1" || 
+                     (!localStorage.getItem("essenceDark") && window.matchMedia("(prefers-color-scheme: dark)").matches);
+        document.documentElement.classList.toggle("dark", dark);
+        const toggleBtn = document.getElementById("themeToggle");
+        if (toggleBtn) toggleBtn.textContent = dark ? "☀️" : "🌙";
+    }
+    function toggleTheme() {
+        const isDark = document.documentElement.classList.contains("dark");
+        localStorage.setItem("essenceDark", isDark ? "0" : "1");
+        applyTheme();
+    }
+    applyTheme();
+
     document.addEventListener('DOMContentLoaded', function () {
         
         // --- CONFIGURAÇÕES E DADOS GLOBAIS ---
@@ -798,11 +833,11 @@
 
             Object.keys(questions).forEach((sectionTitle, sectionIndex) => {
                 const sectionEl = document.createElement('div');
-                sectionEl.className = `section bg-white p-6 md:p-8 rounded-2xl shadow-lg border-2 border-transparent card-hover ${sectionIndex === 0 ? 'active' : ''}`;
+                sectionEl.className = `section bg-white dark:bg-slate-900 p-6 md:p-8 rounded-2xl shadow-lg border-2 border-transparent dark:border-slate-800 card-hover ${sectionIndex === 0 ? 'active' : ''}`;
                 sectionEl.id = `section-${sectionIndex}`;
                 
                 const titleEl = document.createElement('h2');
-                titleEl.className = 'text-2xl font-bold text-gray-800 mb-6 border-b pb-3';
+                titleEl.className = 'text-2xl font-bold text-gray-800 dark:text-slate-100 mb-6 border-b dark:border-slate-800 pb-3';
                 titleEl.textContent = sectionTitle;
                 sectionEl.appendChild(titleEl);
 
@@ -814,35 +849,35 @@
                     
                     if (q.type === 'title') {
                         const subtitle = document.createElement('h3');
-                        subtitle.className = 'text-lg font-semibold text-blue-600';
+                        subtitle.className = 'text-lg font-semibold text-blue-600 dark:text-blue-400';
                         subtitle.textContent = q.text;
                         questionWrapper.appendChild(subtitle);
                     } else if (q.type === 'text') {
                         questionWrapper.innerHTML = `
-                            <label class="block font-medium text-gray-700 mb-2">${q.text} ${q.required ? '<span class="text-red-500">*</span>' : ''}</label>
-                            <input type="text" id="${q.id}" name="${q.id}" placeholder="${q.placeholder}" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" ${q.required ? 'required' : ''}>
+                            <label class="block font-medium text-gray-700 dark:text-gray-300 mb-2">${q.text} ${q.required ? '<span class="text-red-500">*</span>' : ''}</label>
+                            <input type="text" id="${q.id}" name="${q.id}" placeholder="${q.placeholder}" class="w-full p-3 border border-gray-300 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-800 text-gray-800 dark:text-slate-100 focus:ring-2 focus:ring-blue-500 focus:border-blue-500" ${q.required ? 'required' : ''}>
                         `;
                     } else if (q.type === 'textarea') {
                         questionWrapper.innerHTML = `
-                            <label class="block font-medium text-gray-700 mb-2">${q.text}</label>
-                            <textarea id="${q.id}" name="${q.id}" placeholder="${q.placeholder}" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" rows="3"></textarea>
+                            <label class="block font-medium text-gray-700 dark:text-gray-300 mb-2">${q.text}</label>
+                            <textarea id="${q.id}" name="${q.id}" placeholder="${q.placeholder}" class="w-full p-3 border border-gray-300 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-800 text-gray-800 dark:text-slate-100 focus:ring-2 focus:ring-blue-500 focus:border-blue-500" rows="3"></textarea>
                         `;
                     } else if (q.type === 'slider') {
                         questionWrapper.innerHTML = `
-                            <label class="block font-medium text-gray-700 mb-2">${q.text}</label>
+                            <label class="block font-medium text-gray-700 dark:text-gray-300 mb-2">${q.text}</label>
                             <div class="flex items-center space-x-4">
-                                <span class="text-sm text-gray-500 slider-label font-bold w-1/4 text-center">${q.labels[0]}</span>
+                                <span class="text-sm text-gray-500 dark:text-gray-400 slider-label font-bold w-1/4 text-center">${q.labels[0]}</span>
                                 <input type="range" id="${q.id}" name="${q.id}" min="0" max="100" value="50" class="w-1/2">
-                                <span class="text-sm text-gray-500 slider-label w-1/4 text-center">${q.labels[1]}</span>
+                                <span class="text-sm text-gray-500 dark:text-gray-400 slider-label w-1/4 text-center">${q.labels[1]}</span>
                             </div>
                         `;
                     } else if (q.type === 'color') {
                         questionWrapper.innerHTML = `
                             <div class="color-input-group">
-                                <label class="font-medium text-gray-700">${q.text}</label>
+                                <label class="font-medium text-gray-700 dark:text-gray-300">${q.text}</label>
                                 <div class="color-input-wrapper">
-                                    <input type="color" id="${q.id}" name="${q.id}" value="${q.value}" class="rounded border border-gray-300">
-                                    <input type="text" id="${q.id}Text" value="${q.value}" class="rounded border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                    <input type="color" id="${q.id}" name="${q.id}" value="${q.value}" class="rounded border border-gray-300 dark:border-slate-700 bg-white dark:bg-slate-800">
+                                    <input type="text" id="${q.id}Text" value="${q.value}" class="rounded border border-gray-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-gray-800 dark:text-slate-100 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                                 </div>
                             </div>
                         `;
@@ -850,7 +885,7 @@
                          const fieldset = document.createElement('fieldset');
                          fieldset.id = q.id;
                          const legend = document.createElement('legend');
-                         legend.className = 'block font-medium text-gray-700 mb-4';
+                         legend.className = 'block font-medium text-gray-700 dark:text-gray-300 mb-4';
                          legend.innerHTML = `${q.text} ${q.required ? '<span class="text-red-500">*</span>' : ''}`;
                          fieldset.appendChild(legend);
 
@@ -910,13 +945,13 @@
                              input.className = 'sr-only';
 
                              const content = document.createElement('div');
-                             content.className = 'h-full bg-gray-50 p-4 rounded-lg border-2 border-gray-200 transition';
+                             content.className = 'h-full bg-gray-50 dark:bg-slate-800/50 p-4 rounded-lg border-2 border-gray-200 dark:border-slate-700 transition';
                              
-                             let descriptionHtml = opt.description ? `<p class="text-gray-500 text-sm">${opt.description}</p>` : '';
+                             let descriptionHtml = opt.description ? `<p class="text-gray-500 dark:text-gray-400 text-sm">${opt.description}</p>` : '';
                              let weightHtml = q.type === 'checkbox' && opt.weight ? `<p class="text-xs text-blue-500 font-semibold mt-1">Peso: ${opt.weight}</p>` : '';
 
                              content.innerHTML = `
-                                 <span class="font-bold text-gray-900">${opt.label}</span>
+                                 <span class="font-bold text-gray-900 dark:text-slate-100">${opt.label}</span>
                                  ${descriptionHtml}
                                  ${weightHtml}
                              `;
@@ -2158,7 +2193,6 @@
 
     });
     </script>
-<style>
-  :root{--primary:#4f46e5;--accent:#f59e0b;--bg:#f1f5f9;--surface:#fff;--text:#1e293b;--text-2:#64748b;--border:#e2e8f0;font-family:system-ui,sans-serif}.ag-nav-back{position:fixed;top:12px;left:12px;z-index:9999;background:rgba(79,70,229,.9);color:#fff;border:none;border-radius:50px;padding:.4rem .9rem;font-size:.8rem;font-family:system-ui,sans-serif;font-weight:600;cursor:pointer;text-decoration:none;display:flex;align-items:center;gap:.35rem;box-shadow:0 2px 10px rgba(0,0,0,.25);backdrop-filter:blur(4px);transition:background .2s,transform .2s}.ag-nav-back:hover{background:rgba(55,48,163,.95);transform:translateY(-1px)}</style><a href="https://passosdomingues.github.io/webappshowcase/site/main.html" class="ag-nav-back" aria-label="Voltar ao índice"></body>#8592; Índice</a>
+<style>.ag-nav-back{position:fixed;top:12px;left:12px;z-index:9999;background:rgba(79,70,229,.9);color:#fff;border:none;border-radius:50px;padding:.4rem .9rem;font-size:.8rem;font-family:system-ui,sans-serif;font-weight:600;cursor:pointer;text-decoration:none;display:flex;align-items:center;gap:.35rem;box-shadow:0 2px 10px rgba(0,0,0,.25);backdrop-filter:blur(4px);transition:background .2s,transform .2s}.ag-nav-back:hover{background:rgba(55,48,163,.95);transform:translateY(-1px)}</style><a href="https://passosdomingues.github.io/webappshowcase/site/main.html" class="ag-nav-back" aria-label="Voltar ao índice"></body>#8592; Índice</a>
 </body>
 </html>
