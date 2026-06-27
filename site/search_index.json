@@ -99,6 +99,17 @@
     "size": "23KB"
   },
   {
+    "id": "calculadora_trl_crl",
+    "title": "Calculadora TRL/CRL",
+    "description": "Avalie o nível de maturidade tecnológica e comercial de sua tecnologia com base nos critérios NASA / DOE / ARPA-E e N…",
+    "category": "Outros",
+    "path": "https://passosdomingues.github.io/webappshowcase/site/utilities/calculadora_trl_crl.html",
+    "bodyText": "Calculadora TRL/CRL Ferramenta de Avaliação Calculadora TRL / CRL Avalie o nível de maturidade tecnológica e comercial de sua tecnologia com base nos critérios NASA / DOE / ARPA-E e NYSERDA. &#8592; Índice",
+    "sha512": "f7bfc2be865552b12221e3f61bac85a2df535dc5c5514d0209222c697c2be1d2160da9e7afc491bf8833559facb9d854d04d7b7a23d2e68c68ceb7c1b5f7c8ab",
+    "sha512Short": "f7bfc2be865552b1",
+    "size": "23KB"
+  },
+  {
     "id": "comandaDigital",
     "title": "ComandAI",
     "description": "Clique para visualizar este projeto.",
