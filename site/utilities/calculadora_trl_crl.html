@@ -4,1604 +4,1424 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Calculadora TRL / CRL — Maturidade Tecnológica e Comercial</title>
-<meta name="description" content="Ferramenta client-side para avaliação de maturidade tecnológica (TRL) e comercial (CRL) conforme critérios NASA/DOE/ARPA-E e NYSERDA. Nenhum dado é transmitido.">
+<meta name="description" content="Ferramenta de conformidade e avaliação multidimensional de maturidade (TRL/CRL). Diagnóstico local BM25, gráfico de radar exportável e conformidade LGPD.">
 <style>
 /* ══════════════════════════════════════════════════════════
-   TOKENS
+   SISTEMA DE DESIGN & TOKENS (Windows 10 Light Theme)
 ══════════════════════════════════════════════════════════ */
 :root {
-  --bg:          #F5F6F8;
-  --surface:     #FFFFFF;
-  --surface2:    #EFF1F5;
-  --border:      #DDE1E9;
-  --border2:     #B9C0CF;
-  --text:        #0F1117;
-  --text-sec:    #3A3F52;
-  --muted:       #6C7489;
-  --accent:      #1A6FD4;
-  --accent-soft: #EBF2FC;
-  --accent-dark: #0E52A0;
-  --trl:         #1A6FD4;
-  --trl-soft:    #EBF2FC;
-  --trl-border:  #B8D3F5;
-  --crl:         #0A7D44;
-  --crl-soft:    #E6F4EE;
-  --crl-border:  #A3D8BB;
-  --warn:        #C0392B;
-  --warn-soft:   #FDECEA;
-  --shadow-sm:   0 1px 3px rgba(0,0,0,.06), 0 1px 2px rgba(0,0,0,.04);
-  --shadow-md:   0 4px 12px rgba(0,0,0,.08), 0 2px 4px rgba(0,0,0,.04);
-  --shadow-lg:   0 16px 48px rgba(0,0,0,.12), 0 6px 16px rgba(0,0,0,.06);
-  --r:           10px;
-  --r-sm:        6px;
-  --r-lg:        16px;
+  --bg:          #F3F3F3; /* Windows 10 Desktop/Settings background */
+  --surface:     #FFFFFF; /* White Cards */
+  --surface-alt: #F9F9F9; /* Off-white tables/groups */
+  --surface-hov: #E5E5E5; /* Windows hover state */
+  --border:      #CCCCCC; /* Solid thin borders */
+  --border-dark: #7A7A7A; /* High contrast details */
+  --text:        #000000; /* Crisp pure black text */
+  --text-sec:    #333333; /* Dark gray */
+  --muted:       #555555; /* Medium gray */
+  --accent:      #0078D4; /* Windows 10 Default Accent Blue */
+  --accent-soft: #E6F2FC; /* Highlight light blue */
+  --accent-dark: #005A9E; /* Active dark blue */
+  --trl:         #0078D4;
+  --trl-soft:    #E6F2FC;
+  --crl:         #107C10; /* Windows green */
+  --crl-soft:    #E6F2E6;
+  --warn:        #E81123; /* Windows error/warn red */
+  --warn-soft:   #FDE7E9;
+  --r:           0px;     /* Windows 10 utilizes sharp 90-degree corners */
+  --r-sm:        0px;
+  --shadow-sm:   0 1px 3px rgba(0,0,0,.08);
+  --shadow-md:   0 4px 10px rgba(0,0,0,.1);
+  --shadow-lg:   0 8px 24px rgba(0,0,0,.15);
 }
 
 /* ══════════════════════════════════════════════════════════
-   RESET
+   ESTILOS GERAIS
 ══════════════════════════════════════════════════════════ */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-html { scroll-behavior: smooth; }
 body {
   background: var(--bg);
   color: var(--text);
-  font-family: 'Segoe UI Variable', 'Segoe UI', -apple-system, 'Inter', Helvetica, Arial, sans-serif;
+  font-family: 'Segoe UI Variable', 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
   font-size: 14px;
-  line-height: 1.6;
+  line-height: 1.5;
   min-height: 100vh;
-  overflow-x: hidden;
 }
-button { font-family: inherit; cursor: pointer; }
+button, input, textarea { font-family: inherit; font-size: inherit; color: inherit; }
 a { color: inherit; text-decoration: none; }
 
+.container {
+  display: grid;
+  grid-template-columns: 260px 1fr;
+  min-height: 100vh;
+}
+
 /* ══════════════════════════════════════════════════════════
-   LGPD MODAL
+   LGPD OVERLAY & MODAL
 ══════════════════════════════════════════════════════════ */
 #lgpd-overlay {
   position: fixed; inset: 0; z-index: 9999;
-  background: rgba(15,17,23,.75);
-  backdrop-filter: blur(6px);
-  -webkit-backdrop-filter: blur(6px);
+  background: rgba(0,0,0,0.5);
+  backdrop-filter: blur(4px);
   display: flex; align-items: center; justify-content: center;
-  padding: 24px;
+  padding: 20px;
 }
 #lgpd-modal {
   background: var(--surface);
-  border-radius: var(--r-lg);
+  border: 1px solid var(--border-dark);
   box-shadow: var(--shadow-lg);
-  max-width: 600px; width: 100%;
+  max-width: 650px; width: 100%;
   max-height: 90vh; overflow-y: auto;
-  padding: 40px;
+  padding: 30px;
 }
 .lgpd-header {
-  display: flex; align-items: flex-start; gap: 16px; margin-bottom: 28px;
+  display: flex; gap: 15px; align-items: center;
+  border-bottom: 2px solid var(--accent); padding-bottom: 15px; margin-bottom: 20px;
 }
-.lgpd-icon {
-  width: 52px; height: 52px; border-radius: 12px;
-  background: #EBF2FC; color: var(--accent);
-  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
-}
-.lgpd-icon svg { width: 26px; height: 26px; }
-.lgpd-header-text h2 { font-size: 20px; font-weight: 700; margin-bottom: 4px; }
-.lgpd-header-text p { font-size: 13px; color: var(--muted); }
-.lgpd-body { margin-bottom: 28px; }
-.lgpd-section-title {
-  font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .09em;
-  color: var(--muted); margin-bottom: 10px; margin-top: 20px;
-}
-.lgpd-section-title:first-child { margin-top: 0; }
-.lgpd-list { list-style: none; display: flex; flex-direction: column; gap: 8px; }
+.lgpd-header svg { color: var(--accent); width: 32px; height: 32px; flex-shrink: 0; }
+.lgpd-header h2 { font-size: 20px; font-weight: 300; }
+.lgpd-header h2 strong { font-weight: 600; }
+.lgpd-text { font-size: 13.5px; color: var(--text-sec); margin-bottom: 15px; }
+.lgpd-list { list-style: none; margin-bottom: 20px; }
 .lgpd-list li {
-  display: flex; gap: 10px; font-size: 13.5px; color: var(--text-sec);
-  line-height: 1.5;
+  display: flex; gap: 10px; margin-bottom: 10px; font-size: 13px;
 }
-.lgpd-list li svg {
-  width: 16px; height: 16px; flex-shrink: 0; margin-top: 2px;
-  color: var(--crl);
-}
+.lgpd-list li svg { width: 16px; height: 16px; color: var(--crl); flex-shrink: 0; margin-top: 2px; }
 .lgpd-list li.warn svg { color: var(--warn); }
-.lgpd-checks { display: flex; flex-direction: column; gap: 12px; margin-bottom: 24px; }
-.lgpd-check-row {
-  display: flex; align-items: flex-start; gap: 12px; cursor: pointer;
-  padding: 12px 14px; border: 1px solid var(--border); border-radius: var(--r-sm);
-  transition: border-color .15s, background .15s;
+.lgpd-checkbox-group {
+  display: flex; flex-direction: column; gap: 10px; margin-bottom: 24px;
 }
-.lgpd-check-row:hover { border-color: var(--accent); background: var(--accent-soft); }
-.lgpd-check-row input[type="checkbox"] { display: none; }
-.lgpd-checkbox {
-  width: 20px; height: 20px; border: 1.5px solid var(--border2);
-  border-radius: 4px; flex-shrink: 0;
-  display: flex; align-items: center; justify-content: center;
-  background: #fff; transition: all .12s; margin-top: 1px;
+.lgpd-checkbox-label {
+  display: flex; gap: 10px; cursor: pointer; font-size: 13px;
+  padding: 10px; border: 1px solid var(--border); background: var(--surface-alt);
 }
-.lgpd-checkbox svg { width: 12px; height: 12px; display: none; color: #fff; }
-.lgpd-check-row input:checked ~ .lgpd-checkbox {
-  background: var(--accent); border-color: var(--accent);
-}
-.lgpd-check-row input:checked ~ .lgpd-checkbox svg { display: block; }
-.lgpd-check-text { font-size: 13px; color: var(--text-sec); }
+.lgpd-checkbox-label:hover { background: var(--surface-hov); }
+.lgpd-checkbox-label input { margin-top: 3px; }
 #lgpd-agree-btn {
-  width: 100%; padding: 13px; background: var(--accent); color: #fff;
-  border: none; border-radius: var(--r-sm);
-  font-size: 14px; font-weight: 700; cursor: pointer;
-  transition: background .15s; opacity: .4; pointer-events: none;
-  display: flex; align-items: center; justify-content: center; gap: 8px;
+  width: 100%; padding: 12px; background: var(--accent); color: #fff;
+  border: none; font-weight: 600; cursor: pointer; transition: background .15s;
+  opacity: .5; pointer-events: none; text-transform: uppercase; letter-spacing: 0.5px;
 }
 #lgpd-agree-btn.ready { opacity: 1; pointer-events: auto; }
 #lgpd-agree-btn.ready:hover { background: var(--accent-dark); }
-#lgpd-agree-btn svg { width: 16px; height: 16px; }
 
 /* ══════════════════════════════════════════════════════════
    EXPORT MODAL
 ══════════════════════════════════════════════════════════ */
 #export-overlay {
   position: fixed; inset: 0; z-index: 9000;
-  background: rgba(15,17,23,.6);
-  backdrop-filter: blur(4px);
-  -webkit-backdrop-filter: blur(4px);
+  background: rgba(0,0,0,0.4);
   display: flex; align-items: center; justify-content: center;
-  padding: 24px;
+  padding: 20px;
 }
 #export-overlay.hidden { display: none; }
 #export-modal {
   background: var(--surface);
-  border-radius: var(--r-lg);
+  border: 1px solid var(--border-dark);
   box-shadow: var(--shadow-lg);
-  max-width: 480px; width: 100%;
-  padding: 32px;
+  max-width: 500px; width: 100%;
+  padding: 25px;
 }
-.export-modal-header { display: flex; gap: 14px; align-items: flex-start; margin-bottom: 20px; }
-.export-modal-icon {
-  width: 44px; height: 44px; background: var(--accent-soft);
-  border-radius: 10px; display: flex; align-items: center; justify-content: center;
-  flex-shrink: 0; color: var(--accent);
-}
-.export-modal-icon svg { width: 22px; height: 22px; }
-.export-modal-header h3 { font-size: 17px; font-weight: 700; margin-bottom: 4px; }
-.export-modal-header p { font-size: 13px; color: var(--muted); }
-.export-notice {
-  background: #FFF8EC; border: 1px solid #F0D080; border-radius: var(--r-sm);
-  padding: 12px 14px; font-size: 13px; color: #7A5500; margin-bottom: 24px;
-  display: flex; gap: 10px; align-items: flex-start;
-}
-.export-notice svg { width: 16px; height: 16px; flex-shrink: 0; margin-top: 1px; }
-.export-modal-actions { display: flex; gap: 10px; justify-content: flex-end; }
+.export-title { font-size: 18px; font-weight: 600; margin-bottom: 12px; display: flex; gap: 8px; align-items: center; }
+.export-title svg { color: var(--accent); }
+.export-body { font-size: 13.5px; color: var(--muted); margin-bottom: 20px; line-height: 1.5; }
+.export-actions { display: flex; gap: 10px; justify-content: flex-end; }
 
 /* ══════════════════════════════════════════════════════════
-   FLOATING TOOLTIP
+   SIDEBAR (Windows Style Settings Panel)
 ══════════════════════════════════════════════════════════ */
-#tooltip-el {
-  position: fixed; z-index: 8000;
-  background: var(--text);
-  color: #fff;
-  font-size: 12.5px; line-height: 1.5;
-  max-width: 300px;
-  padding: 10px 14px;
-  border-radius: var(--r-sm);
-  box-shadow: var(--shadow-md);
-  pointer-events: none;
-  transition: opacity .15s;
-  opacity: 0;
-}
-#tooltip-el.show { opacity: 1; }
-#tooltip-el .tooltip-arrow {
-  position: absolute;
-  width: 8px; height: 8px;
-  background: var(--text);
-  transform: rotate(45deg);
-}
-
-/* ══════════════════════════════════════════════════════════
-   APP SHELL
-══════════════════════════════════════════════════════════ */
-.shell {
-  display: grid;
-  grid-template-columns: 268px 1fr;
-  grid-template-rows: 60px 1fr;
-  min-height: 100vh;
-}
-
-/* ── Top bar ─ */
-.top-bar {
-  grid-column: 1 / -1;
-  background: var(--surface);
-  border-bottom: 1px solid var(--border);
-  padding: 0 28px;
-  height: 60px;
-  display: flex; align-items: center; gap: 14px;
-  box-shadow: var(--shadow-sm);
-  position: sticky; top: 0; z-index: 200;
-}
-.top-bar-logo {
-  display: flex; align-items: center; gap: 10px;
-  font-size: 15px; font-weight: 700; color: var(--text);
-}
-.top-bar-logo svg { color: var(--accent); width: 22px; height: 22px; }
-.top-bar-badge {
-  font-size: 11px; font-weight: 600;
-  background: var(--accent-soft); color: var(--accent);
-  padding: 2px 8px; border-radius: 20px; border: 1px solid var(--trl-border);
-}
-.top-bar-spacer { flex: 1; }
-.top-bar-progress {
-  display: flex; align-items: center; gap: 10px;
-  font-size: 12px; color: var(--muted);
-}
-.top-progress-track {
-  width: 140px; height: 5px; background: var(--surface2);
-  border-radius: 3px; overflow: hidden;
-}
-.top-progress-fill {
-  height: 100%; background: var(--accent);
-  border-radius: 3px; transition: width .35s ease; width: 0%;
-}
-
-/* ── Sidebar ─ */
 .sidebar {
-  grid-column: 1;
-  background: var(--surface);
+  background: #EAEAEA;
   border-right: 1px solid var(--border);
-  padding: 20px 0 40px;
-  position: sticky; top: 60px;
-  height: calc(100vh - 60px);
-  overflow-y: auto;
+  padding: 20px 0;
+  position: sticky; top: 0; height: 100vh;
+  display: flex; flex-direction: column; overflow-y: auto;
 }
+.sb-title-area {
+  padding: 0 20px 20px; border-bottom: 1px solid var(--border);
+  margin-bottom: 15px;
+}
+.sb-title-area h2 { font-size: 15px; font-weight: 600; display: flex; align-items: center; gap: 8px; }
+.sb-title-area h2 svg { color: var(--accent); }
 .sb-section-title {
-  font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .1em;
-  color: var(--muted); padding: 0 18px; margin-bottom: 4px; margin-top: 18px;
+  font-size: 11px; font-weight: 700; text-transform: uppercase;
+  color: var(--muted); padding: 10px 20px 5px; letter-spacing: 0.5px;
 }
-.sb-section-title:first-child { margin-top: 0; }
 .sb-item {
   display: flex; align-items: center; gap: 10px;
-  padding: 7px 18px; border-left: 3px solid transparent;
-  transition: all .12s; font-size: 13px; color: var(--text-sec);
+  padding: 10px 20px; font-size: 13px; color: var(--text-sec);
+  border-left: 4px solid transparent; transition: all .1s;
 }
-.sb-item:hover { background: var(--surface2); color: var(--text); cursor: pointer; }
-.sb-item.active { border-left-color: var(--accent); background: var(--accent-soft); color: var(--accent); font-weight: 600; }
-.sb-item-icon { width: 16px; height: 16px; flex-shrink: 0; opacity: .65; }
-.sb-item.active .sb-item-icon { opacity: 1; }
-.sb-dot { margin-left: auto; width: 7px; height: 7px; border-radius: 50%; background: var(--border2); flex-shrink: 0; }
+.sb-item:hover { background: #DCDCDC; cursor: pointer; }
+.sb-item.active {
+  background: var(--surface); color: var(--text);
+  border-left-color: var(--accent); font-weight: 600;
+}
+.sb-item-icon { width: 16px; height: 16px; flex-shrink: 0; }
+.sb-dot {
+  margin-left: auto; width: 8px; height: 8px; border-radius: 50%;
+  background: #A0A0A0; flex-shrink: 0;
+}
 .sb-dot.done { background: var(--crl); }
-.sb-dot.partial { background: #E08000; }
-.sb-divider { height: 1px; background: var(--border); margin: 12px 0; }
+.sb-dot.partial { background: #D83B01; } /* Windows orange */
 
-/* ── Main ─ */
+/* ══════════════════════════════════════════════════════════
+   MAIN CONTENT
+══════════════════════════════════════════════════════════ */
 .main {
-  grid-column: 2;
-  padding: 36px 44px 140px;
-  max-width: 820px;
+  padding: 30px 40px;
+  overflow-y: auto;
 }
+.header-area {
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 20px; margin-bottom: 25px;
+}
+.header-tag {
+  font-size: 11px; font-weight: 600; color: var(--accent);
+  text-transform: uppercase; display: flex; align-items: center; gap: 6px; margin-bottom: 5px;
+}
+.header-tag svg { width: 14px; height: 14px; }
+.header-area h1 { font-size: 28px; font-weight: 300; }
+.header-area h1 strong { font-weight: 600; }
+.header-area p { font-size: 13.5px; color: var(--muted); margin-top: 5px; max-width: 700px; }
 
 /* ══════════════════════════════════════════════════════════
-   PAGE HERO
+   DASHBOARD / RESULT RADAR AREA
 ══════════════════════════════════════════════════════════ */
-.page-hero { margin-bottom: 32px; }
-.page-eyebrow {
-  font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .1em;
-  color: var(--accent); margin-bottom: 6px; display: flex; align-items: center; gap: 6px;
+.dashboard-grid {
+  display: grid; grid-template-columns: 1fr 340px; gap: 20px;
+  margin-bottom: 25px;
 }
-.page-hero h1 { font-size: 26px; font-weight: 700; margin-bottom: 6px; }
-.page-hero p { font-size: 13.5px; color: var(--muted); max-width: 580px; }
-
-/* ══════════════════════════════════════════════════════════
-   PROFILE CARD
-══════════════════════════════════════════════════════════ */
-.profile-card {
+.dash-card {
   background: var(--surface); border: 1px solid var(--border);
-  border-radius: var(--r); padding: 22px; margin-bottom: 28px;
-  box-shadow: var(--shadow-sm);
+  padding: 20px; box-shadow: var(--shadow-sm);
 }
-.card-title {
-  font-size: 12px; font-weight: 700; margin-bottom: 14px; color: var(--text);
-  display: flex; align-items: center; gap: 7px;
+.dash-title {
+  font-size: 14px; font-weight: 600; border-bottom: 1px solid var(--border);
+  padding-bottom: 10px; margin-bottom: 15px; display: flex; align-items: center; gap: 8px;
 }
-.card-title svg { color: var(--accent); width: 15px; height: 15px; }
-.profile-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
-.field label { display: block; font-size: 12px; font-weight: 600; margin-bottom: 5px; color: var(--text-sec); }
-.field input {
-  width: 100%; background: var(--bg); border: 1px solid var(--border2);
-  border-radius: var(--r-sm); padding: 8px 11px; color: var(--text);
-  font-family: inherit; font-size: 14px; outline: none;
-  transition: border-color .2s, box-shadow .2s;
+.dash-title svg { color: var(--accent); }
+
+/* Radar graphic box */
+.radar-box {
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
 }
-.field input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(26,111,212,.1); }
-.field input::placeholder { color: var(--muted); }
+#radar-canvas {
+  background: #FFFFFF; max-width: 100%; height: auto;
+}
+.radar-actions {
+  display: flex; gap: 10px; width: 100%; margin-top: 15px;
+}
+
+/* Consolidation metrics */
+.metrics-box {
+  display: flex; flex-direction: column; gap: 15px;
+}
+.metric-row {
+  display: grid; grid-template-columns: 80px 1fr; align-items: center; gap: 10px;
+}
+.metric-val-block {
+  text-align: center; border: 1px solid var(--border); background: var(--surface-alt);
+  padding: 10px 5px;
+}
+.metric-val-num { font-size: 32px; font-weight: 300; line-height: 1; }
+.metric-val-num.trl { color: var(--trl); }
+.metric-val-num.crl { color: var(--crl); }
+.metric-val-lbl { font-size: 10px; font-weight: 600; text-transform: uppercase; color: var(--muted); margin-top: 2px; }
+.metric-info { font-size: 13px; }
+.metric-info-title { font-weight: 600; }
+.metric-info-desc { color: var(--muted); font-size: 12px; margin-top: 2px; }
 
 /* ══════════════════════════════════════════════════════════
    SEMANTIC ASSISTANT (BM25)
 ══════════════════════════════════════════════════════════ */
 .semantic-card {
-  background: linear-gradient(135deg, #F0F6FF 0%, #F8FBF0 100%);
-  border: 1px solid #C6D9F5;
-  border-radius: var(--r); padding: 22px; margin-bottom: 28px;
-  box-shadow: var(--shadow-sm);
+  background: var(--surface-alt); border: 1px solid var(--border);
+  padding: 20px; margin-bottom: 25px;
 }
-.semantic-header {
-  display: flex; align-items: center; gap: 10px; margin-bottom: 4px;
-}
-.semantic-icon {
-  width: 34px; height: 34px; border-radius: 8px;
-  background: var(--accent-soft); color: var(--accent);
-  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
-}
-.semantic-icon svg { width: 18px; height: 18px; }
-.semantic-header-text h3 { font-size: 14px; font-weight: 700; }
+.semantic-header { display: flex; align-items: center; gap: 10px; }
+.semantic-header-text h3 { font-size: 14px; font-weight: 600; }
 .semantic-header-text p { font-size: 12px; color: var(--muted); }
-.semantic-toggle-btn {
-  margin-left: auto; font-size: 12px; font-weight: 600;
-  color: var(--accent); background: none; border: none; cursor: pointer;
-  display: flex; align-items: center; gap: 4px;
+.semantic-toggle {
+  margin-left: auto; background: none; border: 1px solid var(--border);
+  padding: 5px 12px; font-size: 12px; font-weight: 600; cursor: pointer;
+  display: flex; align-items: center; gap: 5px;
 }
-.semantic-toggle-btn svg { width: 14px; height: 14px; transition: transform .2s; }
-.semantic-toggle-btn.open svg { transform: rotate(180deg); }
-.semantic-body { margin-top: 16px; }
+.semantic-toggle:hover { background: var(--surface-hov); }
+.semantic-toggle svg { width: 12px; height: 12px; transition: transform .15s; }
+.semantic-toggle.open svg { transform: rotate(180deg); }
+
+.semantic-body { margin-top: 15px; border-top: 1px solid var(--border); padding-top: 15px; }
 .semantic-body textarea {
-  width: 100%; min-height: 90px; resize: vertical;
-  background: #fff; border: 1px solid var(--border2);
-  border-radius: var(--r-sm); padding: 10px 12px;
-  font-family: inherit; font-size: 13.5px; color: var(--text);
-  outline: none; transition: border-color .2s;
-  line-height: 1.55;
+  width: 100%; min-height: 80px; border: 1px solid var(--border);
+  padding: 10px; font-size: 13px; line-height: 1.5; outline: none; resize: vertical;
 }
-.semantic-body textarea:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(26,111,212,.1); }
-.semantic-body textarea::placeholder { color: var(--muted); }
-.semantic-hint { font-size: 11.5px; color: var(--muted); margin-top: 6px; margin-bottom: 14px; }
-.semantic-results { display: flex; flex-direction: column; gap: 8px; }
-.semantic-result-card {
-  background: #fff; border: 1px solid var(--border);
-  border-radius: var(--r-sm); padding: 12px 14px;
-  display: flex; align-items: flex-start; gap: 12px;
-  transition: border-color .15s;
+.semantic-body textarea:focus { border-color: var(--accent); }
+.semantic-results { display: flex; flex-direction: column; gap: 8px; margin-top: 15px; }
+.sr-card {
+  background: var(--surface); border: 1px solid var(--border);
+  padding: 10px 12px; display: flex; gap: 12px; align-items: center;
 }
-.semantic-result-card:hover { border-color: var(--accent); }
+.sr-card:hover { border-color: var(--accent); }
 .sr-badge {
-  font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 10px;
-  white-space: nowrap; flex-shrink: 0; margin-top: 2px;
+  font-size: 10px; font-weight: 600; padding: 2px 6px; border: 1px solid var(--border);
+  background: var(--surface-alt); text-transform: uppercase;
 }
-.sr-badge.trl { background: var(--trl-soft); color: var(--trl); border: 1px solid var(--trl-border); }
-.sr-badge.crl { background: var(--crl-soft); color: var(--crl); border: 1px solid var(--crl-border); }
-.sr-text { font-size: 13px; color: var(--text-sec); flex: 1; line-height: 1.4; }
-.sr-confidence {
-  display: flex; flex-direction: column; align-items: flex-end; gap: 4px; flex-shrink: 0;
+.sr-badge.trl { color: var(--trl); border-color: var(--trl); }
+.sr-badge.crl { color: var(--crl); border-color: var(--crl); }
+.sr-text { font-size: 12.5px; flex: 1; }
+.sr-score { text-align: right; font-size: 11px; font-weight: 600; color: var(--accent); }
+.sr-btn {
+  background: var(--surface-alt); border: 1px solid var(--border);
+  padding: 4px 8px; font-size: 11px; font-weight: 600; cursor: pointer;
 }
-.sr-pct { font-size: 11px; font-weight: 700; color: var(--accent); }
-.sr-bar-track {
-  width: 60px; height: 4px; background: var(--surface2); border-radius: 2px; overflow: hidden;
-}
-.sr-bar-fill { height: 100%; background: var(--accent); border-radius: 2px; }
-.sr-mark-btn {
-  font-size: 11px; font-weight: 700; padding: 4px 10px;
-  border-radius: 20px; border: 1px solid var(--border2);
-  background: var(--surface2); color: var(--muted);
-  cursor: pointer; transition: all .12s; white-space: nowrap; flex-shrink: 0;
-}
-.sr-mark-btn:hover { background: var(--accent-soft); border-color: var(--accent); color: var(--accent); }
-.sr-mark-btn.marked { background: var(--crl-soft); border-color: var(--crl-border); color: var(--crl); }
-.semantic-apply-row {
-  margin-top: 10px; display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
-}
-.semantic-apply-btn {
-  font-size: 12px; font-weight: 700; padding: 7px 16px;
-  border-radius: var(--r-sm); background: var(--accent); color: #fff;
-  border: none; cursor: pointer; transition: background .15s;
-}
-.semantic-apply-btn:hover { background: var(--accent-dark); }
-.semantic-apply-hint { font-size: 12px; color: var(--muted); }
-.semantic-empty { font-size: 13px; color: var(--muted); text-align: center; padding: 20px 0; }
+.sr-btn:hover { background: var(--surface-hov); }
+.sr-btn.marked { background: var(--accent-soft); border-color: var(--accent); color: var(--accent); }
 
 /* ══════════════════════════════════════════════════════════
-   SECTION INTRO
-══════════════════════════════════════════════════════════ */
-.section-intro {
-  display: flex; align-items: flex-start; gap: 14px;
-  margin-bottom: 24px; margin-top: 36px;
-}
-.section-intro-icon {
-  width: 44px; height: 44px; border-radius: var(--r);
-  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
-}
-.section-intro-icon.trl { background: var(--trl-soft); color: var(--trl); }
-.section-intro-icon.crl { background: var(--crl-soft); color: var(--crl); }
-.section-intro-icon svg { width: 22px; height: 22px; }
-.section-intro-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .1em; margin-bottom: 2px; }
-.section-intro-label.trl { color: var(--trl); }
-.section-intro-label.crl { color: var(--crl); }
-.section-intro-title { font-size: 20px; font-weight: 700; margin-bottom: 3px; }
-.section-intro-desc { font-size: 13px; color: var(--muted); }
-
-/* ══════════════════════════════════════════════════════════
-   CATEGORY CARDS
+   CATEGORY CARDS & CHECKLISTS
 ══════════════════════════════════════════════════════════ */
 .cat-card {
   background: var(--surface); border: 1px solid var(--border);
-  border-radius: var(--r); padding: 24px; margin-bottom: 16px;
-  box-shadow: var(--shadow-sm); scroll-margin-top: 76px;
-  transition: border-color .2s, box-shadow .2s;
+  padding: 20px; margin-bottom: 20px; scroll-margin-top: 80px;
 }
-.cat-card:hover { box-shadow: var(--shadow-md); }
-.cat-card.has-answers.trl-card {
-  border-color: var(--trl-border);
-  box-shadow: 0 0 0 1px var(--trl-border), var(--shadow-sm);
-  border-left: 4px solid var(--trl);
+.cat-card.active-card.trl-card { border-left: 4px solid var(--trl); }
+.cat-card.active-card.crl-card { border-left: 4px solid var(--crl); }
+.cat-header { display: flex; gap: 12px; align-items: flex-start; margin-bottom: 15px; }
+.cat-icon-box {
+  width: 36px; height: 36px; display: flex; align-items: center; justify-content: center;
+  background: var(--surface-alt); border: 1px solid var(--border);
 }
-.cat-card.has-answers.crl-card {
-  border-color: var(--crl-border);
-  box-shadow: 0 0 0 1px var(--crl-border), var(--shadow-sm);
-  border-left: 4px solid var(--crl);
+.cat-icon-box.trl { color: var(--trl); }
+.cat-icon-box.crl { color: var(--crl); }
+.cat-icon-box svg { width: 18px; height: 18px; }
+.cat-title-text h3 { font-size: 15px; font-weight: 600; }
+.cat-title-text p { font-size: 12px; color: var(--muted); }
+.cat-score-badge {
+  margin-left: auto; font-size: 11px; font-weight: 600;
+  padding: 3px 8px; border: 1px solid var(--border); background: var(--surface-alt);
 }
-.cat-header { display: flex; align-items: flex-start; gap: 12px; margin-bottom: 18px; }
-.cat-icon { width: 38px; height: 38px; border-radius: 8px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-.cat-icon.trl { background: var(--trl-soft); color: var(--trl); }
-.cat-icon.crl { background: var(--crl-soft); color: var(--crl); }
-.cat-icon svg { width: 19px; height: 19px; }
-.cat-header-text { flex: 1; }
-.cat-label { font-size: 15px; font-weight: 700; margin-bottom: 2px; }
-.cat-hint { font-size: 12px; color: var(--muted); }
-.cat-pill {
-  font-size: 11px; font-weight: 700; padding: 3px 10px; border-radius: 20px;
-  flex-shrink: 0; align-self: flex-start; cursor: default;
-}
-.cat-pill.trl { background: var(--trl-soft); color: var(--trl); border: 1px solid var(--trl-border); }
-.cat-pill.crl { background: var(--crl-soft); color: var(--crl); border: 1px solid var(--crl-border); }
 
-/* ── Criteria groups ─ */
-.crit-group { margin-bottom: 14px; }
-.crit-group-label {
-  font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: .08em;
-  color: var(--muted); margin-bottom: 6px; padding-bottom: 5px;
-  border-bottom: 1px solid var(--border);
+.crit-group { margin-bottom: 12px; }
+.crit-group-title {
+  font-size: 10px; font-weight: 700; text-transform: uppercase; color: var(--muted);
+  border-bottom: 1px solid var(--border); padding-bottom: 4px; margin-bottom: 8px;
 }
-.criterion {
-  display: flex; align-items: flex-start; gap: 10px;
-  padding: 8px 10px; border-radius: var(--r-sm); cursor: pointer;
-  transition: background .1s; border: 1px solid transparent;
-  margin-bottom: 3px; position: relative;
+.crit-item {
+  display: flex; gap: 10px; align-items: flex-start; padding: 6px 8px;
+  cursor: pointer; transition: background .1s; margin-bottom: 2px;
 }
-.criterion:hover { background: var(--surface2); }
-.criterion input[type="checkbox"] { display: none; }
-.crit-box {
-  width: 19px; height: 19px; border: 1.5px solid var(--border2);
-  border-radius: 4px; flex-shrink: 0;
-  display: flex; align-items: center; justify-content: center;
-  background: #fff; transition: all .12s; margin-top: 1px;
-}
-.crit-box svg { width: 12px; height: 12px; display: none; color: #fff; }
-.criterion.trl-crit input:checked ~ .crit-box { background: var(--trl); border-color: var(--trl); }
-.criterion.crl-crit input:checked ~ .crit-box { background: var(--crl); border-color: var(--crl); }
-.criterion input:checked ~ .crit-box svg { display: block; }
-.crit-text { font-size: 13.5px; color: var(--text-sec); flex: 1; line-height: 1.45; }
-.criterion input:checked ~ .crit-text { color: var(--text); }
+.crit-item:hover { background: var(--surface-alt); }
+.crit-item input { margin-top: 3px; }
+.crit-text { font-size: 13px; flex: 1; }
 .crit-info-btn {
-  width: 20px; height: 20px; border: none; background: none;
-  color: var(--border2); cursor: pointer; flex-shrink: 0;
-  display: flex; align-items: center; justify-content: center;
-  border-radius: 50%; margin-top: 1px; padding: 0;
-  transition: color .12s;
+  background: none; border: none; color: #999; cursor: pointer; display: flex; align-items: center;
 }
 .crit-info-btn:hover { color: var(--accent); }
-.crit-info-btn svg { width: 15px; height: 15px; }
-
-/* ── Level bar ─ */
-.cat-level-bar {
-  margin-top: 18px; padding-top: 14px; border-top: 1px solid var(--border);
-  display: flex; align-items: center; gap: 10px;
-}
-.cat-level-lbl { font-size: 11px; color: var(--muted); width: 72px; flex-shrink: 0; }
-.level-dots { display: flex; gap: 3px; flex: 1; }
-.level-dot { flex: 1; height: 5px; border-radius: 3px; background: var(--surface2); transition: background .3s; }
-.level-dot.filled.trl { background: var(--trl); }
-.level-dot.filled.crl { background: var(--crl); }
-.level-dot-score { font-size: 12px; font-weight: 700; min-width: 38px; text-align: right; }
-.level-dot-score.trl { color: var(--trl); }
-.level-dot-score.crl { color: var(--crl); }
+.crit-info-btn svg { width: 14px; height: 14px; }
 
 /* ══════════════════════════════════════════════════════════
-   RESULT FOOTER
+   METHODOLOGICAL FRAMEWORK (CREDIBILITY SECTION)
 ══════════════════════════════════════════════════════════ */
-.result-footer {
-  position: fixed; bottom: 0; left: 268px; right: 0;
-  background: rgba(255,255,255,.97);
-  border-top: 1px solid var(--border);
-  box-shadow: 0 -4px 24px rgba(0,0,0,.08);
-  backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
-  padding: 14px 44px;
-  display: flex; align-items: center; gap: 24px;
-  z-index: 100; flex-wrap: wrap;
+.methodology-card {
+  background: var(--surface); border: 1px solid var(--border);
+  padding: 20px; margin-top: 40px; margin-bottom: 60px;
 }
-.result-block { display: flex; align-items: baseline; gap: 5px; }
-.result-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .09em; color: var(--muted); }
-.result-value { font-size: 34px; font-weight: 300; line-height: 1; }
-.result-value.trl { color: var(--trl); }
-.result-value.crl { color: var(--crl); }
-.result-denom { font-size: 13px; color: var(--muted); }
-.result-sep { width: 1px; height: 44px; background: var(--border); flex-shrink: 0; }
-.result-desc { flex: 1; min-width: 180px; }
-.result-desc-title { font-size: 13px; font-weight: 700; margin-bottom: 2px; }
-.result-desc-sub { font-size: 12px; color: var(--muted); }
-.result-actions { display: flex; gap: 8px; margin-left: auto; flex-shrink: 0; }
+.methodology-title { font-size: 14px; font-weight: 600; display: flex; align-items: center; gap: 8px; margin-bottom: 15px; border-bottom: 1px solid var(--border); padding-bottom: 10px; }
+.methodology-title svg { color: var(--accent); }
+.methodology-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+.methodology-col h4 { font-size: 13px; font-weight: 600; margin-bottom: 6px; }
+.methodology-col p { font-size: 12.5px; color: var(--muted); line-height: 1.5; margin-bottom: 10px; }
 
 /* ══════════════════════════════════════════════════════════
-   BUTTONS
+   FLOATING TOOLTIP
+══════════════════════════════════════════════════════════ */
+#tooltip {
+  position: fixed; z-index: 8000; background: #333333; color: #FFFFFF;
+  padding: 8px 12px; font-size: 12px; max-width: 280px; box-shadow: var(--shadow-md);
+  pointer-events: none; opacity: 0; transition: opacity .1s;
+}
+#tooltip.show { opacity: 1; }
+
+/* ══════════════════════════════════════════════════════════
+   BUTTONS & CONTROLS (Flat Windows Style)
 ══════════════════════════════════════════════════════════ */
 .btn {
   display: inline-flex; align-items: center; gap: 6px;
-  padding: 8px 16px; border-radius: var(--r-sm);
-  font-size: 13px; font-weight: 600; cursor: pointer;
-  transition: all .15s; border: 1px solid transparent; white-space: nowrap;
+  padding: 8px 16px; font-size: 13px; font-weight: 600;
+  border: 1px solid var(--border-dark); background: #E1E1E1;
+  cursor: pointer; transition: all .1s;
 }
+.btn:hover { background: #E5E5E5; border-color: var(--text); }
+.btn:active { background: #CCCCCC; }
 .btn svg { width: 14px; height: 14px; }
-.btn-primary { background: var(--accent); color: #fff; border-color: var(--accent); }
+
+.btn-primary { background: var(--accent); color: #FFFFFF; border-color: var(--accent); }
 .btn-primary:hover { background: var(--accent-dark); border-color: var(--accent-dark); }
-.btn-ghost { background: transparent; color: var(--text-sec); border-color: var(--border2); }
-.btn-ghost:hover { background: var(--surface2); color: var(--text); }
-.btn-danger { background: var(--warn); color: #fff; border-color: var(--warn); }
-.btn-danger:hover { background: #A93226; }
+.btn-primary:active { background: #004578; }
+
+.btn-danger { background: var(--warn); color: #FFFFFF; border-color: var(--warn); }
+.btn-danger:hover { background: #B3000E; border-color: #B3000E; }
 
 /* ══════════════════════════════════════════════════════════
-   RESPONSIVE
+   RESPONSIVE LAYOUTS
 ══════════════════════════════════════════════════════════ */
 @media (max-width: 900px) {
-  .shell { grid-template-columns: 1fr; }
+  .container { grid-template-columns: 1fr; }
   .sidebar {
-    grid-column: 1; position: static; height: auto;
-    border-right: none; border-bottom: 1px solid var(--border);
-    display: flex; flex-wrap: wrap; gap: 4px; padding: 10px 14px;
+    height: auto; position: static; padding: 10px;
+    flex-direction: row; flex-wrap: wrap; gap: 5px;
   }
-  .sb-section-title, .sb-divider { display: none; }
-  .sb-item { border-left: none; border-radius: var(--r-sm); padding: 5px 10px; flex-shrink: 0; font-size: 12px; }
-  .sb-item.active { border-left: none; }
+  .sb-title-area, .sb-section-title { display: none; }
+  .sb-item { padding: 6px 12px; border-left: none; background: #DFDFDF; }
+  .sb-item.active { background: var(--surface); border-bottom: 2px solid var(--accent); }
   .sb-dot { display: none; }
-  .main { grid-column: 1; padding: 20px 18px 140px; }
-  .result-footer { left: 0; padding: 12px 18px; }
-  .top-bar { padding: 0 18px; }
-  .top-bar-progress { display: none; }
-  .profile-grid { grid-template-columns: 1fr; }
-  .result-desc { display: none; }
-  .result-actions { margin-left: 0; }
-}
-@media (max-width: 480px) {
-  .main { padding: 16px 14px 160px; }
-  .cat-card { padding: 18px 14px; }
-  .result-footer { gap: 12px; }
-  #lgpd-modal { padding: 24px 20px; }
+  .dashboard-grid { grid-template-columns: 1fr; }
+  .main { padding: 20px; }
+  .methodology-grid { grid-template-columns: 1fr; gap: 15px; }
 }
 
-/* util */
+/* Utils */
 .hidden { display: none !important; }
-.mt4 { margin-top: 4px; }
 </style>
 </head>
 <body>
 
 <!-- ══════════════════════════════════════════════════════
-     LGPD MODAL
+     LGPD CONSENT MODAL
 ═══════════════════════════════════════════════════════ -->
 <div id="lgpd-overlay">
   <div id="lgpd-modal" role="dialog" aria-modal="true" aria-labelledby="lgpd-title">
     <div class="lgpd-header">
-      <div class="lgpd-icon">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
-        </svg>
-      </div>
-      <div class="lgpd-header-text">
-        <h2 id="lgpd-title">Aviso de Privacidade e Sigilo Industrial</h2>
-        <p>Leia antes de prosseguir — sua segurança importa</p>
-      </div>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+      </svg>
+      <h2 id="lgpd-title">Privacidade, LGPD e <strong>Sigilo Industrial</strong></h2>
     </div>
-
-    <div class="lgpd-body">
-      <div class="lgpd-section-title">O que esta ferramenta faz</div>
-      <ul class="lgpd-list">
-        <li>
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-          <span>Calcula o <strong>TRL</strong> (Technology Readiness Level) e <strong>CRL</strong> (Commercial Readiness Level) da sua tecnologia com base em critérios NASA / DOE / ARPA-E e NYSERDA.</span>
-        </li>
-        <li>
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-          <span>Usa o algoritmo <strong>Okapi BM25</strong> para sugerir critérios semanticamente compatíveis com a descrição livre que você fornecer — <strong>totalmente no seu navegador</strong>.</span>
-        </li>
-        <li>
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-          <span>Gera um relatório em formato Markdown, disponível <strong>somente mediante sua confirmação explícita</strong>.</span>
-        </li>
-      </ul>
-
-      <div class="lgpd-section-title">Garantias de privacidade (LGPD Art. 7º)</div>
-      <ul class="lgpd-list">
-        <li>
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-          <span><strong>Nenhum dado é transmitido</strong> — todo processamento ocorre localmente no seu navegador. Não há chamadas a APIs externas, servidores de analytics ou CDNs após o carregamento da página.</span>
-        </li>
-        <li>
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-          <span><strong>Sem cookies ou armazenamento persistente</strong> — as respostas existem apenas na memória da aba atual. Ao fechar ou recarregar, tudo é apagado.</span>
-        </li>
-        <li>
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-          <span><strong>Código inspecionável</strong> — todo o JavaScript pode ser auditado diretamente no DevTools do navegador. Não há código ofuscado ou minificado.</span>
-        </li>
-        <li>
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-          <span><strong>Exportação voluntária</strong> — o arquivo Markdown com os dados da avaliação só é gerado e baixado se você confirmar explicitamente em um segundo passo.</span>
-        </li>
-        <li>
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-          <span><strong>Fontes locais</strong> — a ferramenta usa apenas fontes do sistema operacional. Nenhuma requisição é feita ao Google Fonts ou similares.</span>
-        </li>
-      </ul>
-
-      <div class="lgpd-section-title">Sua responsabilidade</div>
-      <ul class="lgpd-list">
-        <li class="warn">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-          <span>O arquivo exportado pode conter informações sensíveis sobre sua tecnologia. <strong>Você é responsável pelo armazenamento e compartilhamento desse arquivo.</strong> Recomendamos tratá-lo como confidencial.</span>
-        </li>
-        <li class="warn">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-          <span>Esta ferramenta é um <strong>auxílio à avaliação</strong>, não substitui a análise de um especialista em gestão de inovação ou propriedade intelectual.</span>
-        </li>
-      </ul>
+    <div class="lgpd-text">
+      Esta calculadora avalia o nível de maturidade de projetos de inovação gerando diagnósticos baseados em evidências. Para garantir a segurança dos seus segredos industriais e a conformidade regulatória (LGPD):
     </div>
+    <ul class="lgpd-list">
+      <li>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+        <span><strong>100% Client-Side:</strong> Nenhum dado preenchido nesta página é enviado a servidores externos. Todo o processamento (incluindo busca semântica BM25 e geração de gráficos) ocorre no seu navegador.</span>
+      </li>
+      <li>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+        <span><strong>Voluntariedade e Controle:</strong> A exportação de dados (Markdown ou gráfico PNG) é feita mediante sua ação explícita de download local. A aplicação não armazena cookies ou histórico.</span>
+      </li>
+      <li class="warn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+        <span><strong>Aviso de Sigilo:</strong> O relatório gerado detalha aspectos do seu modelo técnico e comercial. Manter a custódia segura do arquivo baixado é de sua total responsabilidade.</span>
+      </li>
+    </ul>
 
-    <div class="lgpd-checks">
-      <label class="lgpd-check-row" id="lgpd-check1-row">
-        <input type="checkbox" id="lgpd-c1">
-        <span class="lgpd-checkbox">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-        </span>
-        <span class="lgpd-check-text">Compreendo que nenhum dado digitado nesta ferramenta é enviado a servidores externos e que todo processamento ocorre localmente no meu navegador.</span>
+    <div class="lgpd-checkbox-group">
+      <label class="lgpd-checkbox-label">
+        <input type="checkbox" id="c-privacy">
+        <span>Confirmo que entendo que a aplicação executa o algoritmo localmente e não trafega meus dados em nenhuma rede externa.</span>
       </label>
-      <label class="lgpd-check-row" id="lgpd-check2-row">
-        <input type="checkbox" id="lgpd-c2">
-        <span class="lgpd-checkbox">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-        </span>
-        <span class="lgpd-check-text">Compreendo que a exportação do relatório é um ato voluntário e que sou responsável pela confidencialidade das informações exportadas.</span>
+      <label class="lgpd-checkbox-label">
+        <input type="checkbox" id="c-responsibility">
+        <span>Declaro-me responsável pelo sigilo industrial e segurança de qualquer arquivo Markdown ou PNG que eu decidir exportar da ferramenta.</span>
       </label>
     </div>
 
-    <button id="lgpd-agree-btn">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><polyline points="9 12 11 14 15 10"/></svg>
-      Concordar e iniciar avaliação
-    </button>
+    <button id="lgpd-agree-btn">Concordar e Iniciar Diagnóstico</button>
   </div>
 </div>
 
 <!-- ══════════════════════════════════════════════════════
-     EXPORT CONFIRMATION MODAL
+     CONFIRMAÇÃO DE EXPORTAÇÃO
 ═══════════════════════════════════════════════════════ -->
-<div id="export-overlay" class="hidden" role="dialog" aria-modal="true">
-  <div id="export-modal">
-    <div class="export-modal-header">
-      <div class="export-modal-icon">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-      </div>
-      <div>
-        <h3>Exportar Relatório em Markdown</h3>
-        <p>Confirme antes de gerar o arquivo</p>
-      </div>
+<div id="export-overlay" class="hidden">
+  <div id="export-modal" role="dialog" aria-modal="true">
+    <div class="export-title">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+      Exportar Relatório Consolidado
     </div>
-    <div class="export-notice">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-      <span>O arquivo pode conter <strong>informações confidenciais</strong> sobre sua tecnologia. Armazene e compartilhe com cuidado. A ferramenta não guarda nenhuma cópia.</span>
+    <div class="export-body">
+      Deseja salvar o relatório técnico detalhado e o gráfico de radar? Os arquivos serão baixados diretamente na sua máquina local de maneira segura. A aplicação não retém cópias.
     </div>
-    <div class="export-modal-actions">
-      <button class="btn btn-ghost" id="export-cancel-btn">Cancelar</button>
-      <button class="btn btn-primary" id="export-confirm-btn">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-        Confirmar e baixar
-      </button>
+    <div class="export-actions">
+      <button class="btn" id="export-cancel-btn">Cancelar</button>
+      <button class="btn btn-primary" id="export-confirm-btn">Confirmar e Baixar (.md)</button>
     </div>
   </div>
 </div>
 
-<!-- Floating tooltip -->
-<div id="tooltip-el" role="tooltip">
-  <div id="tooltip-content"></div>
-</div>
+<!-- Tooltip Element -->
+<div id="tooltip" role="tooltip"></div>
 
 <!-- ══════════════════════════════════════════════════════
-     APP SHELL
+     LAYOUT PRINCIPAL
 ═══════════════════════════════════════════════════════ -->
-<div class="shell">
-  <div class="top-bar">
-    <div class="top-bar-logo">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3H5a2 2 0 0 0-2 2v4m6-6h10a2 2 0 0 1 2 2v4M9 3v18m0 0h10a2 2 0 0 0 2-2V9M9 21H5a2 2 0 0 1-2-2V9m0 0h18"/></svg>
-      TRL / CRL
-    </div>
-    <span class="top-bar-badge">Avaliação de Maturidade</span>
-    <div class="top-bar-spacer"></div>
-    <div class="top-bar-progress">
-      <span id="progress-label">—</span>
-      <div class="top-progress-track">
-        <div class="top-progress-fill" id="top-progress"></div>
+<div class="container">
+  
+  <!-- Sidebar -->
+  <nav class="sidebar" id="sidebar"></nav>
+
+  <!-- Main Area -->
+  <main class="main">
+    <header class="header-area">
+      <div class="header-tag">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+        Conformidade Local Ativa (Sem Conexões Externas)
       </div>
-    </div>
-  </div>
+      <h1>Calculadora de Maturidade <strong>TRL / CRL</strong></h1>
+      <p>Uma ferramenta baseada em múltiplos frameworks clássicos (NASA, DOE, ARPA-E) consolidada com checklists de evidências binárias para mitigar o viés de autoavaliação subjetiva.</p>
+    </header>
 
-  <nav class="sidebar" id="sidebar" aria-label="Navegação por categorias"></nav>
-
-  <main class="main" id="main-content">
-    <div class="page-hero">
-      <div class="page-eyebrow">
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-        Ferramenta de Avaliação — 100% Client-side
-      </div>
-      <h1>Calculadora de Maturidade Tecnológica e Comercial</h1>
-      <p>Responda os critérios por categoria ou use o assistente semântico para descrever livremente sua tecnologia. Os resultados TRL e CRL são calculados automaticamente.</p>
-    </div>
-
-    <!-- Profile -->
-    <div class="profile-card">
-      <div class="card-title">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-        Identificação
+    <!-- Identificação -->
+    <div class="dash-card" style="margin-bottom: 20px;">
+      <div class="dash-title">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        Identificação da Tecnologia
       </div>
       <div class="profile-grid">
         <div class="field">
-          <label for="inst-input">Instituição / Incubadora</label>
-          <input type="text" id="inst-input" placeholder="Ex: NidusTec, INOVA-USP…" autocomplete="organization">
+          <label for="inst-input">Instituição ou Incubadora</label>
+          <input type="text" id="inst-input" placeholder="Ex: NidusTec, INOVA-USP…">
         </div>
         <div class="field">
-          <label for="tech-input">Tecnologia / Startup</label>
-          <input type="text" id="tech-input" placeholder="Ex: BioSense Detector" autocomplete="off">
+          <label for="tech-input">Título da Tecnologia / Startup</label>
+          <input type="text" id="tech-input" placeholder="Ex: BioSense Detector">
         </div>
       </div>
     </div>
 
-    <!-- Semantic Assistant -->
-    <div class="semantic-card" id="semantic-card">
+    <!-- Dashboard & Radar -->
+    <div class="dashboard-grid">
+      <div class="dash-card">
+        <div class="dash-title">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/><line x1="2" y1="20" x2="22" y2="20"/></svg>
+          Métricas de Maturidade
+        </div>
+        <div class="metrics-box">
+          <div class="metric-row">
+            <div class="metric-val-block">
+              <div class="metric-val-num trl" id="m-trl-val">—</div>
+              <div class="metric-val-lbl">TRL</div>
+            </div>
+            <div class="metric-info">
+              <div class="metric-info-title" id="m-trl-title">Responda aos critérios de tecnologia</div>
+              <div class="metric-info-desc">Maturidade Tecnológica (NASA/DOE). Avalia viabilidade prática do hardware/software.</div>
+            </div>
+          </div>
+          <div class="metric-row" style="border-top: 1px solid var(--border); padding-top: 15px;">
+            <div class="metric-val-block">
+              <div class="metric-val-num crl" id="m-crl-val">—</div>
+              <div class="metric-val-lbl">CRL</div>
+            </div>
+            <div class="metric-info">
+              <div class="metric-info-title" id="m-crl-title">Responda aos critérios de negócio</div>
+              <div class="metric-info-desc">Maturidade Comercial (NYSERDA/ARPA-E). Prontidão comercial do produto e tração do time.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="dash-card radar-box">
+        <div class="dash-title" style="width: 100%;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 22 8.5 22 19.5 12 22 2 19.5 2 8.5 12 2"/></svg>
+          Heptágono de Maturidade
+        </div>
+        <canvas id="radar-canvas" width="280" height="280"></canvas>
+        <div class="radar-actions">
+          <button class="btn btn-ghost" id="radar-png-btn" style="flex:1; justify-content:center;" title="Salvar o gráfico de radar atual como imagem PNG">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+            Salvar Radar (PNG)
+          </button>
+          <button class="btn btn-primary" id="md-export-btn" style="flex:1; justify-content:center;" title="Baixar relatório descritivo completo em formato Markdown">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            Exportar (.md)
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Assistente Semântico -->
+    <div class="semantic-card">
       <div class="semantic-header">
         <div class="semantic-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="11" y1="8" x2="11" y2="14"/><line x1="8" y1="11" x2="14" y2="11"/></svg>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
         </div>
         <div class="semantic-header-text">
-          <h3>Assistente Semântico <span style="font-size:10px;font-weight:600;color:var(--muted);margin-left:6px;border:1px solid var(--border);padding:1px 6px;border-radius:10px;">BM25</span></h3>
-          <p>Descreva sua tecnologia em linguagem livre — sugerimos critérios automaticamente</p>
+          <h3>Assistente Diagnóstico Semântico</h3>
+          <p>Digite uma descrição textual do estado atual do seu projeto (tecnologia, testes, mercado) para sugerir critérios.</p>
         </div>
-        <button class="semantic-toggle-btn" id="semantic-toggle" aria-expanded="false">
-          Expandir
+        <button class="semantic-toggle" id="semantic-toggle-btn">
+          Expandir Assistente
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
         </button>
       </div>
       <div class="semantic-body hidden" id="semantic-body">
-        <textarea id="semantic-input" placeholder="Ex: Temos um protótipo funcional testado em laboratório com dados publicados. O mercado-alvo está identificado e já conversamos com 5 potenciais clientes. A equipe tem 3 pesquisadores e 1 especialista em negócios…" rows="4"></textarea>
-        <p class="semantic-hint">Mínimo 10 palavras para ativar o BM25. Os critérios sugeridos com maior confiança aparecem abaixo.</p>
-        <div id="semantic-results"></div>
+        <textarea id="semantic-input" placeholder="Ex: Temos um protótipo de bancada validado no laboratório, com patentes depositadas. Conversamos com 3 potenciais clientes que manifestaram interesse..."></textarea>
+        <div class="semantic-results" id="semantic-results-box"></div>
       </div>
     </div>
 
-    <!-- Categories injected by JS -->
+    <!-- Div das Categorias -->
     <div id="categories-root"></div>
-  </main>
 
-  <!-- Result footer injected by JS -->
-  <div class="result-footer" id="result-footer"></div>
+    <!-- Framework Metodológico -->
+    <div class="methodology-card">
+      <div class="methodology-title">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+        Base Metodológica da Ferramenta
+      </div>
+      <div class="methodology-grid">
+        <div class="methodology-col">
+          <h4>Consolidação de Frameworks Globais</h4>
+          <p>Esta ferramenta unifica o <strong>TRL</strong> clássico desenvolvido pela NASA e ampliado pelo Departamento de Energia dos EUA (DOE), com o <strong>CRL</strong> (Commercial Readiness Level) introduzido pela NYSERDA (Autoridade de Pesquisa de Energia do Estado de Nova York) e validado pelo ecossistema ARPA-E.</p>
+          <p>O resultado é um Heptágono de Maturidade Multidimensional que avalia não apenas a viabilidade física de laboratório, mas a infraestrutura humana, regulatória, de mercado e escala da tecnologia.</p>
+        </div>
+        <div class="methodology-col">
+          <h4>Por que o uso de Checklist Binária?</h4>
+          <p>Modelos convencionais de maturidade exigem que o avaliador escolha subjetivamente um nível geral de 1 a 9. Isso introduz o <strong>viés de otimismo do inventor</strong>, onde a equipe tende a superestimar o TRL sob alegação de facilidade de conclusão de fases futuras.</p>
+          <p>Esta ferramenta utiliza uma checklist de critérios de evidência binários e independentes (Sim/Não). O score é obtido de forma analítica e não subjetiva, aumentando a precisão da avaliação de conformidade.</p>
+        </div>
+      </div>
+    </div>
+  </main>
 </div>
 
 <script>
-'use strict';
 // ══════════════════════════════════════════════════════════
-//  ICONS
+//  ICONS DE ESTRUTURA
 // ══════════════════════════════════════════════════════════
 const IC = {
-  flask:    `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3h6"/><path d="M10 3v6l-3.5 7a2 2 0 0 0 1.8 2.9h7.4a2 2 0 0 0 1.8-2.9L14 9V3"/><line x1="6.2" y1="14" x2="17.8" y2="14"/></svg>`,
-  cpu:      `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="2"/><rect x="9" y="9" width="6" height="6"/><line x1="9" y1="1" x2="9" y2="4"/><line x1="15" y1="1" x2="15" y2="4"/><line x1="9" y1="20" x2="9" y2="23"/><line x1="15" y1="20" x2="15" y2="23"/><line x1="20" y1="9" x2="23" y2="9"/><line x1="20" y1="14" x2="23" y2="14"/><line x1="1" y1="9" x2="4" y2="9"/><line x1="1" y1="14" x2="4" y2="14"/></svg>`,
-  target:   `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>`,
-  chart:    `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/><line x1="2" y1="20" x2="22" y2="20"/></svg>`,
-  users:    `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>`,
-  compass:  `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/></svg>`,
-  factory:  `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 20V8l7-4v5l7-5v16"/><path d="M2 20h20"/><path d="M13 20v-8"/><path d="M17 20v-8"/></svg>`,
-  check:    `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>`,
-  download: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>`,
-  refresh:  `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>`,
+  flask:    `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3h6"/><path d="M10 3v6l-3.5 7a2 2 0 0 0 1.8 2.9h7.4a2 2 0 0 0 1.8-2.9L14 9V3"/></svg>`,
+  cpu:      `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="2"/><rect x="9" y="9" width="6" height="6"/><line x1="9" y1="1" x2="9" y2="4"/><line x1="15" y1="1" x2="15" y2="4"/><line x1="20" y1="9" x2="23" y2="9"/></svg>`,
+  target:   `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>`,
+  chart:    `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>`,
+  users:    `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>`,
+  compass:  `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/></svg>`,
+  factory:  `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 20V8l7-4v5l7-5v16"/></svg>`,
   info:     `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>`,
+  check:    `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>`
 };
 
 // ══════════════════════════════════════════════════════════
-//  DATA — CATEGORIES + CRITERIA + TOOLTIPS
+//  CRITÉRIOS DE EVIDÊNCIA E TOOLTIPS
 // ══════════════════════════════════════════════════════════
 const CATEGORIES = [
   {
     id: 'fundamentals', type: 'trl', label: 'Fundamentos Científicos',
-    hint: 'Pesquisa básica e princípios observados', icon: 'flask', maxScore: 9,
+    hint: 'Pesquisa básica e comprovação do conceito', icon: 'flask', maxScore: 9,
     criteria: [
-      { id:'f1', group:'Pesquisa Básica',  text:'Princípios básicos do fenômeno ou tecnologia foram identificados e documentados.',
-        tip:'Ex.: publicação em periódico científico, relatório técnico interno, ou tese acadêmica descrevendo o fenômeno.' },
-      { id:'f2', group:'Pesquisa Básica',  text:'Existe ao menos um documento técnico ou científico descrevendo os achados iniciais.',
-        tip:'O documento deve ser acessível para consulta interna e ter passado por alguma forma de revisão crítica.' },
-      { id:'f3', group:'Pesquisa Básica',  text:'Hipóteses de aplicação prática foram formalmente levantadas com base na pesquisa.',
-        tip:'Ex.: "Esta tecnologia de captura de CO₂ pode ser aplicada em chaminés industriais" — ainda hipotético, mas plausível e escrito.' },
-      { id:'f4', group:'Conceito',         text:'O conceito tecnológico e sua aplicação-alvo estão formalmente definidos.',
-        tip:'Deve incluir: descrição do mecanismo técnico, aplicação-alvo pretendida e hipótese de desempenho esperado.' },
-      { id:'f5', group:'Conceito',         text:'Os requisitos técnicos de alto nível (temperatura, pressão, materiais, etc.) foram identificados.',
-        tip:'Mesmo estimativas são válidas neste estágio. O importante é que a equipe sabe quais parâmetros precisam ser atingidos.' },
-      { id:'f6', group:'Prova de Conceito',text:'Experimentos analíticos, simulações ou testes de bancada demonstram viabilidade do conceito.',
-        tip:'Simulações computacionais, cálculos analíticos ou experimentos simples que confirmem que a ideia é fisicamente plausível.' },
-      { id:'f7', group:'Prova de Conceito',text:'Resultados experimentais preliminares foram obtidos em ambiente laboratorial.',
-        tip:'Não precisam ser em escala final. O importante é que gerem dados reais que corroborem o conceito.' },
-      { id:'f8', group:'Prova de Conceito',text:'Os resultados indicam performance superior ou equivalente a alternativas existentes (mesmo que em escala mínima).',
-        tip:'Ex.: A eficiência medida supera a de soluções existentes, ou o custo estimado é competitivo. Mesmo em escala ínfima conta.' },
+      { id: 'f1', group: 'Pesquisa Básica', text: 'Princípios fundamentais do fenômeno foram observados e formalizados.', tip: 'Evidência científica: publicações acadêmicas em periódicos indexados ou relatórios técnicos internos de bancada.' },
+      { id: 'f2', group: 'Pesquisa Básica', text: 'Propriedades analíticas básicas foram modeladas matematicamente.', tip: 'Equações governantes do comportamento físico, químico ou biológico do sistema foram descritas.' },
+      { id: 'f3', group: 'Conceito', text: 'Aplicações industriais ou comerciais práticas foram sugeridas de forma concreta.', tip: 'Roteiros de aplicação: "Esta enzima pode acelerar o refino de biocombustíveis em reatores contínuos".' },
+      { id: 'f4', group: 'Conceito', text: 'A proposição do conceito tecnológico foi descrita em documento de patente ou equivalente.', tip: 'Desenho conceitual de arquitetura do sistema documentado.' },
+      { id: 'f5', group: 'Prova de Conceito', text: 'Simulações computacionais em software validaram a hipótese inicial.', tip: 'Ex: modelagem numérica em elementos finitos, simulação em SPICE de circuitos, etc.' },
+      { id: 'f6', group: 'Prova de Conceito', text: 'Ensaios em bancada com reagentes/componentes substitutos indicam comportamento previsto.', tip: 'Validação física em condições ideais de laboratório com materiais simplificados.' },
+      { id: 'f7', group: 'Prova de Conceito', text: 'O balanço de massa/energia preliminar demonstra viabilidade termodinâmica.', tip: 'Cálculos de engenharia comprovando que a eficiência de conversão é teoricamente viável.' },
+      { id: 'f8', group: 'Prova de Conceito', text: 'Os gargalos de fabricação da tecnologia conceitual foram catalogados.', tip: 'Uma lista inicial dos componentes de difícil aquisição ou processos caros.' }
     ]
   },
   {
     id: 'validation', type: 'trl', label: 'Validação e Protótipos',
-    hint: 'Testes em laboratório e ambiente operacional', icon: 'cpu', maxScore: 9,
+    hint: 'Integração de hardware/software e testes funcionais', icon: 'cpu', maxScore: 9,
     criteria: [
-      { id:'v1',  group:'Validação em Lab', text:'Componentes críticos foram construídos e testados individualmente em laboratório.',
-        tip:'Componentes críticos são aqueles sem os quais a tecnologia não funciona. Ex.: célula eletroquímica, sensor principal.' },
-      { id:'v2',  group:'Validação em Lab', text:'A funcionalidade de cada componente crítico foi verificada em condições controladas.',
-        tip:'Teste individualizado: cada componente foi testado isoladamente para confirmar que funciona conforme especificado.' },
-      { id:'v3',  group:'Validação em Lab', text:'Um protótipo de baixa fidelidade ou mock-up foi construído para demonstrar o princípio de funcionamento.',
-        tip:'Pode ser feito com materiais alternativos ou aproximações. Deve demonstrar o princípio de funcionamento.' },
-      { id:'v4',  group:'Validação em Lab', text:'A integração dos componentes foi testada e o sistema integrado funciona em laboratório.',
-        tip:'A integração é importante: não basta que os componentes funcionem isolados — eles devem operar juntos de forma coerente.' },
-      { id:'v5',  group:'Ambiente Relevante', text:'O sistema foi testado em ambiente que simula condições reais de uso (temperatura, pressão, interferências etc.).',
-        tip:'Ex.: câmara de temperatura controlada simulando condições de campo, ou bancada com condições de pressão e umidade representativas.' },
-      { id:'v6',  group:'Ambiente Relevante', text:'Desempenho satisfatório foi demonstrado em escala laboratorial nos KPIs principais.',
-        tip:'"Satisfatório" significa que os KPIs principais (eficiência, velocidade, custo) foram atingidos, mesmo em escala laboratorial.' },
-      { id:'v7',  group:'Protótipo Real', text:'Um protótipo em escala real foi desenvolvido (dimensões e especificações compatíveis com o uso final).',
-        tip:'Escala real = tamanho e especificação compatíveis com o uso final pretendido, não mais uma miniatura ou mock-up.' },
-      { id:'v8',  group:'Protótipo Real', text:'O protótipo real foi colocado em operação em ambiente relevante (demonstração iniciada).',
-        tip:'A demonstração foi iniciada: o protótipo real foi colocado em operação em condições representativas, mesmo que ainda em andamento.' },
-      { id:'v9',  group:'Protótipo Real', text:'A demonstração em ambiente relevante foi completada com sucesso e dados foram coletados.',
-        tip:'A demonstração foi completada: dados de desempenho confirmam viabilidade em ambiente representativo.' },
-      { id:'v10', group:'Sistema Qualificado', text:'O sistema foi qualificado por testes formais (internos ou por terceiros) atestando conformidade com os requisitos.',
-        tip:'A qualificação envolve testes formais — às vezes por terceiros — que confirmam que o sistema atende a todos os requisitos especificados.' },
-      { id:'v11', group:'Sistema Qualificado', text:'O sistema foi demonstrado e está operando em ambiente ou missão operacional real (não apenas simulado).',
-        tip:'O ambiente operacional real inclui todas as variáveis reais: temperatura, usuários reais, interferências, condições climáticas etc.' },
+      { id: 'v1', group: 'Validação em Lab', text: 'Componentes essenciais foram integrados em laboratório em um protótipo físico.', tip: 'Não é mais uma simulação; peças e chips reais operando juntos, mesmo que espalhados na bancada.' },
+      { id: 'v2', group: 'Validação em Lab', text: 'Testes do sistema integrado em laboratório mostram funcionamento sem falhas de comunicação.', tip: 'O hardware e o software se comunicam estavelmente sob condições típicas de operação laboratorial.' },
+      { id: 'v3', group: 'Ambiente Relevante', text: 'O sistema operou sob flutuações simuladas de ambiente crítico (temperatura, umidade, tensão).', tip: 'Validação em ambiente relevante simulado em laboratório (ex: estufa, câmara fria, ruído na alimentação).' },
+      { id: 'v4', group: 'Ambiente Relevante', text: 'Protótipo em tamanho/especificação piloto foi montado com componentes comerciais (COTS).', tip: 'Substituição de peças de laboratório por componentes que podem ser comprados no mercado.' },
+      { id: 'v5', group: 'Ambiente Relevante', text: 'Os testes em escala piloto atingiram as metas de taxa de processamento/rendimento.', tip: 'A validação em escala atingiu pelo menos 50% dos KPIs técnicos da versão final pretendida.' },
+      { id: 'v6', group: 'Protótipo Real', text: 'O protótipo final foi montado na carcaça ou arquitetura planejada para operação de campo.', tip: 'Design do hardware fisicamente representativo do produto final (form-factor de mercado).' },
+      { id: 'v7', group: 'Protótipo Real', text: 'O protótipo real foi testado e operado por usuários/clientes finais em ambiente operacional.', tip: 'Testes em campo real (Beta testing ou ensaio em planta real com operadores reais).' },
+      { id: 'v8', group: 'Sistema Qualificado', text: 'O sistema final atende a todas as normas técnicas e de segurança locais aplicáveis.', tip: 'Certificações iniciais de segurança elétrica, compatibilidade eletromagnética, ou normas específicas do setor.' },
+      { id: 'v9', group: 'Operação Real', text: 'A tecnologia opera estavelmente em regime comercial/industrial contínuo há mais de 100 horas.', tip: 'Maturidade máxima de engenharia. Tecnologia operando na planta ou no cliente final.' }
     ]
   },
   {
     id: 'definition', type: 'crl', label: 'Definição do Produto',
-    hint: 'Proposição de valor e especificação', icon: 'target', maxScore: 5,
+    hint: 'Mapeamento de dor e proposta de valor', icon: 'target', maxScore: 5,
     criteria: [
-      { id:'d1', group:'Ideia e Problema', text:'Uma ou mais ideias de aplicação da tecnologia foram definidas e o problema-alvo foi articulado.',
-        tip:'A articulação do problema deve ser clara o suficiente para ser compreendida por um potencial cliente ou investidor não-técnico.' },
-      { id:'d2', group:'Ideia e Problema', text:'O segmento de clientes-alvo foi identificado e caracterizado (perfil, setor, porte, comportamento).',
-        tip:'Ex.: PMEs do agronegócio com irrigação mecanizada, ou hospitais de médio porte sem laboratório próprio.' },
-      { id:'d3', group:'Proposta de Valor', text:'Os atributos da tecnologia foram mapeados em relação às necessidades do cliente, evidenciando proposta de valor.',
-        tip:'Ex.: "Nossa tecnologia tem custo 30% menor e requer menos manutenção — atendendo às necessidades de redução de OPEX dos clientes".' },
-      { id:'d4', group:'Proposta de Valor', text:'A proposta de valor foi validada com feedback real de potenciais clientes (entrevistas, surveys ou LOIs).',
-        tip:'Validação pode ser via entrevistas com ≥10 potenciais clientes, pesquisa quantitativa, ou cartas de interesse (LOIs).' },
-      { id:'d5', group:'Especificação', text:'Especificações de design do produto foram documentadas (dimensões, materiais, interfaces, desempenho esperado).',
-        tip:'Deve incluir: dimensões, materiais, interfaces com outros sistemas, desempenho esperado, requisitos de instalação e operação.' },
-      { id:'d6', group:'Especificação', text:'Requisitos regulatórios e certificações necessárias para o mercado-alvo foram identificados.',
-        tip:'Ex.: ANVISA para dispositivos médicos, INMETRO para elétricos, ISO 9001, ABNT específica do setor.' },
-      { id:'d7', group:'Refinamento', text:'O design foi otimizado incorporando feedback detalhado de clientes reais (não apenas potenciais).',
-        tip:'O design foi revisado com base em feedback de clientes que já usaram ou avaliaram o produto — não só de potenciais interessados.' },
-      { id:'d8', group:'Refinamento', text:'Certificações relevantes foram obtidas ou estão em processo formal junto ao órgão regulador.',
-        tip:'Em andamento: processo formal iniciado com o órgão regulador. Obtidas: certificado emitido e válido.' },
+      { id: 'd1', group: 'Dor do Mercado', text: 'A dor específica e quantificável do cliente final foi documentada.', tip: 'Ex: "Clientes perdem 12 horas por semana com paradas de máquina causadas por corrosão".' },
+      { id: 'd2', group: 'Proposta de Valor', text: 'O produto oferece ganho mensurável em relação ao método atual do cliente.', tip: 'Ganhos em tempo, dinheiro, eficiência, segurança ou sustentabilidade claramente expostos.' },
+      { id: 'd3', group: 'Especificações', text: 'Dimensões físicas, consumo energético e interfaces de software foram consolidadas.', tip: 'Datasheet do produto com dados de entrada, saída, limitações e infraestrutura de suporte exigida.' },
+      { id: 'd4', group: 'Regulação', text: 'O mapa regulatório e de certificações (ANVISA, INMETRO, ANATEL) foi desenhado.', tip: 'A equipe sabe os prazos, custos e testes exigidos pelos órgãos competentes para comercializar.' },
+      { id: 'd5', group: 'Piloto', text: 'Mínimo Produto Viável (MVP) operacional foi testado por potenciais compradores.', tip: 'Clientes reais usaram uma versão funcional e opinaram sobre usabilidade.' }
     ]
   },
   {
     id: 'competitive', type: 'crl', label: 'Panorama Competitivo',
-    hint: 'Análise de mercado e posicionamento', icon: 'chart', maxScore: 5,
+    hint: 'Diferenciação e posicionamento comercial', icon: 'chart', maxScore: 5,
     criteria: [
-      { id:'c1', group:'Pesquisa Inicial', text:'Pesquisa de mercado secundária foi realizada (relatórios setoriais, patentes, publicações de mercado).',
-        tip:'Fontes secundárias: IBISWorld, ABDI, BNDES, relatórios de consultorias, artigos do setor, análise de portfólio de patentes.' },
-      { id:'c2', group:'Pesquisa Inicial', text:'Concorrentes diretos e substitutos foram identificados e listados.',
-        tip:'Concorrentes diretos: mesma tecnologia, mesmo cliente. Substitutos: tecnologias diferentes que resolvem o mesmo problema do cliente.' },
-      { id:'c3', group:'Análise Aprofundada', text:'Pesquisa de mercado primária foi conduzida (entrevistas com especialistas, clientes, distribuidores).',
-        tip:'Pesquisa primária inclui entrevistas com especialistas do setor, clientes potenciais, distribuidores e surveys quantitativos.' },
-      { id:'c4', group:'Análise Aprofundada', text:'Forças, fraquezas, preços e participação de mercado dos principais concorrentes foram documentados.',
-        tip:'Documente: preço, capacidade, participação de mercado, pontos fortes e fracos de cada concorrente relevante.' },
-      { id:'c5', group:'Análise Aprofundada', text:'O tamanho do mercado endereçável foi estimado (TAM, SAM e SOM com metodologia explicitada).',
-        tip:'TAM = mercado total. SAM = parcela que você pode alcançar. SOM = parcela realista para capturar em 3-5 anos.' },
-      { id:'c6', group:'Posicionamento', text:'Vantagens competitivas únicas e diferenciais da tecnologia foram formalmente analisados e documentados.',
-        tip:'Ex.: "Nossa tecnologia processa 3x mais rápido com 40% menos energia que o líder de mercado, usando matéria-prima local".' },
-      { id:'c7', group:'Posicionamento', text:'Estratégia de posicionamento e barreiras de entrada (patentes, know-how, exclusividade) foram definidas.',
-        tip:'Posicionamento: premium, custo, nicho. Barreiras: patentes, know-how exclusivo, contratos de exclusividade com parceiros.' },
-      { id:'c8', group:'Domínio', text:'Compreensão completa do panorama competitivo, incluindo players emergentes e ciclos de inovação do setor.',
-        tip:'Inclui: entendimento dos ciclos de inovação do setor, regulações que afetam concorrentes e quem são os players emergentes.' },
+      { id: 'c1', group: 'Concorrentes', text: 'Concorrentes diretos e soluções substitutas foram listados e analisados.', tip: 'Mapeamento do market share, preços e fragilidades técnicas de soluções existentes.' },
+      { id: 'c2', group: 'Preço', text: 'O custo de substituição e transição para o cliente foi estimado.', tip: 'Quanto custa para o cliente remover a máquina velha e instalar a nossa tecnologia?' },
+      { id: 'c3', group: 'Mercado', text: 'O tamanho de mercado TAM, SAM e SOM foi calculado.', tip: 'TAM: Mercado total. SAM: Mercado endereçável. SOM: Mercado alcançável a curto prazo.' },
+      { id: 'c4', group: 'Patentes', text: 'Uma busca de anterioridade de patentes foi realizada atestando liberdade de operação (FTO).', tip: 'Garantia de que a fabricação e venda da tecnologia não infringirá patentes ativas de concorrentes.' },
+      { id: 'c5', group: 'Diferencial', text: 'A barreira tecnológica ou mercadológica de defesa foi documentada (fosso competitivo).', tip: 'O que impede um concorrente de copiar o modelo de negócios ou o produto em 6 meses?' }
     ]
   },
   {
-    id: 'team', type: 'crl', label: 'Equipe',
-    hint: 'Composição, capacidades e suporte externo', icon: 'users', maxScore: 5,
+    id: 'team', type: 'crl', label: 'Equipe de Execução',
+    hint: 'Capacidades técnicas, de gestão e de venda', icon: 'users', maxScore: 5,
     criteria: [
-      { id:'t1', group:'Fundação', text:'Há ao menos um pesquisador ou fundador técnico com dedicação significativa ao projeto.',
-        tip:'Dedicado significa que esta pessoa aloca tempo significativo (mesmo que parcial) ao projeto — não apenas consultoria eventual.' },
-      { id:'t2', group:'Fundação', text:'Os papéis e responsabilidades do time inicial estão definidos (mesmo que uma pessoa acumule funções).',
-        tip:'Ex.: quem é responsável pelo desenvolvimento técnico, quem cuida das finanças, quem faz o comercial.' },
-      { id:'t3', group:'Suporte Externo', text:'A equipe conta com suporte de assessores externos: mentores, especialistas técnicos ou de negócios.',
-        tip:'Assessores externos contribuem com expertise específica, redes de contato, ou experiência de mercado que a equipe interna não possui.' },
-      { id:'t4', group:'Suporte Externo', text:'A startup está inserida em ambiente de inovação (incubadora, aceleradora, parque tecnológico, NITs).',
-        tip:'Ambientes de inovação oferecem recursos (espaço físico, mentorias, redes, editais) e conferem credibilidade à startup.' },
-      { id:'t5', group:'Equilíbrio', text:'A equipe possui habilidades técnicas E de negócios (ou recrutou alguém para cobrir a lacuna).',
-        tip:'Equilíbrio técnico-negócios é preditor forte de sucesso. Idealmente, há cofundadores ou membros-chave cobrindo ambas as dimensões.' },
-      { id:'t6', group:'Equilíbrio', text:'Um board consultivo ou conselho formal foi constituído com comprometimento documentado.',
-        tip:'Um board com comprometimento formal (agenda, ata, responsabilidades) é diferente de mentores ocasionais ou contatos de rede.' },
-      { id:'t7', group:'Time Completo', text:'A equipe possui capacidades de vendas, marketing e operações (mesmo que via contratados ou parceiros).',
-        tip:'Capacidades podem ser cobertas por sócios, contratados ou parceiros — não necessariamente funcionários CLT em tempo integral.' },
-      { id:'t8', group:'Time Completo', text:'Todas as funções-chave para operar o negócio estão cobertas e há plano de contratação para lacunas.',
-        tip:'Funções-chave incluem: desenvolvimento de produto, vendas, atendimento ao cliente, operações financeiras e compliance.' },
+      { id: 't1', group: 'Liderança', text: 'Há um líder de negócios dedicado em tempo integral à iniciativa comercial.', tip: 'Cofundador focado em vendas, captação, financeiro e burocracia, e não apenas no código/bancada.' },
+      { id: 't2', group: 'Técnico', text: 'A equipe possui domínio intelectual do código/desenho industrial interno.', tip: 'Capacidade de alterar, expandir ou dar manutenção na tecnologia sem depender de terceiros.' },
+      { id: 't3', group: 'Conselho', text: 'Mentores e assessores do setor estão formalmente vinculados ao projeto.', tip: 'Profissionais experientes que fornecem conexões comerciais e conselhos estratégicos.' },
+      { id: 't4', group: 'Operações', text: 'Um plano de contratações para cobrir gaps críticos (vendas, jurídico) foi desenhado.', tip: 'Mapeamento de quem precisa ser contratado à medida que a empresa escala.' },
+      { id: 't5', group: 'Governança', text: 'A governança corporativa e o acordo de sócios (vesting/equity) foram estabelecidos.', tip: 'Acordo societário que previne rupturas de time e garante estabilidade para investidores.' }
     ]
   },
   {
     id: 'market', type: 'crl', label: 'Estratégia de Mercado',
-    hint: 'Go-to-market, parcerias e tração comercial', icon: 'compass', maxScore: 5,
+    hint: 'Validação do modelo e parcerias comerciais', icon: 'compass', maxScore: 5,
     criteria: [
-      { id:'m1', group:'Modelo de Negócio', text:'Modelo de negócios inicial (como gerar receita, estrutura de custos, canais) foi definido.',
-        tip:'O modelo deve responder: como a empresa gera receita (SaaS, venda de hardware, licenciamento, serviço?) e qual é a estrutura de custos.' },
-      { id:'m2', group:'Modelo de Negócio', text:'Canais de distribuição ou venda foram identificados (direto B2B, distribuidores, plataforma, OEM).',
-        tip:'Canais: venda direta B2B, distribuidores, plataformas digitais, revendedores, integradores de sistema, etc.' },
-      { id:'m3', group:'Validação', text:'Potenciais clientes foram entrevistados e feedback qualitativo sobre o produto/modelo foi coletado.',
-        tip:'Mínimo recomendado: 20-30 entrevistas qualitativas com potenciais clientes reais do segmento-alvo.' },
-      { id:'m4', group:'Validação', text:'O modelo de negócios foi refinado com base no feedback real de clientes (pelo menos uma iteração documentada).',
-        tip:'Ex.: descobriu-se que clientes preferem pagamento por uso (pay-per-use) em vez de compra, levando ao redesign do modelo.' },
-      { id:'m5', group:'Relacionamentos', text:'Relações iniciais com stakeholders-chave da cadeia de valor foram estabelecidas (reuniões formais, visitas técnicas).',
-        tip:'Relações iniciais podem ser conversas formais com fornecedores-chave, participação em eventos do setor, ou visitas técnicas a clientes.' },
-      { id:'m6', group:'Relacionamentos', text:'Parcerias formais com fornecedores, distribuidores ou clientes foram firmadas (contrato, MOU ou LOI assinado).',
-        tip:'Parcerias formais são documentadas: contrato, MOU (Memorandum of Understanding), LOI (Letter of Intent) ou acordo de distribuição.' },
-      { id:'m7', group:'Tração', text:'Acordos de fornecimento ativos ou MOUs com perspectiva de negócio real foram assinados.',
-        tip:'Um MOU ou LOI indica intenção formal de compra ou parceria, mesmo sem valor financeiro imediato. É um indicador forte.' },
-      { id:'m8', group:'Tração', text:'Primeiros pedidos de compra (PO) ou contratos remunerados foram recebidos de clientes reais.',
-        tip:'Um PO ou contrato com pagamento é o indicador mais forte de tração comercial real. Mesmo um primeiro contrato pequeno conta.' },
+      { id: 'm1', group: 'Modelo de Receita', text: 'A estrutura de precificação foi validada com potenciais compradores.', tip: 'Ex: "Clientes concordaram em pagar R$ 500/mês sob modelo de assinatura".' },
+      { id: 'm2', group: 'Canais', text: 'Parceiros de distribuição (revendedores, representantes) foram contatados.', tip: 'A estrutura logística e de representação comercial está mapeada e com custos orçados.' },
+      { id: 'm3', group: 'Parcerias', text: 'Parcerias estratégicas na cadeia de suprimentos ou integração foram formalizadas.', tip: 'MOU, contratos de co-desenvolvimento ou distribuição fechados com parceiros maiores.' },
+      { id: 'm4', group: 'Evidências', text: 'Cartas de Intenção de Compra (LOIs) foram assinadas por clientes reais.', tip: 'Documentos não vinculantes, mas formais, expressando interesse comercial sério dos clientes.' },
+      { id: 'm5', group: 'Tração', text: 'Contratos comerciais de fornecimento ou licenciamento pagos foram formalizados.', tip: 'Contrato ativo com faturamento comprovado.' }
     ]
   },
   {
     id: 'manufacturing', type: 'crl', label: 'Manufatura e Escala',
-    hint: 'Cadeia produtiva, qualidade e escalonamento', icon: 'factory', maxScore: 5,
+    hint: 'Cadeia de suprimentos e processos industriais', icon: 'factory', maxScore: 5,
     criteria: [
-      { id:'mf1', group:'Mapeamento', text:'A cadeia de valor produtiva foi mapeada (matérias-primas, processamento, montagem, distribuição).',
-        tip:'Mapeie a cadeia completa: matérias-primas → processamento → componentes → montagem → distribuição → cliente final.' },
-      { id:'mf2', group:'Mapeamento', text:'Custos de manufatura (COGS) e estrutura de preços foram estimados com metodologia explicitada.',
-        tip:'Uma estimativa de COGS é essencial para calcular margens e definir preço de venda. Mesmo estimativas rough são válidas neste estágio.' },
-      { id:'mf3', group:'Relacionamentos', text:'Relacionamentos com fornecedores e parceiros-chave foram estabelecidos (ao menos reuniões formais).',
-        tip:'Relacionamentos estabelecidos: houve pelo menos uma reunião formal ou troca de informações técnicas com fornecedores ou clientes-chave.' },
-      { id:'mf4', group:'Relacionamentos', text:'Parceiros da cadeia contribuíram com requisitos de fabricação que influenciaram o design do produto.',
-        tip:'Ex.: o fornecedor de sensores informou que a tolerância necessária eleva o custo em 15%, levando a um redesign do encaixe.' },
-      { id:'mf5', group:'Qualidade', text:'Critérios de QA/QC (controle de qualidade) foram definidos para o processo de manufatura.',
-        tip:'QA/QC define: como testar cada unidade produzida, critérios de aceitação/rejeição, e como documentar a rastreabilidade.' },
-      { id:'mf6', group:'Qualidade', text:'Qualificações de manufatura estão em andamento ou foram formalmente concluídas com documentação.',
-        tip:'Em andamento: processo formal iniciado. Concluídas: documentação de qualificação aprovada pela equipe ou por terceiros.' },
-      { id:'mf7', group:'Escala', text:'Produtos foram fabricados em escala piloto (tipicamente 10-1000 unidades, dependendo do setor).',
-        tip:'Escala piloto valida o processo de fabricação (não apenas o produto). O objetivo é verificar repetibilidade e custos.' },
-      { id:'mf8', group:'Escala', text:'Produtos em escala piloto foram vendidos a clientes iniciais (early adopters) a preço de mercado.',
-        tip:'Vender para early adopters — mesmo que subsidiado — valida tanto o produto quanto o processo produtivo.' },
-      { id:'mf9', group:'Plena Escala', text:'Manufatura em escala plena foi alcançada com processo otimizado e custos previsíveis.',
-        tip:'Plena escala: processo otimizado, custos previsíveis, capacidade produtiva atende à demanda projetada.' },
-      { id:'mf10',group:'Plena Escala', text:'Implantação ampla do produto no mercado foi realizada (múltiplos clientes, múltiplos mercados).',
-        tip:'Implantação ampla: produto presente em múltiplos clientes ou mercados, com processos de suporte (manutenção, atualização) funcionando.' },
+      { id: 'mf1', group: 'Suprimentos', text: 'Fornecedores críticos e substitutos de componentes-chave foram homologados.', tip: 'Alternativas de fornecimento para evitar gargalos na produção por falta de insumos.' },
+      { id: 'mf2', group: 'Preço Custo', text: 'O custo de fabricação unitário (COGS) foi exaustivamente planilhado.', tip: 'Lista detalhada de peças, insumos, energia e horas de trabalho por unidade produzida.' },
+      { id: 'mf3', group: 'Escalonamento', text: 'O gargalo de velocidade ou volume de produção física foi modelado.', tip: 'A equipe sabe onde a linha de montagem trava ao tentar fazer 10x mais unidades por mês.' },
+      { id: 'mf4', group: 'Instalações', text: 'Normas ambientais e de planta física produtiva foram mapeadas e aprovadas.', tip: 'Ex: Licença ambiental inicial, conformidade com corpo de bombeiros, layout de fábrica de acordo.' },
+      { id: 'mf5', group: 'Qualidade', text: 'Critérios de inspeção de qualidade de entrada e saída foram padronizados.', tip: 'Manuais que descrevem como rejeitar peças com defeito de fornecedores e produtos finais.' }
     ]
-  },
+  }
 ];
 
 // ══════════════════════════════════════════════════════════
-//  BM25 ENGINE
+//  ALGORITMO OKAPI BM25 - LOCAL
 // ══════════════════════════════════════════════════════════
-const PT_STOPS = new Set(['a','ao','aos','aquela','aquelas','aquele','aqueles','aquilo','as','ate','com','como','da','das','de','dela','delas','dele','deles','depois','do','dos','e','ela','elas','ele','eles','em','entre','era','eram','essa','essas','esse','esses','esta','estas','este','estes','eu','foi','foram','ha','isso','isto','ja','lhe','lhes','mais','mas','me','mesmo','meu','meus','minha','minhas','na','nas','nem','no','nos','o','os','ou','para','pela','pelas','pelo','pelos','por','que','se','sem','ser','seu','seus','so','tambem','te','tem','tinha','tudo','um','uma','umas','uns','voce','voces','a','as','e','nao','uma','uns','sua','suas','sobre','sendo','cada','isso','esta','sao','pode','deve','tem','que','qual','quando','onde','como','apenas','mais','muito','entre','outro','outros','forma','parte','caso','uso','custo','tipo','nivel','modo','base','vez','area','foco','tipo','lado','vez','fase']);
+const STOPWORDS = new Set(['a','o','os','as','de','do','da','dos','das','em','no','na','nos','nas','por','para','um','uma','uns','umas','que','se','com','como','ao','aos','ele','ela','eles','elas','este','esta','estes','estas','esse','essa','esses','essas','aquele','aquela','aqueles','aquelas','isto','isso','aquilo','seu','sua','seus','suas','nosso','nossa','nossos','nossas','meu','minha','meus','minhas','teu','tua','teus','tuas','dele','dela','deles','delas','tem','tinha','ter','ha','houve','ser','foi','era','sao','foram','serao','seja','fosse','estou','esta','estamos','estao','esteve','estava','estive','estiveram','estivera','estiveras','estando','sendo','tendo']);
 
-function tokenize(text) {
+function cleanTokenize(text) {
   return text.toLowerCase()
-    .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
-    .replace(/[^a-z\s]/g, ' ')
+    .normalize('NFD').replace(/[\u0300-\u036f]/g, '') // remove acentos
+    .replace(/[^a-z0-9]/g, ' ')
     .split(/\s+/)
-    .filter(t => t.length > 2 && !PT_STOPS.has(t));
+    .filter(t => t.length > 2 && !STOPWORDS.has(t));
 }
 
-class BM25 {
-  constructor(k1=1.5, b=0.75) { this.k1=k1; this.b=b; this.reset(); }
-  reset() { this.docs=[]; this.meta=[]; this.idf={}; this.tf=[]; this.avgdl=0; }
+class OkapiBM25 {
+  constructor(k1=1.6, b=0.75) {
+    this.k1 = k1;
+    this.b = b;
+    this.documents = [];
+    this.avgDocLength = 0;
+    this.docLengths = [];
+    this.docTermFreqs = [];
+    this.df = {};
+    this.idf = {};
+    this.N = 0;
+  }
 
-  addDoc(text, meta) {
-    const tokens = tokenize(text);
-    this.docs.push(tokens);
-    this.meta.push(meta);
+  addDoc(id, text, metadata) {
+    const tokens = cleanTokenize(text);
+    this.documents.push({ id, tokens, metadata });
   }
 
   build() {
-    const N = this.docs.length;
-    if (N === 0) return;
-    this.avgdl = this.docs.reduce((s,d) => s+d.length, 0) / N;
-    const df = {};
-    this.docs.forEach(tokens => {
-      new Set(tokens).forEach(t => { df[t] = (df[t]||0)+1; });
+    this.N = this.documents.length;
+    if (this.N === 0) return;
+
+    let totalLength = 0;
+    this.documents.forEach(doc => {
+      const len = doc.tokens.length;
+      this.docLengths.push(len);
+      totalLength += len;
+
+      const termFreq = {};
+      doc.tokens.forEach(t => { termFreq[t] = (termFreq[t] || 0) + 1; });
+      this.docTermFreqs.push(termFreq);
+
+      // doc frequency
+      const unique = new Set(doc.tokens);
+      unique.forEach(t => { this.df[t] = (this.df[t] || 0) + 1; });
     });
-    this.idf = {};
-    Object.keys(df).forEach(t => {
-      this.idf[t] = Math.log((N - df[t] + 0.5) / (df[t] + 0.5) + 1);
-    });
-    this.tf = this.docs.map(tokens => {
-      const freq = {};
-      tokens.forEach(t => { freq[t]=(freq[t]||0)+1; });
-      return freq;
+
+    this.avgDocLength = totalLength / this.N;
+
+    // idf calculation
+    Object.keys(this.df).forEach(t => {
+      this.idf[t] = Math.log((this.N - this.df[t] + 0.5) / (this.df[t] + 0.5) + 1);
     });
   }
 
-  score(query, idx) {
-    const qtokens = tokenize(query);
-    if (qtokens.length === 0) return 0;
-    const dl = this.docs[idx].length;
-    const norm = 1 - this.b + this.b * dl / (this.avgdl || 1);
-    let s = 0;
-    qtokens.forEach(t => {
-      const idf = this.idf[t] || 0;
-      const f = this.tf[idx][t] || 0;
-      s += idf * (f * (this.k1+1)) / (f + this.k1 * norm);
-    });
-    return s;
-  }
+  search(query, topN=6) {
+    const qTokens = cleanTokenize(query);
+    if (qTokens.length === 0) return [];
 
-  search(query, topN=8) {
-    if (tokenize(query).length < 2) return [];
-    const scores = this.docs.map((_,i) => ({ idx:i, score:this.score(query,i), meta:this.meta[i] }));
-    const positive = scores.filter(s => s.score > 0).sort((a,b) => b.score-a.score);
-    const maxScore = positive[0]?.score || 1;
-    return positive.slice(0, topN).map(s => ({ ...s, pct: Math.round(s.score/maxScore*100) }));
+    const scores = [];
+    for (let i = 0; i < this.N; i++) {
+      const dl = this.docLengths[i];
+      const tf = this.docTermFreqs[i];
+      let score = 0;
+
+      qTokens.forEach(t => {
+        const f = tf[t] || 0;
+        const idf = this.idf[t] || 0;
+        if (f > 0) {
+          const numerator = f * (this.k1 + 1);
+          const denominator = f + this.k1 * (1 - this.b + this.b * (dl / this.avgDocLength));
+          score += idf * (numerator / denominator);
+        }
+      });
+
+      if (score > 0) {
+        scores.push({
+          doc: this.documents[i],
+          score: score
+        });
+      }
+    }
+
+    scores.sort((a,b) => b.score - a.score);
+    const maxScore = scores[0]?.score || 1;
+    return scores.slice(0, topN).map(s => ({
+      ...s,
+      confidence: Math.round((s.score / maxScore) * 100)
+    }));
   }
 }
 
-// Build BM25 index
-const bm25 = new BM25();
+// Inicializando motor BM25 com todos os critérios cadastrados
+const bm25Engine = new OkapiBM25();
 CATEGORIES.forEach(cat => {
   cat.criteria.forEach(cr => {
-    bm25.addDoc(`${cat.label} ${cat.hint} ${cr.group} ${cr.text} ${cr.tip}`, {
-      catId: cat.id, crId: cr.id, catType: cat.type, catLabel: cat.label, crText: cr.text
+    // Indexando nome do eixo, grupo, texto do critério e tooltip
+    const corpus = `${cat.label} ${cat.hint} ${cr.group} ${cr.text} ${cr.tip}`;
+    bm25Engine.addDoc(`${cat.id}__${cr.id}`, corpus, {
+      catId: cat.id,
+      crId: cr.id,
+      type: cat.type,
+      catLabel: cat.label,
+      text: cr.text
     });
   });
 });
-bm25.build();
+bm25Engine.build();
 
 // ══════════════════════════════════════════════════════════
-//  SCORING FUNCTIONS
+//  ESTADO DA APLICAÇÃO
 // ══════════════════════════════════════════════════════════
-function catScore(catId, checked, maxScore) {
+const STATE = {
+  checked: new Set(),
+  profile: { inst: '', tech: '' },
+  activeSidebarCategory: 'fundamentals',
+  semanticOpen: false
+};
+
+// ══════════════════════════════════════════════════════════
+//  MATEMÁTICA DE AVALIAÇÃO E NORMALIZAÇÃO
+// ══════════════════════════════════════════════════════════
+function getCategoryScore(catId) {
   const cat = CATEGORIES.find(c => c.id === catId);
   if (!cat) return 0;
-  const done = cat.criteria.filter(cr => checked.has(`${catId}__${cr.id}`)).length;
-  if (done === 0) return 0;
-  return Math.max(1, Math.round((done / cat.criteria.length) * maxScore));
+  const count = cat.criteria.filter(cr => STATE.checked.has(`${catId}__${cr.id}`)).length;
+  if (count === 0) return 0;
+  return Math.max(1, Math.round((count / cat.criteria.length) * cat.maxScore));
 }
 
-function computeTRL(checked) {
-  const s1 = catScore('fundamentals', checked, 9);
-  const s2 = catScore('validation', checked, 9);
+function getTRL() {
+  const s1 = getCategoryScore('fundamentals');
+  const s2 = getCategoryScore('validation');
   if (s1 === 0 && s2 === 0) return null;
   return Math.max(1, Math.min(9, Math.round((s1 + s2) / 2)));
 }
 
-function computeCRL(checked) {
-  const ids = ['definition','competitive','team','market','manufacturing'];
-  const scores = ids.map(id => catScore(id, checked, 5));
+function getCRL() {
+  const ids = ['definition', 'competitive', 'team', 'market', 'manufacturing'];
+  const scores = ids.map(id => getCategoryScore(id));
   const answered = scores.filter(s => s > 0);
   if (answered.length === 0) return null;
   return Math.max(1, Math.min(5, Math.round(answered.reduce((a,b)=>a+b,0)/answered.length)));
 }
 
-const TRL_LABELS = {
-  1:'Princípios básicos observados',2:'Conceito tecnológico formulado',
-  3:'Prova experimental do conceito',4:'Tecnologia validada em laboratório',
-  5:'Tecnologia validada em ambiente relevante',6:'Tecnologia demonstrada em ambiente relevante',
-  7:'Demonstração em ambiente operacional',8:'Sistema completo e qualificado',
-  9:'Sistema comprovado em operação real',
-};
-const CRL_LABELS = {
-  1:'Mercado hipotético identificado',2:'Viabilidade comercial básica demonstrada',
-  3:'Cadeia de valor mapeada e relações iniciadas',4:'Primeiros contratos ou LOIs obtidos',
-  5:'Negócio autossustentável estabelecido',
-};
+// ══════════════════════════════════════════════════════════
+//  DESENHO DO GRÁFICO DE RADAR EM CANVAS (100% NATIVO)
+// ══════════════════════════════════════════════════════════
+function renderRadar(canvas, checked, forExport = false) {
+  const ctx = canvas.getContext('2d');
+  const size = canvas.width;
+  
+  // Limpar canvas
+  ctx.fillStyle = '#FFFFFF';
+  ctx.fillRect(0, 0, size, size);
 
-// ══════════════════════════════════════════════════════════
-//  STATE
-// ══════════════════════════════════════════════════════════
-const STATE = {
-  checked: new Set(),
-  semanticQuery: '',
-  semanticOpen: false,
-  semanticResults: [],
-};
+  const cx = size / 2;
+  const cy = size / 2 - 10;
+  const maxR = size * 0.35; // raio máximo
+  
+  // 7 eixos correspondentes às categorias
+  const axes = [
+    { label: 'Fundam. (TRL)', id: 'fundamentals', maxVal: 9 },
+    { label: 'Validação (TRL)', id: 'validation', maxVal: 9 },
+    { label: 'Produto (CRL)', id: 'definition', maxVal: 5 },
+    { label: 'Competição (CRL)', id: 'competitive', maxVal: 5 },
+    { label: 'Equipe (CRL)', id: 'team', maxVal: 5 },
+    { label: 'Mercado (CRL)', id: 'market', maxVal: 5 },
+    { label: 'Manufatura (CRL)', id: 'manufacturing', maxVal: 5 }
+  ];
+  const numAxes = axes.length;
 
-// ══════════════════════════════════════════════════════════
-//  TOOLTIP
-// ══════════════════════════════════════════════════════════
-const tooltipEl = document.getElementById('tooltip-el');
-const tooltipContent = document.getElementById('tooltip-content');
-let tooltipTarget = null;
+  // Escala de níveis de teia (0 a 5)
+  const numWebs = 5;
 
-function showTooltip(target, text) {
-  tooltipContent.textContent = text;
-  tooltipEl.classList.add('show');
-  tooltipTarget = target;
-  positionTooltip(target);
+  // 1. Desenhar a teia concêntrica do heptágono
+  ctx.strokeStyle = '#E0E0E0';
+  ctx.lineWidth = forExport ? 2 : 1;
+  for (let w = 1; w <= numWebs; w++) {
+    const factor = w / numWebs;
+    const r = maxR * factor;
+    ctx.beginPath();
+    for (let i = 0; i < numAxes; i++) {
+      const angle = (i * 2 * Math.PI / numAxes) - Math.PI / 2;
+      const x = cx + r * Math.cos(angle);
+      const y = cy + r * Math.sin(angle);
+      if (i === 0) ctx.moveTo(x, y);
+      else ctx.lineTo(x, y);
+    }
+    ctx.closePath();
+    ctx.stroke();
+    
+    // Rótulo discreto de escala de 1 a 5
+    ctx.fillStyle = '#999999';
+    ctx.font = `${forExport ? 12 : 9}px 'Segoe UI', sans-serif`;
+    ctx.fillText(w.toString(), cx + 5, cy - r + 3);
+  }
+
+  // 2. Desenhar as linhas dos eixos
+  ctx.strokeStyle = '#D0D0D0';
+  ctx.lineWidth = 1;
+  axes.forEach((axis, i) => {
+    const angle = (i * 2 * Math.PI / numAxes) - Math.PI / 2;
+    const x = cx + maxR * Math.cos(angle);
+    const y = cy + maxR * Math.sin(angle);
+    ctx.beginPath();
+    ctx.moveTo(cx, cy);
+    ctx.lineTo(x, y);
+    ctx.stroke();
+
+    // Rótulos do eixo técnico
+    ctx.fillStyle = '#333333';
+    ctx.font = `${forExport ? 'bold 13px' : '600 11px'} 'Segoe UI', sans-serif`;
+    ctx.textAlign = 'center';
+    
+    // Offset para afastar os textos dos limites
+    const labelDistance = maxR + (forExport ? 25 : 18);
+    const lx = cx + labelDistance * Math.cos(angle);
+    const ly = cy + labelDistance * Math.sin(angle) + 4;
+    ctx.fillText(axis.label, lx, ly);
+  });
+
+  // 3. Desenhar o polígono de dados preenchido
+  const dataPoints = [];
+  axes.forEach((axis, i) => {
+    const score = getCategoryScore(axis.id);
+    // normalizar para 0 a 5
+    const normalizedVal = (score / axis.maxVal) * 5;
+    const angle = (i * 2 * Math.PI / numAxes) - Math.PI / 2;
+    const factor = normalizedVal / 5;
+    const r = maxR * factor;
+    const x = cx + r * Math.cos(angle);
+    const y = cy + r * Math.sin(angle);
+    dataPoints.push({ x, y });
+  });
+
+  // Preencher a área
+  ctx.fillStyle = 'rgba(0, 120, 212, 0.2)'; // Accent blue semi-transparent
+  ctx.strokeStyle = 'rgba(0, 120, 212, 0.8)';
+  ctx.lineWidth = forExport ? 3 : 2;
+  ctx.beginPath();
+  dataPoints.forEach((pt, i) => {
+    if (i === 0) ctx.moveTo(pt.x, pt.y);
+    else ctx.lineTo(pt.x, pt.y);
+  });
+  ctx.closePath();
+  ctx.fill();
+  ctx.stroke();
+
+  // Desenhar vértices
+  ctx.fillStyle = '#FFFFFF';
+  dataPoints.forEach(pt => {
+    ctx.beginPath();
+    ctx.arc(pt.x, pt.y, forExport ? 5 : 3.5, 0, 2 * Math.PI);
+    ctx.fill();
+    ctx.strokeStyle = 'rgba(0, 120, 212, 0.9)';
+    ctx.lineWidth = forExport ? 2.5 : 1.5;
+    ctx.stroke();
+  });
+
+  // Título e nota de sigilo no PNG se for export
+  if (forExport) {
+    ctx.fillStyle = '#000000';
+    ctx.font = "bold 20px 'Segoe UI', sans-serif";
+    ctx.textAlign = 'left';
+    ctx.fillText('Heptágono de Maturidade de Inovação (TRL/CRL)', 30, 50);
+
+    ctx.fillStyle = '#555555';
+    ctx.font = "14px 'Segoe UI', sans-serif";
+    ctx.fillText(`Tecnologia: ${document.getElementById('tech-input').value.trim() || 'Sem Título'}`, 30, 80);
+    ctx.fillText(`Instituição: ${document.getElementById('inst-input').value.trim() || 'Sem Instituição'}`, 30, 100);
+
+    ctx.fillStyle = '#888888';
+    ctx.font = "italic 11px 'Segoe UI', sans-serif";
+    ctx.textAlign = 'right';
+    ctx.fillText('Gerado localmente (100% Client-side) — WebApp Showcase', size - 30, size - 30);
+  }
 }
-function hideTooltip() {
-  tooltipEl.classList.remove('show');
-  tooltipTarget = null;
-}
-function positionTooltip(el) {
+
+// ══════════════════════════════════════════════════════════
+//  FLOATING TOOLTIP ENGINE
+// ══════════════════════════════════════════════════════════
+const tooltip = document.getElementById('tooltip');
+
+function showTooltip(el, text) {
+  tooltip.textContent = text;
+  tooltip.classList.add('show');
+  
   const rect = el.getBoundingClientRect();
-  const tw = 300;
-  const th = tooltipEl.offsetHeight || 60;
-  let left = rect.left + rect.width/2 - tw/2;
-  let top = rect.top - th - 10;
-  if (left < 8) left = 8;
-  if (left + tw > window.innerWidth - 8) left = window.innerWidth - tw - 8;
-  if (top < 8) top = rect.bottom + 10;
-  tooltipEl.style.left = left + 'px';
-  tooltipEl.style.top = top + 'px';
-  tooltipEl.style.width = tw + 'px';
+  const tw = tooltip.offsetWidth;
+  const th = tooltip.offsetHeight;
+  let left = rect.left + rect.width / 2 - tw / 2;
+  let top = rect.top - th - 8;
+
+  if (left < 10) left = 10;
+  if (left + tw > window.innerWidth - 10) left = window.innerWidth - tw - 10;
+  if (top < 10) top = rect.bottom + 8;
+
+  tooltip.style.left = left + 'px';
+  tooltip.style.top = top + 'px';
 }
-document.addEventListener('scroll', () => { if (tooltipTarget) positionTooltip(tooltipTarget); }, true);
-document.addEventListener('click', e => { if (!e.target.closest('.crit-info-btn')) hideTooltip(); });
+function hideTooltip() { tooltip.classList.remove('show'); }
 
 // ══════════════════════════════════════════════════════════
-//  LGPD MODAL
-// ══════════════════════════════════════════════════════════
-function initLGPD() {
-  const c1 = document.getElementById('lgpd-c1');
-  const c2 = document.getElementById('lgpd-c2');
-  const btn = document.getElementById('lgpd-agree-btn');
-
-  function updateBtn() {
-    if (c1.checked && c2.checked) btn.classList.add('ready');
-    else btn.classList.remove('ready');
-  }
-  c1.addEventListener('change', updateBtn);
-  c2.addEventListener('change', updateBtn);
-  btn.addEventListener('click', () => {
-    if (!c1.checked || !c2.checked) return;
-    document.getElementById('lgpd-overlay').classList.add('hidden');
-  });
-}
-
-// ══════════════════════════════════════════════════════════
-//  SEMANTIC ASSISTANT
-// ══════════════════════════════════════════════════════════
-function initSemantic() {
-  const toggleBtn = document.getElementById('semantic-toggle');
-  const body = document.getElementById('semantic-body');
-  const input = document.getElementById('semantic-input');
-
-  toggleBtn.addEventListener('click', () => {
-    STATE.semanticOpen = !STATE.semanticOpen;
-    body.classList.toggle('hidden', !STATE.semanticOpen);
-    toggleBtn.classList.toggle('open', STATE.semanticOpen);
-    toggleBtn.textContent = STATE.semanticOpen ? 'Recolher ' : 'Expandir ';
-    toggleBtn.insertAdjacentHTML('beforeend', `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>`);
-    if (STATE.semanticOpen) {
-      toggleBtn.querySelector('svg').style.transform = 'rotate(180deg)';
-    }
-  });
-
-  let debounce;
-  input.addEventListener('input', () => {
-    STATE.semanticQuery = input.value;
-    clearTimeout(debounce);
-    debounce = setTimeout(() => {
-      STATE.semanticResults = bm25.search(STATE.semanticQuery, 8);
-      renderSemanticResults();
-    }, 280);
-  });
-}
-
-function renderSemanticResults() {
-  const container = document.getElementById('semantic-results');
-  const q = STATE.semanticQuery.trim();
-  const words = tokenize(q);
-
-  if (words.length < 2) {
-    container.innerHTML = `<p class="semantic-empty">Digite ao menos 5-10 palavras para ativar o BM25.</p>`;
-    return;
-  }
-  if (STATE.semanticResults.length === 0) {
-    container.innerHTML = `<p class="semantic-empty">Nenhuma correspondência encontrada. Tente usar termos mais técnicos.</p>`;
-    return;
-  }
-
-  const highConf = STATE.semanticResults.filter(r => r.pct >= 40);
-  let html = `<div class="semantic-results">`;
-  STATE.semanticResults.forEach(r => {
-    const key = `${r.meta.catId}__${r.meta.crId}`;
-    const marked = STATE.checked.has(key);
-    html += `<div class="semantic-result-card">
-      <span class="sr-badge ${r.meta.catType}">${r.meta.catType.toUpperCase()}</span>
-      <span class="sr-text"><strong style="font-size:11px;color:var(--muted);display:block;margin-bottom:2px;">${r.meta.catLabel}</strong>${r.meta.crText}</span>
-      <div class="sr-confidence">
-        <span class="sr-pct">${r.pct}%</span>
-        <div class="sr-bar-track"><div class="sr-bar-fill" style="width:${r.pct}%"></div></div>
-      </div>
-      <button class="sr-mark-btn ${marked?'marked':''}" data-key="${key}">${marked?IC.check+' Marcado':'Marcar'}</button>
-    </div>`;
-  });
-
-  if (highConf.length > 1) {
-    const unmarked = highConf.filter(r => !STATE.checked.has(`${r.meta.catId}__${r.meta.crId}`));
-    if (unmarked.length > 0) {
-      html += `<div class="semantic-apply-row">
-        <button class="semantic-apply-btn" id="apply-all-btn">Marcar ${unmarked.length} sugestão(ões) acima de 40%</button>
-        <span class="semantic-apply-hint">critérios com alta confiança semântica</span>
-      </div>`;
-    }
-  }
-  html += `</div>`;
-  container.innerHTML = html;
-
-  container.querySelectorAll('.sr-mark-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-      const key = btn.dataset.key;
-      if (STATE.checked.has(key)) STATE.checked.delete(key);
-      else STATE.checked.add(key);
-      scheduleRender();
-    });
-  });
-
-  const applyBtn = container.querySelector('#apply-all-btn');
-  if (applyBtn) {
-    applyBtn.addEventListener('click', () => {
-      STATE.semanticResults
-        .filter(r => r.pct >= 40)
-        .forEach(r => STATE.checked.add(`${r.meta.catId}__${r.meta.crId}`));
-      scheduleRender();
-    });
-  }
-}
-
-// ══════════════════════════════════════════════════════════
-//  SIDEBAR
+//  SIDEBAR RENDER
 // ══════════════════════════════════════════════════════════
 function renderSidebar() {
-  const nav = document.getElementById('sidebar');
-  let html = `<div class="sb-section-title">TRL</div>`;
-  CATEGORIES.filter(c=>c.type==='trl').forEach(cat => {
-    const done = cat.criteria.some(cr => STATE.checked.has(`${cat.id}__${cr.id}`));
-    const all = cat.criteria.every(cr => STATE.checked.has(`${cat.id}__${cr.id}`));
-    html += `<a class="sb-item" href="#cat-${cat.id}" onclick="return scrollTo('#cat-${cat.id}')">
-      <span class="sb-item-icon">${IC[cat.icon]}</span>
-      <span>${cat.label}</span>
-      <span class="sb-dot ${all?'done':done?'partial':''}"></span>
-    </a>`;
-  });
-  html += `<div class="sb-divider"></div><div class="sb-section-title">CRL</div>`;
-  CATEGORIES.filter(c=>c.type==='crl').forEach(cat => {
-    const done = cat.criteria.some(cr => STATE.checked.has(`${cat.id}__${cr.id}`));
-    const all = cat.criteria.every(cr => STATE.checked.has(`${cat.id}__${cr.id}`));
-    html += `<a class="sb-item" href="#cat-${cat.id}" onclick="return scrollTo('#cat-${cat.id}')">
-      <span class="sb-item-icon">${IC[cat.icon]}</span>
-      <span>${cat.label}</span>
-      <span class="sb-dot ${all?'done':done?'partial':''}"></span>
-    </a>`;
-  });
-  nav.innerHTML = html;
-}
-
-// ══════════════════════════════════════════════════════════
-//  CATEGORIES
-// ══════════════════════════════════════════════════════════
-function renderCategories() {
-  const root = document.getElementById('categories-root');
-  let html = '';
-  let lastType = null;
-
-  CATEGORIES.forEach(cat => {
-    if (cat.type !== lastType) {
-      lastType = cat.type;
-      const isTRL = cat.type === 'trl';
-      html += `<div class="section-intro">
-        <div class="section-intro-icon ${cat.type}">${IC[isTRL?'flask':'compass']}</div>
-        <div>
-          <div class="section-intro-label ${cat.type}">${isTRL?'TRL — Technology Readiness Level':'CRL — Commercial Readiness Level'}</div>
-          <div class="section-intro-title">${isTRL?'Maturidade Tecnológica':'Maturidade Comercial'}</div>
-          <div class="section-intro-desc">${isTRL?'Avalia o estágio de desenvolvimento técnico da tecnologia, da pesquisa básica à operação comprovada.':'Avalia a prontidão para o mercado: produto, posicionamento, equipe, go-to-market e produção.'}</div>
-        </div>
-      </div>`;
-    }
-
-    const score = catScore(cat.id, STATE.checked, cat.maxScore);
-    const answered = cat.criteria.filter(cr => STATE.checked.has(`${cat.id}__${cr.id}`)).length;
-    const hasAny = answered > 0;
-
-    let dotsHtml = '';
-    for (let i=0; i<cat.maxScore; i++) {
-      dotsHtml += `<div class="level-dot${i<score?' filled '+cat.type:''}"></div>`;
-    }
-
-    // Group criteria
-    const groups = {};
-    cat.criteria.forEach(cr => { (groups[cr.group] = groups[cr.group]||[]).push(cr); });
-
-    let critHtml = '';
-    Object.entries(groups).forEach(([grp, crs]) => {
-      critHtml += `<div class="crit-group"><div class="crit-group-label">${grp}</div>`;
-      crs.forEach(cr => {
-        const key = `${cat.id}__${cr.id}`;
-        const chk = STATE.checked.has(key);
-        critHtml += `<label class="criterion ${cat.type}-crit" data-key="${key}">
-          <input type="checkbox" data-key="${key}" ${chk?'checked':''}>
-          <span class="crit-box">${IC.check}</span>
-          <span class="crit-text">${cr.text}</span>
-          <button class="crit-info-btn" data-tip="${cr.tip.replace(/"/g,'&quot;')}" title="Contexto e exemplos" tabindex="-1">${IC.info}</button>
-        </label>`;
-      });
-      critHtml += `</div>`;
-    });
-
-    const pillTip = `Nível calculado: ${answered}/${cat.criteria.length} critérios atendidos → ${cat.type.toUpperCase()} ${score}/${cat.maxScore}`;
-
-    html += `<div class="cat-card ${cat.type}-card${hasAny?' has-answers':''}" id="cat-${cat.id}">
-      <div class="cat-header">
-        <div class="cat-icon ${cat.type}">${IC[cat.icon]}</div>
-        <div class="cat-header-text">
-          <div class="cat-label">${cat.label}</div>
-          <div class="cat-hint">${cat.hint}</div>
-        </div>
-        ${score>0?`<div class="cat-pill ${cat.type}" data-tip="${pillTip}" style="cursor:help">${cat.type.toUpperCase()} ${score}/${cat.maxScore}</div>`:''}
-      </div>
-      ${critHtml}
-      <div class="cat-level-bar">
-        <span class="cat-level-lbl">${answered}/${cat.criteria.length} critérios</span>
-        <div class="level-dots">${dotsHtml}</div>
-        <span class="level-dot-score ${cat.type}">${score>0?score+'/'+cat.maxScore:'—'}</span>
-      </div>
-    </div>`;
-  });
-
-  root.innerHTML = html;
-
-  // Bind checkboxes
-  root.querySelectorAll('.criterion input[type="checkbox"]').forEach(cb => {
-    cb.addEventListener('change', e => {
-      const key = e.target.dataset.key;
-      if (e.target.checked) STATE.checked.add(key);
-      else STATE.checked.delete(key);
-      scheduleRender();
-    });
-  });
-
-  // Bind tooltip buttons
-  root.querySelectorAll('.crit-info-btn').forEach(btn => {
-    btn.addEventListener('mouseenter', () => showTooltip(btn, btn.dataset.tip));
-    btn.addEventListener('mouseleave', hideTooltip);
-    btn.addEventListener('click', e => {
-      e.preventDefault();
-      e.stopPropagation();
-      if (tooltipTarget === btn) hideTooltip();
-      else showTooltip(btn, btn.dataset.tip);
-    });
-  });
-
-  // Pill tooltips
-  root.querySelectorAll('.cat-pill[data-tip]').forEach(pill => {
-    pill.addEventListener('mouseenter', () => showTooltip(pill, pill.dataset.tip));
-    pill.addEventListener('mouseleave', hideTooltip);
-  });
-}
-
-// ══════════════════════════════════════════════════════════
-//  RESULT FOOTER
-// ══════════════════════════════════════════════════════════
-function renderFooter() {
-  const trl = computeTRL(STATE.checked);
-  const crl = computeCRL(STATE.checked);
-  const footer = document.getElementById('result-footer');
-
-  footer.innerHTML = `
-    <div class="result-block">
-      <span class="result-label">TRL</span>
-      <span class="result-value trl">${trl??'—'}</span>
-      <span class="result-denom">${trl?'/9':''}</span>
-    </div>
-    <div class="result-sep"></div>
-    <div class="result-block">
-      <span class="result-label">CRL</span>
-      <span class="result-value crl">${crl??'—'}</span>
-      <span class="result-denom">${crl?'/5':''}</span>
-    </div>
-    <div class="result-sep"></div>
-    <div class="result-desc">
-      <div class="result-desc-title">${trl ? TRL_LABELS[trl] : 'Responda critérios de TRL'}</div>
-      <div class="result-desc-sub">${crl ? CRL_LABELS[crl] : 'Responda critérios de CRL'}</div>
-    </div>
-    <div class="result-actions">
-      <button class="btn btn-ghost" id="btn-reset">${IC.refresh} Reiniciar</button>
-      <button class="btn btn-primary" id="btn-export">${IC.download} Exportar .md</button>
+  const sb = document.getElementById('sidebar');
+  let html = `
+    <div class="sb-title-area">
+      <h2>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        Mapeador TRL/CRL
+      </h2>
     </div>
   `;
 
-  document.getElementById('btn-reset').addEventListener('click', () => {
-    if (!confirm('Reiniciar toda a avaliação? As respostas serão perdidas.')) return;
-    STATE.checked.clear();
-    scheduleRender();
+  html += `<div class="sb-section-title">Tecnologia (TRL)</div>`;
+  CATEGORIES.filter(c => c.type === 'trl').forEach(cat => {
+    const count = cat.criteria.filter(cr => STATE.checked.has(`${cat.id}__${cr.id}`)).length;
+    const isDone = count === cat.criteria.length;
+    const active = STATE.activeSidebarCategory === cat.id ? 'active' : '';
+    html += `
+      <div class="sb-item ${active}" onclick="selectCategory('${cat.id}')">
+        <span class="sb-item-icon">${IC[cat.icon]}</span>
+        <span>${cat.label}</span>
+        <span class="sb-dot ${isDone?'done':count>0?'partial':''}"></span>
+      </div>
+    `;
   });
-  document.getElementById('btn-export').addEventListener('click', openExportModal);
-}
 
-// ══════════════════════════════════════════════════════════
-//  PROGRESS
-// ══════════════════════════════════════════════════════════
-function renderProgress() {
-  const total = CATEGORIES.reduce((s,c) => s+c.criteria.length, 0);
-  const done = STATE.checked.size;
-  const pct = Math.round(done/total*100);
-  document.getElementById('top-progress').style.width = pct+'%';
-  document.getElementById('progress-label').textContent = `${done} de ${total} critérios`;
-}
-
-// ══════════════════════════════════════════════════════════
-//  RENDER SCHEDULER
-// ══════════════════════════════════════════════════════════
-let _pending = false;
-function scheduleRender() {
-  if (_pending) return;
-  _pending = true;
-  requestAnimationFrame(() => {
-    _pending = false;
-    const scrollY = window.scrollY;
-    renderSidebar();
-    renderCategories();
-    renderFooter();
-    renderProgress();
-    if (STATE.semanticOpen) renderSemanticResults();
-    window.scrollTo(0, scrollY);
+  html += `<div class="sb-section-title">Comercial (CRL)</div>`;
+  CATEGORIES.filter(c => c.type === 'crl').forEach(cat => {
+    const count = cat.criteria.filter(cr => STATE.checked.has(`${cat.id}__${cr.id}`)).length;
+    const isDone = count === cat.criteria.length;
+    const active = STATE.activeSidebarCategory === cat.id ? 'active' : '';
+    html += `
+      <div class="sb-item ${active}" onclick="selectCategory('${cat.id}')">
+        <span class="sb-item-icon">${IC[cat.icon]}</span>
+        <span>${cat.label}</span>
+        <span class="sb-dot ${isDone?'done':count>0?'partial':''}"></span>
+      </div>
+    `;
   });
+
+  sb.innerHTML = html;
+}
+
+function selectCategory(id) {
+  STATE.activeSidebarCategory = id;
+  renderSidebar();
+  renderCategoryCards();
+  const el = document.getElementById(`cat-${id}`);
+  if (el) el.scrollIntoView({ behavior: 'smooth' });
 }
 
 // ══════════════════════════════════════════════════════════
-//  EXPORT MODAL
+//  CHECKLISTS & CATEGORIES RENDER
 // ══════════════════════════════════════════════════════════
-function openExportModal() {
-  document.getElementById('export-overlay').classList.remove('hidden');
-}
-function closeExportModal() {
-  document.getElementById('export-overlay').classList.add('hidden');
-}
-
-// ══════════════════════════════════════════════════════════
-//  MARKDOWN EXPORT
-// ══════════════════════════════════════════════════════════
-function buildMarkdown() {
-  const trl = computeTRL(STATE.checked);
-  const crl = computeCRL(STATE.checked);
-  const inst = document.getElementById('inst-input').value.trim() || '—';
-  const tech = document.getElementById('tech-input').value.trim() || '—';
-  const date = new Date().toLocaleDateString('pt-BR',{day:'2-digit',month:'long',year:'numeric'});
-
-  const TRL_CTX = {
-    1:'A tecnologia está em estágio inicial de pesquisa. O fenômeno foi observado e princípios básicos identificados, mas ainda sem demonstração prática ou aplicação definida.',
-    2:'O conceito tecnológico e suas potenciais aplicações foram formulados. A pesquisa aplicada foi iniciada, mas ainda sem experimentos de validação.',
-    3:'Estudos analíticos, simulações ou experimentos laboratoriais simples demonstraram a viabilidade do conceito. A tecnologia tem base científica comprovada.',
-    4:'Componentes críticos foram construídos e testados individualmente em laboratório. A integração básica foi verificada em condições controladas.',
-    5:'O sistema integrado foi testado em ambiente que simula condições reais. Desempenho satisfatório foi demonstrado nos KPIs principais em escala laboratorial.',
-    6:'Um protótipo representativo em escala real foi desenvolvido e demonstrado em ambiente relevante. Estágio de engenharia avançada.',
-    7:'O protótipo foi demonstrado em ambiente operacional real. A tecnologia está próxima do produto final, com dados de campo disponíveis.',
-    8:'O sistema está completo, qualificado por testes formais e praticamente pronto para produção em escala e comercialização.',
-    9:'O sistema está comprovado em operação real, com múltiplas instâncias em campo. Tecnologia madura e comercialmente disponível.',
-  };
-  const CRL_CTX = {
-    1:'O mercado é hipotético. Há uma ideia de aplicação, mas sem validação de mercado real ou estimativas fundamentadas de demanda.',
-    2:'Viabilidade comercial básica foi demonstrada. Pesquisa de mercado inicial foi conduzida, concorrentes foram identificados e o modelo de negócios está sendo formado.',
-    3:'A cadeia de valor está mapeada e relações iniciais com parceiros foram estabelecidas. Primeiros testes com clientes ocorreram.',
-    4:'Primeiros contratos ou LOIs foram obtidos. A empresa tem tração comercial inicial com early adopters.',
-    5:'O negócio é autossustentável com receita recorrente, parceiros estabelecidos, manufatura em escala e implantação ampla no mercado.',
-  };
-
-  let md = `# Relatório de Maturidade Tecnológica e Comercial\n\n`;
-  md += `> Gerado em ${date} pela Calculadora TRL/CRL — WebApp Showcase  \n`;
-  md += `> Todo processamento foi realizado localmente no navegador. Nenhum dado foi transmitido externamente.\n\n---\n\n`;
-
-  md += `## 1. Identificação\n\n`;
-  md += `| Campo | Valor |\n|---|---|\n`;
-  md += `| **Instituição / Incubadora** | ${inst} |\n`;
-  md += `| **Tecnologia / Startup** | ${tech} |\n`;
-  md += `| **Data da Avaliação** | ${date} |\n`;
-  md += `| **Total de critérios avaliados** | ${STATE.checked.size} de ${CATEGORIES.reduce((s,c)=>s+c.criteria.length,0)} |\n\n`;
-
-  md += `---\n\n## 2. Resultados Consolidados\n\n`;
-  md += `| Indicador | Nível | Descrição |\n|---|:---:|---|\n`;
-  md += `| **TRL** — Maturidade Tecnológica | **${trl??'—'}${trl?' / 9':''}** | ${trl?TRL_LABELS[trl]:'_Não avaliado_'} |\n`;
-  md += `| **CRL** — Maturidade Comercial | **${crl??'—'}${crl?' / 5':''}** | ${crl?CRL_LABELS[crl]:'_Não avaliado_'} |\n\n`;
-
-  if (trl) {
-    md += `### Interpretação TRL ${trl}/9\n\n${TRL_CTX[trl]}\n\n`;
-    // breakdown
-    const s1 = catScore('fundamentals', STATE.checked, 9);
-    const s2 = catScore('validation', STATE.checked, 9);
-    md += `**Composição do TRL:**\n`;
-    md += `- Fundamentos Científicos: ${s1}/9\n`;
-    md += `- Validação e Protótipos: ${s2}/9\n`;
-    md += `- *TRL final = média(${s1}, ${s2}) = ${trl}*\n\n`;
-  }
-  if (crl) {
-    md += `### Interpretação CRL ${crl}/5\n\n${CRL_CTX[crl]}\n\n`;
-    const crlIds = ['definition','competitive','team','market','manufacturing'];
-    const crlNames = {'definition':'Definição do Produto','competitive':'Panorama Competitivo','team':'Equipe','market':'Estratégia de Mercado','manufacturing':'Manufatura e Escala'};
-    md += `**Composição do CRL:**\n`;
-    crlIds.forEach(id => {
-      const s = catScore(id, STATE.checked, 5);
-      md += `- ${crlNames[id]}: ${s}/5\n`;
-    });
-    md += `- *CRL final = média das categorias respondidas = ${crl}*\n\n`;
-  }
-
-  md += `---\n\n## 3. Avaliação Detalhada por Categoria\n\n`;
+function renderCategoryCards() {
+  const root = document.getElementById('categories-root');
+  let html = '';
 
   CATEGORIES.forEach(cat => {
-    const score = catScore(cat.id, STATE.checked, cat.maxScore);
+    const score = getCategoryScore(cat.id);
+    const total = cat.criteria.length;
+    const count = cat.criteria.filter(cr => STATE.checked.has(`${cat.id}__${cr.id}`)).length;
+    const isActive = STATE.activeSidebarCategory === cat.id ? 'active-card' : '';
+
+    // Grouping criteria by their logical workflow group
+    const groups = {};
+    cat.criteria.forEach(cr => {
+      if (!groups[cr.group]) groups[cr.group] = [];
+      groups[cr.group].push(cr);
+    });
+
+    let critGroupsHtml = '';
+    Object.entries(groups).forEach(([groupName, list]) => {
+      critGroupsHtml += `
+        <div class="crit-group">
+          <div class="crit-group-title">${groupName}</div>
+      `;
+      list.forEach(cr => {
+        const key = `${cat.id}__${cr.id}`;
+        const isChecked = STATE.checked.has(key);
+        critGroupsHtml += `
+          <label class="crit-item">
+            <input type="checkbox" data-key="${key}" ${isChecked ? 'checked' : ''} onchange="toggleCriterion('${key}', this.checked)">
+            <span class="crit-text">${cr.text}</span>
+            <button class="crit-info-btn" data-tip="${cr.tip.replace(/"/g, '&quot;')}" tabindex="-1" onmouseenter="showTooltip(this, this.dataset.tip)" onmouseleave="hideTooltip()" onclick="event.preventDefault();">
+              ${IC.info}
+            </button>
+          </label>
+        `;
+      });
+      critGroupsHtml += `</div>`;
+    });
+
+    html += `
+      <div class="cat-card ${isActive} ${cat.type}-card" id="cat-${cat.id}">
+        <div class="cat-header">
+          <div class="cat-icon-box ${cat.type}">${IC[cat.icon]}</div>
+          <div class="cat-header-text">
+            <h3>${cat.label}</h3>
+            <p>${cat.hint}</p>
+          </div>
+          <div class="cat-score-badge">${cat.type.toUpperCase()}: ${score}/${cat.maxScore}</div>
+        </div>
+        ${critGroupsHtml}
+      </div>
+    `;
+  });
+
+  root.innerHTML = html;
+}
+
+function toggleCriterion(key, isChecked) {
+  if (isChecked) STATE.checked.add(key);
+  else STATE.checked.delete(key);
+  
+  updateDashboard();
+  renderSidebar();
+}
+
+// ══════════════════════════════════════════════════════════
+//  DASHBOARD & METRICS CONTROLLER
+// ══════════════════════════════════════════════════════════
+function updateDashboard() {
+  const trl = getTRL();
+  const crl = getCRL();
+
+  const trlVal = document.getElementById('m-trl-val');
+  const trlTitle = document.getElementById('m-trl-title');
+  const crlVal = document.getElementById('m-crl-val');
+  const crlTitle = document.getElementById('m-crl-title');
+
+  if (trl !== null) {
+    trlVal.textContent = trl;
+    trlTitle.textContent = TRL_LABELS[trl];
+  } else {
+    trlVal.textContent = '—';
+    trlTitle.textContent = 'Responda aos critérios de tecnologia';
+  }
+
+  if (crl !== null) {
+    crlVal.textContent = crl;
+    crlTitle.textContent = CRL_LABELS[crl];
+  } else {
+    crlVal.textContent = '—';
+    crlTitle.textContent = 'Responda aos critérios de negócio';
+  }
+
+  // Desenhar Radar
+  const canvas = document.getElementById('radar-canvas');
+  renderRadar(canvas, STATE.checked);
+}
+
+// ══════════════════════════════════════════════════════════
+//  SEMANTIC SEARCH CONTROLLER
+// ══════════════════════════════════════════════════════════
+function initSemanticAssistant() {
+  const toggle = document.getElementById('semantic-toggle-btn');
+  const body = document.getElementById('semantic-body');
+  const input = document.getElementById('semantic-input');
+
+  toggle.addEventListener('click', () => {
+    STATE.semanticOpen = !STATE.semanticOpen;
+    body.classList.toggle('hidden', !STATE.semanticOpen);
+    toggle.classList.toggle('open', STATE.semanticOpen);
+    toggle.innerHTML = STATE.semanticOpen ? 
+      `Recolher Assistente <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="transform: rotate(180deg);"><polyline points="6 9 12 15 18 9"/></svg>` :
+      `Expandir Assistente <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>`;
+  });
+
+  let debounceTimer;
+  input.addEventListener('input', () => {
+    clearTimeout(debounceTimer);
+    debounceTimer = setTimeout(() => {
+      const q = input.value.trim();
+      const resultsBox = document.getElementById('semantic-results-box');
+      
+      if (cleanTokenize(q).length < 2) {
+        resultsBox.innerHTML = '';
+        return;
+      }
+
+      const matches = bm25Engine.search(q, 5);
+      if (matches.length === 0) {
+        resultsBox.innerHTML = '<div style="font-size:12px; color:var(--muted); text-align:center; padding:10px;">Nenhum critério correspondente de alta relevância encontrado.</div>';
+        return;
+      }
+
+      let html = '';
+      matches.forEach(m => {
+        const isChecked = STATE.checked.has(m.doc.id);
+        html += `
+          <div class="sr-card">
+            <span class="sr-badge ${m.doc.metadata.type}">${m.doc.metadata.type}</span>
+            <div class="sr-text">
+              <strong>${m.doc.metadata.catLabel}</strong>: ${m.doc.metadata.text}
+            </div>
+            <div class="sr-score">${m.confidence}% relevância</div>
+            <button class="sr-btn ${isChecked?'marked':''}" data-key="${m.doc.id}" onclick="toggleSemanticMark('${m.doc.id}', this)">
+              ${isChecked?'Marcado':'Marcar'}
+            </button>
+          </div>
+        `;
+      });
+      resultsBox.innerHTML = html;
+    }, 300);
+  });
+}
+
+function toggleSemanticMark(key, btn) {
+  const isMarked = STATE.checked.has(key);
+  if (isMarked) {
+    STATE.checked.delete(key);
+    btn.classList.remove('marked');
+    btn.textContent = 'Marcar';
+  } else {
+    STATE.checked.add(key);
+    btn.classList.add('marked');
+    btn.textContent = 'Marcado';
+  }
+  updateDashboard();
+  renderSidebar();
+  renderCategoryCards();
+}
+
+// ══════════════════════════════════════════════════════════
+//  EXPORTAÇÃO DE IMAGEM PNG
+// ══════════════════════════════════════════════════════════
+function exportRadarPNG() {
+  const tempCanvas = document.createElement('canvas');
+  tempCanvas.width = 800;
+  tempCanvas.height = 800;
+  
+  // Desenhar com layout de alta qualidade e fundo branco
+  renderRadar(tempCanvas, STATE.checked, true);
+
+  const dataURL = tempCanvas.toDataURL('image/png');
+  const a = document.createElement('a');
+  const techName = document.getElementById('tech-input').value.trim() || 'tecnologia';
+  const slug = techName.toLowerCase().replace(/\s+/g,'_').replace(/[^a-z0-9_]/g,'');
+  a.href = dataURL;
+  a.download = `grafico_radar_${slug}_${new Date().toISOString().slice(0,10)}.png`;
+  a.click();
+}
+
+// ══════════════════════════════════════════════════════════
+//  EXPORTAÇÃO DE RELATÓRIO MARKDOWN
+// ══════════════════════════════════════════════════════════
+function buildMarkdownReport() {
+  const trl = getTRL();
+  const crl = getCRL();
+  const inst = document.getElementById('inst-input').value.trim() || '—';
+  const tech = document.getElementById('tech-input').value.trim() || '—';
+  const date = new Date().toLocaleDateString('pt-BR', {day:'2-digit', month:'long', year:'numeric'});
+
+  const TRL_NARRATIVE = {
+    1:'Princípios fundamentais descritos. Pesquisa teórica e formulação científica básica.',
+    2:'Formulação da tecnologia e aplicação industrial/comercial teórica definida.',
+    3:'Pesquisa ativa e validação analítica do conceito em laboratório.',
+    4:'Validação experimental do sistema e integração básica em laboratório.',
+    5:'Validação em escala piloto em ambiente simulado relevante.',
+    6:'Demonstração do protótipo em escala piloto avançada em ambiente relevante.',
+    7:'Demonstração em campo operacional real (Beta testing ou ensaios de campo).',
+    8:'Sistema de produção homologado e qualificado por ensaios de conformidade técnica.',
+    9:'Tecnologia comprovada em ambiente comercial de operação contínua e larga escala.'
+  };
+  
+  const CRL_NARRATIVE = {
+    1:'Premissas comerciais hipotéticas baseadas apenas na dor teórica do cliente.',
+    2:'Modelo comercial formatado, concorrentes mapeados e segmentação de clientes concluída.',
+    3:'Cadeia de suprimentos e custos de manufatura modelados. Relações com parceiros comerciais estabelecidas.',
+    4:'Tração inicial comprovada por meio de Cartas de Intenção (LOIs) ou MVPs em teste no cliente.',
+    5:'Operação comercial estabelecida com venda ativa recorrente ou licenciamento formal pago.'
+  };
+
+  let md = `# Relatório de Maturidade de Inovação (TRL / CRL)\n\n`;
+  md += `> **Data de Emissão:** ${date}  \n`;
+  md += `> **Integridade:** Processado inteiramente no navegador local. Garantia total de sigilo industrial.\n\n`;
+  
+  md += `## 1. Identificação do Projeto\n\n`;
+  md += `| Parâmetro | Detalhamento |\n|---|---|\n`;
+  md += `| **Tecnologia / Startup** | ${tech} |\n`;
+  md += `| **Instituição de Origem** | ${inst} |\n`;
+  md += `| **Critérios Homologados** | ${STATE.checked.size} de ${CATEGORIES.reduce((s,c)=>s+c.criteria.length,0)} eixos |\n\n`;
+
+  md += `## 2. Resultados Consolidados\n\n`;
+  md += `| Indicador | Nível | Descrição de Maturidade |\n|---|:---:|---|\n`;
+  md += `| **TRL (Tecnologia)** | **${trl??'—'} / 9** | ${trl ? TRL_NARRATIVE[trl] : '_Não preenchido_'} |\n`;
+  md += `| **CRL (Negócios)** | **${crl??'—'} / 5** | ${crl ? CRL_NARRATIVE[crl] : '_Não preenchido_'} |\n\n`;
+
+  // Análise de Gaps
+  if (trl && crl) {
+    md += `### Análise de Desequilíbrio do Heptágono\n\n`;
+    const gap = Math.abs(trl - (crl * 1.8)); // normalizando CRL 5 para TRL 9 aproximado
+    if (gap > 2 && trl > (crl * 1.8)) {
+      md += `> [!WARNING]\n`;
+      md += `> **Gargalo de Transição Comercial:** A tecnologia apresenta maturidade técnica robusta (TRL ${trl}), contudo a estratégia comercial e validação de mercado (CRL ${crl}) estão defasadas. Há risco de criar um produto viável que não atende às dores estruturais do mercado ou possui barreiras de fabricação não mapeadas.\n\n`;
+    } else if (gap > 2 && (crl * 1.8) > trl) {
+      md += `> [!WARNING]\n`;
+      md += `> **Descompasso Tecnológico:** Há alta tração e validação de interesse de mercado (CRL ${crl}), porém o protótipo físico/software ainda está nos estágios iniciais de bancada laboratorial (TRL ${trl}). Recomenda-se cautela ao prometer prazos de entrega a potenciais parceiros, pois a engenharia de escala pode apresentar desafios inesperados.\n\n`;
+    } else {
+      md += `> [!NOTE]\n`;
+      md += `> **Desenvolvimento Balanceado:** O projeto apresenta desenvolvimento equilibrado entre maturidade de engenharia e maturidade mercadológica. Baixo risco de descompasso de escala.\n\n`;
+    }
+  }
+
+  md += `## 3. Detalhamento dos Critérios por Eixo\n\n`;
+  CATEGORIES.forEach(cat => {
+    const score = getCategoryScore(cat.id);
     const checked = cat.criteria.filter(cr => STATE.checked.has(`${cat.id}__${cr.id}`));
     const unchecked = cat.criteria.filter(cr => !STATE.checked.has(`${cat.id}__${cr.id}`));
-    const pct = Math.round(checked.length/cat.criteria.length*100);
 
-    md += `### ${cat.label} (${cat.type.toUpperCase()})\n\n`;
-    md += `| Campo | Valor |\n|---|---|\n`;
-    md += `| Tipo | ${cat.type.toUpperCase()} |\n`;
-    md += `| Nível obtido | ${score > 0 ? score+'/'+cat.maxScore : '_Não respondido_'} |\n`;
-    md += `| Critérios atendidos | ${checked.length} de ${cat.criteria.length} (${pct}%) |\n\n`;
-
+    md += `### ${cat.label} (Score: ${score}/${cat.maxScore})\n\n`;
     if (checked.length > 0) {
-      md += `#### Critérios Atendidos\n\n`;
-      checked.forEach(cr => { md += `- [x] **[${cr.group}]** ${cr.text}\n`; });
+      md += `#### Critérios Atendidos:\n`;
+      checked.forEach(cr => {
+        md += `- [x] **[${cr.group}]** ${cr.text}\n`;
+      });
       md += `\n`;
     }
     if (unchecked.length > 0) {
-      md += `#### Critérios Pendentes\n\n`;
-      unchecked.forEach(cr => { md += `- [ ] **[${cr.group}]** ${cr.text}\n`; });
+      md += `#### Critérios Pendentes:\n`;
+      unchecked.forEach(cr => {
+        md += `- [ ] **[${cr.group}]** ${cr.text}  \n  *Evidência necessária:* ${cr.tip}\n`;
+      });
       md += `\n`;
     }
   });
 
-  md += `---\n\n## 4. Próximos Passos Recomendados\n\n`;
+  md += `## 4. Próximos Passos Recomendados\n\n`;
   if (trl && trl < 9) {
-    md += `### Para avançar de TRL ${trl} → TRL ${trl+1}\n\n`;
-    md += `**Meta:** ${TRL_LABELS[trl+1]}\n\n`;
-    md += `Foque nos critérios pendentes das categorias de TRL acima.\n\n`;
+    md += `* **Foco Tecnológico:** Trabalhar nas diretrizes e testes de qualificação do nível **TRL ${trl+1}** (${TRL_LABELS[trl+1]}).\n`;
   }
   if (crl && crl < 5) {
-    md += `### Para avançar de CRL ${crl} → CRL ${crl+1}\n\n`;
-    md += `**Meta:** ${CRL_LABELS[crl+1]}\n\n`;
-    md += `Foque nos critérios pendentes das categorias de CRL acima.\n\n`;
-  }
-  if (!trl && !crl) {
-    md += `Nenhuma categoria foi avaliada. Preencha os critérios para obter recomendações.\n\n`;
+    md += `* **Foco Comercial:** Validação de premissas e governança do nível **CRL ${crl+1}** (${CRL_LABELS[crl+1]}).\n`;
   }
 
-  md += `---\n\n`;
-  md += `## 5. Nota Metodológica\n\n`;
-  md += `Este relatório foi gerado pela **Calculadora TRL/CRL** disponível em WebApp Showcase.\n\n`;
-  md += `- **TRL** calculado como média dos scores de "Fundamentos Científicos" e "Validação e Protótipos", mapeados proporcionalmente à escala 1-9.\n`;
-  md += `- **CRL** calculado como média dos scores das 5 categorias comerciais, mapeados proporcionalmente à escala 1-5.\n`;
-  md += `- Baseado em critérios NASA / DOE / ARPA-E e NYSERDA.\n`;
-  md += `- **Confidencialidade**: Nenhum dado desta avaliação foi transmitido a servidores. Todo processamento ocorreu localmente no navegador do avaliador.\n\n`;
-  md += `---\n_Relatório gerado automaticamente. Trate como documento confidencial._\n`;
-
+  md += `\n---\n_Relatório gerado de forma segura e local com a Calculadora TRL/CRL consolidada. Base metodológica: NASA, DOE, ARPA-E, NYSERDA._\n`;
   return md;
 }
 
 // ══════════════════════════════════════════════════════════
-//  INIT
+//  GERENCIADOR DOS MODAIS & EXPORTS
 // ══════════════════════════════════════════════════════════
-document.addEventListener('DOMContentLoaded', () => {
-  initLGPD();
-  initSemantic();
+function initModalsAndExport() {
+  const lgpdAgree = document.getElementById('lgpd-agree-btn');
+  const cPrivacy = document.getElementById('c-privacy');
+  const cResp = document.getElementById('c-responsibility');
+  
+  function checkLgpdForm() {
+    if (cPrivacy.checked && cResp.checked) lgpdAgree.classList.add('ready');
+    else lgpdAgree.classList.remove('ready');
+  }
 
-  renderSidebar();
-  renderCategories();
-  renderFooter();
-  renderProgress();
+  cPrivacy.addEventListener('change', checkLgpdForm);
+  cResp.addEventListener('change', checkLgpdForm);
 
-  document.getElementById('export-cancel-btn').addEventListener('click', closeExportModal);
-  document.getElementById('export-confirm-btn').addEventListener('click', () => {
-    closeExportModal();
-    const md = buildMarkdown();
-    const blob = new Blob([md], { type:'text/markdown;charset=utf-8' });
+  lgpdAgree.addEventListener('click', () => {
+    if (cPrivacy.checked && cResp.checked) {
+      document.getElementById('lgpd-overlay').classList.add('hidden');
+    }
+  });
+
+  const exportOverlay = document.getElementById('export-overlay');
+  const mdExportBtn = document.getElementById('md-export-btn');
+  const radarPngBtn = document.getElementById('radar-png-btn');
+  const confirmBtn = document.getElementById('export-confirm-btn');
+  const cancelBtn = document.getElementById('export-cancel-btn');
+
+  mdExportBtn.addEventListener('click', () => {
+    exportOverlay.classList.remove('hidden');
+  });
+
+  cancelBtn.addEventListener('click', () => {
+    exportOverlay.classList.add('hidden');
+  });
+
+  confirmBtn.addEventListener('click', () => {
+    exportOverlay.classList.add('hidden');
+    const md = buildMarkdownReport();
+    const blob = new Blob([md], { type: 'text/markdown;charset=utf-8' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
-    const slug = (document.getElementById('tech-input').value.trim()||'tecnologia')
-      .toLowerCase().replace(/\s+/g,'_').replace(/[^a-z0-9_]/g,'');
+    const techName = document.getElementById('tech-input').value.trim() || 'tecnologia';
+    const slug = techName.toLowerCase().replace(/\s+/g,'_').replace(/[^a-z0-9_]/g,'');
     a.href = url;
-    a.download = `trl_crl_${slug}_${new Date().toISOString().slice(0,10)}.md`;
+    a.download = `relatorio_maturidade_${slug}_${new Date().toISOString().slice(0,10)}.md`;
     a.click();
     URL.revokeObjectURL(url);
   });
 
-  document.getElementById('export-overlay').addEventListener('click', e => {
-    if (e.target === document.getElementById('export-overlay')) closeExportModal();
-  });
+  radarPngBtn.addEventListener('click', exportRadarPNG);
+}
 
-  // Profile inputs
-  document.getElementById('inst-input').addEventListener('input', () => {});
-  document.getElementById('tech-input').addEventListener('input', () => {});
+// Labels TRL e CRL para interface
+const TRL_LABELS = {
+  1: 'Princípios básicos observados',
+  2: 'Conceito tecnológico formulado',
+  3: 'Prova experimental do conceito',
+  4: 'Tecnologia validada em lab',
+  5: 'Tecnologia validada em ambiente relevante',
+  6: 'Tecnologia demonstrada em ambiente relevante',
+  7: 'Demonstração de sistema em ambiente operacional',
+  8: 'Sistema completo e qualificado',
+  9: 'Sistema comprovado em ambiente operacional',
+};
+const CRL_LABELS = {
+  1: 'Mercado hipotético identificado',
+  2: 'Viabilidade comercial básica',
+  3: 'Cadeia de valor mapeada',
+  4: 'Primeiros contratos / LOIs',
+  5: 'Negócio autossustentável',
+};
+
+// ══════════════════════════════════════════════════════════
+//  INICIALIZAÇÃO DA APLICAÇÃO
+// ══════════════════════════════════════════════════════════
+document.addEventListener('DOMContentLoaded', () => {
+  renderSidebar();
+  renderCategoryCards();
+  initSemanticAssistant();
+  initModalsAndExport();
+  updateDashboard();
 });
 </script>
 <style>.ag-nav-back{position:fixed;top:12px;left:12px;z-index:9999;background:rgba(79,70,229,.9);color:#fff;border:none;border-radius:50px;padding:.4rem .9rem;font-size:.8rem;font-family:system-ui,sans-serif;font-weight:600;cursor:pointer;text-decoration:none;display:flex;align-items:center;gap:.35rem;box-shadow:0 2px 10px rgba(0,0,0,.25);backdrop-filter:blur(4px);transition:background .2s,transform .2s}.ag-nav-back:hover{background:rgba(55,48,163,.95);transform:translateY(-1px)}</style><a href="https://passosdomingues.github.io/webappshowcase/site/main.html" class="ag-nav-back" aria-label="Voltar ao índice">&#8592; Índice</a>
