@@ -100,14 +100,14 @@
   },
   {
     "id": "calculadora_trl_crl",
-    "title": "Calculadora TRL/CRL",
-    "description": "Avalie o nível de maturidade tecnológica e comercial de sua tecnologia com base nos critérios NASA / DOE / ARPA-E e N…",
+    "title": "Calculadora TRL / CRL — Maturidade Tecnológica e Comercial",
+    "description": "Ferramenta client-side para avaliação de maturidade tecnológica (TRL) e comercial (CRL) conforme critérios NASA/DOE/ARPA-E e NYSERDA. Nenhum dado é transmitido.",
     "category": "Outros",
     "path": "https://passosdomingues.github.io/webappshowcase/site/utilities/calculadora_trl_crl.html",
-    "bodyText": "Calculadora TRL/CRL Ferramenta de Avaliação Calculadora TRL / CRL Avalie o nível de maturidade tecnológica e comercial de sua tecnologia com base nos critérios NASA / DOE / ARPA-E e NYSERDA. &#8592; Índice",
-    "sha512": "7400304fef52c2e6531adcd389b3da3208bd0f4c9d5e2b91c567ba0611f4c6e98f5660e17237e35cb83291c2cb04eabfd52a501819b2d6e541409be9ccc188d2",
-    "sha512Short": "7400304fef52c2e6",
-    "size": "21KB"
+    "bodyText": "Calculadora TRL / CRL — Maturidade Tecnológica e Comercial Aviso de Privacidade e Sigilo Industrial Leia antes de prosseguir — sua segurança importa O que esta ferramenta faz Calcula o TRL (Technology Readiness Level) e CRL (Commercial Readiness Level) da sua tecnologia com base em critérios NASA / DOE / ARPA-E e NYSERDA. Usa o algoritmo Okapi BM25 para sugerir critérios semanticamente compatíveis com a descrição livre que você fornecer — totalmente no seu navegador. Gera um relatório em formato Markdown, disponível somente mediante sua confirmação explícita. Garantias de privacidade (LGPD Art. 7º) Nenhum dado é transmitido — todo processamento ocorre localmente no seu navegador. Não há chamadas a APIs externas, servidores de analytics ou CDNs após o carregamento da página. Sem cookies ou armazenamento persistente — as respostas existem apenas na memória da aba atual. Ao fechar ou recarregar, tudo é apagado. Código inspecionável — todo o JavaScript pode ser auditado diretamente no DevTools do navegador. Não há código ofuscado ou minificado. Exportação voluntária — o arquivo Markdown com os dados da avaliação só é gerado e baixado se você confirmar explicitamente em um segundo passo. Fontes locais — a ferramenta usa apenas fontes do sistema operacional. Nenhuma requisição é feita ao Google Fonts ou similares. Sua responsabilidade O arquivo exportado pode conter informações sensíveis sobre sua tecnologia. Você é responsável pelo armazenamento e compartilhamento desse arquivo. Recomendamos tratá-lo como confidencial. Esta ferramenta é um auxílio à avaliação, não substitui a análise de um especialista em gestão de inovação ou propriedade intelectual. Compreendo que nenhum dado digitado nesta ferramenta é enviado a servidores externos e que todo processamento ocorre localmente no meu navegador. Compreendo que a exportação do relatório é um ato voluntário e que sou responsável pela confidencialidade das informações exportadas. Concordar e iniciar avaliação Exportar Relató",
+    "sha512": "94abf0a237dc20917e6029faefcfdc3a680a465a8b8d2b672d5188bd0b35e1e1b0cdfff7e1c7ec0b37f26e406c604314d8644f10ea27ad0f8a9836a62808edd5",
+    "sha512Short": "94abf0a237dc2091",
+    "size": "93KB"
   },
   {
     "id": "comandaDigital",
