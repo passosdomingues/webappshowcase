@@ -1,0 +1,1825 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Tempo: N/A Myr atrás"/>
+    <title>Simulador de Dinâmica Galáctica</title>
+    
+    <style>
+        :root {
+            --color-bg: #0a0a0f;
+            --color-text: #e0e0e0;
+            --color-primary: #00ffff;
+            --color-secondary: #ffff00;
+            --color-accent: #ff00ff;
+            --color-danger: #ff4141;
+            --font-main: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--font-main);
+            background-color: var(--color-bg);
+            color: var(--color-text);
+            overflow: hidden;
+            display: flex;
+        }
+
+        /* --- Layout Principal --- */
+        #left-panel {
+            width: 320px;
+            height: 100vh;
+            background-color: #11111a;
+            border-right: 2px solid var(--color-primary);
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+            z-index: 10;
+        }
+
+        #right-panel {
+            flex: 1;
+            height: 100vh;
+            position: relative;
+        }
+
+        #canvas-container {
+            width: 100%;
+            height: 65%;
+            position: relative;
+            background-color: #000;
+        }
+
+        #plot-container {
+            width: 100%;
+            height: 35%;
+            background-color: #0c0c12;
+            border-top: 2px solid var(--color-primary);
+            padding: 10px;
+        }
+
+        /* --- Painel de Controles --- */
+        .panel {
+            padding: 15px;
+            border-bottom: 1px solid rgba(0, 255, 255, 0.2);
+        }
+
+        .panel h3 {
+            color: var(--color-primary);
+            font-size: 1.1em;
+            margin-bottom: 15px;
+            border-bottom: 1px solid var(--color-primary);
+            padding-bottom: 5px;
+        }
+
+        .control-group {
+            margin-bottom: 15px;
+        }
+
+        .control-group label {
+            display: block;
+            font-size: 0.9em;
+            margin-bottom: 5px;
+            font-weight: 600;
+        }
+
+        .control-group label span {
+            float: right;
+            color: var(--color-secondary);
+            font-weight: normal;
+        }
+
+        input[type="range"] {
+            width: 100%;
+            cursor: pointer;
+        }
+
+        button, select {
+            width: 100%;
+            padding: 8px;
+            background-color: var(--color-primary);
+            color: #000;
+            border: none;
+            border-radius: 4px;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 0.9em;
+            margin-top: 5px;
+            transition: background-color 0.2s;
+        }
+
+        button:hover {
+            background-color: #5fffff;
+        }
+
+        button#add-star-btn {
+            background-color: var(--color-secondary);
+        }
+        button#add-star-btn:hover {
+            background-color: #ffff80;
+        }
+        
+        button.toggle-btn.active {
+            background-color: var(--color-danger);
+            color: var(--color-text);
+        }
+
+        select {
+            background-color: #333;
+            color: var(--color-text);
+            border: 1px solid var(--color-primary);
+        }
+
+        /* --- Legenda e Informações --- */
+        #info-panel ul {
+            list-style: none;
+            font-size: 0.85em;
+        }
+
+        #info-panel li {
+            margin-bottom: 8px;
+            line-height: 1.4;
+        }
+
+        #info-panel li strong {
+            color: var(--color-primary);
+            min-width: 120px;
+            display: inline-block;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 5px;
+        }
+        .legend-color {
+            width: 15px;
+            height: 15px;
+            border-radius: 50%;
+            margin-right: 10px;
+            border: 1px solid #555;
+        }
+
+        /* --- Tooltip --- */
+        #tooltip-extinction {
+            position: absolute;
+            display: none;
+            background: rgba(0, 0, 0, 0.95);
+            border: 2px solid var(--color-danger);
+            border-radius: 8px;
+            padding: 15px;
+            color: var(--color-text);
+            font-size: 0.9em;
+            width: 350px;
+            pointer-events: none;
+            z-index: 100;
+            box-shadow: 0 0 20px rgba(255, 0, 0, 0.5);
+        }
+
+        #tooltip-extinction h4 {
+            color: var(--color-danger);
+            margin-bottom: 10px;
+            font-size: 1.1em;
+        }
+
+        #tooltip-extinction .severity {
+            display: inline-block;
+            padding: 2px 8px;
+            background: var(--color-danger);
+            color: white;
+            border-radius: 10px;
+            font-size: 0.8em;
+            margin-left: 10px;
+        }
+
+        /* --- Loading Screen --- */
+        #loading {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            font-size: 18px;
+        }
+
+        .progress-bar {
+            width: 200px;
+            height: 10px;
+            background: #333;
+            border-radius: 5px;
+            margin-top: 10px;
+            overflow: hidden;
+        }
+
+        .progress {
+            height: 100%;
+            background: #00ffff;
+            width: 0%;
+            transition: width 0.3s;
+        }
+
+        /* --- Status Panel --- */
+        #status-panel {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 10px;
+            border-radius: 4px;
+            border: 1px solid #ff00ff;
+            font-size: 10px;
+            max-width: 250px;
+            z-index: 100;
+        }
+
+        /* --- Timeline --- */
+        #timeline-panel {
+            position: absolute;
+            bottom: 10px;
+            left: 10px;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 10px;
+            border-radius: 4px;
+            border: 1px solid #00ffff;
+            font-size: 10px;
+            max-width: 300px;
+            z-index: 100;
+        }
+
+        .extinction-marker {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            background-color: #ff0000;
+            border-radius: 50%;
+            margin: 0 2px;
+            vertical-align: middle;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="loading">
+        <div style="text-align: center;">
+            <div>Inicializando Simulação Galáctica...</div>
+            <div class="progress-bar">
+                <div class="progress" id="progress"></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="left-panel">
+        
+        <div class="panel" id="controls-panel">
+            <h3>Controles da Simulação</h3>
+            
+            <div class="control-group">
+                <button id="play-pause-btn">Iniciar</button>
+                <button id="reset-btn">Resetar</button>
+            </div>
+            
+            <div class="control-group">
+                <label for="time-scale-slider">Velocidade do Tempo: <span id="time-scale-value">1.0x</span></label>
+                <input type="range" id="time-scale-slider" min="0.1" max="10" value="1" step="0.1">
+            </div>
+
+            <div class="control-group">
+                <label for="star-formation-slider">Taxa de Formação Estelar: <span id="star-formation-value">1.0x</span></label>
+                <input type="range" id="star-formation-slider" min="0.1" max="5" value="1" step="0.1">
+            </div>
+
+            <div class="control-group">
+                <label for="mass-scale-slider">Escala de Massa (Bojo+Disco): <span id="mass-scale-value">1.0x</span></label>
+                <input type="range" id="mass-scale-slider" min="0.1" max="3" value="1" step="0.1">
+            </div>
+
+            <div class="control-group">
+                <label>Matéria Escura</label>
+                <button id="dark-matter-toggle" class="toggle-btn active">Ligada</button>
+            </div>
+            
+            <div class="control-group">
+                <label>Adicionar Estrela</label>
+                <button id="add-star-btn">Adicionar Estrela Personalizada</button>
+            </div>
+        </div>
+
+        <div class="panel" id="camera-panel">
+            <h3>Controles da Câmera</h3>
+            <div class="control-group">
+                <label for="camera-view-select">Visão da Câmera</label>
+                <select id="camera-view-select">
+                    <option value="default">Padrão (3D)</option>
+                    <option value="top">Superior (XY)</option>
+                    <option value="side">Lateral (XZ)</option>
+                    <option value="sun_follow">Seguir Sol</option>
+                    <option value="cg_follow">Centro Galáctico</option>
+                    <option value="spiral_view">Visão Espiral</option>
+                </select>
+            </div>
+            <div class="control-group">
+                <button id="camera-reset-btn">Resetar Câmera</button>
+            </div>
+        </div>
+
+        <div class="panel" id="visualization-panel">
+            <h3>Visualização</h3>
+            <div class="control-group">
+                <label><input type="checkbox" id="show-arms" checked> Braços Espirais</label>
+                <label><input type="checkbox" id="show-bulge" checked> Bojo</label>
+                <label><input type="checkbox" id="show-disk" checked> Disco</label>
+                <label><input type="checkbox" id="show-halo" checked> Halo</label>
+                <label><input type="checkbox" id="show-new-stars" checked> Novas Estrelas</label>
+                <label><input type="checkbox" id="show-extinction-events" checked> Eventos de Extinção</label>
+                <label><input type="checkbox" id="show-grid" checked> Grade Galáctica</label>
+                <label><input type="checkbox" id="show-orbit-trails" checked> Trilhas Orbitais</label>
+            </div>
+        </div>
+        
+        <div class="panel" id="info-panel">
+            <h3>Informações</h3>
+            <ul>
+                <li><strong>Tempo:</strong> <span id="info-time">0.00</span> Myr</li>
+                <li><strong>Estrelas:</strong> <span id="info-stars">0</span></li>
+                <li><strong>Sol Z (kpc):</strong> <span id="info-sun-z">0.00</span></li>
+                <li><strong>Próx. Evento:</strong> <span id="info-next-event">N/A</span></li>
+                <li><strong>FPS:</strong> <span id="info-fps">0</span></li>
+            </ul>
+        </div>
+        
+        <div class="panel" id="legend-panel">
+            <h3>Legenda</h3>
+            <ul id="legend-list">
+                <li class="legend-item"><div class="legend-color" style="background-color: #ffaa00;"></div> Sol (Disco)</li>
+                <li class="legend-item"><div class="legend-color" style="background-color: #ffffff;"></div> Estrela (Bojo)</li>
+                <li class="legend-item"><div class="legend-color" style="background-color: #ff4141;"></div> Estrela (Halo)</li>
+                <li class="legend-item"><div class="legend-color" style="background-color: #00ffff;"></div> Estrela (Custom)</li>
+                <li class="legend-item"><div class="legend-color" style="background-color: #00ff00;"></div> Evento de Extinção</li>
+                <li class="legend-item"><div class="legend-color" style="background-color: #4682b4;"></div> Braços Espirais</li>
+            </ul>
+        </div>
+
+    </div>
+
+    <div id="right-panel">
+        
+        <div id="canvas-container"></div>
+        
+        <div id="status-panel">
+            <strong>Status da Simulação:</strong><br>
+            <span id="current-event">Inicializando...</span>
+        </div>
+
+        <div id="timeline-panel">
+            <strong>Linha do Tempo de Extinções:</strong><br>
+            <span class="extinction-marker"></span> O-S: 443 Myr | 
+            <span class="extinction-marker"></span> L-D: 372 Myr | 
+            <span class="extinction-marker"></span> P-Tr: 252 Myr | 
+            <span class="extinction-marker"></span> Tr-J: 201 Myr | 
+            <span class="extinction-marker"></span> K-Pg: 66 Myr
+        </div>
+
+        <div id="tooltip-extinction">
+            <h4 id="tooltip-title">Evento de Extinção <span id="tooltip-severity" class="severity">Nível 0</span></h4>
+            <p><strong>Tempo:</strong> <span id="tooltip-time">N/A</span> Myr atrás</p>
+            <p><strong>Espécies Extintas:</strong> <span id="tooltip-species">N/A</span></p>
+            <p id="tooltip-desc">Descrição do evento de extinção em massa.</p>
+        </div>
+
+        <div id="plot-container">
+            <canvas id="rotation-curve-chart"></canvas>
+        </div>
+        
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three/examples/js/controls/OrbitControls.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <script type="module">
+
+        // --- Constantes Físicas (baseadas no código Python) ---
+        const G = 6.674e-11; // m^3 kg^-1 s^-2
+        const SOLAR_MASS = 1.989e30; // kg
+        const KPC = 3.086e19; // metros
+        const MYR = 3.154e13; // segundos
+        
+        // Conversão de unidades para a simulação (kpc, M_sol, Myr)
+        const G_SIM = 4.4985e-6; // G em (kpc^3 / M_sol / Myr^2)
+        
+        // Parâmetros do código Python
+        const EXC1 = 0.99, EXC2 = 0.99; // Excentricidades
+        const PC = 11613.5;
+        const B0 = 2.26; // Raio de escala do Bojo (kpc)
+        const D0 = 2.8;  // Raio de escala do Disco (kpc)
+        const H0 = 5.0;  // Raio de escala do Halo (kpc)
+        const A0 = 2.8;  // Parâmetro dos braços espirais
+
+        // Dados de extinção em massa (Sepkoski, 1997) com informações expandidas
+        const EXTINCTION_EVENTS = [
+            { 
+                name: "Ordoviciano-Siluriano (O-S)", 
+                time: 443, 
+                severity: 3,
+                species: "85% das espécies marinhas",
+                desc: "Glaciação intensa, nível do mar caiu drasticamente. Extinção principalmente de trilobitas, braquiópodes e graptólitos."
+            },
+            { 
+                name: "Devoniano Tardio (L-D)", 
+                time: 372, 
+                severity: 4,
+                species: "75% das espécies",
+                desc: "Múltiplos pulsos de extinção, anoxia oceânica. Afetou principalmente recifes de coral e peixes."
+            },
+            { 
+                name: "Permiano-Triássico (P-Tr)", 
+                time: 252, 
+                severity: 5,
+                species: "96% da vida marinha, 70% da terrestre",
+                desc: "Vulcões siberianos, aquecimento global extremo. Conhecida como 'A Grande Morte', a maior extinção em massa da história."
+            },
+            { 
+                name: "Triássico-Jurássico (Tr-J)", 
+                time: 201, 
+                severity: 4,
+                species: "50% das espécies",
+                desc: "Atividade vulcânica (CAMP), mudança climática. Extinção de grandes anfíbios e répteis mamaliformes."
+            },
+            { 
+                name: "Cretáceo-Paleógeno (K-Pg)", 
+                time: 66, 
+                severity: 5,
+                species: "75% das espécies",
+                desc: "Impacto do asteroide (Chicxulub), fim dos dinossauros não-avianos. Também afetou amonites e plesiossauros."
+            }
+        ];
+
+        // Modelo da Estrela (baseado no Python)
+        class Star {
+            constructor(id, s0, phi0, z0, vs0, vphi0, vz0, color, type = 'custom') {
+                this.id = id;
+                this.type = type;
+                this.color = color;
+
+                // Estado inicial (coordenadas cilíndricas)
+                this.s0 = s0;       // Raio Galáctico (kpc)
+                this.phi0 = phi0;   // Ângulo Azimutal (radianos)
+                this.z0 = z0;       // Altura do disco (kpc)
+                
+                this.vs0 = vs0;     // Velocidade radial (km/s)
+                this.vphi0 = vphi0; // Velocidade azimutal (km/s)
+                this.vz0 = vz0;     // Velocidade vertical (km/s)
+
+                // Estado atual
+                this.s = s0;
+                this.phi = phi0;
+                this.z = z0;
+                this.vs = vs0;
+                this.vphi = vphi0;
+                this.vz = vz0;
+
+                // Momento angular
+                this.L = this.s * this.vphi;
+                
+                // Histórico de posições (para trilhas)
+                this.positions = [];
+                this.maxPositions = 300; // Limite para otimização
+            }
+
+            // Adicionar posição ao histórico (com limite)
+            addPosition(pos) {
+                this.positions.push(pos);
+                if (this.positions.length > this.maxPositions) {
+                    this.positions.shift();
+                }
+            }
+
+            // Converter para coordenadas cartesianas (Three.js)
+            getCartesianPosition() {
+                const x = this.s * Math.cos(this.phi);
+                const y = this.z; // Z galáctico é Y no Three.js
+                const z = this.s * Math.sin(this.phi);
+                return { x, y, z };
+            }
+        }
+
+        // Classe para novas estrelas formadas nos braços espirais
+        class NewStar {
+            constructor(x, y, z, color = 0x00ffff) {
+                this.position = { x, y, z };
+                this.color = color;
+                this.age = 0;
+                this.maxAge = 100; // Myr
+                this.size = 0.03 + Math.random() * 0.07; // Variação de tamanho
+            }
+        }
+
+        // Classe para marcadores de eventos de extinção
+        class ExtinctionEventMarker {
+            constructor(x, y, z, time, name, severity, species, desc) {
+                this.position = { x, y, z };
+                this.time = time;
+                this.name = name;
+                this.severity = severity;
+                this.species = species;
+                this.desc = desc;
+                this.active = false;
+                this.triggered = false;
+                this.animationTime = 0;
+                this.animationDuration = 5000; // 5 segundos de animação
+            }
+        }
+
+        // --- MODELO (MVC) ---
+        class GalaxyModel {
+            constructor() {
+                this.stars = new Map();
+                this.newStars = [];
+                this.extinctionEvents = EXTINCTION_EVENTS;
+                this.extinctionMarkers = [];
+                this.spiralArmPoints = [];
+                this.activeExtinctionEvents = [];
+                this.extinctionAnimations = [];
+
+                this.simulationTime = 500; // Iniciar em 500 Myr atrás
+                this.timeScale = 1.0;
+                this.starFormationRate = 1.0;
+                this.darkMatterEnabled = true;
+                this.massScale = 1.0;
+                
+                this.nextStarId = 0;
+                this.orbitHistory = [];
+                this.maxHistoryLength = 500;
+                
+                // Parâmetros para simulação orbital
+                this.params = {
+                    exc1: 0.99,
+                    exc2: 0.99,
+                    pc: 11613.5,
+                    a0: 2.8,
+                    b0: 2.26,
+                    d0: 2.8,
+                    h0: 5.0,
+                    m: 0.8,
+                    i: 14.0 / 57.3,
+                    psi0: 0.0,
+                    dt: 0.001,
+                    n_points: 1,
+                    tb: Math.asin(0.99)
+                };
+
+                // Contadores de performance
+                this.frameCount = 0;
+                this.lastTime = Date.now();
+                this.fps = 0;
+            }
+
+            // --- Implementação das funções do Python ---
+
+            majorsemiaxiselipsoide(exc1, exc2, b2, b3, sb0, zb0, sd0, zd0, sh0, zh0) {
+                const ab2 = (1 / exc2) * Math.sqrt((sb0 * Math.sin(b2)) ** 2 + (zb0 * Math.tan(b2)) ** 2);
+                const ab3 = (1 / exc2) * Math.sqrt((sb0 * Math.sin(b3)) ** 2 + (zb0 * Math.tan(b3)) ** 2);
+                const ad2 = (1 / exc1) * Math.sqrt((sd0 * Math.sin(b2)) ** 2 + (zd0 * Math.tan(b2)) ** 2);
+                const ad3 = (1 / exc1) * Math.sqrt((sd0 * Math.sin(b3)) ** 2 + (zd0 * Math.tan(b3)) ** 2);
+                const ah2 = (1 / exc2) * Math.sqrt((sh0 * Math.sin(b2)) ** 2 + (zh0 * Math.tan(b2)) ** 2);
+                const ah3 = (1 / exc2) * Math.sqrt((sh0 * Math.sin(b3)) ** 2 + (zh0 * Math.tan(b3)) ** 2);
+                return { ab2, ab3, ad2, ad3, ah2, ah3 };
+            }
+
+            integrais(b0, d0, h0, ab2, ad2, ah2, ab3, ad3, ah3, b2) {
+                const frb2 = Math.exp(-ab2 / b0) * (Math.sin(b2)) ** 2;
+                const fzb2 = Math.exp(-ab2 / b0) * (Math.tan(b2)) ** 2;
+                const frd2 = Math.exp(-ad2 / d0) * (Math.sin(b2)) ** 2;
+                const fzd2 = Math.exp(-ad2 / d0) * (Math.tan(b2)) ** 2;
+                const frh2 = Math.exp(-ah2 / h0) * (Math.sin(b2)) ** 2;
+                const fzh2 = Math.exp(-ah2 / h0) * (Math.tan(b2)) ** 2;
+                const frb3 = Math.exp(-ab3 / b0) * (Math.sin(b2)) ** 2;
+                const fzb3 = Math.exp(-ab3 / b0) * (Math.tan(b2)) ** 2;
+                const frd3 = Math.exp(-ad3 / d0) * (Math.sin(b2)) ** 2;
+                const fzd3 = Math.exp(-ad3 / d0) * (Math.tan(b2)) ** 2;
+                const frh3 = Math.exp(-ah3 / h0) * (Math.sin(b2)) ** 2;
+                const fzh3 = Math.exp(-ah3 / h0) * (Math.tan(b2)) ** 2;
+                return { frb1: frb3, fzb1: fzb3, frd1: frd3, fzd1: fzd3, frh1: frh3, fzh1: fzh3, frb2, fzb2, frd2, fzd2, frh2, fzh2, frb3, fzb3, frd3, fzd3, frh3, fzh3 };
+            }
+
+            simpson(k1, k2, fr1, fz1, fr2, fz2, fr3, fz3, db) {
+                const k_r = k1 + db * (fr1 + 4 * fr2 + fr3) / 3.0;
+                const k_z = k2 + db * (fz1 + 4 * fz2 + fz3) / 3.0;
+                return { k_r, k_z };
+            }
+
+            acelerations(exc, pc, s, k_r, z, k_z) {
+                const k_s = -4.0 * Math.PI * (Math.sqrt(1.0 - exc ** 2) / exc ** 3) * pc * s * k_r;
+                const k_z_accel = -4.0 * Math.PI * (Math.sqrt(1.0 - exc ** 2) / exc ** 3) * pc * z * k_z;
+                return { k_s, k_z_accel };
+            }
+
+            velocitys(vs0, k_s, L, s, vz0, k_z, dt) {
+                const vs = vs0 + dt * (k_s + L ** 2 / s ** 3);
+                const vz = vz0 + dt * k_z;
+                return { vs, vz };
+            }
+
+            positions(s0, vs, phi0, L, s, z0, vz, dt) {
+                const s_new = s0 + dt * vs;
+                const phi_new = phi0 + dt * (L / s ** 2);
+                const z_new = z0 + dt * vz;
+                return { s_new, phi_new, z_new };
+            }
+
+            positions2(s0, vs0, z0, vz0, dt) {
+                const s = s0 + 0.5 * dt * vs0;
+                const z = z0 + 0.5 * dt * vz0;
+                return { s, z };
+            }
+
+            // Simulação de órbita (baseada no código Python)
+            simulateOrbit(star) {
+                const { exc1, exc2, pc, b0, d0, h0, dt, tb } = this.params;
+                const L = star.L;
+                const n_iterations = 10;
+
+                let s0 = star.s;
+                let phi0 = star.phi;
+                let z0 = star.z;
+                let vs0 = star.vs;
+                let vz0 = star.vz;
+
+                const { s, z } = this.positions2(s0, vs0, z0, vz0, dt);
+
+                let k1 = 0.0;
+                let k2 = 0.0;
+                const db = tb / 20.0;
+                let b1 = 0.0;
+                let b2 = db;
+                let b3 = 2 * db;
+
+                for (let q = 0; q < n_iterations; q++) {
+                    const { ab2, ab3, ad2, ad3, ah2, ah3 } = this.majorsemiaxiselipsoide(exc1, exc2, b2, b3, 
+                        this.stars.get(0)?.s || 1.0, this.stars.get(0)?.z || 0.0, // Bojo
+                        this.stars.get(1)?.s || 7.5, this.stars.get(1)?.z || 0.0, // Disco
+                        this.stars.get(2)?.s || 15.2, this.stars.get(2)?.z || 0.0 // Halo
+                    );
+                    
+                    const integrals = this.integrais(b0, d0, h0, ab2, ad2, ah2, ab3, ad3, ah3, b2);
+
+                    let simpson_result, exc;
+                    if (star.type === 'bulge') {
+                        simpson_result = this.simpson(k1, k2, integrals.frb1, integrals.fzb1, integrals.frb2, integrals.fzb2, integrals.frb3, integrals.fzb3, db);
+                        exc = exc2;
+                    } else if (star.type === 'disk') {
+                        simpson_result = this.simpson(k1, k2, integrals.frd1, integrals.fzd1, integrals.frd2, integrals.fzd2, integrals.frd3, integrals.fzd3, db);
+                        exc = exc1;
+                    } else {
+                        simpson_result = this.simpson(k1, k2, integrals.frh1, integrals.fzh1, integrals.frh2, integrals.fzh2, integrals.frh3, integrals.fzh3, db);
+                        exc = exc2;
+                    }
+
+                    k1 = simpson_result.k_r;
+                    k2 = simpson_result.k_z;
+                    b1 += 2 * db;
+                    b2 += 2 * db;
+                    b3 += 2 * db;
+                }
+
+                const { k_s, k_z_accel } = this.acelerations(star.type === 'disk' ? exc1 : exc2, pc, s0, k1, z0, k2);
+                const { vs, vz } = this.velocitys(vs0, k_s, L, s, vz0, k_z_accel, dt);
+                const { s_new, phi_new, z_new } = this.positions(s0, vs, phi0, L, s, z0, vz, dt);
+
+                star.s = s_new;
+                star.phi = phi_new;
+                star.z = z_new;
+                star.vs = vs;
+                star.vz = vz;
+
+                const cartesian = this.cilindricalToCartesian(star.s, star.phi, star.z);
+                star.addPosition({x: cartesian.x, y: cartesian.z, z: cartesian.y}); // Ajuste para Three.js
+            }
+
+            cilindricalToCartesian(s, phi, z) {
+                const x = s * Math.cos(phi);
+                const y = s * Math.sin(phi);
+                return { x, y, z };
+            }
+
+            // --- Lógica de Física (Curvas de Rotação) ---
+            
+            v_bulge(r) {
+                // Modelo simplificado baseado no código Python
+                const M_bulge_scaled = 1.8e10 * this.massScale;
+                return Math.sqrt(G_SIM * M_bulge_scaled * r) / (r + 0.25);
+            }
+
+            v_disk(r) {
+                // Modelo simplificado baseado no código Python
+                const M_disk_scaled = 6.0e10 * this.massScale;
+                const a_disk = 4.0;
+                const b_disk = 0.4;
+                return Math.sqrt(G_SIM * M_disk_scaled) * r / Math.pow(r*r + Math.pow(a_disk + b_disk, 2), 0.75);
+            }
+            
+            v_halo(r) {
+                if (r === 0) return 0;
+                const RHO_CG_KPC = 0.011 * 1e9; // M_sol / kpc^3
+                const h0 = 12; // kpc
+                return Math.sqrt(4 * Math.PI * G_SIM * RHO_CG_KPC * h0*h0 * (1 - (h0/r) * Math.atan(r/h0)));
+            }
+            
+            v_observed(r) {
+                const v_b_sq = Math.pow(this.v_bulge(r), 2);
+                const v_d_sq = Math.pow(this.v_disk(r), 2);
+                const v_h_sq = this.darkMatterEnabled ? Math.pow(this.v_halo(r), 2) : 0;
+                return Math.sqrt(v_b_sq + v_d_sq + v_h_sq);
+            }
+            
+            v_keplerian(r) {
+                const v_b_sq = Math.pow(this.v_bulge(r), 2);
+                const v_d_sq = Math.pow(this.v_disk(r), 2);
+                return Math.sqrt(v_b_sq + v_d_sq);
+            }
+            
+            // --- Geração de Dados para o Gráfico ---
+            getRotationCurveData(maxRadius = 20, steps = 40) {
+                const radii = [];
+                const v_obs = [];
+                const v_kep = [];
+                const v_b = [];
+                const v_d = [];
+                const v_h = [];
+
+                for (let i = 0; i <= steps; i++) {
+                    const r = (i / steps) * maxRadius;
+                    radii.push(r);
+                    
+                    const vb = this.v_bulge(r);
+                    const vd = this.v_disk(r);
+                    const vh_dm_off = this.darkMatterEnabled;
+                    this.darkMatterEnabled = false;
+                    v_kep.push(this.v_observed(r));
+                    this.darkMatterEnabled = vh_dm_off;
+                    
+                    v_obs.push(this.v_observed(r));
+                    v_b.push(vb);
+                    v_d.push(vd);
+                    v_h.push(this.darkMatterEnabled ? this.v_halo(r) : 0);
+                }
+                
+                return { radii, v_obs, v_kep, v_b, v_d, v_h };
+            }
+
+            // --- Lógica da Simulação ---
+            addStar(s0, phi0, z0, vs0, vphi0, vz0, color, type) {
+                const id = this.nextStarId++;
+                const star = new Star(id, s0, phi0, z0, vs0, vphi0, vz0, color, type);
+                this.stars.set(id, star);
+                return star;
+            }
+
+            // Geração de novas estrelas nos braços espirais
+            generateNewStars() {
+                const { a0, m, i, psi0 } = this.params;
+                const newStarCount = Math.floor(this.starFormationRate * 2);
+
+                for (let j = 0; j < newStarCount; j++) {
+                    const s = 2.0 + Math.random() * 12.0; // Raio aleatório nos braços espirais
+                    const psi = (m / Math.tan(i)) * Math.log(s / a0) + psi0;
+                    
+                    // Adiciona aleatoriedade ao redor do braço espiral
+                    const angle = psi + (Math.random() - 0.5) * 0.3;
+                    const radiusVariation = s + (Math.random() - 0.5) * 1.0;
+                    
+                    const x = radiusVariation * Math.cos(angle);
+                    const y = radiusVariation * Math.sin(angle);
+                    const z = (Math.random() - 0.5) * 0.5; // Pequena variação em Z
+
+                    this.newStars.push(new NewStar(x, z, y)); // Ajuste para Three.js
+                }
+            }
+
+            // Atualizar novas estrelas (envelhecer e remover)
+            updateNewStars() {
+                this.newStars = this.newStars.filter(star => {
+                    star.age += this.timeScale * this.params.dt;
+                    return star.age < star.maxAge;
+                });
+            }
+
+            // Criar marcadores de eventos de extinção
+            createExtinctionMarkers() {
+                const { a0, m, i, psi0 } = this.params;
+                
+                this.extinctionEvents.forEach(event => {
+                    // Calcular posição ao longo do braço espiral para este tempo
+                    const s = 7.5; // Posição do Sol
+                    const psi = (m / Math.tan(i)) * Math.log(s / a0) + psi0 + (event.time / 200) * 2 * Math.PI;
+                    
+                    const x = s * Math.cos(psi);
+                    const z = s * Math.sin(psi);
+                    const y = 0; // No plano galáctico
+                    
+                    this.extinctionMarkers.push(new ExtinctionEventMarker(
+                        x, y, z, 
+                        event.time, 
+                        event.name, 
+                        event.severity,
+                        event.species,
+                        event.desc
+                    ));
+                });
+            }
+
+            // Atualizar marcadores de eventos de extinção
+            updateExtinctionMarkers() {
+                // Ativar marcadores quando o tempo de simulação estiver próximo do tempo do evento
+                this.extinctionMarkers.forEach(marker => {
+                    marker.active = Math.abs(this.simulationTime - marker.time) < 2;
+                    
+                    // Verificar se atingimos um evento de extinção
+                    if (!marker.triggered && this.simulationTime >= marker.time) {
+                        marker.triggered = true;
+                        this.triggerExtinctionEvent(marker);
+                    }
+                });
+
+                // Atualizar animações de extinção
+                this.extinctionAnimations = this.extinctionAnimations.filter(anim => {
+                    anim.time += 16; // ~60fps
+                    return anim.time < anim.duration;
+                });
+            }
+
+            // Disparar evento de extinção
+            triggerExtinctionEvent(marker) {
+                this.activeExtinctionEvents.push(marker);
+                
+                // Adicionar animação
+                this.extinctionAnimations.push({
+                    marker: marker,
+                    time: 0,
+                    duration: 5000 // 5 segundos
+                });
+            }
+
+            update(dt_myr) {
+                const dt = dt_myr * this.timeScale;
+                this.simulationTime += dt;
+                
+                // Atualizar todas as estrelas usando a física do código Python
+                this.stars.forEach(star => {
+                    this.simulateOrbit(star);
+                });
+
+                // Gerar novas estrelas nos braços espirais
+                if (Math.random() < 0.1 * this.starFormationRate) {
+                    this.generateNewStars();
+                }
+                
+                // Atualizar novas estrelas
+                this.updateNewStars();
+                
+                // Atualizar marcadores de extinção
+                this.updateExtinctionMarkers();
+
+                // Manter histórico de órbitas
+                if (this.orbitHistory.length >= this.maxHistoryLength) {
+                    this.orbitHistory.shift();
+                }
+                
+                const currentState = [];
+                this.stars.forEach(star => {
+                    currentState.push({
+                        id: star.id,
+                        x: star.s * Math.cos(star.phi),
+                        y: star.z,
+                        z: star.s * Math.sin(star.phi)
+                    });
+                });
+                this.orbitHistory.push(currentState);
+
+                // Atualizar contador de FPS
+                this.frameCount++;
+                const now = Date.now();
+                if (now - this.lastTime >= 1000) {
+                    this.fps = this.frameCount;
+                    this.frameCount = 0;
+                    this.lastTime = now;
+                }
+            }
+
+            // Gerar braços espirais (baseado no código Python)
+            generateSpiralArms() {
+                const arms = [];
+                const m = 0.8;
+                const i = 14.0 / 57.3;
+                const psi0 = 0;
+
+                // Dois conjuntos de raios como no Python
+                const s1 = this.linspace(0.1, 18, 100);
+                const s2 = this.linspace(0.1, 13, 100);
+
+                // Quatro braços espirais
+                for (let arm = 0; arm < 4; arm++) {
+                    const armPoints = [];
+                    const armAngleOffset = (arm * Math.PI / 2);
+                    
+                    const s_array = arm % 2 === 0 ? s1 : s2;
+                    
+                    s_array.forEach(s => {
+                        const psi = (m / Math.tan(i)) * Math.log(s / A0) + psi0 + armAngleOffset;
+                        const x = s * Math.cos(psi);
+                        const y = 0;
+                        const z = s * Math.sin(psi);
+                        armPoints.push({ x, y, z });
+                    });
+                    
+                    arms.push(armPoints);
+                }
+
+                return arms;
+            }
+
+            linspace(start, stop, num) {
+                const step = (stop - start) / (num - 1);
+                return Array.from({ length: num }, (_, i) => start + (step * i));
+            }
+
+            // Reset da simulação
+            reset() {
+                this.stars.clear();
+                this.newStars = [];
+                this.extinctionMarkers = [];
+                this.activeExtinctionEvents = [];
+                this.extinctionAnimations = [];
+                this.simulationTime = 500;
+                this.orbitHistory = [];
+                this.nextStarId = 0;
+
+                // Adiciona estrelas iniciais
+                this.addStar(1.0, 0, 0, 0, 10, 50, 0xffffff, 'bulge'); // Bojo
+                this.addStar(7.5, 0, 0, 0, 220, 50, 0xffaa00, 'disk'); // Disco/Sol
+                
+                // Halo
+                const A = 15.2, B = 2 * 15.2 * Math.sqrt(1 - 0.99**2);
+                this.addStar(A, 0, B, 0, 150, 50, 0xff4141, 'halo');
+
+                // Cria marcadores de extinção
+                this.createExtinctionMarkers();
+            }
+        }
+
+        // --- VIEW (MVC) ---
+        class GalaxyView {
+            constructor() {
+                // Referências do DOM
+                this.dom = {
+                    leftPanel: document.getElementById('left-panel'),
+                    canvasContainer: document.getElementById('canvas-container'),
+                    plotContainer: document.getElementById('plot-container'),
+                    chartCanvas: document.getElementById('rotation-curve-chart'),
+                    tooltip: document.getElementById('tooltip-extinction'),
+                    statusPanel: document.getElementById('status-panel'),
+                    currentEvent: document.getElementById('current-event'),
+                    // Controles
+                    playBtn: document.getElementById('play-pause-btn'),
+                    resetBtn: document.getElementById('reset-btn'),
+                    timeSlider: document.getElementById('time-scale-slider'),
+                    timeValue: document.getElementById('time-scale-value'),
+                    starFormationSlider: document.getElementById('star-formation-slider'),
+                    starFormationValue: document.getElementById('star-formation-value'),
+                    massSlider: document.getElementById('mass-scale-slider'),
+                    massValue: document.getElementById('mass-scale-value'),
+                    dmToggle: document.getElementById('dark-matter-toggle'),
+                    addStarBtn: document.getElementById('add-star-btn'),
+                    cameraSelect: document.getElementById('camera-view-select'),
+                    cameraResetBtn: document.getElementById('camera-reset-btn'),
+                    // Visualização
+                    showArms: document.getElementById('show-arms'),
+                    showBulge: document.getElementById('show-bulge'),
+                    showDisk: document.getElementById('show-disk'),
+                    showHalo: document.getElementById('show-halo'),
+                    showNewStars: document.getElementById('show-new-stars'),
+                    showExtinctionEvents: document.getElementById('show-extinction-events'),
+                    showGrid: document.getElementById('show-grid'),
+                    showOrbitTrails: document.getElementById('show-orbit-trails'),
+                    // Informações
+                    infoTime: document.getElementById('info-time'),
+                    infoStars: document.getElementById('info-stars'),
+                    infoSunZ: document.getElementById('info-sun-z'),
+                    infoNextEvent: document.getElementById('info-next-event'),
+                    infoFps: document.getElementById('info-fps'),
+                    // Tooltip
+                    tooltipTitle: document.getElementById('tooltip-title'),
+                    tooltipSeverity: document.getElementById('tooltip-severity'),
+                    tooltipTime: document.getElementById('tooltip-time'),
+                    tooltipSpecies: document.getElementById('tooltip-species'),
+                    tooltipDesc: document.getElementById('tooltip-desc')
+                };
+
+                // Estado da View
+                this.currentCameraView = 'default';
+                this.starMeshes = new Map();
+                this.orbitTrails = new Map();
+                this.extinctionMeshes = [];
+                this.spiralArmMeshes = [];
+                this.newStarMeshes = null;
+                this.extinctionAnimationMeshes = [];
+                this.raycaster = new THREE.Raycaster();
+                this.mouse = new THREE.Vector2();
+
+                // Inicialização
+                this.initScene();
+                this.initChart();
+            }
+            
+            initScene() {
+                this.scene = new THREE.Scene();
+                this.scene.background = new THREE.Color(0x000010);
+                
+                this.camera = new THREE.PerspectiveCamera(60, this.dom.canvasContainer.clientWidth / this.dom.canvasContainer.clientHeight, 0.1, 1000);
+                
+                this.renderer = new THREE.WebGLRenderer({ antialias: true });
+                this.renderer.setSize(this.dom.canvasContainer.clientWidth, this.dom.canvasContainer.clientHeight);
+                this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
+                this.dom.canvasContainer.appendChild(this.renderer.domElement);
+
+                this.controls = new THREE.OrbitControls(this.camera, this.renderer.domElement);
+                this.controls.enableDamping = true;
+                this.controls.dampingFactor = 0.05;
+                this.controls.rotateSpeed = 0.5;
+                this.controls.zoomSpeed = 1.0;
+                this.controls.panSpeed = 0.5;
+
+                this.setCameraView('default', null);
+
+                // Luzes
+                this.scene.add(new THREE.AmbientLight(0xffffff, 0.4));
+                const dirLight = new THREE.DirectionalLight(0xffffff, 0.8);
+                dirLight.position.set(10, 10, 10);
+                this.scene.add(dirLight);
+
+                // Grade do Plano Galáctico (XY - plano do disco)
+                const grid = new THREE.GridHelper(40, 40, 0x444444, 0x222222);
+                // Grade já está no plano XZ por padrão, então rotacionamos para XY
+                grid.rotation.x = Math.PI / 2;
+                this.scene.add(grid);
+                this.gridMesh = grid;
+
+                // Eixos coordenados
+                const axesHelper = new THREE.AxesHelper(10);
+                this.scene.add(axesHelper);
+
+                // Elementos Galácticos
+                this.createBlackHole();
+                this.createBackgroundStars();
+            }
+
+            createBackgroundStars() {
+                const starCount = 1500;
+                const positions = new Float32Array(starCount * 3);
+                const colors = new Float32Array(starCount * 3);
+                
+                for (let i = 0; i < starCount * 3; i += 3) {
+                    // Posição aleatória em uma grande esfera
+                    const radius = 60 + Math.random() * 120;
+                    const theta = Math.random() * Math.PI * 2;
+                    const phi = Math.acos(2 * Math.random() - 1);
+                    
+                    positions[i] = radius * Math.sin(phi) * Math.cos(theta);
+                    positions[i + 1] = radius * Math.sin(phi) * Math.sin(theta);
+                    positions[i + 2] = radius * Math.cos(phi);
+                    
+                    // Cores aleatórias (principalmente azuis e brancas)
+                    const color = new THREE.Color();
+                    const rand = Math.random();
+                    if (rand < 0.7) {
+                        color.setRGB(0.8, 0.8, 1.0); // Azul claro
+                    } else if (rand < 0.9) {
+                        color.setRGB(1.0, 1.0, 0.8); // Amarelo claro
+                    } else {
+                        color.setRGB(1.0, 0.9, 0.8); // Laranja claro
+                    }
+                    
+                    colors[i] = color.r;
+                    colors[i + 1] = color.g;
+                    colors[i + 2] = color.b;
+                }
+                
+                const geometry = new THREE.BufferGeometry();
+                geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+                geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+                
+                const material = new THREE.PointsMaterial({
+                    size: 0.08,
+                    vertexColors: true,
+                    transparent: true,
+                    opacity: 0.6
+                });
+                
+                const stars = new THREE.Points(geometry, material);
+                this.scene.add(stars);
+            }
+
+            initChart() {
+                const ctx = this.dom.chartCanvas.getContext('2d');
+                this.rotationChart = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: [],
+                        datasets: [
+                            {
+                                label: 'Observada (c/ DM)',
+                                data: [],
+                                borderColor: 'rgba(255, 255, 0, 1)',
+                                backgroundColor: 'rgba(255, 255, 0, 0.2)',
+                                borderWidth: 2,
+                                tension: 0.1
+                            },
+                            {
+                                label: 'Kepleriana (s/ DM)',
+                                data: [],
+                                borderColor: 'rgba(255, 65, 65, 1)',
+                                backgroundColor: 'rgba(255, 65, 65, 0.2)',
+                                borderWidth: 2,
+                                borderDash: [5, 5],
+                                tension: 0.1
+                            },
+                            {
+                                label: 'Bojo', data: [], borderColor: 'rgba(255, 255, 255, 0.5)', borderWidth: 1, pointRadius: 0
+                            },
+                            {
+                                label: 'Disco', data: [], borderColor: 'rgba(100, 100, 255, 0.5)', borderWidth: 1, pointRadius: 0
+                            },
+                            {
+                                label: 'Halo (DM)', data: [], borderColor: 'rgba(0, 255, 255, 0.5)', borderWidth: 1, pointRadius: 0
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            title: { display: true, text: 'Curva de Rotação da Galáxia', color: 'white' },
+                            legend: { labels: { color: 'white' } }
+                        },
+                        scales: {
+                            x: {
+                                title: { display: true, text: 'Raio (kpc)', color: 'white' },
+                                ticks: { color: 'white' }
+                            },
+                            y: {
+                                title: { display: true, text: 'Velocidade (km/s)', color: 'white' },
+                                ticks: { color: 'white' }
+                            }
+                        }
+                    }
+                });
+            }
+
+            // --- Métodos de Criação de Malha ---
+            createBlackHole() {
+                const geometry = new THREE.SphereGeometry(0.05, 32, 32); // Menor que antes
+                const material = new THREE.MeshBasicMaterial({ color: 0x000000 });
+                this.blackHoleMesh = new THREE.Mesh(geometry, material);
+                
+                // Anel de acresção (simulado)
+                const torusGeo = new THREE.TorusGeometry(0.15, 0.02, 16, 100);
+                const torusMat = new THREE.MeshBasicMaterial({ 
+                    color: 0xffaa00, 
+                    side: THREE.DoubleSide,
+                    transparent: true,
+                    opacity: 0.7
+                });
+                const accretionDisk = new THREE.Mesh(torusGeo, torusMat);
+                accretionDisk.rotation.x = Math.PI / 2;
+                this.blackHoleMesh.add(accretionDisk);
+                
+                this.scene.add(this.blackHoleMesh);
+            }
+
+            createSpiralArms(armsData) {
+                // Remove braços espirais antigos
+                this.spiralArmMeshes.forEach(mesh => this.scene.remove(mesh));
+                this.spiralArmMeshes = [];
+
+                armsData.forEach((armPoints, armIndex) => {
+                    const points = [];
+                    armPoints.forEach(point => {
+                        points.push(new THREE.Vector3(point.x, point.y, point.z));
+                    });
+
+                    const geometry = new THREE.BufferGeometry().setFromPoints(points);
+                    const material = new THREE.LineBasicMaterial({ 
+                        color: 0x4682b4,
+                        transparent: true,
+                        opacity: 0.4,
+                        linewidth: 1
+                    });
+                    
+                    const armMesh = new THREE.Line(geometry, material);
+                    this.scene.add(armMesh);
+                    this.spiralArmMeshes.push(armMesh);
+                });
+            }
+
+            createExtinctionMarkers(markers) {
+                // Limpa marcadores antigos
+                this.extinctionMeshes.forEach(mesh => this.scene.remove(mesh));
+                this.extinctionMeshes = [];
+                
+                markers.forEach(marker => {
+                    // Cria um marcador mais elaborado
+                    const group = new THREE.Group();
+                    
+                    // Esfera central
+                    const sphereGeometry = new THREE.SphereGeometry(0.1, 16, 16);
+                    const sphereMaterial = new THREE.MeshBasicMaterial({ 
+                        color: 0xff0000,
+                        transparent: true,
+                        opacity: 0.7
+                    });
+                    const sphere = new THREE.Mesh(sphereGeometry, sphereMaterial);
+                    group.add(sphere);
+                    
+                    // Anel pulsante
+                    const ringGeometry = new THREE.RingGeometry(0.15, 0.2, 32);
+                    const ringMaterial = new THREE.MeshBasicMaterial({ 
+                        color: 0xff0000,
+                        side: THREE.DoubleSide,
+                        transparent: true,
+                        opacity: 0.5
+                    });
+                    const ring = new THREE.Mesh(ringGeometry, ringMaterial);
+                    ring.rotation.x = Math.PI / 2;
+                    group.add(ring);
+                    
+                    group.position.set(marker.position.x, marker.position.y, marker.position.z);
+                    
+                    // Anexa dados para o raycaster
+                    group.userData = marker;
+                    
+                    this.scene.add(group);
+                    this.extinctionMeshes.push(group);
+                });
+            }
+
+            createNewStars(newStars) {
+                if (newStars.length === 0) {
+                    if (this.newStarMeshes) {
+                        this.scene.remove(this.newStarMeshes);
+                        this.newStarMeshes = null;
+                    }
+                    return;
+                }
+
+                const positions = new Float32Array(newStars.length * 3);
+                const colors = new Float32Array(newStars.length * 3);
+                const sizes = new Float32Array(newStars.length);
+                
+                newStars.forEach((star, i) => {
+                    positions[i * 3] = star.position.x;
+                    positions[i * 3 + 1] = star.position.y;
+                    positions[i * 3 + 2] = star.position.z;
+                    
+                    // Calcular cor baseada na idade (desvanecer)
+                    const ageFactor = 1 - (star.age / star.maxAge);
+                    const color = new THREE.Color(star.color);
+                    colors[i * 3] = color.r * ageFactor;
+                    colors[i * 3 + 1] = color.g * ageFactor;
+                    colors[i * 3 + 2] = color.b * ageFactor;
+                    
+                    sizes[i] = star.size * ageFactor;
+                });
+
+                const geometry = new THREE.BufferGeometry();
+                geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+                geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+                geometry.setAttribute('size', new THREE.BufferAttribute(sizes, 1));
+                
+                const material = new THREE.PointsMaterial({ 
+                    size: 0.1, 
+                    vertexColors: true,
+                    transparent: true,
+                    sizeAttenuation: true
+                });
+                
+                if (this.newStarMeshes) {
+                    this.scene.remove(this.newStarMeshes);
+                }
+                
+                this.newStarMeshes = new THREE.Points(geometry, material);
+                this.scene.add(this.newStarMeshes);
+            }
+
+            // Animação para eventos de extinção
+            updateExtinctionAnimations(animations) {
+                // Remove animações antigas
+                this.extinctionAnimationMeshes.forEach(mesh => this.scene.remove(mesh));
+                this.extinctionAnimationMeshes = [];
+
+                animations.forEach(anim => {
+                    const progress = anim.time / anim.duration;
+                    const marker = anim.marker;
+                    
+                    // Cria uma esfera que se expande
+                    const radius = 0.5 + progress * 3;
+                    const geometry = new THREE.SphereGeometry(radius, 32, 32);
+                    const material = new THREE.MeshBasicMaterial({
+                        color: 0xff0000,
+                        transparent: true,
+                        opacity: 0.3 * (1 - progress),
+                        wireframe: true
+                    });
+                    
+                    const sphere = new THREE.Mesh(geometry, material);
+                    sphere.position.set(marker.position.x, marker.position.y, marker.position.z);
+                    
+                    this.scene.add(sphere);
+                    this.extinctionAnimationMeshes.push(sphere);
+                });
+            }
+
+            // --- Métodos de Atualização (Render Loop) ---
+            update(model) {
+                this.updateDOM(model);
+                this.updateMeshes(model);
+                this.updateCamera(model);
+                this.updateExtinctionAnimations(model.extinctionAnimations);
+                
+                this.controls.update();
+                this.renderer.render(this.scene, this.camera);
+            }
+            
+            updateDOM(model) {
+                // Atualiza painel de info
+                this.dom.infoTime.textContent = `${model.simulationTime.toFixed(2)}`;
+                this.dom.infoStars.textContent = `${model.stars.size}`;
+                this.dom.infoFps.textContent = `${model.fps}`;
+                
+                const sun = Array.from(model.stars.values()).find(star => star.type === 'disk');
+                if (sun) {
+                    this.dom.infoSunZ.textContent = `${sun.z.toFixed(2)}`;
+                }
+
+                // Encontra próximo evento
+                const nextEvent = model.extinctionEvents.find(e => e.time < model.simulationTime);
+                this.dom.infoNextEvent.textContent = nextEvent ? `${nextEvent.name} (${nextEvent.time} Myr)` : "N/A";
+
+                // Atualiza status
+                let currentEventText = "Sistema Solar em região segura";
+                if (model.simulationTime > 400) {
+                    currentEventText = "Período pré-extinção O-S";
+                } else if (model.simulationTime > 350) {
+                    currentEventText = "Período pré-extinção L-D";
+                } else if (model.simulationTime > 240) {
+                    currentEventText = "Período pré-extinção P-Tr";
+                } else if (model.simulationTime > 190) {
+                    currentEventText = "Período pré-extinção Tr-J";
+                } else if (model.simulationTime > 60) {
+                    currentEventText = "Período pré-extinção K-Pg";
+                }
+                
+                // Verifica se há evento de extinção ativo
+                const activeEvent = model.activeExtinctionEvents.find(event => 
+                    Math.abs(model.simulationTime - event.time) < 5
+                );
+                
+                if (activeEvent) {
+                    currentEventText = `EVENTO DE EXTINÇÃO ATIVO: ${activeEvent.name}`;
+                }
+                
+                this.dom.currentEvent.textContent = currentEventText;
+            }
+            
+            updateMeshes(model) {
+                // Atualiza braços espirais
+                if (this.spiralArmMeshes.length === 0) {
+                    const armsData = model.generateSpiralArms();
+                    this.createSpiralArms(armsData);
+                }
+
+                // Atualiza marcadores de extinção
+                if (this.extinctionMeshes.length === 0) {
+                    this.createExtinctionMarkers(model.extinctionMarkers);
+                }
+
+                // Atualiza novas estrelas
+                this.createNewStars(model.newStars);
+
+                // Atualiza estrelas existentes
+                model.stars.forEach(star => {
+                    let mesh = this.starMeshes.get(star.id);
+                    if (!mesh) {
+                        // Cria nova estrela com tamanho baseado no tipo
+                        let size = 0.1; // Tamanho padrão
+                        if (star.type === 'bulge') size = 0.08;  // Bojo menor
+                        if (star.type === 'disk') size = 0.12;   // Sol maior
+                        if (star.type === 'halo') size = 0.09;   // Halo médio
+                        
+                        const geometry = new THREE.SphereGeometry(size, 16, 16);
+                        const material = new THREE.MeshBasicMaterial({ color: star.color });
+                        mesh = new THREE.Mesh(geometry, material);
+                        this.starMeshes.set(star.id, mesh);
+                        this.scene.add(mesh);
+
+                        // Cria trilha de órbita
+                        const trailGeometry = new THREE.BufferGeometry();
+                        const trailMaterial = new THREE.LineBasicMaterial({ 
+                            color: star.color,
+                            transparent: true,
+                            opacity: 0.5,
+                            linewidth: 1
+                        });
+                        const trail = new THREE.Line(trailGeometry, trailMaterial);
+                        this.scene.add(trail);
+                        this.orbitTrails.set(star.id, trail);
+                    }
+                    
+                    // Atualiza posição
+                    const pos = star.getCartesianPosition();
+                    mesh.position.set(pos.x, pos.y, pos.z);
+
+                    // Atualiza trilha de órbita
+                    const trail = this.orbitTrails.get(star.id);
+                    if (trail && this.dom.showOrbitTrails.checked) {
+                        const trailPoints = [];
+                        star.positions.forEach(position => {
+                            trailPoints.push(new THREE.Vector3(position.x, position.y, position.z));
+                        });
+                        
+                        if (trailPoints.length > 1) {
+                            trail.geometry.setFromPoints(trailPoints);
+                            trail.visible = true;
+                        }
+                    } else if (trail) {
+                        trail.visible = false;
+                    }
+                });
+
+                // Atualiza animações de pulsação para marcadores ativos
+                this.extinctionMeshes.forEach(mesh => {
+                    const marker = mesh.userData;
+                    if (marker.active) {
+                        // Pulsação
+                        const scale = 1 + 0.2 * Math.sin(Date.now() * 0.005);
+                        mesh.scale.set(scale, scale, scale);
+                    } else {
+                        mesh.scale.set(1, 1, 1);
+                    }
+                });
+            }
+
+            updateChart(data) {
+                this.rotationChart.data.labels = data.radii.map(r => r.toFixed(1));
+                this.rotationChart.data.datasets[0].data = data.v_obs;
+                this.rotationChart.data.datasets[1].data = data.v_kep;
+                this.rotationChart.data.datasets[2].data = data.v_b;
+                this.rotationChart.data.datasets[3].data = data.v_d;
+                this.rotationChart.data.datasets[4].data = data.v_h;
+                
+                // Mostra/Esconde datasets
+                this.rotationChart.data.datasets[1].hidden = data.v_h[1] > 0;
+                this.rotationChart.data.datasets[4].hidden = data.v_h[1] === 0;
+                
+                this.rotationChart.update();
+            }
+
+            setCameraView(view, model) {
+                this.currentCameraView = view;
+                this.controls.target.set(0, 0, 0);
+                this.controls.enabled = true;
+
+                switch(view) {
+                    case 'top':
+                        this.camera.position.set(0, 25, 0.1);
+                        this.camera.lookAt(0, 0, 0);
+                        break;
+                    case 'side':
+                        this.camera.position.set(25, 0, 0.1);
+                        this.camera.lookAt(0, 0, 0);
+                        break;
+                    case 'sun_follow':
+                        this.controls.enabled = false;
+                        break;
+                    case 'cg_follow':
+                        this.controls.enabled = false;
+                        break;
+                    case 'spiral_view':
+                        this.camera.position.set(15, 10, 15);
+                        this.camera.lookAt(0, 0, 0);
+                        break;
+                    case 'default':
+                    default:
+                        this.camera.position.set(20, 15, 20);
+                        this.camera.lookAt(0, 0, 0);
+                        break;
+                }
+            }
+            
+            updateCamera(model) {
+                if (this.currentCameraView === 'sun_follow') {
+                    const sun = Array.from(model.stars.values()).find(star => star.type === 'disk');
+                    if (sun) {
+                        const pos = sun.getCartesianPosition();
+                        // Segue o Sol de cima e ligeiramente atrás
+                        const offset = new THREE.Vector3(2, 3, 2);
+                        this.camera.position.set(pos.x + offset.x, pos.y + offset.y, pos.z + offset.z);
+                        this.camera.lookAt(pos.x, pos.y, pos.z);
+                    }
+                } else if (this.currentCameraView === 'cg_follow') {
+                    const sun = Array.from(model.stars.values()).find(star => star.type === 'disk');
+                    if (sun) {
+                        const pos = sun.getCartesianPosition();
+                        // Foca no Sol a partir do centro galáctico
+                        this.camera.position.set(0, 1, 0);
+                        this.camera.lookAt(pos.x, pos.y, pos.z);
+                    }
+                }
+            }
+
+            resetCamera() {
+                this.setCameraView('default', null);
+                this.controls.reset();
+            }
+
+            // --- Handlers de UI ---
+            updateSliderLabels(timeScale, starFormationRate, massScale) {
+                this.dom.timeValue.textContent = `${timeScale.toFixed(1)}x`;
+                this.dom.starFormationValue.textContent = `${starFormationRate.toFixed(1)}x`;
+                this.dom.massValue.textContent = `${massScale.toFixed(1)}x`;
+            }
+            
+            togglePlayButton(isPlaying) {
+                this.dom.playBtn.textContent = isPlaying ? 'Pausar' : 'Iniciar';
+                this.dom.playBtn.style.backgroundColor = isPlaying ? '#00aa00' : '#00ffff';
+            }
+            
+            toggleDMButton(isEnabled) {
+                this.dom.dmToggle.textContent = isEnabled ? 'Ligada' : 'Desligada';
+                this.dom.dmToggle.classList.toggle('active', isEnabled);
+            }
+            
+            showTooltip(marker, x, y) {
+                const tooltip = this.dom.tooltip;
+                tooltip.style.display = 'block';
+                tooltip.style.left = `${x + 15}px`;
+                tooltip.style.top = `${y + 15}px`;
+                
+                this.dom.tooltipTitle.textContent = marker.name;
+                this.dom.tooltipSeverity.textContent = `Nível ${marker.severity}`;
+                this.dom.tooltipTime.textContent = `${marker.time}`;
+                this.dom.tooltipSpecies.textContent = marker.species;
+                this.dom.tooltipDesc.textContent = marker.desc;
+            }
+            
+            hideTooltip() {
+                this.dom.tooltip.style.display = 'none';
+            }
+            
+            onWindowResize() {
+                this.camera.aspect = this.dom.canvasContainer.clientWidth / this.dom.canvasContainer.clientHeight;
+                this.camera.updateProjectionMatrix();
+                this.renderer.setSize(this.dom.canvasContainer.clientWidth, this.dom.canvasContainer.clientHeight);
+            }
+            
+            updateMouseCoords(event) {
+                const rect = this.renderer.domElement.getBoundingClientRect();
+                this.mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+                this.mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+            }
+
+            // Controles de visualização
+            updateVisualization() {
+                // Braços espirais
+                this.spiralArmMeshes.forEach(mesh => {
+                    mesh.visible = this.dom.showArms.checked;
+                });
+
+                // Grade
+                if (this.gridMesh) {
+                    this.gridMesh.visible = this.dom.showGrid.checked;
+                }
+
+                // Estrelas por tipo
+                this.starMeshes.forEach((mesh, id) => {
+                    const star = this.controller.model.stars.get(id);
+                    if (star) {
+                        if (star.type === 'bulge') {
+                            mesh.visible = this.dom.showBulge.checked;
+                        } else if (star.type === 'disk') {
+                            mesh.visible = this.dom.showDisk.checked;
+                        } else if (star.type === 'halo') {
+                            mesh.visible = this.dom.showHalo.checked;
+                        }
+                    }
+                });
+
+                // Novas estrelas
+                if (this.newStarMeshes) {
+                    this.newStarMeshes.visible = this.dom.showNewStars.checked;
+                }
+
+                // Eventos de extinção
+                this.extinctionMeshes.forEach(mesh => {
+                    mesh.visible = this.dom.showExtinctionEvents.checked;
+                });
+
+                // Trilhas orbitais
+                this.orbitTrails.forEach(trail => {
+                    trail.visible = this.dom.showOrbitTrails.checked;
+                });
+            }
+        }
+
+        // --- CONTROLLER (MVC) ---
+        class GalaxyController {
+            constructor() {
+                this.model = new GalaxyModel();
+                this.view = new GalaxyView();
+                this.view.controller = this; // Referência circular para acesso
+                
+                this.isRunning = false;
+                this.lastTimestamp = 0;
+            }
+
+            init() {
+                // Inicializa o modelo
+                this.model.reset();
+
+                // Associa eventos
+                this.bindEvents();
+                
+                // Atualiza a UI inicial
+                this.view.updateSliderLabels(
+                    this.model.timeScale, 
+                    this.model.starFormationRate, 
+                    this.model.massScale
+                );
+                this.view.toggleDMButton(this.model.darkMatterEnabled);
+                this.updatePlot();
+
+                // Esconde a tela de carregamento
+                this.hideLoadingScreen();
+
+                // Inicia o loop de renderização
+                this.gameLoop(0);
+            }
+
+            hideLoadingScreen() {
+                // Simula um carregamento progressivo
+                let progress = 0;
+                const interval = setInterval(() => {
+                    progress += Math.random() * 10;
+                    if (progress >= 100) {
+                        progress = 100;
+                        clearInterval(interval);
+                        setTimeout(() => {
+                            document.getElementById('loading').style.display = 'none';
+                        }, 500);
+                    }
+                    document.getElementById('progress').style.width = `${progress}%`;
+                }, 100);
+            }
+            
+            bindEvents() {
+                this.view.dom.playBtn.onclick = () => this.toggleSimulation();
+                this.view.dom.resetBtn.onclick = () => this.resetSimulation();
+                this.view.dom.timeSlider.oninput = (e) => this.onTimeChange(e.target.value);
+                this.view.dom.starFormationSlider.oninput = (e) => this.onStarFormationChange(e.target.value);
+                this.view.dom.massSlider.oninput = (e) => this.onMassChange(e.target.value);
+                this.view.dom.dmToggle.onclick = () => this.onDMToggle();
+                this.view.dom.addStarBtn.onclick = () => this.onAddStar();
+                this.view.dom.cameraSelect.onchange = (e) => this.onCameraChange(e.target.value);
+                this.view.dom.cameraResetBtn.onclick = () => this.view.resetCamera();
+                
+                // Controles de visualização
+                this.view.dom.showArms.onchange = () => this.view.updateVisualization();
+                this.view.dom.showBulge.onchange = () => this.view.updateVisualization();
+                this.view.dom.showDisk.onchange = () => this.view.updateVisualization();
+                this.view.dom.showHalo.onchange = () => this.view.updateVisualization();
+                this.view.dom.showNewStars.onchange = () => this.view.updateVisualization();
+                this.view.dom.showExtinctionEvents.onchange = () => this.view.updateVisualization();
+                this.view.dom.showGrid.onchange = () => this.view.updateVisualization();
+                this.view.dom.showOrbitTrails.onchange = () => this.view.updateVisualization();
+                
+                window.onresize = () => this.view.onWindowResize();
+                this.view.dom.canvasContainer.onmousemove = (e) => this.onMouseMove(e);
+            }
+            
+            gameLoop(timestamp) {
+                const dt_ms = timestamp - this.lastTimestamp;
+                this.lastTimestamp = timestamp;
+                
+                if (this.isRunning) {
+                    const dt_myr = dt_ms / 1000;
+                    this.model.update(dt_myr);
+                }
+                
+                this.view.update(this.model);
+                
+                requestAnimationFrame((t) => this.gameLoop(t));
+            }
+            
+            updatePlot() {
+                const data = this.model.getRotationCurveData();
+                this.view.updateChart(data);
+            }
+            
+            // --- Handlers de Eventos ---
+            toggleSimulation() {
+                this.isRunning = !this.isRunning;
+                this.view.togglePlayButton(this.isRunning);
+            }
+
+            resetSimulation() {
+                this.isRunning = false;
+                this.model.reset();
+                this.view.togglePlayButton(false);
+                this.updatePlot();
+            }
+
+            onTimeChange(value) {
+                this.model.timeScale = parseFloat(value);
+                this.view.updateSliderLabels(
+                    this.model.timeScale, 
+                    this.model.starFormationRate, 
+                    this.model.massScale
+                );
+            }
+
+            onStarFormationChange(value) {
+                this.model.starFormationRate = parseFloat(value);
+                this.view.updateSliderLabels(
+                    this.model.timeScale, 
+                    this.model.starFormationRate, 
+                    this.model.massScale
+                );
+            }
+
+            onMassChange(value) {
+                this.model.massScale = parseFloat(value);
+                this.view.updateSliderLabels(
+                    this.model.timeScale, 
+                    this.model.starFormationRate, 
+                    this.model.massScale
+                );
+                this.updatePlot();
+            }
+            
+            onDMToggle() {
+                this.model.darkMatterEnabled = !this.model.darkMatterEnabled;
+                this.view.toggleDMButton(this.model.darkMatterEnabled);
+                this.updatePlot();
+            }
+            
+            onAddStar() {
+                try {
+                    const s = parseFloat(prompt("Digite o raio galáctico (kpc):", "10"));
+                    const z = parseFloat(prompt("Digite a altura Z (kpc):", "1.0"));
+                    if (isNaN(s) || isNaN(z)) return;
+                    
+                    const v_phi = this.model.v_observed(s);
+                    this.model.addStar(s, 0, z, 0, v_phi, 0, 0x00ffff, 'custom');
+                } catch (e) {
+                    console.error("Entrada inválida.", e);
+                }
+            }
+            
+            onCameraChange(viewName) {
+                this.view.setCameraView(viewName, this.model);
+            }
+            
+            onMouseMove(event) {
+                this.view.updateMouseCoords(event);
+                
+                // Lógica do Tooltip (Raycasting)
+                this.view.raycaster.setFromCamera(this.view.mouse, this.view.camera);
+                const intersects = this.view.raycaster.intersectObjects(this.view.extinctionMeshes);
+
+                if (intersects.length > 0) {
+                    const marker = intersects[0].object.userData;
+                    this.view.showTooltip(marker, event.clientX, event.clientY);
+                } else {
+                    this.view.hideTooltip();
+                }
+            }
+        }
+
+        // --- Inicialização da Aplicação ---
+        const app = new GalaxyController();
+        app.init();
+
+    </script>
+<style>.ag-nav-back{position:fixed;top:12px;left:12px;z-index:9999;background:rgba(79,70,229,.9);color:#fff;border:none;border-radius:50px;padding:.4rem .9rem;font-size:.8rem;font-family:system-ui,sans-serif;font-weight:600;cursor:pointer;text-decoration:none;display:flex;align-items:center;gap:.35rem;box-shadow:0 2px 10px rgba(0,0,0,.25);backdrop-filter:blur(4px);transition:background .2s,transform .2s}.ag-nav-back:hover{background:rgba(55,48,163,.95);transform:translateY(-1px)}</style><a href="https://passosdomingues.github.io/webappshowcase/site/main.html" class="ag-nav-back" aria-label="Voltar ao índice">&#8592; Índice</a>
+</body>
+</html>

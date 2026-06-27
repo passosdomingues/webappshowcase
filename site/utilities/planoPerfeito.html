@@ -1,0 +1,3191 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Coletamos apenas as informações necessárias para gerar seu plano estratégico personalizado. Os dados coletados incluem:"/>
+    <title>Plano Perfeito - Gerador de Estratégias Empresariais</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --primary: #667eea;
+            --primary-dark: #5a6fd8;
+            --secondary: #764ba2;
+            --success: #10b981;
+            --info: #3b82f6;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --light: #f8f9fa;
+            --dark: #1f2937;
+            --gray: #6b7280;
+            --gray-light: #e5e7eb;
+            --transition: all 0.3s ease;
+            --shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            --radius: 12px;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: #333;
+            line-height: 1.6;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 30px auto;
+            background-color: #ffffff;
+            padding: 40px;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary) 0%, var(--secondary) 100%);
+        }
+
+        h1, h2, h3, h4 {
+            color: var(--dark);
+            margin-bottom: 20px;
+            font-weight: 700;
+        }
+
+        h1 {
+            font-size: 2.5em;
+            text-align: center;
+            padding-bottom: 15px;
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            position: relative;
+        }
+
+        h1::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100px;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary) 0%, var(--secondary) 100%);
+            border-radius: 2px;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: var(--gray);
+            font-size: 1.1em;
+            margin-bottom: 40px;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        h2 {
+            font-size: 1.8em;
+            margin-top: 40px;
+            padding-left: 15px;
+            position: relative;
+        }
+
+        h2::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 5px;
+            background: linear-gradient(to bottom, var(--primary), var(--secondary));
+            border-radius: 3px;
+        }
+
+        h3 {
+            font-size: 1.3em;
+            color: #555;
+            margin-top: 25px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .form-section {
+            margin-bottom: 30px;
+            padding: 25px;
+            background-color: #f9fbfb;
+            border-radius: var(--radius);
+            border: 1px solid #e7e7e7;
+            transition: var(--transition);
+        }
+
+        .form-section:hover {
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.1);
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .section-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .section-icon {
+            font-size: 1.5em;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .completion-badge {
+            background-color: var(--success);
+            color: white;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 0.8em;
+            font-weight: bold;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #444;
+            font-size: 0.95em;
+        }
+
+        .help-text {
+            font-size: 0.85em;
+            color: var(--gray);
+            margin-top: -5px;
+            margin-bottom: 10px;
+        }
+
+        input[type="text"],
+        input[type="number"],
+        input[type="email"],
+        input[type="url"],
+        textarea,
+        select {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 20px;
+            border: 2px solid #e0e0e0;
+            border-radius: 6px;
+            font-size: 0.95em;
+            transition: var(--transition);
+            font-family: inherit;
+        }
+
+        input[type="text"]:focus,
+        input[type="number"]:focus,
+        input[type="email"]:focus,
+        input[type="url"]:focus,
+        textarea:focus,
+        select:focus {
+            border-color: var(--primary);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .radio-group,
+        .checkbox-group {
+            margin-bottom: 20px;
+        }
+
+        .radio-group label,
+        .checkbox-group label {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+            font-weight: normal;
+            cursor: pointer;
+            padding-left: 30px;
+            position: relative;
+        }
+
+        .radio-group input,
+        .checkbox-group input {
+            position: absolute;
+            left: 0;
+            cursor: pointer;
+        }
+
+        .form-row {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .form-col {
+            flex: 1;
+        }
+
+        button {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 12px 24px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        .btn-secondary {
+            background: var(--gray);
+        }
+
+        .btn-success {
+            background: var(--success);
+        }
+
+        .btn-warning {
+            background: var(--warning);
+        }
+
+        .btn-whatsapp {
+            background: #25D366;
+        }
+
+        .btn-export {
+            background: var(--info);
+        }
+
+        .results-section {
+            margin-top: 50px;
+            padding: 30px;
+            background: linear-gradient(135deg, #e9f7ef 0%, #f0f9ff 100%);
+            border-radius: var(--radius);
+            border: 2px solid #d4edda;
+            display: none;
+        }
+
+        .results-section.show {
+            display: block;
+            animation: slideIn 0.5s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .results-section h2 {
+            color: #155724;
+            border-left-color: var(--success);
+        }
+
+        .results-section h3 {
+            color: #155724;
+        }
+
+        .results-info {
+            background-color: #ffffff;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 25px;
+            border-left: 5px solid var(--success);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+
+        .results-info p {
+            margin-bottom: 10px;
+            font-size: 0.95em;
+        }
+
+        .results-info strong {
+            color: #155724;
+        }
+
+        .roadmap-item {
+            background-color: #ffffff;
+            border: 2px solid #c3e6cb;
+            border-left: 5px solid var(--success);
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            transition: var(--transition);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+
+        .roadmap-item:hover {
+            box-shadow: 0 4px 12px rgba(40, 167, 69, 0.15);
+        }
+
+        .roadmap-item h4 {
+            margin-top: 0;
+            color: var(--success);
+            font-size: 1.1em;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .roadmap-item ul {
+            list-style-type: none;
+            margin-left: 0;
+            padding-left: 0;
+        }
+
+        .roadmap-item li {
+            margin-bottom: 10px;
+            padding-left: 25px;
+            position: relative;
+        }
+
+        .roadmap-item li:before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: var(--success);
+            font-weight: bold;
+        }
+
+        .financial-projection {
+            background-color: #ffffff;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 8px;
+            border-left: 5px solid var(--info);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+
+        .financial-projection .label {
+            font-weight: bold;
+            color: #333;
+        }
+
+        .financial-projection .value {
+            font-size: 1.3em;
+            color: var(--info);
+            font-weight: bold;
+        }
+
+        .kpi-card {
+            background-color: #ffffff;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            border-left: 5px solid var(--primary);
+            transition: var(--transition);
+        }
+
+        .kpi-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .kpi-title {
+            font-size: 1em;
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: var(--dark);
+        }
+
+        .kpi-value {
+            font-size: 1.8em;
+            font-weight: bold;
+            color: var(--primary);
+        }
+
+        .kpi-target {
+            font-size: 0.9em;
+            color: var(--gray);
+        }
+
+        .tab-navigation {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 25px;
+            border-bottom: 2px solid #e0e0e0;
+            flex-wrap: wrap;
+        }
+
+        .tab-button {
+            padding: 12px 20px;
+            background-color: transparent;
+            border: none;
+            border-bottom: 3px solid transparent;
+            color: #666;
+            cursor: pointer;
+            font-weight: bold;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .tab-button.active {
+            color: var(--success);
+            border-bottom-color: var(--success);
+        }
+
+        .tab-button:hover {
+            color: var(--success);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .feedback-message {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 8px;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        .feedback-message.success {
+            background-color: #d4edda;
+            color: #155724;
+        }
+
+        .feedback-message.error {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+
+        .progress-indicator {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 30px;
+            gap: 10px;
+            position: relative;
+        }
+
+        .progress-indicator::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background-color: #e0e0e0;
+            transform: translateY(-50%);
+            z-index: 1;
+            border-radius: 2px;
+        }
+
+        .progress-step {
+            flex: 1;
+            height: 12px;
+            background-color: #e0e0e0;
+            border-radius: 6px;
+            transition: var(--transition);
+            position: relative;
+            z-index: 2;
+        }
+
+        .progress-step.active {
+            background-color: var(--primary);
+        }
+
+        .progress-step.completed {
+            background-color: var(--success);
+        }
+
+        .progress-step-label {
+            position: absolute;
+            top: 15px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 0.75em;
+            color: var(--gray);
+            white-space: nowrap;
+        }
+
+        .metric-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .strategy-card {
+            background-color: #ffffff;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            border-left: 5px solid var(--warning);
+            transition: var(--transition);
+        }
+
+        .strategy-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .strategy-title {
+            font-size: 1.1em;
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: var(--dark);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .strategy-icon {
+            font-size: 1.2em;
+        }
+
+        .platform-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .platform-card {
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            padding: 15px;
+            text-align: center;
+            border: 2px solid transparent;
+            transition: var(--transition);
+            cursor: pointer;
+        }
+
+        .platform-card.selected {
+            border-color: var(--primary);
+            background-color: #e9ecef;
+        }
+
+        .platform-card:hover {
+            border-color: var(--primary);
+        }
+
+        .platform-icon {
+            font-size: 2em;
+            margin-bottom: 10px;
+        }
+
+        .platform-name {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .platform-desc {
+            font-size: 0.8em;
+            color: var(--gray);
+        }
+
+        .timeline {
+            position: relative;
+            margin: 30px 0;
+        }
+
+        .timeline:before {
+            content: '';
+            position: absolute;
+            left: 20px;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background-color: var(--primary);
+        }
+
+        .timeline-item {
+            position: relative;
+            margin-bottom: 30px;
+            padding-left: 50px;
+        }
+
+        .timeline-date {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 40px;
+            height: 40px;
+            background-color: var(--primary);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            z-index: 2;
+        }
+
+        .timeline-content {
+            background-color: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .timeline-title {
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: var(--dark);
+        }
+
+        .form-navigation {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 30px;
+        }
+
+        .question-group {
+            margin-bottom: 25px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .question-group:last-child {
+            border-bottom: none;
+        }
+
+        .question-text {
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #444;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .simple-question {
+            margin-bottom: 15px;
+        }
+
+        .simple-question label {
+            font-weight: normal;
+            margin-bottom: 5px;
+        }
+
+        .tooltip {
+            position: relative;
+            display: inline-block;
+            cursor: pointer;
+            color: var(--info);
+        }
+
+        .tooltip .tooltiptext {
+            visibility: hidden;
+            width: 300px;
+            background-color: var(--dark);
+            color: #fff;
+            text-align: center;
+            border-radius: 6px;
+            padding: 10px;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%;
+            left: 50%;
+            margin-left: -150px;
+            opacity: 0;
+            transition: opacity 0.3s;
+            font-weight: normal;
+            font-size: 0.85em;
+        }
+
+        .tooltip:hover .tooltiptext {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        .scale-question {
+            margin-bottom: 20px;
+        }
+
+        .scale-labels {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 5px;
+            font-size: 0.8em;
+            color: var(--gray);
+        }
+
+        .scale-option {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .scale-option input {
+            margin-right: 10px;
+        }
+
+        .chart-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .chart-box {
+            flex: 1;
+            min-width: 300px;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .chart-title {
+            text-align: center;
+            margin-bottom: 15px;
+            font-weight: bold;
+            color: var(--dark);
+        }
+
+        .export-section {
+            text-align: center;
+            margin-top: 30px;
+            padding: 20px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .option-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .option-card {
+            background: #f8f9fa;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 15px;
+            text-align: center;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .option-card.selected {
+            border-color: var(--primary);
+            background: #e9ecef;
+        }
+
+        .option-card:hover {
+            border-color: var(--primary);
+        }
+
+        .option-icon {
+            font-size: 1.5em;
+            margin-bottom: 10px;
+            color: var(--primary);
+        }
+
+        .option-title {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .option-desc {
+            font-size: 0.8em;
+            color: var(--gray);
+        }
+
+        .slider-container {
+            margin: 20px 0;
+        }
+
+        .slider-labels {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 5px;
+            font-size: 0.8em;
+            color: var(--gray);
+        }
+
+        .slider {
+            -webkit-appearance: none;
+            width: 100%;
+            height: 8px;
+            border-radius: 4px;
+            background: #e0e0e0;
+            outline: none;
+        }
+
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: var(--primary);
+            cursor: pointer;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+
+        .slider::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: var(--primary);
+            cursor: pointer;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+
+        .slider-value {
+            text-align: center;
+            font-weight: bold;
+            color: var(--primary);
+            margin-top: 10px;
+        }
+
+        .fuzzy-indicator {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-top: 10px;
+        }
+
+        .fuzzy-bar {
+            flex: 1;
+            height: 8px;
+            background: #e0e0e0;
+            border-radius: 4px;
+            overflow: hidden;
+            margin: 0 10px;
+        }
+
+        .fuzzy-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--danger), var(--warning), var(--success));
+            width: 0%;
+            transition: width 0.5s ease;
+        }
+
+        .fuzzy-label {
+            font-size: 0.8em;
+            color: var(--gray);
+            min-width: 60px;
+            text-align: center;
+        }
+
+        .module-tag {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.7em;
+            font-weight: bold;
+            margin-left: 8px;
+        }
+
+        .module-h1 {
+            background-color: rgba(16, 185, 129, 0.1);
+            color: var(--success);
+        }
+
+        .module-h2 {
+            background-color: rgba(59, 130, 246, 0.1);
+            color: var(--info);
+        }
+
+        .module-h3 {
+            background-color: rgba(245, 158, 11, 0.1);
+            color: var(--warning);
+        }
+
+        .priority-tag {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.7em;
+            font-weight: bold;
+            margin-left: 8px;
+        }
+
+        .priority-critical {
+            background-color: rgba(239, 68, 68, 0.1);
+            color: var(--danger);
+        }
+
+        .priority-high {
+            background-color: rgba(245, 158, 11, 0.1);
+            color: var(--warning);
+        }
+
+        .priority-medium {
+            background-color: rgba(59, 130, 246, 0.1);
+            color: var(--info);
+        }
+
+        .priority-low {
+            background-color: rgba(107, 114, 128, 0.1);
+            color: var(--gray);
+        }
+
+        .json-viewer {
+            background-color: #1e1e1e;
+            color: #d4d4d4;
+            padding: 20px;
+            border-radius: 8px;
+            font-family: monospace;
+            font-size: 0.9em;
+            max-height: 400px;
+            overflow-y: auto;
+            margin-top: 20px;
+        }
+
+        .json-key {
+            color: #9cdcfe;
+        }
+
+        .json-string {
+            color: #ce9178;
+        }
+
+        .json-number {
+            color: #b5cea8;
+        }
+
+        .json-boolean {
+            color: #569cd6;
+        }
+
+        .json-null {
+            color: #569cd6;
+        }
+
+        /* Modal de Política de Privacidade */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            overflow-y: auto;
+        }
+
+        .modal-content {
+            background-color: white;
+            margin: 5% auto;
+            padding: 30px;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            width: 90%;
+            max-width: 800px;
+            position: relative;
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            font-size: 1.5em;
+            cursor: pointer;
+            color: var(--gray);
+        }
+
+        .modal-close:hover {
+            color: var(--dark);
+        }
+
+        .modal-title {
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--gray-light);
+        }
+
+        .modal-section {
+            margin-bottom: 25px;
+        }
+
+        .modal-section h3 {
+            color: var(--primary);
+            margin-bottom: 10px;
+        }
+
+        .modal-section p, .modal-section ul {
+            margin-bottom: 15px;
+            line-height: 1.6;
+        }
+
+        .modal-section ul {
+            padding-left: 20px;
+        }
+
+        .modal-section li {
+            margin-bottom: 8px;
+        }
+
+        .privacy-link {
+            text-align: center;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid var(--gray-light);
+        }
+
+        .privacy-link a {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .privacy-link a:hover {
+            text-decoration: underline;
+        }
+
+        /* Explicabilidade */
+        .explanation-section {
+            background-color: #f0f9ff;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 25px;
+            border-left: 5px solid var(--info);
+        }
+
+        .explanation-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .explanation-content {
+            line-height: 1.6;
+        }
+
+        .explanation-content ul {
+            margin-left: 20px;
+            margin-bottom: 15px;
+        }
+
+        .explanation-content li {
+            margin-bottom: 8px;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+            }
+
+            h1 {
+                font-size: 1.8em;
+            }
+
+            h2 {
+                font-size: 1.4em;
+            }
+
+            .financial-projection {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .financial-projection .value {
+                margin-top: 10px;
+            }
+
+            .form-row {
+                flex-direction: column;
+                gap: 0;
+            }
+
+            .metric-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .platform-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .option-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .chart-container {
+                flex-direction: column;
+            }
+
+            .tab-navigation {
+                flex-direction: column;
+            }
+
+            .modal-content {
+                margin: 10% auto;
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Modal de Política de Privacidade -->
+    <div id="privacyModal" class="modal">
+        <div class="modal-content">
+            <span class="modal-close" id="closeModal">&times;</span>
+            <h2 class="modal-title"><i class="fas fa-shield-alt"></i> Política de Privacidade - LGPD</h2>
+            
+            <div class="modal-section">
+                <h3>1. Coleta de Dados</h3>
+                <p>Coletamos apenas as informações necessárias para gerar seu plano estratégico personalizado. Os dados coletados incluem:</p>
+                <ul>
+                    <li>Informações sobre seu segmento de negócio</li>
+                    <li>Dados sobre maturidade empresarial</li>
+                    <li>Informações sobre ativos existentes</li>
+                    <li>Metas financeiras e de tempo disponível</li>
+                </ul>
+            </div>
+            
+            <div class="modal-section">
+                <h3>2. Uso dos Dados</h3>
+                <p>Utilizamos suas informações exclusivamente para:</p>
+                <ul>
+                    <li>Gerar análises e recomendações personalizadas</li>
+                    <li>Calcular métricas e projeções específicas</li>
+                    <li>Criar planos de ação adaptados ao seu perfil</li>
+                    <li>Melhorar continuamente nossos algoritmos</li>
+                </ul>
+            </div>
+            
+            <div class="modal-section">
+                <h3>3. Armazenamento e Segurança</h3>
+                <p>Seus dados são armazenados localmente no seu navegador através do localStorage. Não enviamos suas informações para servidores externos. Você pode limpar seus dados a qualquer momento limpando o histórico do navegador.</p>
+            </div>
+            
+            <div class="modal-section">
+                <h3>4. Seus Direitos</h3>
+                <p>De acordo com a LGPD, você tem direito a:</p>
+                <ul>
+                    <li>Acessar todos os dados que coletamos</li>
+                    <li>Corrigir informações imprecisas</li>
+                    <li>Solicitar a exclusão dos seus dados</li>
+                    <li>Revogar o consentimento a qualquer momento</li>
+                </ul>
+            </div>
+            
+            <div class="modal-section">
+                <h3>5. Compartilhamento de Dados</h3>
+                <p>Não compartilhamos seus dados pessoais com terceiros. As informações são utilizadas apenas para gerar seu plano estratégico dentro desta aplicação.</p>
+            </div>
+            
+            <div class="privacy-link">
+                <p>Para mais informações ou para exercer seus direitos, entre em contato conosco através do nosso site oficial.</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <h1><i class="fas fa-rocket"></i> Plano Perfeito</h1>
+        <p class="subtitle">Transforme sua visão em ações empreendedoras</p>
+
+        <div class="privacy-link">
+            <a href="#" id="openPrivacyModal"><i class="fas fa-shield-alt"></i> Política de Privacidade (LGPD)</a>
+        </div>
+
+        <div class="progress-indicator" id="progressIndicator">
+            <div class="progress-step completed" id="step1">
+                <div class="progress-step-label">Segmento</div>
+            </div>
+            <div class="progress-step" id="step2">
+                <div class="progress-step-label">Maturidade</div>
+            </div>
+            <div class="progress-step" id="step3">
+                <div class="progress-step-label">Ativos</div>
+            </div>
+            <div class="progress-step" id="step4">
+                <div class="progress-step-label">Meta</div>
+            </div>
+            <div class="progress-step" id="step5">
+                <div class="progress-step-label">Análise</div>
+            </div>
+        </div>
+
+        <form id="strategicPlanForm">
+            <!-- SEÇÃO 1: MAPEAMENTO DE SEGMENTO E PERSONA -->
+            <div class="form-section" id="section-segment">
+                <div class="section-header">
+                    <div class="section-title">
+                        <span class="section-icon"><i class="fas fa-user-tie"></i></span>
+                        <h2>Mapeamento de Segmento e Persona</h2>
+                    </div>
+                    <span class="completion-badge" id="badge-segment">0%</span>
+                </div>
+                
+                <div class="question-group">
+                    <div class="question-text">
+                        Qual é o seu segmento de negócio principal?
+                        <div class="tooltip">
+                            <i class="fas fa-info-circle"></i>
+                            <span class="tooltiptext">Esta informação nos ajuda a aplicar benchmarks específicos do seu setor para métricas como LTV, CAC e taxas de conversão.</span>
+                        </div>
+                    </div>
+                    
+                    <div class="option-grid">
+                        <div class="option-card" data-value="saas">
+                            <i class="fas fa-cloud option-icon"></i>
+                            <div class="option-title">SaaS</div>
+                            <div class="option-desc">Software como Serviço</div>
+                        </div>
+                        <div class="option-card" data-value="ecommerce">
+                            <i class="fas fa-shopping-cart option-icon"></i>
+                            <div class="option-title">E-commerce</div>
+                            <div class="option-desc">Varejo Online</div>
+                        </div>
+                        <div class="option-card" data-value="infoproduto">
+                            <i class="fas fa-book option-icon"></i>
+                            <div class="option-title">Infoproduto</div>
+                            <div class="option-desc">Cursos, E-books</div>
+                        </div>
+                        <div class="option-card" data-value="consultoria">
+                            <i class="fas fa-chalkboard-teacher option-icon"></i>
+                            <div class="option-title">Consultoria</div>
+                            <div class="option-desc">Serviços Profissionais</div>
+                        </div>
+                    </div>
+                    <input type="hidden" id="businessSegment" name="businessSegment">
+                </div>
+                
+                <div class="question-group">
+                    <div class="question-text">
+                        Qual é o seu modelo de negócio predominante?
+                        <div class="tooltip">
+                            <i class="fas fa-info-circle"></i>
+                            <span class="tooltiptext">O modelo de negócio determina estratégias de precificação, retenção e expansão.</span>
+                        </div>
+                    </div>
+                    
+                    <div class="option-grid">
+                        <div class="option-card" data-value="b2c">
+                            <i class="fas fa-user option-icon"></i>
+                            <div class="option-title">B2C</div>
+                            <div class="option-desc">Empresa para Consumidor</div>
+                        </div>
+                        <div class="option-card" data-value="b2b">
+                            <i class="fas fa-building option-icon"></i>
+                            <div class="option-title">B2B</div>
+                            <div class="option-desc">Empresa para Empresa</div>
+                        </div>
+                        <div class="option-card" data-value="marketplace">
+                            <i class="fas fa-store option-icon"></i>
+                            <div class="option-title">Marketplace</div>
+                            <div class="option-desc">Plataforma Multi-sided</div>
+                        </div>
+                        <div class="option-card" data-value="subscription">
+                            <i class="fas fa-sync option-icon"></i>
+                            <div class="option-title">Assinatura</div>
+                            <div class="option-desc">Modelo Recorrente</div>
+                        </div>
+                    </div>
+                    <input type="hidden" id="businessModel" name="businessModel">
+                </div>
+                
+                <div class="question-group">
+                    <div class="question-text">
+                        Qual é o ticket médio do seu produto/serviço principal?
+                        <div class="tooltip">
+                            <i class="fas fa-info-circle"></i>
+                            <span class="tooltiptext">O ticket médio influencia diretamente as estratégias de aquisição, retenção e expansão de clientes.</span>
+                        </div>
+                    </div>
+                    
+                    <div class="option-grid">
+                        <div class="option-card" data-value="low">
+                            <i class="fas fa-coins option-icon"></i>
+                            <div class="option-title">Até R$ 100</div>
+                            <div class="option-desc">Baixo valor</div>
+                        </div>
+                        <div class="option-card" data-value="medium">
+                            <i class="fas fa-wallet option-icon"></i>
+                            <div class="option-title">R$ 100 - R$ 1.000</div>
+                            <div class="option-desc">Valor médio</div>
+                        </div>
+                        <div class="option-card" data-value="high">
+                            <i class="fas fa-gem option-icon"></i>
+                            <div class="option-title">R$ 1.000 - R$ 10.000</div>
+                            <div class="option-desc">Alto valor</div>
+                        </div>
+                        <div class="option-card" data-value="enterprise">
+                            <i class="fas fa-crown option-icon"></i>
+                            <div class="option-title">Acima de R$ 10.000</div>
+                            <div class="option-desc">Valor corporativo</div>
+                        </div>
+                    </div>
+                    <input type="hidden" id="averageTicket" name="averageTicket">
+                </div>
+                
+                <div class="form-navigation">
+                    <button type="button" class="btn-secondary" onclick="nextSection('section-segment', 'section-maturity')">Próxima Seção <i class="fas fa-arrow-right"></i></button>
+                </div>
+            </div>
+
+            <!-- SEÇÃO 2: MAPEAMENTO DE MATURIDADE (FUZZY) -->
+            <div class="form-section hidden" id="section-maturity">
+                <div class="section-header">
+                    <div class="section-title">
+                        <span class="section-icon"><i class="fas fa-chart-line"></i></span>
+                        <h2>Mapeamento de Maturidade Empresarial</h2>
+                    </div>
+                    <span class="completion-badge" id="badge-maturity">0%</span>
+                </div>
+                
+                <div class="question-group">
+                    <div class="question-text">
+                        Como você avalia a maturidade do seu marketing?
+                        <div class="tooltip">
+                            <i class="fas fa-info-circle"></i>
+                            <span class="tooltiptext">Esta métrica avalia a sofisticação e eficácia das suas estratégias de aquisição e retenção de clientes.</span>
+                        </div>
+                    </div>
+                    
+                    <div class="slider-container">
+                        <input type="range" min="0" max="100" value="50" class="slider" id="marketingMaturity">
+                        <div class="slider-labels">
+                            <span>Iniciante</span>
+                            <span>Intermediário</span>
+                            <span>Avançado</span>
+                        </div>
+                        <div class="slider-value" id="marketingMaturityValue">50%</div>
+                    </div>
+                    
+                    <div class="fuzzy-indicator">
+                        <span class="fuzzy-label">Baixa</span>
+                        <div class="fuzzy-bar">
+                            <div class="fuzzy-fill" id="marketingFuzzyFill" style="width: 50%"></div>
+                        </div>
+                        <span class="fuzzy-label">Alta</span>
+                    </div>
+                </div>
+                
+                <div class="question-group">
+                    <div class="question-text">
+                        Como você avalia a saúde financeira do seu negócio?
+                        <div class="tooltip">
+                            <i class="fas fa-info-circle"></i>
+                            <span class="tooltiptext">Esta métrica considera fluxo de caixa, rentabilidade, diversificação de receita e sustentabilidade.</span>
+                        </div>
+                    </div>
+                    
+                    <div class="slider-container">
+                        <input type="range" min="0" max="100" value="50" class="slider" id="financialHealth">
+                        <div class="slider-labels">
+                            <span>Preocupante</span>
+                            <span>Estável</span>
+                            <span>Excelente</span>
+                        </div>
+                        <div class="slider-value" id="financialHealthValue">50%</div>
+                    </div>
+                    
+                    <div class="fuzzy-indicator">
+                        <span class="fuzzy-label">Baixa</span>
+                        <div class="fuzzy-bar">
+                            <div class="fuzzy-fill" id="financialFuzzyFill" style="width: 50%"></div>
+                        </div>
+                        <span class="fuzzy-label">Alta</span>
+                    </div>
+                </div>
+                
+                <div class="question-group">
+                    <div class="question-text">
+                        Qual é o nível de tração do seu produto/serviço principal (Módulo 1)?
+                        <div class="tooltip">
+                            <i class="fas fa-info-circle"></i>
+                            <span class="tooltiptext">Esta métrica avalia a aceitação do mercado, taxa de crescimento e estabilidade da sua oferta principal.</span>
+                        </div>
+                    </div>
+                    
+                    <div class="slider-container">
+                        <input type="range" min="0" max="100" value="50" class="slider" id="tractionH1">
+                        <div class="slider-labels">
+                            <span>Validação</span>
+                            <span>Crescimento</span>
+                            <span>Estabilização</span>
+                        </div>
+                        <div class="slider-value" id="tractionH1Value">50%</div>
+                    </div>
+                    
+                    <div class="fuzzy-indicator">
+                        <span class="fuzzy-label">Baixa</span>
+                        <div class="fuzzy-bar">
+                            <div class="fuzzy-fill" id="tractionFuzzyFill" style="width: 50%"></div>
+                        </div>
+                        <span class="fuzzy-label">Alta</span>
+                    </div>
+                </div>
+                
+                <div class="form-navigation">
+                    <button type="button" class="btn-secondary" onclick="prevSection('section-maturity', 'section-segment')"><i class="fas fa-arrow-left"></i> Voltar</button>
+                    <button type="button" class="btn-secondary" onclick="nextSection('section-maturity', 'section-assets')">Próxima Seção <i class="fas fa-arrow-right"></i></button>
+                </div>
+            </div>
+
+            <!-- SEÇÃO 3: MAPEAMENTO DE ATIVOS -->
+            <div class="form-section hidden" id="section-assets">
+                <div class="section-header">
+                    <div class="section-title">
+                        <span class="section-icon"><i class="fas fa-boxes"></i></span>
+                        <h2>Mapeamento de Ativos Existentes</h2>
+                    </div>
+                    <span class="completion-badge" id="badge-assets">0%</span>
+                </div>
+                
+                <div class="question-group">
+                    <div class="question-text">
+                        <i class="fas fa-seedling" style="color: var(--success);"></i> Módulo 1 (Exploração/Evergreen)
+                        <div class="tooltip">
+                            <i class="fas fa-info-circle"></i>
+                            <span class="tooltiptext">Produtos/serviços que já geram receita consistente e formam a base do seu negócio.</span>
+                        </div>
+                    </div>
+                    
+                    <div class="simple-question">
+                        <label>Quais produtos/serviços já te dão receita hoje?</label>
+                        <textarea id="h1Products" name="h1Products" placeholder="Descreva seus produtos/serviços principais..."></textarea>
+                    </div>
+                    
+                    <div class="simple-question">
+                        <label>Qual seu principal canal de tráfego orgânico?</label>
+                        <select id="h1Traffic" name="h1Traffic">
+                            <option value="">Selecione...</option>
+                            <option value="seo">SEO/Busca Orgânica</option>
+                            <option value="social">Redes Sociais</option>
+                            <option value="content">Marketing de Conteúdo</option>
+                            <option value="email">E-mail Marketing</option>
+                            <option value="referral">Indicações/Referências</option>
+                            <option value="other">Outro</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="question-group">
+                    <div class="question-text">
+                        <i class="fas fa-lightbulb" style="color: var(--info);"></i> Módulo 2 (Inovação/Validação)
+                        <div class="tooltip">
+                            <i class="fas fa-info-circle"></i>
+                            <span class="tooltiptext">Novas ideias, produtos ou serviços em fase de teste e validação.</span>
+                        </div>
+                    </div>
+                    
+                    <div class="simple-question">
+                        <label>Qual nova ideia de produto/serviço você está testando?</label>
+                        <textarea id="h2Products" name="h2Products" placeholder="Descreva suas iniciativas de inovação..."></textarea>
+                    </div>
+                    
+                    <div class="simple-question">
+                        <label>Você já realizou algum "Lançamento Semente"?</label>
+                        <div class="radio-group">
+                            <div class="scale-option">
+                                <input type="radio" id="seedLaunchYes" name="seedLaunch" value="yes">
+                                <label for="seedLaunchYes">Sim, com resultados positivos</label>
+                            </div>
+                            <div class="scale-option">
+                                <input type="radio" id="seedLaunchNo" name="seedLaunch" value="no">
+                                <label for="seedLaunchNo">Não, ainda não testei</label>
+                            </div>
+                            <div class="scale-option">
+                                <input type="radio" id="seedLaunchTesting" name="seedLaunch" value="testing">
+                                <label for="seedLaunchTesting">Estou no processo de teste</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="question-group">
+                    <div class="question-text">
+                        <i class="fas fa-rocket" style="color: var(--warning);"></i> Módulo 3 (Escala/Pico)
+                        <div class="tooltip">
+                            <i class="fas fa-info-circle"></i>
+                            <span class="tooltiptext">Estratégias e infraestrutura para crescimento exponencial e eventos de alta intensidade.</span>
+                        </div>
+                    </div>
+                    
+                    <div class="simple-question">
+                        <label>Qual seu próximo "grande evento" de vendas planejado?</label>
+                        <select id="h3Event" name="h3Event">
+                            <option value="">Selecione...</option>
+                            <option value="blackfriday">Black Friday</option>
+                            <option value="cybermonday">Cyber Monday</option>
+                            <option value="natal">Natal</option>
+                            <option value="lançamento">Lançamento de Produto</option>
+                            <option value="webinar">Webinar/Vendas</option>
+                            <option value="none">Nenhum planejado</option>
+                        </select>
+                    </div>
+                    
+                    <div class="simple-question">
+                        <label>Qual o tamanho da sua lista de e-mail ativa?</label>
+                        <select id="emailList" name="emailList">
+                            <option value="">Selecione...</option>
+                            <option value="0-500">0-500 inscritos</option>
+                            <option value="500-2000">500-2.000 inscritos</option>
+                            <option value="2000-10000">2.000-10.000 inscritos</option>
+                            <option value="10000+">Mais de 10.000 inscritos</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="form-navigation">
+                    <button type="button" class="btn-secondary" onclick="prevSection('section-assets', 'section-maturity')"><i class="fas fa-arrow-left"></i> Voltar</button>
+                    <button type="button" class="btn-secondary" onclick="nextSection('section-assets', 'section-goal')">Próxima Seção <i class="fas fa-arrow-right"></i></button>
+                </div>
+            </div>
+
+            <!-- SEÇÃO 4: DEFINIÇÃO DE META -->
+            <div class="form-section hidden" id="section-goal">
+                <div class="section-header">
+                    <div class="section-title">
+                        <span class="section-icon"><i class="fas fa-bullseye"></i></span>
+                        <h2>Definição de Meta Estratégica</h2>
+                    </div>
+                    <span class="completion-badge" id="badge-goal">0%</span>
+                </div>
+                
+                <div class="question-group">
+                    <div class="question-text">
+                        Qual sua meta de Renda Passiva mensal?
+                        <div class="tooltip">
+                            <i class="fas fa-info-circle"></i>
+                            <span class="tooltiptext">Valor que você gostaria de receber mensalmente sem trabalho ativo contínuo.</span>
+                        </div>
+                    </div>
+                    
+                    <div class="simple-question">
+                        <label>Valor em R$</label>
+                        <input type="number" id="passiveIncomeGoal" name="passiveIncomeGoal" placeholder="Ex: 5000" min="0" step="100">
+                    </div>
+                    
+                    <div class="help-text">
+                        Com base na sua meta, calcularemos o ativo necessário e o plano para alcançá-lo.
+                    </div>
+                </div>
+                
+                <div class="question-group">
+                    <div class="question-text">
+                        Qual é o seu faturamento mensal atual?
+                        <div class="tooltip">
+                            <i class="fas fa-info-circle"></i>
+                            <span class="tooltiptext">Esta informação nos ajuda a calcular a lacuna entre sua situação atual e sua meta.</span>
+                        </div>
+                    </div>
+                    
+                    <div class="simple-question">
+                        <label>Valor em R$</label>
+                        <input type="number" id="currentRevenue" name="currentRevenue" placeholder="Ex: 10000" min="0" step="100">
+                    </div>
+                </div>
+                
+                <div class="question-group">
+                    <div class="question-text">
+                        Quantas horas por semana você dedica ao crescimento do negócio?
+                        <div class="tooltip">
+                            <i class="fas fa-info-circle"></i>
+                            <span class="tooltiptext">Esta informação nos ajuda a dimensionar o plano de ação de acordo com sua disponibilidade.</span>
+                        </div>
+                    </div>
+                    
+                    <div class="option-grid">
+                        <div class="option-card" data-value="5">
+                            <i class="fas fa-clock option-icon"></i>
+                            <div class="option-title">Até 5h</div>
+                            <div class="option-desc">Tempo limitado</div>
+                        </div>
+                        <div class="option-card" data-value="10">
+                            <i class="fas fa-business-time option-icon"></i>
+                            <div class="option-title">5-10h</div>
+                            <div class="option-desc">Tempo moderado</div>
+                        </div>
+                        <div class="option-card" data-value="20">
+                            <i class="fas fa-user-clock option-icon"></i>
+                            <div class="option-title">10-20h</div>
+                            <div class="option-desc">Tempo dedicado</div>
+                        </div>
+                        <div class="option-card" data-value="40">
+                            <i class="fas fa-running option-icon"></i>
+                            <div class="option-title">20h+</div>
+                            <div class="option-desc">Tempo integral</div>
+                        </div>
+                    </div>
+                    <input type="hidden" id="weeklyHours" name="weeklyHours">
+                </div>
+                
+                <div class="form-navigation">
+                    <button type="button" class="btn-secondary" onclick="prevSection('section-goal', 'section-assets')"><i class="fas fa-arrow-left"></i> Voltar</button>
+                    <button type="button" class="btn-success" onclick="submitForm()"><i class="fas fa-chart-pie"></i> Gerar Plano Mestre</button>
+                </div>
+            </div>
+        </form>
+
+        <!-- SEÇÃO DE RESULTADOS -->
+        <div id="results" class="results-section">
+            <h2><i class="fas fa-chart-pie"></i> Seu Plano Mestre Generativo</h2>
+
+            <div class="results-info">
+                <p><strong><i class="fas fa-building"></i> Segmento:</strong> <span id="resSegment">-</span></p>
+                <p><strong><i class="fas fa-chart-line"></i> Maturidade de Marketing:</strong> <span id="resMarketingMaturity">-</span></p>
+                <p><strong><i class="fas fa-heartbeat"></i> Saúde Financeira:</strong> <span id="resFinancialHealth">-</span></p>
+                <p><strong><i class="fas fa-bullseye"></i> Meta Renda Passiva:</strong> <span id="resPassiveIncomeGoal">-</span></p>
+                <p><strong><i class="fas fa-tachometer-alt"></i> Ativo Necessário:</strong> <span id="resRequiredAsset">-</span></p>
+            </div>
+
+            <!-- Explicabilidade dos resultados -->
+            <div class="explanation-section">
+                <div class="explanation-title">
+                    <i class="fas fa-info-circle" style="color: var(--info);"></i>
+                    <h3>Como seus resultados foram calculados</h3>
+                </div>
+                <div class="explanation-content">
+                    <p>Seu plano estratégico foi gerado através de um algoritmo que considera:</p>
+                    <ul>
+                        <li><strong>Benchmarks do seu segmento:</strong> Utilizamos dados de mercado específicos do seu setor para calcular métricas como LTV (Lifetime Value) e CAC (Custo de Aquisição de Cliente).</li>
+                        <li><strong>Lógica fuzzy:</strong> Suas respostas sobre maturidade empresarial foram processadas usando lógica fuzzy para determinar o nível de prontidão para cada módulo.</li>
+                        <li><strong>Análise de lacunas:</strong> Calculamos a diferença entre sua situação atual e sua meta para determinar o ativo necessário e o caminho mais eficiente.</li>
+                        <li><strong>Priorização estratégica:</strong> As ações foram priorizadas com base na relação custo-benefício e no impacto esperado no seu negócio.</li>
+                    </ul>
+                    <p>O plano completo leva em consideração suas limitações de tempo, recursos e o estágio atual do seu negócio.</p>
+                </div>
+            </div>
+
+            <!-- NAVEGAÇÃO POR ABAS -->
+            <div class="tab-navigation">
+                <button type="button" class="tab-button active" onclick="switchTab('diagnosis')"><i class="fas fa-stethoscope"></i> Diagnóstico</button>
+                <button type="button" class="tab-button" onclick="switchTab('roadmap')"><i class="fas fa-road"></i> Plano de Ação</button>
+                <button type="button" class="tab-button" onclick="switchTab('marketing')"><i class="fas fa-bullhorn"></i> Marketing</button>
+                <button type="button" class="tab-button" onclick="switchTab('revenue')"><i class="fas fa-money-bill-wave"></i> Receita</button>
+                <button type="button" class="tab-button" onclick="switchTab('finance')"><i class="fas fa-chart-line"></i> Saúde Financeira</button>
+                <button type="button" class="tab-button" onclick="switchTab('export')"><i class="fas fa-file-export"></i> Exportar</button>
+            </div>
+
+            <!-- ABA 1: DIAGNÓSTICO -->
+            <div id="diagnosis" class="tab-content active">
+                <h3><i class="fas fa-chart-bar"></i> Diagnóstico Empresarial</h3>
+                
+                <div class="chart-container">
+                    <div class="chart-box">
+                        <div class="chart-title">Maturidade Empresarial</div>
+                        <canvas id="maturityChart"></canvas>
+                    </div>
+                    <div class="chart-box">
+                        <div class="chart-title">Priorização Estratégica</div>
+                        <canvas id="priorityChart"></canvas>
+                    </div>
+                </div>
+                
+                <div class="metric-grid" id="kpiGrid"></div>
+                
+                <h3><i class="fas fa-calculator"></i> Métricas Calculadas</h3>
+                <div class="metric-grid" id="calculatedMetrics"></div>
+            </div>
+
+            <!-- ABA 2: PLANO DE AÇÃO -->
+            <div id="roadmap" class="tab-content">
+                <h3><i class="fas fa-tasks"></i> Plano de Ação Atomizado</h3>
+                <div id="roadmapTimeline"></div>
+            </div>
+
+            <!-- ABA 3: MARKETING -->
+            <div id="marketing" class="tab-content">
+                <h3><i class="fas fa-bullhorn"></i> Plano de Marketing</h3>
+                <div id="marketingStrategies"></div>
+                
+                <h3><i class="fas fa-funnel-dollar"></i> Funil de Vendas Otimizado</h3>
+                <div id="salesFunnel"></div>
+                
+                <h3><i class="fas fa-retweet"></i> Estratégia de Remarketing</h3>
+                <div id="remarketingStrategy"></div>
+            </div>
+
+            <!-- ABA 4: RECEITA -->
+            <div id="revenue" class="tab-content">
+                <h3><i class="fas fa-money-bill-wave"></i> Plano de Receita</h3>
+                
+                <div class="chart-container">
+                    <div class="chart-box">
+                        <div class="chart-title">Projeção de Receita</div>
+                        <canvas id="revenueChart"></canvas>
+                    </div>
+                    <div class="chart-box">
+                        <div class="chart-title">Diversificação de Fontes</div>
+                        <canvas id="diversificationChart"></canvas>
+                    </div>
+                </div>
+                
+                <div id="revenueModules"></div>
+            </div>
+
+            <!-- ABA 5: SAÚDE FINANCEIRA -->
+            <div id="finance" class="tab-content">
+                <h3><i class="fas fa-heartbeat"></i> Saúde Financeira</h3>
+                
+                <div class="chart-container">
+                    <div class="chart-box">
+                        <div class="chart-title">Projeção Financeira</div>
+                        <canvas id="financeChart"></canvas>
+                    </div>
+                    <div class="chart-box">
+                        <div class="chart-title">Alocação de Recursos</div>
+                        <canvas id="allocationChart"></canvas>
+                    </div>
+                </div>
+                
+                <div id="financialHealthPlan"></div>
+            </div>
+
+            <!-- ABA 6: EXPORTAÇÃO -->
+            <div id="export" class="tab-content">
+                <h3><i class="fas fa-file-export"></i> Exportar Plano</h3>
+                
+                <div class="export-section">
+                    <h4><i class="fab fa-whatsapp"></i> Compartilhar via WhatsApp</h4>
+                    <p>Envie um resumo do seu plano estratégico para sua equipe ou mentores</p>
+                    <button class="btn-whatsapp" onclick="exportToWhatsApp()">
+                        <i class="fab fa-whatsapp"></i> Compartilhar no WhatsApp
+                    </button>
+                </div>
+                
+                <div class="export-section">
+                    <h4><i class="fas fa-file-csv"></i> Exportar para CSV</h4>
+                    <p>Baixe uma planilha com todas as métricas e ações do seu plano</p>
+                    <button class="btn-export" onclick="exportToCSV()">
+                        <i class="fas fa-download"></i> Baixar CSV
+                    </button>
+                </div>
+                
+                <div class="export-section">
+                    <h4><i class="fas fa-code"></i> Exportar para JSON</h4>
+                    <p>Estruture seus dados para retroalimentação de sistemas e LLMs</p>
+                    <button class="btn-export" onclick="exportToJSON()">
+                        <i class="fas fa-download"></i> Baixar JSON
+                    </button>
+                    
+                    <div class="json-viewer" id="jsonViewer">
+                        {/* JSON será exibido aqui */}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ===== CONFIGURAÇÃO INICIAL =====
+        document.addEventListener('DOMContentLoaded', () => {
+            initializeApp();
+        });
+
+        function initializeApp() {
+            // Configurar seleção de opções
+            setupOptionCards();
+            
+            // Configurar sliders
+            setupSliders();
+            
+            // Configurar modal de privacidade
+            setupPrivacyModal();
+            
+            // Carregar dados salvos
+            loadFormData();
+            
+            // Atualizar indicadores de progresso
+            updateProgressIndicators();
+        }
+
+        // ===== CONFIGURAÇÃO DO MODAL DE PRIVACIDADE =====
+        function setupPrivacyModal() {
+            const modal = document.getElementById('privacyModal');
+            const openBtn = document.getElementById('openPrivacyModal');
+            const closeBtn = document.getElementById('closeModal');
+            
+            openBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                modal.style.display = 'block';
+            });
+            
+            closeBtn.addEventListener('click', () => {
+                modal.style.display = 'none';
+            });
+            
+            window.addEventListener('click', (e) => {
+                if (e.target === modal) {
+                    modal.style.display = 'none';
+                }
+            });
+        }
+
+        // ===== CONFIGURAÇÃO DAS OPÇÕES DE CARTA =====
+        function setupOptionCards() {
+            const optionCards = document.querySelectorAll('.option-card');
+            optionCards.forEach(card => {
+                card.addEventListener('click', () => {
+                    const parent = card.closest('.question-group');
+                    const hiddenInput = parent.querySelector('input[type="hidden"]');
+                    
+                    // Remover seleção de outros cards no mesmo grupo
+                    const siblings = parent.querySelectorAll('.option-card');
+                    siblings.forEach(sibling => {
+                        sibling.classList.remove('selected');
+                    });
+                    
+                    // Selecionar este card
+                    card.classList.add('selected');
+                    
+                    // Atualizar input hidden
+                    if (hiddenInput) {
+                        hiddenInput.value = card.getAttribute('data-value');
+                    }
+                    
+                    updateProgressIndicators();
+                });
+            });
+        }
+
+        // ===== CONFIGURAÇÃO DOS SLIDERS =====
+        function setupSliders() {
+            const sliders = document.querySelectorAll('.slider');
+            sliders.forEach(slider => {
+                slider.addEventListener('input', function() {
+                    const value = this.value;
+                    const valueDisplay = document.getElementById(this.id + 'Value');
+                    const fuzzyFill = document.getElementById(this.id.replace('Maturity', 'Fuzzy').replace('Health', 'Fuzzy').replace('H1', 'Fuzzy'));
+                    
+                    if (valueDisplay) valueDisplay.textContent = value + '%';
+                    if (fuzzyFill) fuzzyFill.style.width = value + '%';
+                    
+                    updateProgressIndicators();
+                });
+            });
+        }
+
+        // ===== NAVEGAÇÃO ENTRE SEÇÕES =====
+        function nextSection(currentId, nextId) {
+            document.getElementById(currentId).classList.add('hidden');
+            document.getElementById(nextId).classList.remove('hidden');
+            updateProgressIndicators();
+            updateProgressSteps(currentId, nextId);
+            window.scrollTo(0, 0);
+        }
+
+        function prevSection(currentId, prevId) {
+            document.getElementById(currentId).classList.add('hidden');
+            document.getElementById(prevId).classList.remove('hidden');
+            updateProgressIndicators();
+            window.scrollTo(0, 0);
+        }
+
+        function updateProgressSteps(currentId, nextId) {
+            const steps = {
+                'section-segment': 'step1',
+                'section-maturity': 'step2',
+                'section-assets': 'step3',
+                'section-goal': 'step4'
+            };
+            
+            if (steps[currentId]) {
+                document.getElementById(steps[currentId]).classList.add('completed');
+            }
+            
+            if (steps[nextId]) {
+                document.getElementById(steps[nextId]).classList.add('active');
+            }
+        }
+
+        // ===== ATUALIZAÇÃO DE INDICADORES DE PROGRESSO =====
+        function updateProgressIndicators() {
+            const sections = document.querySelectorAll('.form-section');
+            sections.forEach(section => {
+                if (!section.classList.contains('hidden')) {
+                    const badgeId = `badge-${section.id.split('-')[1]}`;
+                    const completion = calculateSectionCompletion(section);
+                    document.getElementById(badgeId).textContent = `${completion}%`;
+                }
+            });
+        }
+
+        function calculateSectionCompletion(section) {
+            const inputs = section.querySelectorAll('input[type="radio"], input[type="hidden"], input[type="number"], textarea, select, .slider');
+            let completed = 0;
+            
+            inputs.forEach(input => {
+                if (input.type === 'radio') {
+                    // Verificar se algum radio do grupo está selecionado
+                    const name = input.getAttribute('name');
+                    const checked = section.querySelector(`input[name="${name}"]:checked`);
+                    if (checked && !input.checked) return; // Contar apenas uma vez por grupo
+                    if (checked) completed++;
+                } else if (input.type === 'hidden') {
+                    if (input.value !== '') completed++;
+                } else if (input.type === 'number') {
+                    if (input.value !== '') completed++;
+                } else if (input.tagName === 'TEXTAREA') {
+                    if (input.value.trim() !== '') completed++;
+                } else if (input.tagName === 'SELECT') {
+                    if (input.value !== '') completed++;
+                } else if (input.classList.contains('slider')) {
+                    // Sliders sempre têm valor, considerar completos
+                    completed++;
+                }
+            });
+            
+            const total = inputs.length;
+            // Ajustar para grupos de radio (contar como um)
+            const radioGroups = new Set();
+            section.querySelectorAll('input[type="radio"]').forEach(radio => {
+                radioGroups.add(radio.getAttribute('name'));
+            });
+            const adjustedTotal = total - (radioGroups.size > 0 ? radioGroups.size - 1 : 0);
+            
+            return adjustedTotal > 0 ? Math.round((completed / adjustedTotal) * 100) : 0;
+        }
+
+        // ===== PERSISTÊNCIA DE DADOS =====
+        function saveFormData(data) {
+            try {
+                localStorage.setItem('strategicPlanData', JSON.stringify(data));
+                console.log('✓ Dados salvos no localStorage com sucesso!');
+            } catch (e) {
+                console.error('✗ Erro ao salvar dados:', e);
+                alert('Não foi possível salvar os dados. Verifique as configurações de privacidade do navegador.');
+            }
+        }
+
+        function loadFormData() {
+            try {
+                const savedData = localStorage.getItem('strategicPlanData');
+                if (savedData) {
+                    const data = JSON.parse(savedData);
+                    populateForm(data);
+                }
+            } catch (e) {
+                console.error('✗ Erro ao carregar dados:', e);
+            }
+        }
+
+        function populateForm(data) {
+            for (const key in data) {
+                // Para inputs hidden (option cards)
+                const hiddenInput = document.getElementById(key);
+                if (hiddenInput && hiddenInput.type === 'hidden') {
+                    hiddenInput.value = data[key];
+                    
+                    // Selecionar o card correspondente
+                    const card = document.querySelector(`.option-card[data-value="${data[key]}"]`);
+                    if (card) {
+                        card.classList.add('selected');
+                    }
+                }
+                
+                // Para radios
+                const radioInput = document.querySelector(`input[name="${key}"][value="${data[key]}"]`);
+                if (radioInput) {
+                    radioInput.checked = true;
+                }
+                
+                // Para sliders
+                const sliderInput = document.getElementById(key);
+                if (sliderInput && sliderInput.type === 'range') {
+                    sliderInput.value = data[key];
+                    // Disparar evento para atualizar displays
+                    const event = new Event('input');
+                    sliderInput.dispatchEvent(event);
+                }
+                
+                // Para outros inputs
+                const regularInput = document.getElementById(key);
+                if (regularInput && regularInput.type !== 'hidden' && regularInput.type !== 'radio') {
+                    regularInput.value = data[key];
+                }
+            }
+        }
+
+        // ===== SUBMISSÃO DO FORMULÁRIO =====
+        function submitForm() {
+            const form = document.getElementById('strategicPlanForm');
+            const formData = new FormData(form);
+            const data = Object.fromEntries(formData.entries());
+            
+            // Adicionar valores dos sliders
+            data.marketingMaturity = document.getElementById('marketingMaturity').value;
+            data.financialHealth = document.getElementById('financialHealth').value;
+            data.tractionH1 = document.getElementById('tractionH1').value;
+
+            // Salvar dados
+            saveFormData(data);
+
+            // Gerar plano estratégico
+            const strategicPlan = generateStrategicPlan(data);
+            displayResults(data, strategicPlan);
+        }
+
+        // ===== LÓGICA PARA ANÁLISE ESTRATÉGICA =====
+        function generateStrategicPlan(data) {
+            const plan = {
+                maturityLevel: '',
+                metrics: {},
+                roadmap: [],
+                financialProjections: {},
+                marketingStrategies: [],
+                revenueModules: {
+                    h1: [],
+                    h2: [],
+                    h3: []
+                },
+                financialHealth: {}
+            };
+
+            // Calcular métricas a partir dos dados
+            plan.metrics = calculateBusinessMetrics(data);
+            
+            // Determinar nível de maturidade
+            plan.maturityLevel = determineMaturityLevel(data, plan.metrics);
+            
+            // Gerar roadmap estratégico
+            plan.roadmap = generateStrategicRoadmap(data, plan.metrics);
+            
+            // Gerar projeções financeiras
+            plan.financialProjections = generateFinancialProjections(data, plan.metrics);
+            
+            // Gerar estratégias de marketing
+            plan.marketingStrategies = generateMarketingStrategies(data, plan.metrics);
+            
+            // Gerar plano de receita por módulo
+            plan.revenueModules = generateRevenueModules(data, plan.metrics);
+            
+            // Gerar plano de saúde financeira
+            plan.financialHealth = generateFinancialHealthPlan(data, plan.metrics);
+
+            return plan;
+        }
+
+        function calculateBusinessMetrics(data) {
+            const metrics = {};
+            
+            // Converter valores de string para número quando necessário
+            const marketingMaturity = parseInt(data.marketingMaturity) / 100;
+            const financialHealth = parseInt(data.financialHealth) / 100;
+            const tractionH1 = parseInt(data.tractionH1) / 100;
+            
+            // Calcular métricas com base nas respostas
+            metrics.marketingMaturity = marketingMaturity;
+            metrics.financialHealth = financialHealth;
+            metrics.tractionH1 = tractionH1;
+            
+            // Calcular métricas compostas usando lógica fuzzy
+            metrics.businessHealth = (marketingMaturity + financialHealth + tractionH1) / 3;
+            
+            // Determinar prontidão para cada módulo
+            metrics.h1Readiness = tractionH1;
+            metrics.h2Readiness = Math.min(marketingMaturity, financialHealth);
+            metrics.h3Readiness = Math.min(marketingMaturity, financialHealth, tractionH1);
+            
+            // Calcular métricas financeiras baseadas em benchmarks do segmento
+            const segment = data.businessSegment;
+            const ticket = data.averageTicket;
+            
+            // Benchmarks por segmento (valores exemplares)
+            const benchmarks = {
+                'saas': { ltvMultiplier: 36, cacPercentage: 0.3, churnRate: 0.05 },
+                'ecommerce': { ltvMultiplier: 12, cacPercentage: 0.2, churnRate: 0.15 },
+                'infoproduto': { ltvMultiplier: 18, cacPercentage: 0.25, churnRate: 0.1 },
+                'consultoria': { ltvMultiplier: 24, cacPercentage: 0.15, churnRate: 0.02 }
+            };
+            
+            const benchmark = benchmarks[segment] || benchmarks.saas;
+            
+            // Calcular LTV aproximado
+            let ticketValue = 0;
+            if (ticket === 'low') ticketValue = 50;
+            else if (ticket === 'medium') ticketValue = 500;
+            else if (ticket === 'high') ticketValue = 5000;
+            else if (ticket === 'enterprise') ticketValue = 25000;
+            
+            metrics.ltv = ticketValue * benchmark.ltvMultiplier;
+            metrics.cac = metrics.ltv * benchmark.cacPercentage;
+            metrics.churnRate = benchmark.churnRate;
+            metrics.ltvCacRatio = metrics.ltv / metrics.cac;
+            
+            return metrics;
+        }
+
+        function determineMaturityLevel(data, metrics) {
+            const score = metrics.businessHealth;
+            
+            if (score <= 0.3) return 'Inicial 🚀 (Foco em Validação e Estruturação)';
+            if (score <= 0.6) return 'Crescimento 📈 (Foco em Escala e Otimização)';
+            return 'Estabilização 🏢 (Foco em Expansão e Inovação)';
+        }
+
+        function generateStrategicRoadmap(data, metrics) {
+            const roadmap = [];
+            
+            // Fase 1: Fundamentos (0-30 dias)
+            roadmap.push({
+                title: 'Fase 1: Fundamentos (Primeiras 4 semanas) ⚙️',
+                module: 'h1',
+                priority: 'critical',
+                actions: [
+                    'Realizar análise detalhada do modelo de negócio atual 📊',
+                    'Mapear todos os processos internos e pontos de contato com clientes 🗺️',
+                    'Definir ou revisar os KPIs principais para monitoramento 🎯',
+                    'Estruturar sistema básico de acompanhamento de métricas 📈',
+                    'Identificar e documentar persona ideal e jornada do cliente 👥'
+                ]
+            });
+            
+            // Fase 2: Otimização (1-3 meses)
+            if (metrics.h1Readiness > 0.3) {
+                roadmap.push({
+                    title: 'Fase 2: Otimização do Módulo 1 (1-3 meses) 🔧',
+                    module: 'h1',
+                    priority: 'high',
+                    actions: [
+                        'Otimizar processo de vendas para aumentar taxa de conversão 💰',
+                        'Implementar estratégias de retenção de clientes 🤝',
+                        'Revisar estrutura de custos e identificar oportunidades de economia 💵',
+                        'Testar pequenas melhorias no produto/serviço principal 🧪',
+                        'Criar sistema de coleta e análise de feedback contínuo 📝'
+                    ]
+                });
+            }
+            
+            // Fase 3: Inovação (3-6 meses)
+            if (metrics.h2Readiness > 0.4) {
+                roadmap.push({
+                    title: 'Fase 3: Inovação - Módulo 2 (3-6 meses) 💡',
+                    module: 'h2',
+                    priority: 'medium',
+                    actions: [
+                        'Estruturar processo de validação de novas ideias 🧪',
+                        'Desenvolver MVP para produto/serviço secundário 🛠️',
+                        'Realizar teste de conceito com grupo seleto de clientes 👥',
+                        'Criar plano de lançamento para nova oferta 🚀',
+                        'Estabelecer métricas de validação para inovações 📊'
+                    ]
+                });
+            }
+            
+            // Fase 4: Expansão (6-12 meses)
+            if (metrics.h3Readiness > 0.6) {
+                roadmap.push({
+                    title: 'Fase 4: Expansão - Módulo 3 (6-12 meses) 🚀',
+                    module: 'h3',
+                    priority: 'medium',
+                    actions: [
+                        'Preparar infraestrutura para eventos de escala 📦',
+                        'Desenvolver campanhas de marketing para picos de demanda 📢',
+                        'Estruturar parcerias estratégicas para ampliação de reach 🤝',
+                        'Otimizar processos para suportar crescimento exponencial ⚡',
+                        'Criar plano de contingência para alta demanda 🛡️'
+                    ]
+                });
+            }
+            
+            return roadmap;
+        }
+
+        function generateFinancialProjections(data, metrics) {
+            const currentRevenue = parseInt(data.currentRevenue) || 5000;
+            const passiveIncomeGoal = parseInt(data.passiveIncomeGoal) || 10000;
+            
+            // Calcular ativo necessário para renda passiva
+            // Considerando um retorno conservador de 0.8% ao mês (~10% ao ano)
+            const requiredAsset = passiveIncomeGoal / 0.008;
+            
+            // Calcular crescimento baseado em métricas
+            const growthFactor = metrics.businessHealth;
+            const monthlyGrowth = 0.05 + (growthFactor * 0.1); // 5% a 15% mensal
+            
+            const projections = {
+                currentRevenue: currentRevenue,
+                passiveIncomeGoal: passiveIncomeGoal,
+                requiredAsset: requiredAsset,
+                monthlyGrowth: monthlyGrowth * 100,
+                month3: currentRevenue * Math.pow(1 + monthlyGrowth, 3),
+                month6: currentRevenue * Math.pow(1 + monthlyGrowth, 6),
+                month12: currentRevenue * Math.pow(1 + monthlyGrowth, 12),
+                investmentNeeded: currentRevenue * 0.3, // 30% do faturamento atual
+                marketingAllocation: 40,
+                operationsAllocation: 30,
+                productAllocation: 20,
+                otherAllocation: 10
+            };
+            
+            return projections;
+        }
+
+        function generateMarketingStrategies(data, metrics) {
+            const strategies = [];
+            
+            // Estratégia baseada no estágio
+            if (metrics.marketingMaturity <= 0.3) {
+                strategies.push({
+                    title: 'Fundamentos de Marketing 🎯',
+                    priority: 'critical',
+                    actions: [
+                        'Definir persona ideal e jornada do cliente 👥',
+                        'Mapear canais de aquisição com melhor custo-benefício 📊',
+                        'Criar conteúdo educativo para construir autoridade 📚',
+                        'Implementar sistema básico de analytics e tracking 🔍',
+                        'Estabelecer processo de coleta e análise de feedback 📝'
+                    ]
+                });
+            } else if (metrics.marketingMaturity <= 0.6) {
+                strategies.push({
+                    title: 'Otimização de Marketing 📈',
+                    priority: 'high',
+                    actions: [
+                        'Refinar segmentação de público e mensagens 🎯',
+                        'Testar e escalar canais de aquisição mais eficientes 🚀',
+                        'Implementar automação de marketing básica ⚡',
+                        'Desenvolver estratégia de conteúdo consistente 📝',
+                        'Otimizar funil de vendas para aumentar conversão 💰'
+                    ]
+                });
+            } else {
+                strategies.push({
+                    title: 'Marketing Avançado 🚀',
+                    priority: 'medium',
+                    actions: [
+                        'Implementar estratégias de aquisição multicanal 🌐',
+                        'Otimizar LTV através de programas de fidelidade 🤝',
+                        'Desenvolver campanhas de remarketing avançado 🔄',
+                        'Testar estratégias de precificação dinâmica 🏷️',
+                        'Explorar parcerias estratégicas para ampliação de reach 🤝'
+                    ]
+                });
+            }
+            
+            // Estratégia baseada no segmento
+            const segment = data.businessSegment;
+            if (segment === 'saas') {
+                strategies.push({
+                    title: 'Marketing SaaS Específico 💻',
+                    priority: 'high',
+                    actions: [
+                        'Implementar estratégia de onboarding eficiente 🚀',
+                        'Desenvolver programa de referências com incentivos 👥',
+                        'Criar conteúdo técnico para educar o mercado 📚',
+                        'Participar de comunidades e eventos do setor 🤝',
+                        'Otimizar processo de upgrade e expansão de contas 📈'
+                    ]
+                });
+            } else if (segment === 'ecommerce') {
+                strategies.push({
+                    title: 'Marketing E-commerce Otimizado 🛒',
+                    priority: 'high',
+                    actions: [
+                        'Otimizar experiência de compra e checkout 💳',
+                        'Implementar programa de fidelidade e recompensas 🎁',
+                        'Desenvolver estratégia de remarketing para abandonos 🔄',
+                        'Testar diferentes táticas de upsell e cross-sell 📦',
+                        'Explorar parcerias com influenciadores do nicho 👥'
+                    ]
+                });
+            }
+            
+            return strategies;
+        }
+
+        function generateRevenueModules(data, metrics) {
+            const modules = {
+                h1: [],
+                h2: [],
+                h3: []
+            };
+            
+            // Módulo 1 (Evergreen)
+            modules.h1.push({
+                title: 'Otimização da Oferta Principal 🎯',
+                actions: [
+                    'Revisar precificação com base no valor percebido 🏷️',
+                    'Identificar oportunidades de upsell e cross-sell 📈',
+                    'Otimizar processo de vendas e conversão 💰',
+                    'Desenvolter programa de fidelidade para clientes atuais 🤝',
+                    'Criar conteúdo educativo sobre uso avançado do produto 📚'
+                ]
+            });
+            
+            // Módulo 2 (Inovação)
+            if (metrics.h2Readiness > 0.4) {
+                modules.h2.push({
+                    title: 'Validação de Nova Oferta 🧪',
+                    actions: [
+                        'Estruturar processo de ideação e priorização 💡',
+                        'Desenvolver MVP para validação de mercado 🛠️',
+                        'Realizar teste de conceito com clientes selecionados 👥',
+                        'Definir métricas de sucesso para a nova oferta 📊',
+                        'Criar plano de lançamento controlado 🚀'
+                    ]
+                });
+            }
+            
+            // Módulo 3 (Escala)
+            if (metrics.h3Readiness > 0.6) {
+                modules.h3.push({
+                    title: 'Preparação para Eventos de Escala 📈',
+                    actions: [
+                        'Estruturar campanhas de marketing para datas especiais 🗓️',
+                        'Preparar infraestrutura para suportar picos de demanda ⚡',
+                        'Desenvolver conteúdo e sequência de lançamento 📝',
+                        'Treinar equipe para atendimento em alta escala 👥',
+                        'Criar plano de contingência para possíveis problemas 🛡️'
+                    ]
+                });
+            }
+            
+            return modules;
+        }
+
+        function generateFinancialHealthPlan(data, metrics) {
+            const plan = {
+                proLabore: {},
+                cashFlow: {},
+                investments: {}
+            };
+            
+            const currentRevenue = parseInt(data.currentRevenue) || 5000;
+            
+            // Recomendações de pró-labore
+            if (metrics.financialHealth <= 0.3) {
+                plan.proLabore = {
+                    recommendation: 'Manter pró-labore mínimo para reinvestir no negócio',
+                    percentage: 20,
+                    actions: [
+                        'Estabelecer pró-labore fixo baseado em necessidades básicas',
+                        'Criar plano de distribuição de lucros quando atingir estabilidade',
+                        'Monitorar closely o fluxo de caixa para evitar problemas'
+                    ]
+                };
+            } else if (metrics.financialHealth <= 0.6) {
+                plan.proLabore = {
+                    recommendation: 'Pró-labore moderado com parte dos lucros reinvestida',
+                    percentage: 40,
+                    actions: [
+                        'Definir pró-labore fixo que cubra necessidades básicas e algumas secundárias',
+                        'Estabelecer porcentagem dos lucros para reinvestimento',
+                        'Criar fundo de reserva para meses de menor faturamento'
+                    ]
+                };
+            } else {
+                plan.proLabore = {
+                    recommendation: 'Pró-labore competitivo com reinvestimento estratégico',
+                    percentage: 60,
+                    actions: [
+                        'Definir pró-labore que reflita o valor gerado no negócio',
+                        'Estabelecer fundos separados para reinvestimento e distribuição',
+                        'Considerar bonificações baseadas em desempenho'
+                    ]
+                };
+            }
+            
+            // Gestão de fluxo de caixa
+            plan.cashFlow = {
+                actions: [
+                    'Implementar controle rigoroso de entradas e saídas',
+                    'Estabelecer reserva de emergência de 3-6 meses de despesas',
+                    'Negociar prazos com fornecedores e clientes',
+                    'Diversificar fontes de receita para reduzir sazonalidade',
+                    'Monitorar indicadores de saúde financeira mensalmente'
+                ]
+            };
+            
+            // Estratégia de investimentos
+            plan.investments = {
+                allocation: {
+                    marketing: 40,
+                    operations: 25,
+                    product: 20,
+                    team: 10,
+                    other: 5
+                },
+                actions: [
+                    'Priorizar investimentos com maior retorno esperado',
+                    'Testar pequenos investimentos antes de escalar',
+                    'Monitorar ROI de cada iniciativa',
+                    'Revisar alocação trimestralmente com base em resultados'
+                ]
+            };
+            
+            return plan;
+        }
+
+        // ===== EXIBIÇÃO DOS RESULTADOS =====
+        function displayResults(formData, plan) {
+            // Preencher informações básicas
+            document.getElementById('resSegment').textContent = getSegmentLabel(formData.businessSegment);
+            document.getElementById('resMarketingMaturity').textContent = `${(plan.metrics.marketingMaturity * 100).toFixed(0)}%`;
+            document.getElementById('resFinancialHealth').textContent = `${(plan.metrics.financialHealth * 100).toFixed(0)}%`;
+            document.getElementById('resPassiveIncomeGoal').textContent = `R$ ${plan.financialProjections.passiveIncomeGoal.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+            document.getElementById('resRequiredAsset').textContent = `R$ ${plan.financialProjections.requiredAsset.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+
+            // Preencher métricas
+            displayMetrics(plan.metrics);
+            
+            // Preencher roadmap
+            displayRoadmap(plan.roadmap);
+            
+            // Preencher estratégias de marketing
+            displayMarketingStrategies(plan.marketingStrategies);
+            
+            // Preencher módulos de receita
+            displayRevenueModules(plan.revenueModules);
+            
+            // Preencher saúde financeira
+            displayFinancialHealth(plan.financialHealth);
+            
+            // Criar gráficos
+            createCharts(formData, plan.metrics, plan.financialProjections, plan.financialHealth);
+
+            // Mostrar resultados
+            document.getElementById('results').classList.add('show');
+            document.getElementById('results').scrollIntoView({ behavior: 'smooth' });
+            
+            // Gerar JSON para exportação
+            generateExportJSON(formData, plan);
+        }
+
+        function displayMetrics(metrics) {
+            const kpiGrid = document.getElementById('kpiGrid');
+            kpiGrid.innerHTML = '';
+            
+            const metricsToDisplay = [
+                { name: 'Maturidade de Marketing', value: metrics.marketingMaturity, format: 'percentage' },
+                { name: 'Saúde Financeira', value: metrics.financialHealth, format: 'percentage' },
+                { name: 'Tração Módulo 1', value: metrics.tractionH1, format: 'percentage' },
+                { name: 'Saúde do Negócio', value: metrics.businessHealth, format: 'percentage' }
+            ];
+            
+            metricsToDisplay.forEach(metric => {
+                const card = document.createElement('div');
+                card.className = 'kpi-card';
+                
+                let formattedValue = '';
+                if (metric.format === 'percentage') {
+                    formattedValue = `${(metric.value * 100).toFixed(0)}%`;
+                }
+                
+                card.innerHTML = `
+                    <div class="kpi-title">${metric.name}</div>
+                    <div class="kpi-value">${formattedValue}</div>
+                    <div class="kpi-target">${getMetricTarget(metric.name, metric.value)}</div>
+                `;
+                
+                kpiGrid.appendChild(card);
+            });
+            
+            // Métricas calculadas
+            const calculatedGrid = document.getElementById('calculatedMetrics');
+            calculatedGrid.innerHTML = '';
+            
+            const calculatedMetrics = [
+                { name: 'LTV (Lifetime Value)', value: metrics.ltv, format: 'currency', target: 'Quanto maior, melhor' },
+                { name: 'CAC (Custo de Aquisição)', value: metrics.cac, format: 'currency', target: 'Quanto menor, melhor' },
+                { name: 'Ratio LTV:CAC', value: metrics.ltvCacRatio, format: 'number', target: 'Ideal > 3' },
+                { name: 'Taxa de Churn', value: metrics.churnRate, format: 'percentage', target: 'Quanto menor, melhor' }
+            ];
+            
+            calculatedMetrics.forEach(metric => {
+                const card = document.createElement('div');
+                card.className = 'kpi-card';
+                
+                let formattedValue = '';
+                if (metric.format === 'currency') {
+                    formattedValue = `R$ ${metric.value.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+                } else if (metric.format === 'percentage') {
+                    formattedValue = `${(metric.value * 100).toFixed(1)}%`;
+                } else {
+                    formattedValue = metric.value.toFixed(1);
+                }
+                
+                card.innerHTML = `
+                    <div class="kpi-title">${metric.name}</div>
+                    <div class="kpi-value">${formattedValue}</div>
+                    <div class="kpi-target">${metric.target}</div>
+                `;
+                
+                calculatedGrid.appendChild(card);
+            });
+        }
+
+        function displayRoadmap(roadmap) {
+            const timeline = document.getElementById('roadmapTimeline');
+            timeline.innerHTML = '';
+            
+            roadmap.forEach((phase, index) => {
+                const item = document.createElement('div');
+                item.className = 'timeline-item';
+                
+                // Determinar a cor do módulo
+                let moduleClass = 'module-h1';
+                let moduleIcon = 'fas fa-seedling';
+                if (phase.module === 'h2') {
+                    moduleClass = 'module-h2';
+                    moduleIcon = 'fas fa-lightbulb';
+                } else if (phase.module === 'h3') {
+                    moduleClass = 'module-h3';
+                    moduleIcon = 'fas fa-rocket';
+                }
+                
+                // Determinar a prioridade
+                let priorityClass = 'priority-critical';
+                if (phase.priority === 'high') priorityClass = 'priority-high';
+                else if (phase.priority === 'medium') priorityClass = 'priority-medium';
+                else if (phase.priority === 'low') priorityClass = 'priority-low';
+                
+                item.innerHTML = `
+                    <div class="timeline-date">${index + 1}</div>
+                    <div class="timeline-content">
+                        <div class="timeline-title">
+                            ${phase.title}
+                            <span class="module-tag ${moduleClass}"><i class="${moduleIcon}"></i> Módulo ${phase.module.toUpperCase()}</span>
+                            <span class="priority-tag ${priorityClass}">${phase.priority}</span>
+                        </div>
+                        <ul>
+                            ${phase.actions.map(action => `<li>${action}</li>`).join('')}
+                        </ul>
+                    </div>
+                `;
+                
+                timeline.appendChild(item);
+            });
+        }
+
+        function displayMarketingStrategies(strategies) {
+            const marketingDiv = document.getElementById('marketingStrategies');
+            marketingDiv.innerHTML = '';
+            
+            strategies.forEach(strategy => {
+                const card = document.createElement('div');
+                card.className = 'strategy-card';
+                
+                // Determinar a prioridade
+                let priorityClass = 'priority-critical';
+                if (strategy.priority === 'high') priorityClass = 'priority-high';
+                else if (strategy.priority === 'medium') priorityClass = 'priority-medium';
+                else if (strategy.priority === 'low') priorityClass = 'priority-low';
+                
+                card.innerHTML = `
+                    <div class="strategy-title">
+                        <span class="strategy-icon">🎯</span>
+                        ${strategy.title}
+                        <span class="priority-tag ${priorityClass}">${strategy.priority}</span>
+                    </div>
+                    <ul>
+                        ${strategy.actions.map(action => `<li>${action}</li>`).join('')}
+                    </ul>
+                `;
+                
+                marketingDiv.appendChild(card);
+            });
+            
+            // Funil de vendas
+            const funnelDiv = document.getElementById('salesFunnel');
+            funnelDiv.innerHTML = `
+                <div class="strategy-card">
+                    <div class="strategy-title">
+                        <span class="strategy-icon">🔄</span>
+                        Funil de Vendas Otimizado
+                    </div>
+                    <ul>
+                        <li>Atração: Conteúdo educativo e redes sociais</li>
+                        <li>Interesse: Webinars, demonstrações e materiais ricos</li>
+                        <li>Decisão: Cases, depoimentos e garantias</li>
+                        <li>Ação: Processo de vendas simplificado e facilitado</li>
+                        <li>Retenção: Onboarding, suporte e programas de fidelidade</li>
+                    </ul>
+                </div>
+            `;
+            
+            // Estratégia de remarketing
+            const remarketingDiv = document.getElementById('remarketingStrategy');
+            remarketingDiv.innerHTML = `
+                <div class="strategy-card">
+                    <div class="strategy-title">
+                        <span class="strategy-icon">🔄</span>
+                        Estratégia de Remarketing
+                    </div>
+                    <ul>
+                        <li>Segmentação por comportamento no site/app</li>
+                        <li>Sequência de e-mails para abandonos de carrinho</li>
+                        <li>Anúncios direcionados para visitantes recentes</li>
+                        <li>Ofertas personalizadas baseadas no histórico</li>
+                        <li>Recuperação de clientes inativos</li>
+                    </ul>
+                </div>
+            `;
+        }
+
+        function displayRevenueModules(modules) {
+            const revenueDiv = document.getElementById('revenueModules');
+            revenueDiv.innerHTML = '';
+            
+            // Módulo 1
+            if (modules.h1.length > 0) {
+                const h1Card = document.createElement('div');
+                h1Card.className = 'strategy-card';
+                h1Card.innerHTML = `
+                    <div class="strategy-title">
+                        <i class="fas fa-seedling" style="color: var(--success);"></i>
+                        Módulo 1: Exploração/Evergreen
+                        <span class="module-tag module-h1">H1</span>
+                    </div>
+                    <ul>
+                        ${modules.h1[0].actions.map(action => `<li>${action}</li>`).join('')}
+                    </ul>
+                `;
+                revenueDiv.appendChild(h1Card);
+            }
+            
+            // Módulo 2
+            if (modules.h2.length > 0) {
+                const h2Card = document.createElement('div');
+                h2Card.className = 'strategy-card';
+                h2Card.innerHTML = `
+                    <div class="strategy-title">
+                        <i class="fas fa-lightbulb" style="color: var(--info);"></i>
+                        Módulo 2: Inovação/Validação
+                        <span class="module-tag module-h2">H2</span>
+                    </div>
+                    <ul>
+                        ${modules.h2[0].actions.map(action => `<li>${action}</li>`).join('')}
+                    </ul>
+                `;
+                revenueDiv.appendChild(h2Card);
+            }
+            
+            // Módulo 3
+            if (modules.h3.length > 0) {
+                const h3Card = document.createElement('div');
+                h3Card.className = 'strategy-card';
+                h3Card.innerHTML = `
+                    <div class="strategy-title">
+                        <i class="fas fa-rocket" style="color: var(--warning);"></i>
+                        Módulo 3: Escala/Pico
+                        <span class="module-tag module-h3">H3</span>
+                    </div>
+                    <ul>
+                        ${modules.h3[0].actions.map(action => `<li>${action}</li>`).join('')}
+                    </ul>
+                `;
+                revenueDiv.appendChild(h3Card);
+            }
+        }
+
+        function displayFinancialHealth(health) {
+            const healthDiv = document.getElementById('financialHealthPlan');
+            healthDiv.innerHTML = '';
+            
+            // Pró-labore
+            const proLaboreCard = document.createElement('div');
+            proLaboreCard.className = 'strategy-card';
+            proLaboreCard.innerHTML = `
+                <div class="strategy-title">
+                    <i class="fas fa-user-tie"></i>
+                    Pró-labore Recomendado
+                </div>
+                <p><strong>Recomendação:</strong> ${health.proLabore.recommendation}</p>
+                <p><strong>Porcentagem do faturamento:</strong> ${health.proLabore.percentage}%</p>
+                <ul>
+                    ${health.proLabore.actions.map(action => `<li>${action}</li>`).join('')}
+                </ul>
+            `;
+            healthDiv.appendChild(proLaboreCard);
+            
+            // Fluxo de caixa
+            const cashFlowCard = document.createElement('div');
+            cashFlowCard.className = 'strategy-card';
+            cashFlowCard.innerHTML = `
+                <div class="strategy-title">
+                    <i class="fas fa-money-bill-wave"></i>
+                    Gestão de Fluxo de Caixa
+                </div>
+                <ul>
+                    ${health.cashFlow.actions.map(action => `<li>${action}</li>`).join('')}
+                </ul>
+            `;
+            healthDiv.appendChild(cashFlowCard);
+            
+            // Investimentos
+            const investmentsCard = document.createElement('div');
+            investmentsCard.className = 'strategy-card';
+            investmentsCard.innerHTML = `
+                <div class="strategy-title">
+                    <i class="fas fa-chart-line"></i>
+                    Estratégia de Investimentos
+                </div>
+                <p><strong>Alocação recomendada:</strong></p>
+                <ul>
+                    <li>Marketing: ${health.investments.allocation.marketing}%</li>
+                    <li>Operações: ${health.investments.allocation.operations}%</li>
+                    <li>Produto: ${health.investments.allocation.product}%</li>
+                    <li>Time: ${health.investments.allocation.team}%</li>
+                    <li>Outros: ${health.investments.allocation.other}%</li>
+                </ul>
+                <ul>
+                    ${health.investments.actions.map(action => `<li>${action}</li>`).join('')}
+                </ul>
+            `;
+            healthDiv.appendChild(investmentsCard);
+        }
+
+        function createCharts(formData, metrics, projections, health) {
+            // Gráfico de maturidade (radar)
+            const maturityCtx = document.getElementById('maturityChart').getContext('2d');
+            new Chart(maturityCtx, {
+                type: 'radar',
+                data: {
+                    labels: ['Marketing', 'Financeiro', 'Tração H1', 'Inovação H2', 'Escala H3'],
+                    datasets: [{
+                        label: 'Maturidade Empresarial',
+                        data: [
+                            metrics.marketingMaturity * 10,
+                            metrics.financialHealth * 10,
+                            metrics.tractionH1 * 10,
+                            metrics.h2Readiness * 10,
+                            metrics.h3Readiness * 10
+                        ],
+                        backgroundColor: 'rgba(102, 126, 234, 0.2)',
+                        borderColor: 'rgba(102, 126, 234, 1)',
+                        borderWidth: 2,
+                        pointBackgroundColor: 'rgba(102, 126, 234, 1)'
+                    }]
+                },
+                options: {
+                    scales: {
+                        r: {
+                            beginAtZero: true,
+                            max: 10,
+                            ticks: {
+                                stepSize: 2
+                            }
+                        }
+                    }
+                }
+            });
+            
+            // Gráfico de priorização
+            const priorityCtx = document.getElementById('priorityChart').getContext('2d');
+            new Chart(priorityCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['Módulo 1', 'Módulo 2', 'Módulo 3'],
+                    datasets: [{
+                        label: 'Prioridade',
+                        data: [
+                            metrics.h1Readiness * 100,
+                            metrics.h2Readiness * 100,
+                            metrics.h3Readiness * 100
+                        ],
+                        backgroundColor: [
+                            'rgba(16, 185, 129, 0.7)',
+                            'rgba(59, 130, 246, 0.7)',
+                            'rgba(245, 158, 11, 0.7)'
+                        ],
+                        borderColor: [
+                            'rgba(16, 185, 129, 1)',
+                            'rgba(59, 130, 246, 1)',
+                            'rgba(245, 158, 11, 1)'
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 100
+                        }
+                    }
+                }
+            });
+            
+            // Gráfico de projeção de receita
+            const revenueCtx = document.getElementById('revenueChart').getContext('2d');
+            new Chart(revenueCtx, {
+                type: 'line',
+                data: {
+                    labels: ['Atual', '3 meses', '6 meses', '12 meses'],
+                    datasets: [{
+                        label: 'Faturamento (R$)',
+                        data: [
+                            projections.currentRevenue,
+                            projections.month3,
+                            projections.month6,
+                            projections.month12
+                        ],
+                        backgroundColor: 'rgba(16, 185, 129, 0.2)',
+                        borderColor: 'rgba(16, 185, 129, 1)',
+                        borderWidth: 2,
+                        tension: 0.3,
+                        fill: true
+                    }]
+                },
+                options: {
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+            
+            // Gráfico de diversificação
+            const diversificationCtx = document.getElementById('diversificationChart').getContext('2d');
+            new Chart(diversificationCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Produto Principal', 'Novos Produtos', 'Serviços', 'Outros'],
+                    datasets: [{
+                        data: [60, 20, 15, 5],
+                        backgroundColor: [
+                            'rgba(102, 126, 234, 0.7)',
+                            'rgba(16, 185, 129, 0.7)',
+                            'rgba(59, 130, 246, 0.7)',
+                            'rgba(245, 158, 11, 0.7)'
+                        ],
+                        borderColor: [
+                            'rgba(102, 126, 234, 1)',
+                            'rgba(16, 185, 129, 1)',
+                            'rgba(59, 130, 246, 1)',
+                            'rgba(245, 158, 11, 1)'
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                        }
+                    }
+                }
+            });
+            
+            // Gráfico financeiro
+            const financeCtx = document.getElementById('financeChart').getContext('2d');
+            new Chart(financeCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['Receita', 'Custos', 'Lucro', 'Investimento'],
+                    datasets: [{
+                        label: 'Valores (R$)',
+                        data: [
+                            projections.currentRevenue,
+                            projections.currentRevenue * 0.6,
+                            projections.currentRevenue * 0.4,
+                            projections.investmentNeeded
+                        ],
+                        backgroundColor: [
+                            'rgba(16, 185, 129, 0.7)',
+                            'rgba(239, 68, 68, 0.7)',
+                            'rgba(59, 130, 246, 0.7)',
+                            'rgba(245, 158, 11, 0.7)'
+                        ],
+                        borderColor: [
+                            'rgba(16, 185, 129, 1)',
+                            'rgba(239, 68, 68, 1)',
+                            'rgba(59, 130, 246, 1)',
+                            'rgba(245, 158, 11, 1)'
+                        ],
+                        borderWidth: 1
+                    }]
+                }
+            });
+            
+            // Gráfico de alocação
+            const allocationCtx = document.getElementById('allocationChart').getContext('2d');
+            new Chart(allocationCtx, {
+                type: 'pie',
+                data: {
+                    labels: ['Marketing', 'Operações', 'Produto', 'Time', 'Outros'],
+                    datasets: [{
+                        data: [
+                            health.investments.allocation.marketing,
+                            health.investments.allocation.operations,
+                            health.investments.allocation.product,
+                            health.investments.allocation.team,
+                            health.investments.allocation.other
+                        ],
+                        backgroundColor: [
+                            'rgba(102, 126, 234, 0.7)',
+                            'rgba(16, 185, 129, 0.7)',
+                            'rgba(59, 130, 246, 0.7)',
+                            'rgba(245, 158, 11, 0.7)',
+                            'rgba(107, 114, 128, 0.7)'
+                        ],
+                        borderColor: [
+                            'rgba(102, 126, 234, 1)',
+                            'rgba(16, 185, 129, 1)',
+                            'rgba(59, 130, 246, 1)',
+                            'rgba(245, 158, 11, 1)',
+                            'rgba(107, 114, 128, 1)'
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                        }
+                    }
+                }
+            });
+        }
+
+        function getSegmentLabel(segment) {
+            const labels = {
+                saas: 'SaaS (Software como Serviço)',
+                ecommerce: 'E-commerce',
+                infoproduto: 'Infoproduto',
+                consultoria: 'Consultoria/Serviços'
+            };
+            return labels[segment] || segment;
+        }
+
+        function getMetricTarget(name, value) {
+            if (name.includes('Maturidade') || name.includes('Saúde') || name.includes('Tração')) {
+                if (value <= 0.3) return 'Necessita atenção imediata';
+                if (value <= 0.6) return 'Em desenvolvimento';
+                return 'Em bom estado';
+            }
+            
+            if (name.includes('LTV:CAC')) {
+                if (value < 1) return 'Preocupante - Custos altos';
+                if (value < 3) return 'Aceitável';
+                return 'Excelente';
+            }
+            
+            if (name.includes('Churn')) {
+                if (value > 0.1) return 'Alto - Necessita ação';
+                if (value > 0.05) return 'Moderado';
+                return 'Baixo - Muito bom';
+            }
+            
+            return 'Monitorar regularmente';
+        }
+
+        // ===== NAVEGAÇÃO POR ABAS DOS RESULTADOS =====
+        function switchTab(tabName) {
+            // Esconder todas as abas
+            const tabContents = document.querySelectorAll('.tab-content');
+            tabContents.forEach(tab => tab.classList.remove('active'));
+
+            // Remover classe 'active' de todos os botões
+            const tabButtons = document.querySelectorAll('.tab-button');
+            tabButtons.forEach(btn => btn.classList.remove('active'));
+
+            // Mostrar a aba selecionada
+            document.getElementById(tabName).classList.add('active');
+
+            // Adicionar classe 'active' ao botão clicado
+            event.target.classList.add('active');
+        }
+
+        // ===== EXPORTAÇÃO =====
+        function generateExportJSON(formData, plan) {
+            const exportData = {
+                transaction_id: generateTransactionId(),
+                timestamp: new Date().toISOString(),
+                input_data: formData,
+                processed_metrics: plan.metrics,
+                passive_income_goal: {
+                    target: plan.financialProjections.passiveIncomeGoal,
+                    required_asset: plan.financialProjections.requiredAsset
+                },
+                prescriptive_output: plan.roadmap,
+                model_metadata: {
+                    version: '1.0',
+                    fuzzy_logic_version: '1.0',
+                    generated_at: new Date().toISOString()
+                }
+            };
+            
+            // Formatar JSON para exibição
+            const jsonViewer = document.getElementById('jsonViewer');
+            jsonViewer.innerHTML = syntaxHighlight(JSON.stringify(exportData, null, 2));
+            
+            // Salvar para uso nas exportações
+            window.exportData = exportData;
+        }
+
+        function generateTransactionId() {
+            return 'tx_' + Math.random().toString(36).substr(2, 9) + '_' + Date.now().toString(36);
+        }
+
+        function syntaxHighlight(json) {
+            json = json.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+            return json.replace(/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g, function (match) {
+                let cls = 'json-number';
+                if (/^"/.test(match)) {
+                    if (/:$/.test(match)) {
+                        cls = 'json-key';
+                    } else {
+                        cls = 'json-string';
+                    }
+                } else if (/true|false/.test(match)) {
+                    cls = 'json-boolean';
+                } else if (/null/.test(match)) {
+                    cls = 'json-null';
+                }
+                return '<span class="' + cls + '">' + match + '</span>';
+            });
+        }
+
+        function exportToWhatsApp() {
+            if (!window.exportData) {
+                alert('Nenhum dado encontrado. Por favor, preencha o formulário primeiro.');
+                return;
+            }
+            
+            let message = `🚀 *PLANO MESTRE GENERATIVO* 🚀\n\n`;
+            message += `*Segmento:* ${getSegmentLabel(window.exportData.input_data.businessSegment)}\n`;
+            message += `*Meta Renda Passiva:* R$ ${window.exportData.passive_income_goal.target.toLocaleString('pt-BR')}\n`;
+            message += `*Ativo Necessário:* R$ ${window.exportData.passive_income_goal.required_asset.toLocaleString('pt-BR')}\n`;
+            message += `*Maturidade de Marketing:* ${(window.exportData.processed_metrics.marketingMaturity * 100).toFixed(0)}%\n\n`;
+            
+            message += `📊 *PRÓXIMAS AÇÕES* 📊\n`;
+            window.exportData.prescriptive_output.slice(0, 2).forEach((phase, index) => {
+                message += `${index + 1}. ${phase.title}\n`;
+                phase.actions.slice(0, 3).forEach(action => {
+                    message += `   • ${action}\n`;
+                });
+                message += `\n`;
+            });
+            
+            message += `💡 *ESTRATÉGIAS CHAVE* 💡\n`;
+            message += `• Otimizar oferta principal (Módulo 1)\n`;
+            message += `• Desenvolver novas fontes de receita (Módulo 2)\n`;
+            message += `• Preparar para escala (Módulo 3)\n\n`;
+            
+            message += `📈 *PRÓXIMOS PASSOS* 📈\n`;
+            message += `1. Revisar diagnóstico completo\n`;
+            message += `2. Definir responsáveis para cada ação\n`;
+            message += `3. Estabelecer prazos realistas\n`;
+            message += `4. Monitorar progresso semanalmente\n\n`;
+            
+            message += `_Gerado pelo Plano Mestre Generativo_`;
+            
+            const encodedMessage = encodeURIComponent(message);
+            const whatsappUrl = `https://wa.me/?text=${encodedMessage}`;
+            
+            window.open(whatsappUrl, '_blank');
+        }
+
+        function exportToCSV() {
+            if (!window.exportData) {
+                alert('Nenhum dado encontrado. Por favor, preencha o formulário primeiro.');
+                return;
+            }
+            
+            let csvContent = "Métrica,Valor,Target\n";
+            
+            // Adicionar métricas básicas
+            csvContent += `Maturidade de Marketing,${(window.exportData.processed_metrics.marketingMaturity * 100).toFixed(0)}%,${getMetricTarget('Maturidade de Marketing', window.exportData.processed_metrics.marketingMaturity)}\n`;
+            csvContent += `Saúde Financeira,${(window.exportData.processed_metrics.financialHealth * 100).toFixed(0)}%,${getMetricTarget('Saúde Financeira', window.exportData.processed_metrics.financialHealth)}\n`;
+            csvContent += `Tração Módulo 1,${(window.exportData.processed_metrics.tractionH1 * 100).toFixed(0)}%,${getMetricTarget('Tração Módulo 1', window.exportData.processed_metrics.tractionH1)}\n`;
+            csvContent += `LTV,R$ ${window.exportData.processed_metrics.ltv.toLocaleString('pt-BR')},Quanto maior, melhor\n`;
+            csvContent += `CAC,R$ ${window.exportData.processed_metrics.cac.toLocaleString('pt-BR')},Quanto menor, melhor\n`;
+            csvContent += `Ratio LTV:CAC,${window.exportData.processed_metrics.ltvCacRatio.toFixed(1)},Ideal > 3\n`;
+            csvContent += `Taxa de Churn,${(window.exportData.processed_metrics.churnRate * 100).toFixed(1)}%,Quanto menor, melhor\n`;
+            
+            // Adicionar projeções
+            csvContent += `\nProjeção,Valor\n`;
+            csvContent += `Faturamento Atual,R$ ${window.exportData.input_data.currentRevenue || 0}\n`;
+            csvContent += `Meta Renda Passiva,R$ ${window.exportData.passive_income_goal.target}\n`;
+            csvContent += `Ativo Necessário,R$ ${window.exportData.passive_income_goal.required_asset.toLocaleString('pt-BR')}\n`;
+            
+            // Adicionar ações
+            csvContent += `\nAção,Módulo,Prioridade\n`;
+            window.exportData.prescriptive_output.forEach(phase => {
+                phase.actions.forEach(action => {
+                    csvContent += `"${action}",${phase.module.toUpperCase()},${phase.priority}\n`;
+                });
+            });
+            
+            // Criar e baixar arquivo
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement("a");
+            const url = URL.createObjectURL(blob);
+            link.setAttribute("href", url);
+            link.setAttribute("download", "plano_mestre_generativo.csv");
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        function exportToJSON() {
+            if (!window.exportData) {
+                alert('Nenhum dado encontrado. Por favor, preencha o formulário primeiro.');
+                return;
+            }
+            
+            const dataStr = JSON.stringify(window.exportData, null, 2);
+            const blob = new Blob([dataStr], { type: 'application/json;charset=utf-8;' });
+            const link = document.createElement("a");
+            const url = URL.createObjectURL(blob);
+            link.setAttribute("href", url);
+            link.setAttribute("download", "plano_mestre_generativo.json");
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+    </script>
+<style>.ag-nav-back{position:fixed;top:12px;left:12px;z-index:9999;background:rgba(79,70,229,.9);color:#fff;border:none;border-radius:50px;padding:.4rem .9rem;font-size:.8rem;font-family:system-ui,sans-serif;font-weight:600;cursor:pointer;text-decoration:none;display:flex;align-items:center;gap:.35rem;box-shadow:0 2px 10px rgba(0,0,0,.25);backdrop-filter:blur(4px);transition:background .2s,transform .2s}.ag-nav-back:hover{background:rgba(55,48,163,.95);transform:translateY(-1px)}</style><a href="https://passosdomingues.github.io/webappshowcase/site/main.html" class="ag-nav-back" aria-label="Voltar ao índice">&#8592; Índice</a>
+</body>
+</html>

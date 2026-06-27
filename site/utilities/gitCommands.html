@@ -1,0 +1,1088 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Encontre rapidamente os comandos Git mais relevantes com nossa busca inteligente que pesquisa tanto pelos comandos qu…"/>
+    <title>Comandos Git - Busca Inteligente</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --accent-color: #e74c3c;
+            --light-color: #ecf0f1;
+            --dark-color: #34495e;
+            --success-color: #2ecc71;
+            --warning-color: #f39c12;
+            --info-color: #17a2b8;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f8f9fa;
+            color: #333;
+            line-height: 1.6;
+            padding: 20px;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            color: var(--primary-color);
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        h1 {
+            font-size: 2.8rem;
+            margin-bottom: 15px;
+            background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .description {
+            font-size: 1.2rem;
+            color: var(--dark-color);
+            max-width: 800px;
+            margin: 0 auto 25px;
+        }
+        
+        .stats {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .stat-box {
+            background: linear-gradient(135deg, var(--secondary-color), var(--primary-color));
+            color: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+            text-align: center;
+            min-width: 200px;
+            transition: transform 0.3s;
+        }
+        
+        .stat-box:hover {
+            transform: translateY(-5px);
+        }
+        
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: bold;
+        }
+        
+        .stat-label {
+            font-size: 1rem;
+            opacity: 0.9;
+        }
+        
+        .search-section {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            margin-bottom: 25px;
+        }
+        
+        .search-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        
+        .search-title {
+            font-size: 1.5rem;
+            color: var(--primary-color);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .search-box {
+            position: relative;
+            flex: 1;
+            min-width: 300px;
+        }
+        
+        .search-box input {
+            width: 100%;
+            padding: 15px 20px;
+            padding-left: 50px;
+            border: 2px solid #ddd;
+            border-radius: 50px;
+            font-size: 1.1rem;
+            transition: all 0.3s;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        .search-box input:focus {
+            border-color: var(--secondary-color);
+            box-shadow: 0 2px 10px rgba(52, 152, 219, 0.2);
+            outline: none;
+        }
+        
+        .search-box i {
+            position: absolute;
+            left: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #aaa;
+            font-size: 1.2rem;
+        }
+        
+        .filter-options {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+        
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        
+        .filter-group label {
+            font-weight: 600;
+            color: var(--dark-color);
+            font-size: 0.9rem;
+        }
+        
+        .filter-options select, .filter-options button {
+            padding: 12px 18px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            background-color: white;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .filter-options select:focus {
+            border-color: var(--secondary-color);
+            outline: none;
+        }
+        
+        .filter-options button {
+            background: linear-gradient(135deg, var(--secondary-color), var(--primary-color));
+            color: white;
+            border: none;
+            font-weight: 600;
+            align-self: flex-end;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .filter-options button:hover {
+            opacity: 0.9;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+        }
+        
+        .advanced-filters {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid #eee;
+        }
+        
+        .frequency-filter {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .frequency-filter input {
+            width: 80px;
+            padding: 8px 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+        }
+        
+        .table-container {
+            background-color: white;
+            border-radius: 12px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            overflow-x: auto;
+            margin-bottom: 30px;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 900px;
+        }
+        
+        thead {
+            background: linear-gradient(135deg, var(--primary-color), var(--dark-color));
+            color: white;
+            position: sticky;
+            top: 0;
+        }
+        
+        th {
+            padding: 18px 15px;
+            text-align: left;
+            font-weight: 600;
+            cursor: pointer;
+            position: relative;
+            white-space: nowrap;
+            transition: background 0.3s;
+        }
+        
+        th:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+        
+        th i {
+            margin-left: 8px;
+            font-size: 0.9rem;
+        }
+        
+        tbody tr {
+            border-bottom: 1px solid #eaeaea;
+            transition: background 0.2s;
+        }
+        
+        tbody tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        
+        tbody tr:hover {
+            background-color: #f1f8ff;
+        }
+        
+        td {
+            padding: 15px;
+            vertical-align: top;
+        }
+        
+        .id-cell {
+            text-align: center;
+            font-weight: bold;
+            color: var(--primary-color);
+            width: 70px;
+            font-size: 1.1rem;
+        }
+        
+        .command-cell {
+            font-family: 'Courier New', Courier, monospace;
+            color: var(--secondary-color);
+            font-weight: 600;
+            min-width: 220px;
+            font-size: 1.05rem;
+        }
+        
+        .meaning-cell {
+            position: relative;
+            max-width: 450px;
+            line-height: 1.5;
+        }
+        
+        .tooltip-icon {
+            display: inline-block;
+            width: 22px;
+            height: 22px;
+            background-color: var(--info-color);
+            color: white;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 22px;
+            font-size: 12px;
+            margin-left: 10px;
+            cursor: help;
+            transition: all 0.3s;
+        }
+        
+        .tooltip-icon:hover {
+            background-color: var(--primary-color);
+            transform: scale(1.1);
+        }
+        
+        .tooltip {
+            visibility: hidden;
+            width: 380px;
+            background-color: var(--dark-color);
+            color: white;
+            text-align: left;
+            border-radius: 8px;
+            padding: 15px;
+            position: absolute;
+            z-index: 100;
+            bottom: 125%;
+            left: 50%;
+            transform: translateX(-50%);
+            opacity: 0;
+            transition: opacity 0.3s;
+            font-size: 0.95rem;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            line-height: 1.5;
+        }
+        
+        .tooltip-icon:hover + .tooltip {
+            visibility: visible;
+            opacity: 1;
+        }
+        
+        .frequency-cell {
+            text-align: center;
+            font-weight: bold;
+            width: 110px;
+            font-size: 1.1rem;
+        }
+        
+        .action-cell {
+            width: 130px;
+            text-align: center;
+        }
+        
+        .copy-btn {
+            background: linear-gradient(135deg, var(--secondary-color), var(--primary-color));
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.95rem;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 600;
+        }
+        
+        .copy-btn:hover {
+            opacity: 0.9;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+        }
+        
+        .copy-btn.copied {
+            background: linear-gradient(135deg, var(--success-color), #27ae60);
+        }
+        
+        .footer {
+            margin-top: 40px;
+            text-align: center;
+            color: var(--dark-color);
+            font-size: 0.95rem;
+            padding: 20px;
+            border-top: 1px solid #ddd;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .pagination {
+            display: flex;
+            justify-content: center;
+            margin-top: 25px;
+            gap: 8px;
+        }
+        
+        .pagination button {
+            padding: 10px 16px;
+            border: 2px solid #ddd;
+            background-color: white;
+            cursor: pointer;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        
+        .pagination button:hover {
+            border-color: var(--secondary-color);
+            color: var(--secondary-color);
+        }
+        
+        .pagination button.active {
+            background: linear-gradient(135deg, var(--secondary-color), var(--primary-color));
+            color: white;
+            border-color: var(--secondary-color);
+        }
+        
+        /* Estilos para a frequência com cores gradientes */
+        .frequency-0 { background-color: #f8f9fa; }
+        .frequency-1 { background-color: #e8f5e9; }
+        .frequency-2 { background-color: #c8e6c9; }
+        .frequency-3 { background-color: #a5d6a7; }
+        .frequency-4 { background-color: #81c784; }
+        .frequency-5 { background-color: #66bb6a; color: white; }
+        .frequency-high { 
+            background: linear-gradient(135deg, #43a047, #2e7d32); 
+            color: white; 
+            font-weight: bold;
+        }
+        
+        .search-highlight {
+            background-color: rgba(255, 235, 59, 0.5);
+            padding: 2px 0;
+            border-radius: 3px;
+            font-weight: 600;
+        }
+        
+        .no-results {
+            text-align: center;
+            padding: 40px;
+            font-size: 1.2rem;
+            color: var(--dark-color);
+        }
+        
+        .no-results i {
+            font-size: 3rem;
+            color: #ddd;
+            margin-bottom: 15px;
+        }
+        
+        @media (max-width: 1024px) {
+            .search-header {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .search-box {
+                min-width: 100%;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2.2rem;
+            }
+            
+            .description {
+                font-size: 1.1rem;
+            }
+            
+            .stat-box {
+                min-width: 100%;
+            }
+            
+            .filter-options {
+                flex-direction: column;
+            }
+            
+            .advanced-filters {
+                flex-direction: column;
+            }
+            
+            th, td {
+                padding: 12px 10px;
+                font-size: 0.95rem;
+            }
+            
+            .tooltip {
+                width: 300px;
+                font-size: 0.9rem;
+            }
+            
+            .search-title {
+                font-size: 1.3rem;
+            }
+        }
+        
+        .sort-asc::after {
+            content: " ▲";
+            font-size: 0.8rem;
+        }
+        
+        .sort-desc::after {
+            content: " ▼";
+            font-size: 0.8rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1><i class="fab fa-git-square"></i> Comandos Git - Busca Inteligente</h1>
+            <p class="description">Encontre rapidamente os comandos Git mais relevantes com nossa busca inteligente que pesquisa tanto pelos comandos quanto por suas descrições</p>
+            
+            <div class="stats">
+                <div class="stat-box">
+                    <div class="stat-number">103</div>
+                    <div class="stat-label">Comandos Listados</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-number">104</div>
+                    <div class="stat-label">Maior Frequência (git status)</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-number">24</div>
+                    <div class="stat-label">Comandos com Frequência ≥ 10</div>
+                </div>
+            </div>
+        </header>
+        
+        <section class="search-section">
+            <div class="search-header">
+                <div class="search-title">
+                    <i class="fas fa-search"></i> Busca Inteligente
+                </div>
+                <div class="search-box">
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="searchInput" placeholder="Digite comando, descrição ou conceito...">
+                </div>
+            </div>
+            
+            <div class="filter-options">
+                <div class="filter-group">
+                    <label for="sortSelect">Ordenar por</label>
+                    <select id="sortSelect">
+                        <option value="frequency-desc">Frequência (Maior → Menor)</option>
+                        <option value="frequency-asc">Frequência (Menor → Maior)</option>
+                        <option value="id">ID do Comando</option>
+                        <option value="command">Ordem Alfabética (Comando)</option>
+                        <option value="relevance">Relevância da Busca</option>
+                    </select>
+                </div>
+                
+                <div class="filter-group">
+                    <label for="filterSelect">Filtrar por</label>
+                    <select id="filterSelect">
+                        <option value="all">Todos os Comandos</option>
+                        <option value="high">Mais Usados (Frequência ≥ 10)</option>
+                        <option value="medium">Uso Médio (Frequência 5-9)</option>
+                        <option value="low">Menos Usados (Frequência 1-4)</option>
+                        <option value="zero">Sem Frequência (0)</option>
+                    </select>
+                </div>
+                
+                <button id="resetFilters">
+                    <i class="fas fa-redo"></i> Limpar Filtros
+                </button>
+            </div>
+            
+            <div class="advanced-filters">
+                <div class="filter-group">
+                    <label for="minFrequency">Frequência Mínima</label>
+                    <input type="number" id="minFrequency" min="0" max="104" placeholder="0">
+                </div>
+                
+                <div class="filter-group">
+                    <label for="maxFrequency">Frequência Máxima</label>
+                    <input type="number" id="maxFrequency" min="0" max="104" placeholder="104">
+                </div>
+                
+                <div class="filter-group">
+                    <label for="lectureFilter">Aula</label>
+                    <select id="lectureFilter">
+                        <option value="">Todas as Aulas</option>
+                        <option value="03">Aula 03</option>
+                        <option value="04">Aula 04</option>
+                        <option value="05">Aula 05</option>
+                        <option value="06">Aula 06</option>
+                        <option value="07">Aula 07</option>
+                        <option value="08">Aula 08</option>
+                        <option value="09">Aula 09</option>
+                        <option value="10">Aula 10</option>
+                        <option value="11">Aula 11</option>
+                        <option value="12">Aula 12</option>
+                        <option value="13">Aula 13</option>
+                        <option value="14">Aula 14</option>
+                        <option value="15">Aula 15</option>
+                        <option value="16">Aula 16</option>
+                        <option value="17">Aula 17</option>
+                        <option value="18">Aula 18</option>
+                        <option value="19">Aula 19</option>
+                        <option value="20">Aula 20</option>
+                        <option value="21">Aula 21</option>
+                        <option value="22">Aula 22</option>
+                        <option value="23">Aula 23</option>
+                        <option value="24">Aula 24</option>
+                        <option value="25">Aula 25</option>
+                    </select>
+                </div>
+            </div>
+        </section>
+        
+        <div class="table-container">
+            <table id="gitCommandsTable">
+                <thead>
+                    <tr>
+                        <th data-sort="id" class="sort-desc">ID</th>
+                        <th data-sort="command">Comando</th>
+                        <th>Significado</th>
+                        <th data-sort="frequency" class="sort-desc">Frequência</th>
+                        <th>Ação</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Os dados serão inseridos via JavaScript -->
+                </tbody>
+            </table>
+        </div>
+        
+        <div class="pagination" id="pagination">
+            <!-- A paginação será gerada via JavaScript -->
+        </div>
+        
+        <div class="footer">
+            <p>Baseado no curso "Distributed Version Control with Git" - Última atualização: 26/01/2023</p>
+            <p>Desenvolvido para facilitar o estudo e consulta dos comandos Git</p>
+        </div>
+    </div>
+
+    <script>
+        // Dados completos dos comandos Git extraídos do PDF
+        const gitCommands = [
+            { id: 1, command: "git -version", meaning: "Shows the version of git installed in you local machine.", frequency: 1, lectures: "03" },
+            { id: 2, command: "pwd", meaning: "Print Working Directory. Unix command that shows the current directory.", frequency: 2, lectures: "03,04" },
+            { id: 3, command: "clear", meaning: "Unix command to clear the console.", frequency: 1, lectures: "03" },
+            { id: 4, command: "git config - global user.name \"Rafael Passos Domingues\"", meaning: "Configures the user that appears when making commits. This is the user shown in all repositories in the local machine for the same logged user. Use git config user.name \"Your Name Here\" git config user.email your@email.com (without global flag) to configure specific users.", frequency: 1, lectures: "03" },
+            { id: 5, command: "git config - global user.email \"desconhecido@gmail.com\"", meaning: "Configures the user email for that appears when making commits for all repositories in the local machine.", frequency: 1, lectures: "03" },
+            { id: 6, command: "git config - global core.editor \"Notepad.exe\"", meaning: "Configures the default editor on Windows.", frequency: 1, lectures: "03" },
+            { id: 7, command: "git config - global color.ui true", meaning: "Configure the use of colors in the output of git commands.", frequency: 1, lectures: "03" },
+            { id: 8, command: "git config -list", meaning: "Lists all configurations for this git installation.", frequency: 1, lectures: "03" },
+            { id: 9, command: "git config -global", meaning: "Lists all configurations for this git installation.", frequency: 1, lectures: "03" },
+            { id: 10, command: "git config user.email", meaning: "Shows the configured value for the property user.email.", frequency: 1, lectures: "03" },
+            { id: 11, command: "git config user.name", meaning: "Shows the configured value for the property user.name.", frequency: 1, lectures: "03" },
+            { id: 12, command: "ls -la", meaning: "Unix command that list the contents of a directory including hidden files.", frequency: 4, lectures: "03,04,05,06" },
+            { id: 13, command: "cat .gitconfig", meaning: "Shows the content of the hidden file (.gitconfig) with the results of user configurations for the commands git config - global (commands 5-7).", frequency: 1, lectures: "03" },
+            { id: 14, command: "git -help", meaning: "Shows the help for git commands.", frequency: 1, lectures: "03" },
+            { id: 15, command: "git --help merge", meaning: "Shows the help for the merge command (in Windows, opens the help in a web browser. In GNU/Linux, shows the help in the terminal).", frequency: 1, lectures: "03" },
+            { id: 16, command: "git init", meaning: "Initializes a git repository in a directory creating a .git folder in the directory.", frequency: 1, lectures: "04" },
+            { id: 17, command: "notepad .gitignore", meaning: "On Windows, create the .gitignore file. The entries in this file are not tracked by git (.exe, .class, bin/, etc). If you are using GNU/Linux or Mac OS you can create this file with you editor of preference or by the command touch.", frequency: 1, lectures: "04" },
+            { id: 18, command: "cat .gitignore", meaning: "The cat command exhibits the contents of a file.", frequency: 1, lectures: "04" },
+            { id: 19, command: "git add .", meaning: "Adds all changed files in the working directory to the Stage Area.", frequency: 11, lectures: "04,08,09,10,13,15,16,18,20,23" },
+            { id: 20, command: "git commit -m \"commit message\"", meaning: "Commits to the repository the files in the Stage area. We suggest message with no more than 50 characters.", frequency: 17, lectures: "04,06,07,08,09,11,14,15,16,18,19,20,23" },
+            { id: 21, command: "git log", meaning: "Shows the log of commits of the git repository.", frequency: 22, lectures: "04,05,06,08,09,11,12,13,14,22" },
+            { id: 22, command: "git log --author=\"Rafael\"", meaning: "Shows the log of commits of the git repository made by the user Rafael.", frequency: 1, lectures: "04" },
+            { id: 23, command: "git log --grep=\"versão\"", meaning: "Shows the log of commits of the git repository with the String \"versão\" in the message of the commit. Grep means Global Regular Expression.", frequency: 1, lectures: "04" },
+            { id: 24, command: "git status", meaning: "Show the current status of the current branch in the working directory and Stage area.", frequency: 104, lectures: "04,06,07,08,09,10,13,14,25" },
+            { id: 25, command: "cat .git/refs/heads/master", meaning: "Shows the SHA-1 of the HEAD pointer in the branch master.", frequency: 1, lectures: "05" },
+            { id: 26, command: "git add fileName", meaning: "Adds the file filename in the working directory to the Stage Area.", frequency: 10, lectures: "06,07,09,11,12,19" },
+            { id: 27, command: "git diff", meaning: "Shows the difference between the file(s) changed in the working directory against the file(s) in the repository.", frequency: 4, lectures: "07" },
+            { id: 28, command: "git diff fileName", meaning: "Shows the difference between the fileName changed in the working directory against fileName in the repository.", frequency: 2, lectures: "07,12" },
+            { id: 29, command: "git diff --staged", meaning: "Shows the difference between the file(s) in the Stage Area changed against the file(s) in the repository.", frequency: 4, lectures: "07,12,13" },
+            { id: 30, command: "touch nomeArquivo", meaning: "Unix command to create a new empty file.", frequency: 4, lectures: "08,09" },
+            { id: 31, command: "rm filename", meaning: "Command to remove a file (In Mac/OS the file is gone forever without passing through the trashcan. If you want to remove a file from the terminal and taking it to the trash can, issue mv fileName ~/.Trash/. Issuing a git status just after this command indicates in red this file is not presented in the working directory anymore. We need to place it in the stage area with the command git rm filename and from there commit the deletion to the repository.", frequency: 1, lectures: "08" },
+            { id: 32, command: "git rm fileName", meaning: "Git command to remove a file (the file is inclusive removed from the trashcan). It's better to use git rm fileName instead of rm fileName since it already places the removed file in the stage area, ready to be committed (you can confirm this with the git status command). Being in the stage area, the deletion is ready to be committed.", frequency: 3, lectures: "08,09" },
+            { id: 33, command: "mv file1 file2", meaning: "Unix command to rename file1 to file2. If you rename a file that is already in the Stage Area, the command git status will indicate that the file was deleted in the working directory and that a new file (with the new name) is presented in the working directory. Beside that, notice the older file name is still presented in the stage area. You need to issue git rm oldname, in order to eliminate references to it from the working directory and stage area when issuing git status.", frequency: 2, lectures: "08,09" },
+            { id: 34, command: "git commit --amend", meaning: "Opens a file that allows to update the commit message.", frequency: 1, lectures: "08,09" },
+            { id: 35, command: "git mv file1 file2", meaning: "Rename the file. Same effect as mv file1 file2 (command number 33). Suggested way, since after it, the renamed file is placed in the stage area automatically, even if the file is already in the stage area (contrast with the example discussed in Line 33 of this table).", frequency: 3, lectures: "08,09,11" },
+            { id: 36, command: "mkdir directoryName", meaning: "Unix command to create a directory.", frequency: 1, lectures: "08" },
+            { id: 37, command: "git mv file1 directory/file1Renamed", meaning: "Moves file1 to the directory and at the same time rename it.", frequency: 1, lectures: "08" },
+            { id: 38, command: "git checkout -- fileName", meaning: "-- means current branch. Overrides the files of the working directory with the contents of the repository.", frequency: 5, lectures: "10,12" },
+            { id: 39, command: "git reset HEAD fileName", meaning: "Removes fileName from stage area. The message that appears when running git status.", frequency: 3, lectures: "10,12" },
+            { id: 40, command: "git commit --amend -m \"message\"", meaning: "Fix the message of the last commit replacing by the one specified here. If you issue this command with some change sets in the stage area (for instance, new files or updates to a file presented in the last commit -- HEAD), the effect is to update not only the commit message of the last commit, but also to include the new change set to the last commit in the repository (changing also the SHA-1).", frequency: 1, lectures: "11" },
+            { id: 41, command: "touch file1.txt file2.txt file3.txt", meaning: "Creates three files at the same time.", frequency: 1, lectures: "12" },
+            { id: 42, command: "git clean -n", meaning: "Indicates which files in the working directory will be removed in case of using git clean -f (this command does not affect files in the stage area – use git reset HEAD filename to unstage it if you want to return it to the working directory in order to use git clean). git clean -n returns null if no difference exists between the repository and working directory.", frequency: 5, lectures: "12,17" },
+            { id: 43, command: "git clean -f", meaning: "Remove the files in the current directory (does not affect files in the stage area). Best practice to precede this command with the git clean -n command.", frequency: 3, lectures: "12,17" },
+            { id: 44, command: "git checkout SHA-1", meaning: "Checkout the version of the repository flagged with the 40 characters sequence corresponding to the SHA-1. Only first characters is just fine. After issuing this command, the message You are in 'detached HEAD' state appears in the console indicated you are in a previous version of the repository. One easy way to return to the repo state before issuing this command is to type the command git checkout master.", frequency: 1, lectures: "12" },
+            { id: 45, command: "git checkout branchName", meaning: "Changes to the branch specified in branchName. For instance, git checkout master.", frequency: 25, lectures: "12,15,16,17,18,19,20,24" },
+            { id: 46, command: "git checkout SHA-1 -- fileName", meaning: "Checkout fileName from commit with SHA-1 specified, current branch you are in. Since you are back to the past, certify you are positioned in a directory that existed at the time in the past to avoid the error: pathspec 'filename' did not match any file(s) known to git.", frequency: 1, lectures: "12" },
+            { id: 47, command: "git checkout fileName", meaning: "Checkout the file in the last commit, bringing it to the working directory.", frequency: 1, lectures: "12" },
+            { id: 48, command: "git reset HEAD", meaning: "Removes the files from stage area. The message that appears when running git status.", frequency: 2, lectures: "13" },
+            { id: 49, command: "cat .git/HEAD", meaning: "Indicates which branch HEAD is pointing to.", frequency: 2, lectures: "13,15" },
+            { id: 50, command: "cat .git/refs/heads/branchName", meaning: "Shows the SHA-1 of the commit pointed by HEAD (in the specified branch).", frequency: 4, lectures: "13,15" },
+            { id: 51, command: "git reset --soft SHA-1", meaning: "Reverts the repository to the commit with SHA-1. The files created after the commit you revert still appears in the working directory and stage area, since you are using the --soft option. If after resetting to a previous commit, some new commit is made, then it is impossible to recover the commits that existed after the commit target of the reset. Before using git reset, it's a good practice to take a printscreen with the results of the command git log to backup the SHA-1 codes in case you want to revert some modifications. You can still undo the changes by issuing the command git reset --soft SHA-1 (with the number of the SHA-1 before the first reset taken from the backup printscreen).", frequency: 1, lectures: "13" },
+            { id: 52, command: "git reset --mixed SHA-1", meaning: "Default option for git reset. Before using git reset, it's a good practice to take a printscreen with the results of the command git log to backup the SHA-1 codes in case you want to revert some modifications. With the mixed option, the state area becomes synchronized with the repository (contrast with the stage area when using the --soft option). You can still undo the changes by issuing the command git reset --mixed SHA-1 (with the number of the SHA-1 before the first reset taken from the backup printscreen).", frequency: 1, lectures: "13" },
+            { id: 53, command: "git reset --hard SHA-1", meaning: "Before using git reset, it's a good practice to take a printscreen with the results of the command git log to backup the SHA-1 codes in case you want to revert some modifications. With the hard option, the working directory, stage area and repository becomes all synchronized (contrast with the stage area when using the --mixed option). You can still undo the changes by issuing the command git reset --hard SHA-1 (with the number of the SHA-1 before the first reset taken from the backup printscreen).", frequency: 3, lectures: "14" },
+            { id: 54, command: "git commit -am \"commit message\"", meaning: "Adds to the stage area and committing combined in just one command. It only works with changes in files already tracked by git. If not the case, you need to commit the changes in two steps first.", frequency: 1, lectures: "14,20" },
+            { id: 55, command: "git branch", meaning: "Shows the branches in the repository.", frequency: 37, lectures: "15,16,17,18,19,20,22,23,24" },
+            { id: 56, command: "git log --oneline", meaning: "Shows the log of the repository (one line per commit).", frequency: 15, lectures: "15,16,18,19,23" },
+            { id: 57, command: "git branch branchName", meaning: "Creates a new branch named branchName.", frequency: 4, lectures: "15,16,18,23" },
+            { id: 58, command: "ls -la .git/refs/heads", meaning: "Shows all the branches of the repository (as files in the filesystem).", frequency: 1, lectures: "15" },
+            { id: 59, command: "git checkout branchName", meaning: "Goes to the specified branch. It's important to have a clean working directory (that has existent files/directories that have been not changed after getting into the branch) before alternating between branches. If you have changed the working directory and don't want to lose the changes when alternating, commit the changes between trying to alternate or undo the changes before alternate in order to avoid the error: \"Your local changes to the following files would be overwritten by checkout\". Alternating between branches is possible, \"carrying\" the changes, that do not conflict, made in the working directory to other branches if the changes are, for instance, the creation of a new file.", frequency: 2, lectures: "15" },
+            { id: 60, command: "git show HEAD", meaning: "Shows the changes made in the last commit.", frequency: 2, lectures: "16" },
+            { id: 61, command: "git checkout -b branchName", meaning: "Creates and checkout branchName. Notice that the log of commits of the new branch depends on which branch we were located when issuing the command.", frequency: 3, lectures: "16,18,20,24" },
+            { id: 62, command: "git log --graph --oneline --decorate --all", meaning: "Shows a colored version of the log of commits, indicating the head of each branch.", frequency: 2, lectures: "16,18" },
+            { id: 63, command: "git diff branchName..branchName", meaning: "Shows the difference between branches. It also works when using remote branches (e.g. origin/master).", frequency: 8, lectures: "17,19,23,24" },
+            { id: 64, command: "git branch --merged", meaning: "The --merged option filters the output to branches that you have or have not yet merged into the branch you're currently on. Output changes depending on which branch you are currently in and the \"path\" you took to the branch you are currently in (for instance, if you from master alternates to fatorial_recursive, then to experimentos and then back to fatorial_recursive, the command).", frequency: 3, lectures: "17" },
+            { id: 65, command: "git branch --move branchOldName branchNewName", meaning: "Renames branches from old to new.", frequency: 2, lectures: "17,18" },
+            { id: 66, command: "git branch -d branchName", meaning: "Removes a branch if you are not in it (outside of it). It is not possible to remove a branch with this command if the branch to be removed that has new commits.", frequency: 2, lectures: "18,24" },
+            { id: 67, command: "git branch --delete branchName", meaning: "Removes a branch (same as with -d option). It is not possible to remove a branch with this command if the branch to be removed that has new commits.", frequency: 1, lectures: "18" },
+            { id: 68, command: "git branch -D branchname", meaning: "Forces the removal of a branch even if it has new commits. Contrast with the previous two commands.", frequency: 2, lectures: "18,19" },
+            { id: 69, command: "git log branchName --oneline -3", meaning: "Shows the last 3 commits of branchName. It works even if the branch name is remote (e.g origin/master).", frequency: 20, lectures: "19,20,23,24" },
+            { id: 70, command: "git merge branchName", meaning: "Merges branchName into the branch we are currently in. If only the source branch you are trying to merge into a target branch has new commits, a fast-forward merge is done. If both branches have new commits that do not conflict with each other, a recursive merge is done. In a recursive merge, a commit indicating the merge was done is also added to the list of commits (git log --oneline shows this \"merge\" commit). If the two branches you are trying to merge has commits the conflict with each other (same line change, for example), we have a conflict that needs to be solved before the merge (manually or with third-party tools) or alternatively, you can abort the commit. If this happens, you are automatically moved to a temporary branch (master|MERGING, for example). This can be seen with the git status command that indicates we have unmerged paths and need to fix the conflicts. If you open the file(s) with conflict you will notice that git includes some comments on the lines with the conflict(s) in order you decide which version you want to maintain (by manually removing the lines you don't want to keep). After solving the conflict, you need to add to the stage area and make the commit as usual.", frequency: 4, lectures: "19,20" },
+            { id: 71, command: "git merge --abort", meaning: "When a merge generates a conflict, we can cancel the merge with this command in order to avoid being the temporary branch on which you manually solves the conflict and return back to the branch you were before issuing the merge command.", frequency: 1, lectures: "20" },
+            { id: 72, command: "git log --oneline -3", meaning: "Shows the last 3 commits of the current branch.", frequency: 4, lectures: "20,24" },
+            { id: 73, command: "git remote", meaning: "Show which remote server you already configured. Since we started locally in this course, this returns nothing the first time the command is issued.", frequency: 4, lectures: "21" },
+            { id: 74, command: "git remote add origin uriRepoGitHub", meaning: "Adds to the local git repository a reference to a remote git repository. After adding a remote repository, it will be shown as the result of issuing the git remote command (command on Line 73 of this table).", frequency: 2, lectures: "21" },
+            { id: 75, command: "git remote -v", meaning: "Shows addition information about the remote repository configured locally with previous command (command on Line 74 of this table).", frequency: 1, lectures: "21" },
+            { id: 76, command: "cat .git/config", meaning: "Config file that describes, among other things, the references to the remote repositories/branches.", frequency: 6, lectures: "21,22,23,24" },
+            { id: 77, command: "git remote rm origin", meaning: "git remote rm does not delete the remote repository from the server. It simply removes the remote and its references from your local repository.", frequency: 1, lectures: "21" },
+            { id: 78, command: "git push -u origin master", meaning: "Sends the contents of a branch (master in this example) to github (origin). The -u option has the goal to keep both branches, master local and remote, synchronized. We can verify this in the local file .git/config that includes an entry indicating a branch is associated with the remote branch at GitHub. [branch \"master\"] remote = origin merge = refs/heads/master One benefit of synchronizing the branches is that we can type fewer options when pushing changes to GitHub (See push command on line 85 for an example). Notice that Git never tries to make a merge in the server after a push. If the server has changes since last git pull or fetch, we first need to pull or fetch the changes (See Lines 86 and 88), make the modifications locally and then send back to GitHub.", frequency: 1, lectures: "22" },
+            { id: 79, command: "cat .git/refs/remotes/origin/master", meaning: "Shows the SHA-1 of the origin/master branch. Notice the remote branches are preceded with the origin/ substring (e.g. origin/master).", frequency: 1, lectures: "22" },
+            { id: 80, command: "git branch -r", meaning: "Shows the remote branches (e.g. origin/master).", frequency: 6, lectures: "22,24,25" },
+            { id: 81, command: "git branch -a", meaning: "Shows both local and remote branches (e.g. master, origin/master).", frequency: 3, lectures: "22,24,25" },
+            { id: 82, command: "git clone urlRepoGitHub", meaning: "Makes a copy of a remote repository into the local machine. If you want you can specify the name of the directory in the local machine to where the repository will be cloned (e.g git clone urlRepoGitHub directoryxyz) clones the project to directoryxyz to be created).", frequency: 1, lectures: "22" },
+            { id: 83, command: "git push origin branchname", meaning: "Pushes branch name to remote origin without synchronizing them. The branch name is not shown when we use cat .git/config (in case of using git push without the -u option in the first opportunity).", frequency: 1, lectures: "23" },
+            { id: 84, command: "git log --oneline origin/branchName", meaning: "Shows the log of commits in the remote branch. For example, git log --oneline origin/master.", frequency: 1, lectures: "23" },
+            { id: 85, command: "git push", meaning: "It works without argument in the case of a synchronized branch (local and remote). The synchronized branch is created at the first push with the -u option.", frequency: 1, lectures: "23" },
+            { id: 86, command: "git fetch origin", meaning: "Fetches the latest updates in the repository without merging locally.", frequency: 1, lectures: "24" },
+            { id: 87, command: "git merge branchname branchname", meaning: "Merges the two branches. For example git merge origin/master master.", frequency: 1, lectures: "24" },
+            { id: 88, command: "git pull remoteBranch localBranch", meaning: "One command that combines git fetch and git merge. For example, git pull origin/master master.", frequency: 1, lectures: "24" },
+            { id: 89, command: "git branch branchName origin/branchName", meaning: "Sets up branchName to track remote branch origin/branchName. For example, git branch sem_sincronismo origin/sem_sincronismo (suppose that before issuing this command, git branch does not reveal any branch name sem_sincronismo locally, but this branch exists in origin (origin/sem_sincronismo). After that, the git branch locally reveals the local branch sem_sincronismo and an entry indicating the branches local and remote are synchronized appears in the local file .git/config.", frequency: 1, lectures: "24" },
+            { id: 90, command: "git checkout -b localBranch remoteBranch", meaning: "Sets up branchName to track remote branch origin/branchName and at the same time alternates to localBranch.", frequency: 1, lectures: "24" },
+            { id: 91, command: "git push origin :branchname", meaning: "Removes the remote branch.", frequency: 1, lectures: "25" },
+            // Comandos adicionais (páginas 12-17)
+            { id: 92, command: "git help git", meaning: "Shows the git manual", frequency: 1, lectures: "" },
+            { id: 93, command: "git help command", meaning: "Shows the help for the command", frequency: 2, lectures: "" },
+            { id: 94, command: "git config - global user.name \"Rafael Passos Domingues\"", meaning: "Configures the user that appears when making commits", frequency: 2, lectures: "" },
+            { id: 95, command: "git config - global user.email \"desconhecido@gmail.com\"", meaning: "Configures the user email that appears when making commits", frequency: 2, lectures: "" },
+            { id: 96, command: "git config --list", meaning: "Lists all configuration used by git", frequency: 2, lectures: "" },
+            { id: 97, command: "git init", meaning: "Initializes a git repository in a directory creating a .git folder in the directory.", frequency: 1, lectures: "" },
+            { id: 98, command: "git status", meaning: "Show the current status of the current branch in the working directory and Stage area", frequency: 14, lectures: "" },
+            { id: 99, command: "git add .", meaning: "Adds all changed files in the working directory to the Stage Area", frequency: 3, lectures: "" },
+            { id: 100, command: "git commit -m \"commit message\"", meaning: "Commits to the repository the files in the Stage area", frequency: 1, lectures: "" },
+            { id: 101, command: "git log", meaning: "Shows the log of commits of the git repository", frequency: 9, lectures: "" },
+            { id: 102, command: "ssh-keygen -C \"email\" -t rsa", meaning: "Generates public/private rsa key pair. We need to copy its contents to the GitHub (SSH keys menu)", frequency: 2, lectures: "" },
+            { id: 103, command: "git remote", meaning: "Shows a list of existing remote repositories", frequency: 2, lectures: "" },
+            { id: 104, command: "git remote add origin uriRepoGitHub", meaning: "Adds to the local git repository a reference to a remote git repository. After adding a remote repository, it will be shown as the result of issuing the git remote command.", frequency: 1, lectures: "" },
+            { id: 105, command: "git push -u origin master", meaning: "Sends the contents of a branch (master in this example) to github (origin). The -u option has the goal to keep both branches, master local and remote, synchronized.", frequency: 2, lectures: "" },
+            { id: 106, command: "git clone git@github.com:dominguesbcc/gitWebApp.git", meaning: "Makes a copy of a remote repository into the local machine.", frequency: 1, lectures: "" },
+            { id: 107, command: "git branch", meaning: "Shows the branches in the repository", frequency: 6, lectures: "" },
+            { id: 108, command: "git checkout -b ramificacao_testes", meaning: "Creates and checkout branchName.", frequency: 2, lectures: "" },
+            { id: 109, command: "git commit -a -m \"commit message\"", meaning: "Add to the stage area and commit to the repository with one single command instead of two.", frequency: 3, lectures: "" },
+            { id: 110, command: "git add fileName", meaning: "Adds the file fileName in the working directory to the Stage Area", frequency: 1, lectures: "" },
+            { id: 111, command: "git checkout branchName", meaning: "Changes to the branch specified in branchName. For instance, git checkout master", frequency: 2, lectures: "" },
+            { id: 112, command: "git rebase ramificacao_testes", meaning: "Command issued on branch master.", frequency: 1, lectures: "" },
+            { id: 113, command: "git push origin master", meaning: "Pushes master content to the master branch in the remote repository", frequency: 2, lectures: "" },
+            { id: 114, command: "git pull origin master", meaning: "pull changes from the locally stored branch origin/master and merge that to the local checked-out branch", frequency: 1, lectures: "" },
+            { id: 115, command: "git merge branchName", meaning: "Merges the content of branchName into the branch you are currently in", frequency: 1, lectures: "" },
+            // Comandos de tag (páginas 15-17)
+            { id: 116, command: "git status -uall", meaning: "Useful when git status is identifying a new untracked folder, but it is not showing its contents.", frequency: 0, lectures: "" },
+            { id: 117, command: "git tag", meaning: "Listing the existing tags in the repository in alphabetical order.", frequency: 0, lectures: "" },
+            { id: 118, command: "git tag -l \"v1.8.5*\"", meaning: "Listing the existing tags in the repository searching for tags that match a particular pattern.", frequency: 0, lectures: "" },
+            { id: 119, command: "git tag -a v1.0 -m \"tag description\"", meaning: "Create a tag. Example: git tag -a v1.0 -m \"Initial version of the code evolved during the class\".", frequency: 0, lectures: "" },
+            { id: 120, command: "git show <tag name>", meaning: "You can see the tag data along with the commit that was tagged by using the git show command.", frequency: 0, lectures: "" },
+            { id: 121, command: "git tag v1.4-lw", meaning: "To create a lightweight tag, don't supply any of the -a, -s, or -m options, just provide a tag name.", frequency: 0, lectures: "" },
+            { id: 122, command: "git tag -a <tagname> <sha-1>", meaning: "Tag a specific commit.", frequency: 0, lectures: "" },
+            { id: 123, command: "git push origin <tagname>", meaning: "Push tags to a shared server after you have created them.", frequency: 0, lectures: "" },
+            { id: 124, command: "git push origin --tags", meaning: "Push a lot of tags that you want to push up at once.", frequency: 0, lectures: "" },
+            { id: 125, command: "git tag -d <tagname>", meaning: "To delete a tag on your local repository.", frequency: 0, lectures: "" },
+            { id: 126, command: "git push <remote> :refs/tags/<tagname>", meaning: "There are two common variations for deleting a tag from a remote server.", frequency: 0, lectures: "" },
+            { id: 127, command: "git push origin --delete <tagname>", meaning: "The second (and more intuitive) way to delete a remote tag.", frequency: 0, lectures: "" }
+        ];
+
+        // Configurações da aplicação
+        const itemsPerPage = 15;
+        let currentPage = 1;
+        let filteredCommands = [...gitCommands];
+        let sortBy = 'frequency-desc';
+        let currentSortColumn = 'frequency';
+        let currentSortDirection = 'desc';
+
+        // Ordenar por frequência (maior primeiro) inicialmente
+        filteredCommands.sort((a, b) => b.frequency - a.frequency);
+
+        // Preencher a tabela com os dados
+        const tableBody = document.querySelector('#gitCommandsTable tbody');
+        const paginationElement = document.getElementById('pagination');
+        
+        function populateTable(commands, page = 1) {
+            const startIndex = (page - 1) * itemsPerPage;
+            const endIndex = startIndex + itemsPerPage;
+            const paginatedCommands = commands.slice(startIndex, endIndex);
+            
+            tableBody.innerHTML = '';
+            
+            if (paginatedCommands.length === 0) {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td colspan="5" class="no-results">
+                        <i class="fas fa-search"></i>
+                        <div>Nenhum comando encontrado com os filtros atuais</div>
+                        <div style="font-size: 0.9rem; margin-top: 10px;">Tente ajustar os termos de busca ou os filtros aplicados</div>
+                    </td>
+                `;
+                tableBody.appendChild(row);
+                return;
+            }
+            
+            paginatedCommands.forEach(cmd => {
+                const row = document.createElement('tr');
+                
+                // Aplicar classe baseada na frequência
+                let freqClass = 'frequency-';
+                if (cmd.frequency >= 10) {
+                    freqClass = 'frequency-high';
+                } else if (cmd.frequency >= 5) {
+                    freqClass += '5';
+                } else {
+                    freqClass += cmd.frequency;
+                }
+                
+                // Destacar termos de busca
+                const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+                let highlightedCommand = cmd.command;
+                let highlightedMeaning = cmd.meaning.substring(0, 80) + '...';
+                
+                if (searchTerm) {
+                    const regex = new RegExp(`(${escapeRegExp(searchTerm)})`, 'gi');
+                    highlightedCommand = highlightedCommand.replace(regex, '<span class="search-highlight">$1</span>');
+                    highlightedMeaning = highlightedMeaning.replace(regex, '<span class="search-highlight">$1</span>');
+                }
+                
+                row.innerHTML = `
+                    <td class="id-cell">${cmd.id}</td>
+                    <td class="command-cell">${highlightedCommand}</td>
+                    <td class="meaning-cell">
+                        ${highlightedMeaning}
+                        <span class="tooltip-icon">i</span>
+                        <div class="tooltip">${cmd.meaning}</div>
+                    </td>
+                    <td class="frequency-cell ${freqClass}">${cmd.frequency}</td>
+                    <td class="action-cell">
+                        <button class="copy-btn" data-command="${cmd.command}">
+                            <i class="fas fa-copy"></i> Copiar
+                        </button>
+                    </td>
+                `;
+                
+                tableBody.appendChild(row);
+            });
+            
+            // Adicionar event listeners aos botões de copiar
+            document.querySelectorAll('.copy-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const command = this.getAttribute('data-command');
+                    copyToClipboard(command);
+                    
+                    // Feedback visual
+                    this.classList.add('copied');
+                    this.innerHTML = '<i class="fas fa-check"></i> Copiado!';
+                    
+                    setTimeout(() => {
+                        this.classList.remove('copied');
+                        this.innerHTML = '<i class="fas fa-copy"></i> Copiar';
+                    }, 2000);
+                });
+            });
+            
+            updatePagination(commands.length, page);
+        }
+        
+        function escapeRegExp(string) {
+            return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        }
+        
+        function updatePagination(totalItems, currentPage) {
+            const totalPages = Math.ceil(totalItems / itemsPerPage);
+            paginationElement.innerHTML = '';
+            
+            if (totalPages <= 1) return;
+            
+            // Botão anterior
+            if (currentPage > 1) {
+                const prevButton = document.createElement('button');
+                prevButton.innerHTML = '<i class="fas fa-chevron-left"></i>';
+                prevButton.addEventListener('click', () => {
+                    changePage(currentPage - 1);
+                });
+                paginationElement.appendChild(prevButton);
+            }
+            
+            // Números das páginas
+            for (let i = 1; i <= totalPages; i++) {
+                if (i === 1 || i === totalPages || (i >= currentPage - 2 && i <= currentPage + 2)) {
+                    const pageButton = document.createElement('button');
+                    pageButton.textContent = i;
+                    pageButton.classList.toggle('active', i === currentPage);
+                    pageButton.addEventListener('click', () => changePage(i));
+                    paginationElement.appendChild(pageButton);
+                } else if (i === currentPage - 3 || i === currentPage + 3) {
+                    const ellipsis = document.createElement('span');
+                    ellipsis.textContent = '...';
+                    ellipsis.style.padding = '8px 12px';
+                    paginationElement.appendChild(ellipsis);
+                }
+            }
+            
+            // Botão próximo
+            if (currentPage < totalPages) {
+                const nextButton = document.createElement('button');
+                nextButton.innerHTML = '<i class="fas fa-chevron-right"></i>';
+                nextButton.addEventListener('click', () => {
+                    changePage(currentPage + 1);
+                });
+                paginationElement.appendChild(nextButton);
+            }
+        }
+        
+        function changePage(page) {
+            currentPage = page;
+            populateTable(filteredCommands, page);
+            window.scrollTo(0, 0);
+        }
+        
+        // Função para copiar para a área de transferência
+        function copyToClipboard(text) {
+            const textarea = document.createElement('textarea');
+            textarea.value = text;
+            document.body.appendChild(textarea);
+            textarea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textarea);
+        }
+        
+        // Funcionalidade de pesquisa
+        document.getElementById('searchInput').addEventListener('input', function() {
+            applyFilters();
+        });
+        
+        // Funcionalidade de ordenação
+        document.querySelectorAll('th[data-sort]').forEach(th => {
+            th.addEventListener('click', function() {
+                const sortValue = this.getAttribute('data-sort');
+                
+                // Remove classes de ordenação de todas as colunas
+                document.querySelectorAll('th').forEach(header => {
+                    header.classList.remove('sort-asc', 'sort-desc');
+                });
+                
+                // Alternar entre ascendente e descendente
+                if (currentSortColumn === sortValue) {
+                    currentSortDirection = currentSortDirection === 'asc' ? 'desc' : 'asc';
+                } else {
+                    currentSortColumn = sortValue;
+                    currentSortDirection = 'desc';
+                }
+                
+                // Adicionar classe apropriada
+                this.classList.add(currentSortDirection === 'asc' ? 'sort-asc' : 'sort-desc');
+                
+                sortBy = `${sortValue}-${currentSortDirection}`;
+                applyFilters();
+            });
+        });
+        
+        document.getElementById('sortSelect').addEventListener('change', function() {
+            sortBy = this.value;
+            applyFilters();
+        });
+        
+        // Funcionalidade de filtro
+        document.getElementById('filterSelect').addEventListener('change', applyFilters);
+        document.getElementById('minFrequency').addEventListener('input', applyFilters);
+        document.getElementById('maxFrequency').addEventListener('input', applyFilters);
+        document.getElementById('lectureFilter').addEventListener('change', applyFilters);
+        
+        // Botão para limpar filtros
+        document.getElementById('resetFilters').addEventListener('click', function() {
+            document.getElementById('searchInput').value = '';
+            document.getElementById('filterSelect').value = 'all';
+            document.getElementById('sortSelect').value = 'frequency-desc';
+            document.getElementById('minFrequency').value = '';
+            document.getElementById('maxFrequency').value = '';
+            document.getElementById('lectureFilter').value = '';
+            
+            // Resetar ordenação da tabela
+            document.querySelectorAll('th').forEach(header => {
+                header.classList.remove('sort-asc', 'sort-desc');
+            });
+            document.querySelector('th[data-sort="frequency"]').classList.add('sort-desc');
+            
+            sortBy = 'frequency-desc';
+            currentSortColumn = 'frequency';
+            currentSortDirection = 'desc';
+            
+            applyFilters();
+        });
+        
+        function applyFilters() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const filterValue = document.getElementById('filterSelect').value;
+            const minFrequency = document.getElementById('minFrequency').value ? parseInt(document.getElementById('minFrequency').value) : 0;
+            const maxFrequency = document.getElementById('maxFrequency').value ? parseInt(document.getElementById('maxFrequency').value) : 104;
+            const lectureFilter = document.getElementById('lectureFilter').value;
+            
+            // Aplicar filtro de pesquisa
+            if (searchTerm) {
+                filteredCommands = gitCommands.filter(cmd => 
+                    cmd.command.toLowerCase().includes(searchTerm) || 
+                    cmd.meaning.toLowerCase().includes(searchTerm) ||
+                    cmd.id.toString().includes(searchTerm)
+                );
+            } else {
+                filteredCommands = [...gitCommands];
+            }
+            
+            // Aplicar filtro de frequência
+            filteredCommands = filteredCommands.filter(cmd => 
+                cmd.frequency >= minFrequency && cmd.frequency <= maxFrequency
+            );
+            
+            // Aplicar filtro de aula
+            if (lectureFilter) {
+                filteredCommands = filteredCommands.filter(cmd => 
+                    cmd.lectures && cmd.lectures.includes(lectureFilter)
+                );
+            }
+            
+            // Aplicar filtro de categoria
+            if (filterValue === 'high') {
+                filteredCommands = filteredCommands.filter(cmd => cmd.frequency >= 10);
+            } else if (filterValue === 'medium') {
+                filteredCommands = filteredCommands.filter(cmd => cmd.frequency >= 5 && cmd.frequency <= 9);
+            } else if (filterValue === 'low') {
+                filteredCommands = filteredCommands.filter(cmd => cmd.frequency >= 1 && cmd.frequency <= 4);
+            } else if (filterValue === 'zero') {
+                filteredCommands = filteredCommands.filter(cmd => cmd.frequency === 0);
+            }
+            
+            // Aplicar ordenação
+            if (sortBy === 'frequency-desc') {
+                filteredCommands.sort((a, b) => b.frequency - a.frequency);
+            } else if (sortBy === 'frequency-asc') {
+                filteredCommands.sort((a, b) => a.frequency - b.frequency);
+            } else if (sortBy === 'id') {
+                filteredCommands.sort((a, b) => a.id - b.id);
+            } else if (sortBy === 'command') {
+                filteredCommands.sort((a, b) => a.command.localeCompare(b.command));
+            } else if (sortBy === 'relevance' && searchTerm) {
+                // Ordenar por relevância (comandos que contêm o termo de busca primeiro)
+                filteredCommands.sort((a, b) => {
+                    const aInCommand = a.command.toLowerCase().includes(searchTerm);
+                    const bInCommand = b.command.toLowerCase().includes(searchTerm);
+                    
+                    if (aInCommand && !bInCommand) return -1;
+                    if (!aInCommand && bInCommand) return 1;
+                    
+                    // Se ambos estão no command ou ambos não estão, ordenar por frequência
+                    return b.frequency - a.frequency;
+                });
+            }
+            
+            currentPage = 1;
+            populateTable(filteredCommands, currentPage);
+        }
+        
+        // Inicializar a tabela
+        populateTable(filteredCommands, currentPage);
+    </script>
+<style>.ag-nav-back{position:fixed;top:12px;left:12px;z-index:9999;background:rgba(79,70,229,.9);color:#fff;border:none;border-radius:50px;padding:.4rem .9rem;font-size:.8rem;font-family:system-ui,sans-serif;font-weight:600;cursor:pointer;text-decoration:none;display:flex;align-items:center;gap:.35rem;box-shadow:0 2px 10px rgba(0,0,0,.25);backdrop-filter:blur(4px);transition:background .2s,transform .2s}.ag-nav-back:hover{background:rgba(55,48,163,.95);transform:translateY(-1px)}</style><a href="https://passosdomingues.github.io/webappshowcase/site/main.html" class="ag-nav-back" aria-label="Voltar ao índice">&#8592; Índice</a>
+</body>
+</html>

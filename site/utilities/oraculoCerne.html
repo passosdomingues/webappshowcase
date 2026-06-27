@@ -1,0 +1,2090 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="light">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="description" content="CerneOracle — guia interativo do Modelo CERNE para incubadoras de inovação. Explore práticas, quizzes e conquistas dos 4 níveis do modelo." />
+<meta name="keywords" content="CERNE, incubadora, inovação, empreendedorismo, modelo de gestão, quiz" />
+<meta name="author" content="Rafael Passos Domingues" />
+<meta name="theme-color" content="#4f46e5" />
+<title>CerneOracle — Guardião do Modelo CERNE</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+<style>
+  /* ====== Design Tokens ====== */
+  :root {
+    --primary:        #4f46e5;
+    --primary-dark:   #3730a3;
+    --primary-light:  #e0e7ff;
+    --accent:         #f59e0b;
+    --accent-dark:    #b45309;
+    --success:        #10b981;
+    --danger:         #ef4444;
+    --bg:             #f1f5f9;
+    --surface:        #ffffff;
+    --surface-2:      #f8fafc;
+    --border:         #e2e8f0;
+    --text:           #1e293b;
+    --text-2:         #64748b;
+    --shadow-sm:      0 1px 3px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.05);
+    --shadow-md:      0 4px 12px rgba(0,0,0,.10);
+    --shadow-lg:      0 10px 30px rgba(0,0,0,.13);
+    --radius-sm:      8px;
+    --radius-md:      14px;
+    --radius-lg:      20px;
+    --transition:     0.25s ease;
+    --font:           'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    /* level colors */
+    --c1: #22c55e; --c1-bg: #dcfce7;
+    --c2: #3b82f6; --c2-bg: #dbeafe;
+    --c3: #a855f7; --c3-bg: #f3e8ff;
+    --c4: #f97316; --c4-bg: #ffedd5;
+  }
+
+  [data-theme="dark"] {
+    --primary:        #818cf8;
+    --primary-dark:   #6366f1;
+    --primary-light:  #1e1b4b;
+    --accent:         #fbbf24;
+    --accent-dark:    #d97706;
+    --bg:             #0f172a;
+    --surface:        #1e293b;
+    --surface-2:      #162032;
+    --border:         #334155;
+    --text:           #e2e8f0;
+    --text-2:         #94a3b8;
+    --shadow-sm:      0 1px 3px rgba(0,0,0,.3);
+    --shadow-md:      0 4px 12px rgba(0,0,0,.4);
+    --shadow-lg:      0 10px 30px rgba(0,0,0,.5);
+    --c1-bg: #14532d; --c2-bg: #1e3a5f; --c3-bg: #3b0764; --c4-bg: #431407;
+  }
+
+  /* ====== Reset ====== */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: var(--font);
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    line-height: 1.6;
+    transition: background var(--transition), color var(--transition);
+  }
+
+  /* ====== Header ====== */
+  header {
+    width: 100%;
+    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+    color: #fff;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: var(--shadow-md);
+  }
+
+  .header-inner {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: .9rem 1.25rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: .6rem;
+    font-weight: 800;
+    font-size: 1.3rem;
+    letter-spacing: -.02em;
+  }
+
+  .logo i { font-size: 1.5rem; }
+
+  .header-controls {
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+  }
+
+  .icon-btn {
+    background: rgba(255,255,255,.15);
+    border: 1px solid rgba(255,255,255,.2);
+    color: #fff;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
+    transition: background var(--transition), transform var(--transition);
+  }
+
+  .icon-btn:hover { background: rgba(255,255,255,.28); transform: scale(1.08); }
+  .icon-btn:focus-visible { outline: 3px solid rgba(255,255,255,.6); outline-offset: 2px; }
+
+  /* Progress bar */
+  .progress-wrap {
+    width: 100%;
+    background: rgba(255,255,255,.2);
+    height: 4px;
+  }
+
+  #progress-bar {
+    height: 100%;
+    background: var(--accent);
+    width: 0%;
+    transition: width .6s cubic-bezier(.4,0,.2,1);
+  }
+
+  /* ====== Main Container ====== */
+  #main-container {
+    width: 100%;
+    max-width: 800px;
+    padding: 1.5rem 1rem 2rem;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+  }
+
+  /* ====== Nav Bar (breadcrumb + search) ====== */
+  .nav-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: .75rem;
+    flex-wrap: wrap;
+  }
+
+  .breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: .4rem;
+    font-size: .85rem;
+    color: var(--text-2);
+    flex-wrap: wrap;
+  }
+
+  .breadcrumb span {
+    cursor: pointer;
+    border-radius: 6px;
+    padding: .1rem .35rem;
+    transition: background var(--transition), color var(--transition);
+  }
+
+  .breadcrumb span:hover, .breadcrumb span:focus-visible {
+    background: var(--primary-light);
+    color: var(--primary);
+    outline: none;
+  }
+
+  .breadcrumb i { font-size: .65rem; color: var(--border); }
+
+  .search-wrap {
+    position: relative;
+    min-width: 200px;
+  }
+
+  .search-wrap input {
+    width: 100%;
+    padding: .55rem 2.8rem .55rem 2.2rem;
+    border: 1.5px solid var(--border);
+    border-radius: 50px;
+    font-size: .9rem;
+    font-family: var(--font);
+    background: var(--surface);
+    color: var(--text);
+    transition: border-color var(--transition), box-shadow var(--transition);
+  }
+
+  .search-wrap input:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px var(--primary-light);
+  }
+
+  .search-wrap .search-icon-left {
+    position: absolute;
+    left: .75rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-2);
+    font-size: .85rem;
+    pointer-events: none;
+  }
+
+  .search-wrap .search-clear {
+    position: absolute;
+    right: .65rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-2);
+    cursor: pointer;
+    font-size: .85rem;
+    display: none;
+  }
+
+  .search-wrap input:not(:placeholder-shown) ~ .search-clear { display: block; }
+
+  /* ====== Autocomplete Dropdown ====== */
+  .ac-dropdown {
+    position: absolute;
+    top: calc(100% + 6px);
+    left: 0; right: 0;
+    background: var(--surface);
+    border: 1.5px solid var(--primary);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-lg);
+    overflow: hidden;
+    z-index: 200;
+    display: none;
+    flex-direction: column;
+  }
+  .ac-dropdown.open { display: flex; }
+
+  .ac-item {
+    display: flex;
+    align-items: center;
+    gap: .6rem;
+    padding: .6rem .9rem;
+    cursor: pointer;
+    font-size: .88rem;
+    border-left: 3px solid transparent;
+    transition: background var(--transition), border-color var(--transition);
+  }
+  .ac-item:hover, .ac-item.ac-active {
+    background: var(--primary-light);
+    border-left-color: var(--primary);
+  }
+  .ac-item .ac-label { flex: 1; }
+  .ac-item .ac-hint { font-size: .72rem; color: var(--text-2); }
+  .ac-item .ac-score {
+    font-size: .72rem; font-weight: 700;
+    background: var(--primary-light); color: var(--primary);
+    padding: .1rem .4rem; border-radius: 50px;
+  }
+  .ac-tab-hint {
+    padding: .4rem .9rem;
+    font-size: .72rem;
+    color: var(--text-2);
+    background: var(--surface-2);
+    border-top: 1px solid var(--border);
+    display: flex;
+    gap: .8rem;
+  }
+  .ac-tab-hint kbd {
+    background: var(--border);
+    border-radius: 4px;
+    padding: .05rem .3rem;
+    font-size: .7rem;
+    font-family: monospace;
+  }
+
+  /* ====== Did You Mean ====== */
+  .did-you-mean {
+    font-size: .87rem;
+    color: var(--text-2);
+    padding: .3rem .5rem;
+    display: none;
+    align-items: center;
+    gap: .4rem;
+    flex-wrap: wrap;
+  }
+  .did-you-mean.show { display: flex; }
+  .dym-link {
+    color: var(--primary);
+    font-weight: 600;
+    cursor: pointer;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+
+  /* ====== Result Cards (busca) ====== */
+  .result-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-left: 4px solid var(--primary);
+    border-radius: var(--radius-md);
+    padding: .85rem 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: .4rem;
+    cursor: pointer;
+    transition: transform var(--transition), box-shadow var(--transition), border-color var(--transition);
+    width: 100%;
+    text-align: left;
+    font-family: var(--font);
+    animation: fadeUp .25s ease both;
+  }
+  .result-card:nth-child(2) { animation-delay:.04s; }
+  .result-card:nth-child(3) { animation-delay:.08s; }
+  .result-card:nth-child(4) { animation-delay:.12s; }
+  .result-card:nth-child(5) { animation-delay:.16s; }
+  .result-card:nth-child(n+6) { animation-delay:.20s; }
+  .result-card:hover { transform: translateX(4px); box-shadow: var(--shadow-md); border-left-color: var(--accent); }
+  .result-card:focus-visible { outline: 3px solid var(--primary); outline-offset:2px; }
+
+  .rc-top { display:flex; align-items:center; gap:.5rem; justify-content:space-between; }
+  .rc-title { font-weight:700; font-size:.97rem; color:var(--text); }
+  .rc-score-bar {
+    height:3px; border-radius:2px;
+    background: linear-gradient(90deg, var(--primary), var(--accent));
+    transition: width .4s ease;
+  }
+  .rc-snippet {
+    font-size:.85rem; color:var(--text-2); line-height:1.5;
+    border-left: 2px solid var(--border);
+    padding-left: .6rem;
+    font-style:italic;
+  }
+  .rc-snippet mark { font-style:normal; }
+
+  /* ====== Chat Container ====== */
+  #chat-container {
+    background: var(--surface);
+    border-radius: var(--radius-lg);
+    padding: 1.5rem;
+    box-shadow: var(--shadow-md);
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    min-height: 200px;
+    border: 1px solid var(--border);
+  }
+
+  /* ====== Robot ====== */
+  .robot {
+    font-size: 2.6rem;
+    align-self: flex-start;
+    animation: robotEntry .4s cubic-bezier(.34,1.56,.64,1) forwards;
+  }
+
+  @keyframes robotEntry {
+    from { opacity:0; transform: scale(.5) translateY(-8px); }
+    to   { opacity:1; transform: scale(1) translateY(0); }
+  }
+
+  /* ====== Message ====== */
+  .message {
+    background: linear-gradient(135deg, var(--primary-light), #e0e7ff55);
+    border: 1px solid rgba(99,102,241,.15);
+    padding: 1rem 1.25rem;
+    border-radius: var(--radius-md);
+    font-size: .97rem;
+    animation: fadeUp .35s ease forwards;
+    position: relative;
+  }
+
+  [data-theme="dark"] .message {
+    background: linear-gradient(135deg, #1e1b4b, #1e293b);
+    border-color: rgba(129,140,248,.2);
+  }
+
+  .message-actions {
+    display: flex;
+    gap: .4rem;
+    margin-top: .75rem;
+  }
+
+  .action-btn {
+    background: none;
+    border: 1px solid var(--border);
+    color: var(--text-2);
+    cursor: pointer;
+    font-size: .8rem;
+    padding: .3rem .6rem;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    gap: .3rem;
+    transition: background var(--transition), color var(--transition);
+  }
+
+  .action-btn:hover { background: var(--primary-light); color: var(--primary); }
+
+  /* ====== Mini Lesson ====== */
+  .mini-lesson {
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-left: 4px solid var(--accent);
+    border-radius: var(--radius-md);
+    padding: 1.25rem;
+    animation: fadeUp .4s ease forwards;
+    position: relative;
+  }
+
+  .mini-lesson-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: .5rem;
+    margin-bottom: .9rem;
+    padding-bottom: .75rem;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .mini-lesson-title {
+    font-weight: 700;
+    font-size: 1.05rem;
+    color: var(--text);
+  }
+
+  .level-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: .3rem;
+    padding: .2rem .6rem;
+    border-radius: 50px;
+    font-size: .75rem;
+    font-weight: 600;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  .level-1 { background: var(--c1-bg); color: var(--c1); }
+  .level-2 { background: var(--c2-bg); color: var(--c2); }
+  .level-3 { background: var(--c3-bg); color: var(--c3); }
+  .level-4 { background: var(--c4-bg); color: var(--c4); }
+
+  .mini-lesson p { margin: .4rem 0 .7rem; font-size: .93rem; }
+  .mini-lesson strong { color: var(--text); }
+
+  .mini-lesson ul {
+    padding-left: 1.25rem;
+    margin: .3rem 0 .6rem;
+  }
+
+  .mini-lesson ul li { margin-bottom: .25rem; font-size: .9rem; }
+
+  /* ====== Quiz ====== */
+  .quiz-container {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-top: 4px solid var(--primary);
+    border-radius: var(--radius-md);
+    padding: 1.25rem;
+    animation: fadeUp .45s ease forwards;
+  }
+
+  .quiz-title {
+    font-weight: 700;
+    font-size: 1rem;
+    color: var(--primary);
+    margin-bottom: .8rem;
+    display: flex;
+    align-items: center;
+    gap: .4rem;
+  }
+
+  .quiz-question { margin-bottom: 1rem; font-size: .95rem; line-height: 1.5; }
+
+  .quiz-options { display: flex; flex-direction: column; gap: .6rem; }
+
+  .quiz-option {
+    background: var(--surface-2);
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: .75rem 1rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: .75rem;
+    transition: border-color var(--transition), background var(--transition), transform var(--transition);
+    font-size: .92rem;
+  }
+
+  .quiz-option:hover  { border-color: var(--primary); transform: translateX(4px); }
+  .quiz-option:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
+  .quiz-option.correct   { border-color: var(--success); background: #ecfdf5; }
+  .quiz-option.incorrect { border-color: var(--danger);  background: #fef2f2; }
+
+  [data-theme="dark"] .quiz-option.correct   { background: #064e3b; }
+  [data-theme="dark"] .quiz-option.incorrect { background: #450a0a; }
+
+  .quiz-marker {
+    width: 26px; height: 26px;
+    border-radius: 50%;
+    border: 2px solid var(--border);
+    display: flex; align-items: center; justify-content: center;
+    font-size: .78rem; font-weight: 700;
+    color: var(--text-2);
+    flex-shrink: 0;
+    transition: background var(--transition), border-color var(--transition), color var(--transition);
+  }
+
+  .quiz-option.correct   .quiz-marker { border-color: var(--success); background: var(--success); color: #fff; }
+  .quiz-option.incorrect .quiz-marker { border-color: var(--danger);  background: var(--danger);  color: #fff; }
+
+  .quiz-feedback {
+    margin-top: 1rem;
+    padding: .9rem 1rem;
+    border-radius: var(--radius-sm);
+    font-size: .92rem;
+    display: none;
+    line-height: 1.5;
+  }
+
+  .quiz-feedback.correct   { display: block; background: #ecfdf5; color: #065f46; border: 1px solid #6ee7b7; }
+  .quiz-feedback.incorrect { display: block; background: #fef2f2; color: #991b1b; border: 1px solid #fca5a5; }
+  [data-theme="dark"] .quiz-feedback.correct   { background: #064e3b; color: #6ee7b7; }
+  [data-theme="dark"] .quiz-feedback.incorrect { background: #450a0a; color: #fca5a5; }
+
+  /* ====== Buttons ====== */
+  #buttons-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .6rem;
+    justify-content: center;
+  }
+
+  .btn {
+    border: none;
+    padding: .65rem 1.2rem;
+    border-radius: 50px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: .9rem;
+    font-family: var(--font);
+    display: inline-flex;
+    align-items: center;
+    gap: .45rem;
+    transition: background var(--transition), transform var(--transition), box-shadow var(--transition);
+  }
+
+  .btn:hover     { transform: translateY(-2px); }
+  .btn:active    { transform: translateY(0); }
+  .btn:focus-visible { outline: 3px solid var(--primary-light); outline-offset: 2px; }
+
+  .btn-primary {
+    background: var(--primary);
+    color: #fff;
+    box-shadow: 0 4px 14px rgba(79,70,229,.35);
+  }
+  .btn-primary:hover { background: var(--primary-dark); box-shadow: 0 6px 20px rgba(79,70,229,.45); }
+
+  .btn-secondary {
+    background: var(--surface);
+    color: var(--primary);
+    border: 1.5px solid var(--primary);
+  }
+  .btn-secondary:hover { background: var(--primary-light); }
+
+  .btn-home {
+    background: var(--accent);
+    color: #fff;
+    box-shadow: 0 4px 14px rgba(245,158,11,.35);
+  }
+  .btn-home:hover { background: var(--accent-dark); }
+
+  .btn-c1 { background: var(--c1); color: #fff; }
+  .btn-c2 { background: var(--c2); color: #fff; }
+  .btn-c3 { background: var(--c3); color: #fff; }
+  .btn-c4 { background: var(--c4); color: #fff; }
+
+  /* ====== Achievement toast ====== */
+  .achievement {
+    position: fixed;
+    top: 1.5rem;
+    right: -360px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-left: 5px solid var(--success);
+    padding: 1rem 1.25rem;
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-lg);
+    display: flex;
+    align-items: center;
+    gap: .9rem;
+    z-index: 1000;
+    max-width: 320px;
+    transition: right .5s cubic-bezier(.34,1.56,.64,1);
+  }
+
+  .achievement.show { right: 1.5rem; }
+
+  .achievement-icon { font-size: 1.8rem; color: var(--success); flex-shrink: 0; }
+  .achievement-content h3 { font-size: .95rem; color: var(--success); margin-bottom: .15rem; }
+  .achievement-content p { font-size: .83rem; color: var(--text-2); }
+
+  /* ====== Search Results ====== */
+  .search-results-info {
+    font-size: .85rem;
+    color: var(--text-2);
+    padding: .5rem 0;
+    font-style: italic;
+  }
+
+  .result-score {
+    font-size: .75rem;
+    background: var(--primary-light);
+    color: var(--primary);
+    padding: .1rem .45rem;
+    border-radius: 50px;
+    font-weight: 600;
+    margin-left: auto;
+    flex-shrink: 0;
+  }
+
+  mark { background: #fef08a; color: #713f12; border-radius: 3px; padding: 0 2px; }
+  [data-theme="dark"] mark { background: #854d0e; color: #fef08a; }
+
+  /* ====== Progress pct ====== */
+  .progress-label {
+    font-size: .72rem;
+    font-weight: 600;
+    color: rgba(255,255,255,.85);
+    text-align: right;
+    padding: .1rem 1.25rem 0;
+  }
+
+  /* ====== Animations ====== */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(12px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
+  }
+
+  /* ====== Responsive ====== */
+  @media (max-width: 640px) {
+    .header-inner { padding: .75rem 1rem; }
+    .logo { font-size: 1.1rem; }
+    #main-container { padding: 1rem .75rem 2rem; }
+    .nav-bar { flex-direction: column; align-items: stretch; }
+    .search-wrap { min-width: 0; }
+    .mini-lesson-header { flex-direction: column; }
+  }
+
+  /* ====== Accessibility ====== */
+  .sr-only {
+    position: absolute; width: 1px; height: 1px;
+    padding: 0; margin: -1px; overflow: hidden;
+    clip: rect(0,0,0,0); white-space: nowrap; border: 0;
+  }
+</style>
+</head>
+<body>
+
+<!-- ======================== HEADER ======================== -->
+<header>
+  <div class="header-inner">
+    <div class="logo">
+      <i class="fas fa-robot" aria-hidden="true"></i>
+      <span>CerneOracle</span>
+    </div>
+    <div class="header-controls">
+      <button id="dark-mode-toggle" class="icon-btn" aria-label="Alternar modo escuro" aria-pressed="false">
+        <i class="fas fa-moon" aria-hidden="true"></i>
+      </button>
+    </div>
+  </div>
+  <div class="progress-label" id="progress-label" aria-live="polite">0%</div>
+  <div class="progress-wrap" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" aria-label="Progresso de exploração">
+    <div id="progress-bar"></div>
+  </div>
+</header>
+
+<!-- ======================== MAIN ======================== -->
+<div id="main-container">
+
+  <!-- Nav bar -->
+  <nav class="nav-bar" aria-label="Navegação e busca">
+    <div id="breadcrumb" class="breadcrumb" aria-label="Breadcrumb">
+      <span data-id="start">Início</span>
+    </div>
+    <div class="search-wrap" role="search" aria-label="Busca de práticas">
+      <i class="fas fa-search search-icon-left" aria-hidden="true"></i>
+      <input type="text" id="search-input"
+        placeholder="Buscar práticas… (Tab para autocompletar)"
+        aria-label="Pesquisar práticas CERNE"
+        aria-autocomplete="list"
+        aria-controls="ac-list"
+        aria-expanded="false"
+        autocomplete="off" role="combobox">
+      <i class="fas fa-times search-clear" id="search-clear" aria-hidden="true" role="button" tabindex="0" aria-label="Limpar busca"></i>
+      <!-- Autocomplete dropdown -->
+      <div class="ac-dropdown" id="ac-dropdown" role="listbox" id="ac-list" aria-label="Sugestões">
+        <!-- items injected by JS -->
+        <div class="ac-tab-hint">
+          <span><kbd>Tab</kbd> aceitar</span>
+          <span><kbd>↑↓</kbd> navegar</span>
+          <span><kbd>Esc</kbd> fechar</span>
+        </div>
+      </div>
+    </div>
+    <!-- Did you mean -->
+    <div class="did-you-mean" id="did-you-mean" aria-live="polite"></div>
+  </nav>
+
+  <!-- Chat -->
+  <div id="chat-container" aria-live="polite" aria-label="Conteúdo da prática"></div>
+
+</div>
+
+<!-- Buttons -->
+<div id="buttons-container" role="navigation" aria-label="Opções de navegação" style="max-width:800px;width:100%;padding:0 1rem 2rem;"></div>
+
+<!-- Achievement toast -->
+<div id="achievement" class="achievement" role="status" aria-live="assertive">
+  <div class="achievement-icon"><i class="fas fa-award" aria-hidden="true"></i></div>
+  <div class="achievement-content">
+    <h3>Nova Conquista!</h3>
+    <p>Você desbloqueou: <strong id="achievement-name">Explorador Iniciante</strong></p>
+  </div>
+</div>
+
+<script>
+/* =============================================================
+   CONVERSATION FLOW
+   ============================================================= */
+const conversation = {
+  start: {
+    text: `👋 Saudações!\n\n✨ Eu sou o <strong>CerneOracle</strong>, guardião da sabedoria do Modelo CERNE.\n🛡️ Fui criado para te guiar pelos pilares que fortalecem incubadoras de sucesso.\n\nEscolha abaixo o nível que deseja explorar e vamos crescer juntos! 🚀`,
+    options: [
+      { text: "🌱 Cerne 1 — Processos de Gestão", next: "cerne1", cls: "btn-c1" },
+      { text: "🌿 Cerne 2 — Planejamento e Avaliação", next: "cerne2", cls: "btn-c2" },
+      { text: "🌳 Cerne 3 — Rede e Sustentabilidade", next: "cerne3", cls: "btn-c3" },
+      { text: "🏔️ Cerne 4 — Alcance Internacional", next: "cerne4", cls: "btn-c4" }
+    ]
+  },
+  cerne1: {
+    text: "🌱 <strong>Cerne 1 — Processos de Gestão e Organização</strong>\nEscolha um tópico:",
+    options: [
+      { text: "💡 1.1.1 Sensibilização",    next: "cerne1_1_1", cls: "btn-c1" },
+      { text: "🔍 1.1.2 Prospecção",         next: "cerne1_1_2", cls: "btn-c1" },
+      { text: "🎯 1.1.3 Qualificação",       next: "cerne1_1_3", cls: "btn-c1" },
+      { text: "📥 1.2.1 Recepção de Propostas", next: "cerne1_2_1", cls: "btn-c1" },
+      { text: "⚖️ 1.2.2 Avaliação",          next: "cerne1_2_2", cls: "btn-c1" },
+      { text: "📝 1.2.3 Contratação",         next: "cerne1_2_3", cls: "btn-c1" },
+      { text: "📅 1.3.1 Planejamento",        next: "cerne1_3_1", cls: "btn-c1" },
+      { text: "➕ 1.3.2 Agregação de Valor", next: "cerne1_3_2", cls: "btn-c1" },
+      { text: "🔄 1.3.3 Monitoramento",       next: "cerne1_3_3", cls: "btn-c1" },
+      { text: "🎓 1.4.1 Graduação",           next: "cerne1_4_1", cls: "btn-c1" },
+      { text: "🤝 1.4.2 Relacionamento com Graduadas", next: "cerne1_4_2", cls: "btn-c1" },
+      { text: "🏢 1.5.1 Estrutura Organizacional", next: "cerne1_5_1", cls: "btn-c1" },
+      { text: "⚙️ 1.5.2 Gestão do Mecanismo", next: "cerne1_5_2", cls: "btn-c1" },
+      { text: "📣 1.5.3 Comunicação e Marketing", next: "cerne1_5_3", cls: "btn-c1" }
+    ]
+  },
+  cerne2: {
+    text: "🌿 <strong>Cerne 2 — Planejamento e Avaliação</strong>\nEscolha um tópico:",
+    options: [
+      { text: "🎯 2.1.1 Planejamento Estratégico", next: "cerne2_1_1", cls: "btn-c2" },
+      { text: "📈 2.1.2 Administração Estratégica", next: "cerne2_1_2", cls: "btn-c2" },
+      { text: "💡 2.2.1 Estímulo à Ideação",        next: "cerne2_2_1", cls: "btn-c2" },
+      { text: "🛠️ 2.2.2 Serviços a Organizações",   next: "cerne2_2_2", cls: "btn-c2" },
+      { text: "✅ 2.3.1 Avaliação da Qualidade",    next: "cerne2_3_1", cls: "btn-c2" },
+      { text: "📊 2.3.2 Avaliação dos Impactos",    next: "cerne2_3_2", cls: "btn-c2" }
+    ]
+  },
+  cerne3: {
+    text: "🌳 <strong>Cerne 3 — Rede e Sustentabilidade</strong>\nEscolha um tópico:",
+    options: [
+      { text: "🌐 3.1.1 Interação com o Entorno",               next: "cerne3_1_1", cls: "btn-c3" },
+      { text: "📢 3.1.2 Políticas Públicas",                    next: "cerne3_1_2", cls: "btn-c3" },
+      { text: "🧑‍🏫 3.2.1 Rede de Mentores",                   next: "cerne3_2_1", cls: "btn-c3" },
+      { text: "📊 3.2.2 Gestão de Ofertas e Demandas",          next: "cerne3_2_2", cls: "btn-c3" },
+      { text: "💻 3.2.3 Incubação Virtual",                     next: "cerne3_2_3", cls: "btn-c3" },
+      { text: "🌱 3.3.1 Gestão Ambiental",                      next: "cerne3_3_1", cls: "btn-c3" },
+      { text: "❤️ 3.3.2 Responsabilidade Social",              next: "cerne3_3_2", cls: "btn-c3" }
+    ]
+  },
+  cerne4: {
+    text: "🏔️ <strong>Cerne 4 — Alcance Internacional</strong>\nEscolha um tópico:",
+    options: [
+      { text: "🌍 4.1.1 Internacionalização da Incubadora",      next: "cerne4_1_1", cls: "btn-c4" },
+      { text: "✈️ 4.1.2 Internacionalização dos Empreendimentos", next: "cerne4_1_2", cls: "btn-c4" }
+    ]
+  }
+};
+
+/* =============================================================
+   GROUNDINGS (mini aulas)
+   ============================================================= */
+const groundings = {
+  "cerne1_1_1": { praticaId:"cerne1_1_1", nivel:1, pratica:"Sensibilização",
+    descricao:"Divulgar o empreendedorismo, inovação e apoio da incubadora.",
+    objetivo:"Ampliar quantidade e qualidade de propostas recebidas.",
+    acoes:"Definir setores, estágio de evolução, público-alvo, canais e datas.",
+    metricas:"Número de pessoas sensibilizadas.",
+    evidencias:"Procedimentos, registros escritos e visuais, planos de ação, avaliações.",
+    exemplos:"Palestras em universidades, vídeos no site, visitas guiadas.",
+    dicas:"Estimular alto impacto, padronizar mensagens, diversificar público, mapear canais." },
+
+  "cerne1_1_2": { praticaId:"cerne1_1_2", nivel:1, pratica:"Prospecção",
+    descricao:"Busca ativa por empreendimentos inovadores.",
+    objetivo:"Ampliar a quantidade e a qualidade das propostas de empreendimentos.",
+    acoes:"• Como é realizada a prospecção; • Busca pela oferta e pela demanda; • Público-alvo; • Meios; • Plano de ação.",
+    metricas:"Número de propostas prospectadas.",
+    evidencias:"• Procedimento; • Registros das ações; • Plano de ação; • Resultados; • Avaliação de efetividade.",
+    exemplos:"• Workshop com empresas; • Canal de comunicação; • Reuniões com grupos de pesquisa; • Concurso de ideias.",
+    dicas:"• Estimular empreendimentos de alto impacto; • Buscar setores relevantes; • Integrar empresas, governo e pesquisadores; • Empresas incubadas podem ser fontes de novas ideias." },
+
+  "cerne1_1_3": { praticaId:"cerne1_1_3", nivel:1, pratica:"Qualificação de Potenciais Empreendedores",
+    descricao:"Qualificação dos empreendedores com interesse em submeter proposta; apoio à geração e teste de ideias.",
+    objetivo:"Aprimorar conhecimentos e capacidade dos empreendedores para conceber empreendimentos com alto potencial de sucesso.",
+    acoes:"• Público-objetivo; • Meios de qualificação; • Plano de ação.",
+    metricas:"Número de potenciais empreendedores qualificados.",
+    evidencias:"• Procedimento; • Registros das ações; • Plano de ação; • Resultados; • Avaliação de efetividade.",
+    exemplos:"• Curso de modelo de negócios; • Curso de plano de negócios; • Orientação para validação de ideias.",
+    dicas:"• Apresentar conceito de negócios de alto impacto; • Avaliar efeitos da qualificação sobre qualidade das propostas." },
+
+  "cerne1_2_1": { praticaId:"cerne1_2_1", nivel:1, pratica:"Recepção de Propostas",
+    descricao:"Procedimentos formalizados para que os empreendedores possam apresentar suas propostas.",
+    objetivo:"Garantir a inclusão das informações necessárias à avaliação da proposta.",
+    acoes:"• Definir como submeter propostas; • Definir fases, formulários e ferramentas; • Plano de ação.",
+    metricas:"• Número total de propostas recebidas por ano; • Propostas de fora da região.",
+    evidencias:"• Procedimento; • Registros das propostas; • Modelo para apresentação; • Resultados; • Avaliação.",
+    exemplos:"• Documento impresso; • Orientações no site; • Modelo online (modelo de negócios, plano de negócios).",
+    dicas:"• Modelo adequado a negócios de alto impacto; • Diferentes modelos para diferentes perfis; • Exemplos preenchidos." },
+
+  "cerne1_2_2": { praticaId:"cerne1_2_2", nivel:1, pratica:"Avaliação",
+    descricao:"Avaliação de propostas por profissionais experientes usando critérios objetivos.",
+    objetivo:"Garantir que sejam selecionados empreendimentos inovadores com maior probabilidade de sucesso.",
+    acoes:"• Avaliar propostas; • Envolver profissionais especializados; • Definir critérios alinhados aos objetivos.",
+    metricas:"• Número de empreendimentos selecionados; • Percentual de selecionados vs total submetido.",
+    evidencias:"• Procedimento; • Registros das avaliações; • Comunicação dos resultados; • Avaliação de efetividade.",
+    exemplos:"• Banca de avaliação; • Entrevista com proponentes; • Software para distribuição e avaliação.",
+    dicas:"• Critérios que avaliem potencial de alto impacto; • Utilizar profissionais dos parceiros; • Palestra prévia para avaliadores." },
+
+  "cerne1_2_3": { praticaId:"cerne1_2_3", nivel:1, pratica:"Contratação",
+    descricao:"Procedimentos e documentos que estabeleçam direitos e deveres do ambiente de inovação e dos empreendedores.",
+    objetivo:"Estabelecer condições e dar transparência no relacionamento.",
+    acoes:"• Procedimentos de formalização jurídica; • Modelo padrão de contrato.",
+    metricas:"Número de empreendimentos com contratos assinados.",
+    evidencias:"• Procedimento; • Contratos assinados; • Modelo padrão; • Resultados; • Avaliação.",
+    exemplos:"• Modelo de contrato; • Acesso ao regimento interno; • Reconhecimento das instalações.",
+    dicas:"• Incluir cláusulas de uso de marca; • A entrada é oportunidade para integrar novos empreendedores." },
+
+  "cerne1_3_1": { praticaId:"cerne1_3_1", nivel:1, pratica:"Planejamento",
+    descricao:"Auxiliar cada empreendimento no planejamento do desenvolvimento em cinco eixos: empreendedor, tecnologia, capital, mercado e gestão.",
+    objetivo:"Apoiar a elaboração do plano de desenvolvimento de cada empreendimento.",
+    acoes:"• Definir apoio ao planejamento; • Apoiar definição de ações; • Definir horizonte e formalismo.",
+    metricas:"Percentual de empreendimentos com plano de desenvolvimento atualizado.",
+    evidencias:"• Procedimento; • Modelo de plano; • Registros dos planos; • Resultados; • Avaliação.",
+    exemplos:"• Orientação de especialistas em tecnologia; • Orientação em captação de recursos; • Orientação em mercado.",
+    dicas:"• Utilizar profissionais dos parceiros; • Orientar sobre questões de participação societária." },
+
+  "cerne1_3_2": { praticaId:"cerne1_3_2", nivel:1, pratica:"Agregação de Valor",
+    descricao:"Promover o desenvolvimento dos empreendimentos em cinco eixos: empreendedor, tecnologia, capital, mercado e gestão.",
+    objetivo:"Promover o desenvolvimento dos empreendimentos apoiados.",
+    acoes:"• Oferta de serviços de valor agregado; • Plano dos serviços por empreendimento.",
+    metricas:"• Número de serviços oferecidos; • Horas de consultoria; • Horas de capacitação.",
+    evidencias:"• Procedimento; • Plano de serviços; • Registros das ações; • Resultados; • Avaliação.",
+    exemplos:"• Cursos, palestras e eventos; • Consultorias; • Feiras e rodadas de negócios; • Mentoria; • Coaching.",
+    dicas:"• Usar resultados de Planejamento e Monitoramento; • Levar em conta estágio dos empreendimentos; • Oferecer mentorias." },
+
+  "cerne1_3_3": { praticaId:"cerne1_3_3", nivel:1, pratica:"Monitoramento",
+    descricao:"Avaliação periódica considerando cinco eixos: empreendedor, tecnologia, capital, mercado e gestão.",
+    objetivo:"Definir o momento em que o empreendimento esteja preparado para o próximo estágio de evolução.",
+    acoes:"• Monitorar evolução; • Definir instrumento de coleta; • Verificar plano e serviços; • Indicar ajustes.",
+    metricas:"• Empregos gerados; • % que não concluem; • % de alto impacto; • Faturamento; • Impostos; • Investimentos recebidos.",
+    evidencias:"• Procedimento; • Instrumento de coleta; • Registros das ações; • Resultados; • Avaliação.",
+    exemplos:"• Questionários e planilhas; • Plataforma online; • Reuniões de monitoramento.",
+    dicas:"• Avaliar percepção dos empreendedores; • Criar indicadores qualitativos e quantitativos; • Utilizar profissionais parceiros." },
+
+  "cerne1_4_1": { praticaId:"cerne1_4_1", nivel:1, pratica:"Graduação",
+    descricao:"Coroamento de processo bem-sucedido de agregação de valor; contribui para o desenvolvimento da região.",
+    objetivo:"Garantir que o processo de mudança da graduada para um novo espaço seja bem-sucedido.",
+    acoes:"• Mudança para novo espaço; • Planejamento das graduações; • Ajuste do plano quando necessário.",
+    metricas:"• Número de graduadas; • % que se estabeleceram na região.",
+    evidencias:"• Procedimento; • Planejamento das graduações; • Registros das ações; • Resultados; • Avaliação.",
+    exemplos:"• Evento de graduação; • Documentos jurídicos; • Reuniões de monitoramento da mudança; • Checklist.",
+    dicas:"• Graduados podem ser tutores das incubadas; • Comunicar parceiros sobre a graduação." },
+
+  "cerne1_4_2": { praticaId:"cerne1_4_2", nivel:1, pratica:"Relacionamento com Graduadas",
+    descricao:"Acompanhamento da evolução das graduadas e oferta de serviços diferenciados.",
+    objetivo:"Manter vínculos com as graduadas, monitorando evolução e prestando serviços de valor agregado.",
+    acoes:"• Definir acompanhamento; • Elaborar plano; • Portfólio de serviços específicos para graduadas.",
+    metricas:"• % de alto impacto; • % de alto crescimento; • % que permanecem após 1 e 5 anos; • Empregos; • Faturamento.",
+    evidencias:"• Procedimento; • Portfólio de serviços; • Planejamento; • Registros; • Avaliação.",
+    exemplos:"• Documentos jurídicos para serviços às graduadas; • Apresentação no site; • Portfólio de produtos.",
+    dicas:"• Empreendedores graduados podem ser tutores; • Manter agenda de contatos; • Site atualizado com informações." },
+
+  "cerne1_5_1": { praticaId:"cerne1_5_1", nivel:1, pratica:"Estrutura Organizacional",
+    descricao:"Estrutura jurídica e de pessoal que viabilize a operação do ambiente de inovação.",
+    objetivo:"Viabilizar o funcionamento efetivo do ambiente de inovação e a realização de parcerias.",
+    acoes:"• Estrutura jurídica; • Equipe capacitada; • Formalização; • Gerente com dedicação de 40h.",
+    metricas:"• Número de parceiros; • Número de eventos organizados.",
+    evidencias:"• Documentos jurídicos; • Equipe de gestão; • Modelo de negócio; • Plano de ação; • Resultados; • Avaliação.",
+    exemplos:"• Formalização como programa da mantenedora; • Contratação de gerente; • Criação de PJ independente.",
+    dicas:"• Estrutura deve permitir receber recursos de terceiros; • Empreendimentos devem conhecer a documentação." },
+
+  "cerne1_5_2": { praticaId:"cerne1_5_2", nivel:1, pratica:"Gestão do Mecanismo de Inovação",
+    descricao:"Gestão financeira, serviços operacionais e infraestrutura física e tecnológica.",
+    objetivo:"Viabilizar os recursos físicos e financeiros para a operação do ambiente de inovação.",
+    acoes:"• Gestão financeira; • Plano de sustentabilidade; • Serviços operacionais; • Infraestrutura.",
+    metricas:"• Total de receita gerada; • Recursos captados em instituições públicas e privadas.",
+    evidencias:"• Procedimento financeiro; • Resultados financeiros; • Plano de sustentabilidade; • Infraestrutura descrita; • Avaliação.",
+    exemplos:"• Fluxo de caixa; • Indicadores econômico-financeiros; • Espaço para reuniões; • Auditório; • Equipamentos.",
+    dicas:"• Controlar dependência de parceiros; • Controlar receitas e despesas; • Espaço para receber clientes." },
+
+  "cerne1_5_3": { praticaId:"cerne1_5_3", nivel:1, pratica:"Comunicação e Marketing",
+    descricao:"Estratégias de comunicação e marketing para posicionamento e visibilidade do ambiente.",
+    objetivo:"Divulgar o ambiente de inovação e os empreendimentos junto à comunidade.",
+    acoes:"• Material de comunicação impresso e digital; • Estratégia de presença digital.",
+    metricas:"Número de pessoas alcançadas pelas ações de marketing.",
+    evidencias:"• Material de comunicação; • Estratégias digitais; • Resultados; • Avaliação.",
+    exemplos:"• Material impresso; • Portal web; • Assessoria de Imprensa; • Relações Públicas.",
+    dicas:"• Assessoria pode ser compartilhada; • Portal deve permitir interação, não apenas informação." },
+
+  "cerne2_1_1": { praticaId:"cerne2_1_1", nivel:2, pratica:"Planejamento Estratégico",
+    descricao:"Identidade organizacional do ambiente; objetivos, ações e metas para a visão de futuro.",
+    objetivo:"Viabilizar a eficiência e eficácia das ações em direção às metas estratégicas.",
+    acoes:"• Processo sistematizado; • Envolvimento da governança; • Releitura da atuação.",
+    metricas:"Percentual dos membros da governança que participaram do planejamento estratégico.",
+    evidencias:"• Procedimento; • Documento do planejamento; • Estrutura de governança; • Resultados; • Avaliação.",
+    exemplos:"• Profissionais especializados; • BSC, SWOT, Análise de Cenários.",
+    dicas:"• Utilizar profissionais das instituições parceiras; • Incluir posicionamento sobre empreendimentos de alto impacto." },
+
+  "cerne2_1_2": { praticaId:"cerne2_1_2", nivel:2, pratica:"Administração Estratégica",
+    descricao:"Monitorar agenda de ações e metas; gerenciar instrumentos e equipe para a realização da visão.",
+    objetivo:"Assertividade, rapidez e maximização dos recursos para a realização da visão de futuro.",
+    acoes:"• Coordenar execução das ações; • Analisar previsto vs realizado.",
+    metricas:"Percentual das ações previstas que foram realizadas com êxito.",
+    evidencias:"• Procedimento; • Planejamento; • Governança; • Resultados; • Avaliação.",
+    exemplos:"• Reuniões com governança; • Reuniões com equipe técnica e gerencial.",
+    dicas:"• Utilizar software ERP; • Gráficos de evolução das ações planejadas." },
+
+  "cerne2_2_1": { praticaId:"cerne2_2_1", nivel:2, pratica:"Estímulo à Ideação",
+    descricao:"Apoiar ambientes que possibilitem networking e compartilhamento de conhecimentos para novas ideias.",
+    objetivo:"Estimular a interação entre pessoas interessadas em criar negócios e difundir o empreendedorismo.",
+    acoes:"• Viabilizar ambientes de networking; • Estimular surgimento de ambientes de ideação.",
+    metricas:"Número de ambientes de ideação operacionalizados.",
+    evidencias:"• Procedimento; • Registros das ações; • Resultados; • Avaliação.",
+    exemplos:"• Laboratórios de geração de ideias; • Plataformas digitais de interação.",
+    dicas:"• Ambiente pode ser físico ou virtual; • Parceria com outras instituições; • Verificar efetividade dos resultados." },
+
+  "cerne2_2_2": { praticaId:"cerne2_2_2", nivel:2, pratica:"Serviços a Organizações",
+    descricao:"Prestação de serviços a organizações usando know-how do ambiente de inovação.",
+    objetivo:"Fortalecer imagem e ampliar fontes de receitas próprias.",
+    acoes:"• Estruturar serviços para outros clientes; • Organizar portfólio para organizações públicas e privadas.",
+    metricas:"Receita total com serviços executados para organizações.",
+    evidencias:"• Procedimento; • Portfólio; • Resultados; • Avaliação.",
+    exemplos:"• Open Innovation; • Disponibilização de laboratórios; • Incubação de laboratórios de P&D.",
+    dicas:"• Definir processos para identificar necessidades regionais; • Realizar parcerias para ampliar portfólio." },
+
+  "cerne2_3_1": { praticaId:"cerne2_3_1", nivel:2, pratica:"Avaliação da Qualidade",
+    descricao:"Avaliação da qualidade dos empreendimentos apoiados.",
+    objetivo:"Demonstrar a qualidade dos empreendimentos.",
+    acoes:"• Avaliar qualidade dos empreendimentos; • Elaborar e implementar plano de avaliação.",
+    metricas:"Número de prêmios recebidos pelas empresas incubadas e/ou graduadas.",
+    evidencias:"• Procedimento; • Plano de avaliação; • Registros das avaliações; • Avaliação de efetividade.",
+    exemplos:"• Avaliação de qualidade de produtos; • Premiação; • Selo de qualidade.",
+    dicas:"• Utilizar parceiros na avaliação; • Gerente deve participar ativamente; • Alimentar Comunicação e Marketing." },
+
+  "cerne2_3_2": { praticaId:"cerne2_3_2", nivel:2, pratica:"Avaliação dos Impactos",
+    descricao:"Avaliação dos impactos da atuação do ambiente de inovação para o desenvolvimento da região.",
+    objetivo:"Posicionar o ambiente de inovação como instrumento efetivo de desenvolvimento.",
+    acoes:"• Utilizar indicadores; • Elaborar relatório técnico dos impactos.",
+    metricas:"Número de pessoas que tiveram acesso ao relatório de impactos.",
+    evidencias:"• Procedimento; • Relatório de impactos; • Resultados; • Avaliação.",
+    exemplos:"• Comparação com empreendimentos regionais; • Análise com bases IBGE, COMEX, IPEA.",
+    dicas:"• Definir valores mínimos por indicador; • Incluir stakeholders no processo; • Alimentar Comunicação e Marketing." },
+
+  "cerne3_1_1": { praticaId:"cerne3_1_1", nivel:3, pratica:"Interação com o Entorno",
+    descricao:"Processos sistemáticos para interação com os atores do entorno envolvidos com empreendedorismo e inovação.",
+    objetivo:"Ampliar o reconhecimento do ambiente como ator ativo no ecossistema de inovação regional.",
+    acoes:"• Definir como promover interação; • Constituir parcerias com atores do ecossistema.",
+    metricas:"Número de projetos executados em parceria com atores do ecossistema.",
+    evidencias:"• Procedimento; • Registros das interações; • Resultados; • Avaliação.",
+    exemplos:"• Projetos cooperados; • Participação em projetos de outros atores; • Ações conjuntas com outros ambientes.",
+    dicas:"• Ter clareza sobre papel e objetivos dos outros atores; • Incentivar participação de parceiros no processo de incubação." },
+
+  "cerne3_1_2": { praticaId:"cerne3_1_2", nivel:3, pratica:"Participação na Proposição de Políticas Públicas",
+    descricao:"Processos sistematizados para participação em fóruns que propõem políticas públicas de empreendedorismo.",
+    objetivo:"Ampliar a participação do ambiente no processo de definição de políticas públicas.",
+    acoes:"• Definir como participar de fóruns; • Participar de fóruns; • Elaborar proposições.",
+    metricas:"Número de fóruns dos quais o ambiente participa.",
+    evidencias:"• Procedimento; • Registros de participação; • Resultados; • Avaliação.",
+    exemplos:"• Participação em Fórum de Desenvolvimento Econômico; • Propostas formais de políticas públicas.",
+    dicas:"• Ter clareza sobre fóruns relevantes; • Compreender resultados das políticas voltadas à inovação." },
+
+  "cerne3_2_1": { praticaId:"cerne3_2_1", nivel:3, pratica:"Rede de Mentores",
+    descricao:"Processos para operação de rede de mentores formada por empresários e profissionais de destaque.",
+    objetivo:"Aumentar a taxa de sucesso dos empreendimentos incubados.",
+    acoes:"• Definir como criar e operacionalizar rede; • Levantamento de mentores; • Banco de mentores.",
+    metricas:"• % de empresas com mentor; • Número de mentores no banco; • Total de horas de mentoria.",
+    evidencias:"• Procedimento; • Registros de mentorias; • Resultados; • Avaliação.",
+    exemplos:"Definição de empresário de sucesso como mentor de empresa incubada.",
+    dicas:"• Graduados podem ser fonte de mentores; • Grandes empresas têm profissionais que podem mentorar." },
+
+  "cerne3_2_2": { praticaId:"cerne3_2_2", nivel:3, pratica:"Gestão de Ofertas e Demandas",
+    descricao:"Processos para promover inovação por meio da aproximação entre demandas e ofertas.",
+    objetivo:"Facilitar o acesso ao mercado por parte das empresas incubadas.",
+    acoes:"• Definir conexão entre oferta e demanda; • Identificar demandas; • Estruturar processo de interação.",
+    metricas:"• Projetos de conexão realizados; • Empresas que participaram dos projetos.",
+    evidencias:"• Procedimento; • Registros das ações; • Resultados; • Avaliação.",
+    exemplos:"• Projetos de Inovação Aberta; • Consórcio entre incubadas; • Programa de apoio à geração de empreendimentos.",
+    dicas:"• Envolver empreendimentos de outros ambientes; • Avaliar perfil da empresa ofertante." },
+
+  "cerne3_2_3": { praticaId:"cerne3_2_3", nivel:3, pratica:"Incubação Virtual",
+    descricao:"Metodologia de incubação virtual para ampliar a atuação do ambiente de inovação.",
+    objetivo:"Ampliar o número de empreendimentos apoiados.",
+    acoes:"• Definir como realizar incubação virtual; • Estruturar e operacionalizar metodologia.",
+    metricas:"Número de empreendimentos incubados virtualmente.",
+    evidencias:"• Procedimento; • Registros da oferta virtual; • Resultados; • Avaliação.",
+    exemplos:"• Apoio a cooperativas de catadores; • Apoio a empreendimentos em outras regiões.",
+    dicas:"• Interação via internet; • Parcerias com instituições de outras regiões; • Visitas à sede dos empreendimentos." },
+
+  "cerne3_3_1": { praticaId:"cerne3_3_1", nivel:3, pratica:"Gestão Ambiental",
+    descricao:"Processos para mitigação dos impactos ambientais da atuação do ambiente e das incubadas.",
+    objetivo:"Reduzir o impacto ambiental do ambiente de inovação e dos empreendimentos incubados.",
+    acoes:"• Definir como identificar impactos; • Realizar ações de gestão ambiental.",
+    metricas:"Número de ações de gestão ambiental operacionalizadas.",
+    evidencias:"• Procedimento; • Registros das ações; • Resultados; • Avaliação.",
+    exemplos:"• Reciclagem; • Uso sustentável de recursos; • Reutilização de água; • Política Ambiental; • Energias renováveis.",
+    dicas:"• Motivar incubadas a adotar práticas ambientais; • Ter Política Ambiental própria; • Apoio de parceiros." },
+
+  "cerne3_3_2": { praticaId:"cerne3_3_2", nivel:3, pratica:"Responsabilidade Social",
+    descricao:"Política de responsabilidade social para bem-estar dos públicos interno e externo.",
+    objetivo:"Ampliar o bem-estar de colaboradores, empreendedores e público externo.",
+    acoes:"• Definir como realizar ações de responsabilidade social; • Realizar as ações conforme definido.",
+    metricas:"Número de ações de responsabilidade social operacionalizadas.",
+    evidencias:"• Procedimento; • Registros das ações; • Resultados; • Avaliação.",
+    exemplos:"• Política de Responsabilidade Social; • Cursos para comunidades; • Código de Ética; • Campanhas de doação.",
+    dicas:"• Ampliar interação com ONGs; • Incluir incubados e graduados nas ações sociais." },
+
+  "cerne4_1_1": { praticaId:"cerne4_1_1", nivel:4, pratica:"Internacionalização da Incubadora",
+    descricao:"Processo para atuação em rede com parceiros internacionais, captando recursos e compartilhando conhecimentos.",
+    objetivo:"Ampliar a atuação internacional do ambiente.",
+    acoes:"• Definir ações de internacionalização; • Identificar parceiros internacionais; • Planejar e executar rede.",
+    metricas:"Número de projetos executados com parceiros internacionais.",
+    evidencias:"• Procedimento; • Registros das ações internacionais; • Resultados; • Avaliação.",
+    exemplos:"• Projetos cooperados internacionais; • Espaço de incubação em outros países.",
+    dicas:"• Participar de eventos internacionais; • Material de comunicação em inglês; • Equipe preparada para interação." },
+
+  "cerne4_1_2": { praticaId:"cerne4_1_2", nivel:4, pratica:"Internacionalização dos Empreendimentos",
+    descricao:"Processo de oferta de serviços para que os empreendimentos acessem o mercado internacional.",
+    objetivo:"Ampliar a atuação internacional das incubadas e graduadas.",
+    acoes:"• Definir ações de internacionalização dos empreendimentos; • Identificar parceiros; • Planejar ações.",
+    metricas:"Número de empreendimentos participando de projetos de internacionalização.",
+    evidencias:"• Procedimento; • Registros das ações; • Resultados; • Avaliação.",
+    exemplos:"• Rodadas internacionais de negócios; • Incubação cruzada; • Softlanding.",
+    dicas:"• Participar de missões internacionais; • Monitorar resultados; • Organizar todos os serviços com parceiro local." }
+};
+
+/* =============================================================
+   QUIZZES
+   ============================================================= */
+const quizzes = {
+  "cerne1_1_1": {
+    question:"Qual é o principal objetivo da prática de Sensibilização no Cerne 1?",
+    options:["Aumentar o número de incubadoras na região","Ampliar quantidade e qualidade de propostas recebidas","Melhorar a infraestrutura da incubadora","Aumentar o financiamento governamental"],
+    correctAnswer:1,
+    explanation:"O objetivo principal da Sensibilização é ampliar a quantidade e qualidade das propostas recebidas pela incubadora, através da divulgação do empreendedorismo, inovação e apoio oferecido."
+  },
+  "cerne1_1_2": {
+    question:"Qual das seguintes NÃO é uma boa prática para a Prospecção de empreendimentos?",
+    options:["Estimular a geração de empreendimentos de alto impacto","Buscar oportunidades nos setores relevantes para a economia da região","Focar exclusivamente em empresas já estabelecidas, ignorando pesquisadores","Realizar eventos que integrem empresas, governo e pesquisadores"],
+    correctAnswer:2,
+    explanation:"Focar exclusivamente em empresas já estabelecidas contradiz a proposta da Prospecção, que deve buscar ativamente empreendimentos inovadores em múltiplas fontes — incluindo grupos de pesquisa, concursos de ideias e o próprio ecossistema local."
+  },
+  "cerne1_1_3": {
+    question:"Qual é a métrica definida para a prática de Qualificação de Potenciais Empreendedores?",
+    options:["Número de propostas recebidas","Número de potenciais empreendedores qualificados","Percentual de empreendimentos selecionados","Receita total gerada pela incubadora"],
+    correctAnswer:1,
+    explanation:"A métrica definida é o número de potenciais empreendedores qualificados, pois o objetivo é aprimorar o conhecimento e a capacidade dos empreendedores para conceber empreendimentos com alto potencial de sucesso."
+  },
+  "cerne1_2_1": {
+    question:"Qual é o objetivo principal da prática de Recepção de Propostas?",
+    options:["Selecionar os melhores empreendimentos","Garantir a inclusão das informações necessárias à avaliação da proposta","Formalizar juridicamente o relacionamento com os empreendedores","Ampliar a quantidade de empreendimentos na incubadora"],
+    correctAnswer:1,
+    explanation:"O objetivo da Recepção de Propostas é garantir que os empreendedores incluam todas as informações necessárias para que a proposta possa ser avaliada corretamente pelo ambiente de inovação."
+  },
+  "cerne1_2_2": {
+    question:"Qual elemento NÃO é citado como prática recomendada na prática de Avaliação?",
+    options:["Utilizar profissionais dos parceiros","Realizar palestra para uniformizar conhecimentos dos avaliadores","Utilizar software para distribuição de propostas","Aceitar todas as propostas sem critérios objetivos"],
+    correctAnswer:3,
+    explanation:"A prática de Avaliação requer critérios objetivos e profissionais qualificados. Aceitar propostas sem critérios contradiz completamente o propósito desta prática, que visa selecionar empreendimentos com maior probabilidade de sucesso."
+  },
+  "cerne1_2_3": {
+    question:"O que a prática de Contratação deve, no mínimo, incluir?",
+    options:["Apenas contratos verbais","Um modelo padrão de contrato","Somente contratos temporários","Contratos apenas para empreendimentos de tecnologia"],
+    correctAnswer:1,
+    explanation:"A prática de Contratação deve ter pelo menos um modelo padrão de contrato, que estabelece de forma clara os direitos e deveres do ambiente de inovação e dos empreendedores."
+  },
+  "cerne1_3_1": {
+    question:"Quais são os cinco eixos que o Planejamento dos empreendimentos deve contemplar?",
+    options:["Financeiro, Jurídico, Tecnológico, Social e Ambiental","Empreendedor, Tecnologia, Capital, Mercado e Gestão","Produto, Preço, Praça, Promoção e Pessoas","Missão, Visão, Valores, Objetivos e Estratégias"],
+    correctAnswer:1,
+    explanation:"O modelo CERNE define que o Planejamento deve contemplar pelo menos cinco eixos: Empreendedor, Tecnologia, Capital, Mercado e Gestão, garantindo uma visão holística do desenvolvimento dos empreendimentos."
+  },
+  "cerne1_3_2": {
+    question:"Qual é o objetivo da prática de Agregação de Valor?",
+    options:["Avaliar a qualidade dos empreendimentos","Promover o desenvolvimento dos empreendimentos apoiados","Formalizar o relacionamento com as graduadas","Estruturar a governança do ambiente de inovação"],
+    correctAnswer:1,
+    explanation:"A Agregação de Valor visa promover o desenvolvimento dos empreendimentos apoiados, por meio da oferta de serviços em pelo menos cinco eixos: empreendedor, tecnologia, capital, mercado e gestão."
+  },
+  "cerne1_3_3": {
+    question:"O Monitoramento determina o que deve acontecer com um empreendimento que ainda não está pronto para o próximo estágio?",
+    options:["Deve ser imediatamente graduado","Deve continuar o desenvolvimento ou pivotar","Deve ser expulso da incubadora","Deve receber apenas serviços financeiros"],
+    correctAnswer:1,
+    explanation:"Quando um empreendimento ainda não está pronto, o Monitoramento indica que ele deve continuar o desenvolvimento — com possibilidade de pivotação — ou ser descontinuado, nunca sendo forçado a uma graduação prematura."
+  },
+  "cerne1_4_1": {
+    question:"O que a Graduação simboliza no modelo CERNE?",
+    options:["O fracasso do processo de incubação","O coroamento de um processo bem-sucedido de agregação de valor","O início do processo de incubação","A saída involuntária do empreendimento"],
+    correctAnswer:1,
+    explanation:"A Graduação representa o coroamento de um processo bem-sucedido de agregação de valor, materializando os princípios que fundamentam o modelo CERNE e contribuindo para o desenvolvimento regional."
+  },
+  "cerne1_4_2": {
+    question:"Qual é o principal objetivo do Relacionamento com Graduadas?",
+    options:["Encerrar o vínculo com as empresas graduadas","Manter vínculos, monitorar evolução e prestar serviços de valor agregado","Reincubar as graduadas no ambiente de inovação","Cobrar taxas de uso da marca da incubadora"],
+    correctAnswer:1,
+    explanation:"O objetivo é manter vínculos com as graduadas, monitorando sua evolução e oferecendo serviços de valor agregado diferentes daqueles prestados durante o processo de desenvolvimento."
+  },
+  "cerne1_5_1": {
+    question:"Qual é o requisito mínimo de dedicação para o gestor do ambiente de inovação?",
+    options:["10 horas semanais","20 horas semanais","40 horas semanais","Dedicação variável, sem mínimo definido"],
+    correctAnswer:2,
+    explanation:"O modelo CERNE exige que pelo menos um membro da equipe de gestão tenha 40 horas semanais dedicadas ao ambiente de inovação, garantindo a capacidade operacional necessária."
+  },
+  "cerne1_5_2": {
+    question:"Qual é um dos principais objetivos da Gestão do Mecanismo de Inovação?",
+    options:["Criar parcerias internacionais para intercâmbio de startups","Implementar exclusivamente serviços digitais","Viabilizar os recursos físicos e financeiros para a operação","Consolidar uma rede de mentores voluntários"],
+    correctAnswer:2,
+    explanation:"O objetivo é garantir que o ambiente disponha de recursos financeiros e infraestrutura física e tecnológica compatível com as necessidades dos empreendimentos apoiados."
+  },
+  "cerne1_5_3": {
+    question:"Qual é o principal objetivo da prática Comunicação e Marketing?",
+    options:["Garantir sustentabilidade financeira","Divulgar o ambiente e os empreendimentos junto à comunidade","Formalizar o ambiente junto à mantenedora","Oferecer treinamentos para empreendedores"],
+    correctAnswer:1,
+    explanation:"O objetivo é divulgar o ambiente de inovação e os empreendimentos — apoiados e graduados — para aumentar sua visibilidade e reconhecimento na região."
+  },
+  "cerne2_1_1": {
+    question:"Qual é o objetivo principal do Planejamento Estratégico no ambiente de inovação?",
+    options:["Viabilizar eficiência e eficácia das ações em direção às metas da visão de futuro","Garantir sustentabilidade financeira","Formalizar o ambiente junto à mantenedora","Oferecer serviços diferenciados às graduadas"],
+    correctAnswer:0,
+    explanation:"O Planejamento Estratégico visa garantir que as ações sejam eficientes e eficazes para alcançar as metas da visão de futuro do ambiente de inovação."
+  },
+  "cerne2_1_2": {
+    question:"Qual é o objetivo da Administração Estratégica?",
+    options:["Assertividade, rapidez e maximização dos recursos para a visão de futuro","Formalizar a estrutura jurídica","Acompanhar evolução das graduadas","Divulgar o ambiente junto à comunidade"],
+    correctAnswer:0,
+    explanation:"A Administração Estratégica busca coordenar e monitorar as ações para assegurar que os recursos sejam usados de forma assertiva e rápida para alcançar a visão de futuro."
+  },
+  "cerne2_2_1": {
+    question:"Qual é o principal objetivo do Estímulo à Ideação?",
+    options:["Apoiar ambientes que possibilitem networking e compartilhamento para novas ideias","Gerenciar infraestrutura física","Formalizar estrutura jurídica","Realizar planejamento estratégico"],
+    correctAnswer:0,
+    explanation:"O Estímulo à Ideação visa fomentar a interação entre pessoas interessadas em criar negócios, incentivando o surgimento de novos empreendimentos inovadores."
+  },
+  "cerne2_2_2": {
+    question:"Qual o principal objetivo da prática Serviços a Organizações?",
+    options:["Fortalecer a imagem e ampliar as fontes de receitas próprias","Estabelecer estrutura jurídica","Gerenciar agenda estratégica","Estimular geração de novas ideias"],
+    correctAnswer:0,
+    explanation:"A prática visa fortalecer a imagem do ambiente e ampliar suas fontes de receita por meio da prestação de serviços a organizações públicas e privadas."
+  },
+  "cerne2_3_1": {
+    question:"Qual é o principal objetivo da Avaliação da Qualidade?",
+    options:["Demonstrar a qualidade dos empreendimentos apoiados","Monitorar agenda de ações e metas","Viabilizar recursos financeiros","Promover networking entre empreendedores"],
+    correctAnswer:0,
+    explanation:"A prática tem como objetivo demonstrar a qualidade dos empreendimentos apoiados por meio de avaliação sistemática e registros claros dos resultados."
+  },
+  "cerne2_3_2": {
+    question:"Qual é o objetivo principal da Avaliação dos Impactos?",
+    options:["Posicionar o ambiente como instrumento efetivo de desenvolvimento da região","Aumentar receita por serviços","Elaborar estratégias de marketing","Avaliar qualidade dos empreendimentos"],
+    correctAnswer:0,
+    explanation:"O objetivo é posicionar o ambiente de inovação como instrumento efetivo para o desenvolvimento regional, usando indicadores e relatórios para demonstrar seus impactos."
+  },
+  "cerne3_1_1": {
+    question:"Qual é o objetivo principal da Interação com o Entorno?",
+    options:["Ampliar reconhecimento do ambiente como ator ativo no ecossistema regional","Aumentar serviços a organizações","Melhorar avaliação de qualidade","Garantir planejamento estratégico"],
+    correctAnswer:0,
+    explanation:"O objetivo é ampliar o reconhecimento do ambiente de inovação como ator ativo no ecossistema regional, promovendo interação sistemática com os atores do entorno."
+  },
+  "cerne3_1_2": {
+    question:"Qual é o objetivo da Participação na Proposição de Políticas Públicas?",
+    options:["Ampliar participação no processo de definição de políticas voltadas à inovação","Incrementar receita via serviços","Avaliar qualidade dos empreendimentos","Garantir interação com o ecossistema"],
+    correctAnswer:0,
+    explanation:"O objetivo é ampliar a participação do ambiente na definição de políticas públicas que promovam empreendedorismo e inovação."
+  },
+  "cerne3_2_1": {
+    question:"Qual é o principal objetivo da Rede de Mentores?",
+    options:["Aumentar a taxa de sucesso dos empreendimentos incubados","Ampliar portfólio de serviços","Avaliar impactos do ambiente","Participar de fóruns de políticas públicas"],
+    correctAnswer:0,
+    explanation:"O objetivo é aumentar a taxa de sucesso dos empreendimentos incubados por meio da criação e operacionalização de uma rede de mentores qualificados."
+  },
+  "cerne3_2_2": {
+    question:"Qual é o objetivo da Gestão de Ofertas e Demandas?",
+    options:["Facilitar o acesso ao mercado por parte das empresas incubadas","Avaliar qualidade dos empreendimentos","Promover participação em fóruns públicos","Aumentar número de mentores"],
+    correctAnswer:0,
+    explanation:"O objetivo é facilitar o acesso ao mercado para as empresas incubadas promovendo conexão sistemática entre ofertas e demandas."
+  },
+  "cerne3_2_3": {
+    question:"Qual é o objetivo principal da Incubação Virtual?",
+    options:["Ampliar o número de empreendimentos apoiados","Garantir participação em fóruns públicos","Aumentar rede de mentores","Avaliar impactos do ambiente na região"],
+    correctAnswer:0,
+    explanation:"A Incubação Virtual visa ampliar o número de empreendimentos apoiados, inclusive os localizados em outras regiões, por meio de metodologia específica e uso da internet."
+  },
+  "cerne3_3_1": {
+    question:"Qual é o principal objetivo da Gestão Ambiental?",
+    options:["Reduzir impacto ambiental do ambiente e dos empreendimentos incubados","Aumentar participação em fóruns públicos","Expandir rede de mentores","Ampliar empreendimentos apoiados virtualmente"],
+    correctAnswer:0,
+    explanation:"A Gestão Ambiental tem como objetivo reduzir os impactos ambientais negativos causados pelo ambiente de inovação e pelas empresas incubadas."
+  },
+  "cerne3_3_2": {
+    question:"Qual é o objetivo da Responsabilidade Social?",
+    options:["Ampliar bem-estar de colaboradores, empreendedores e público externo","Aumentar projetos com o ecossistema","Desenvolver rede de mentores","Implementar políticas públicas de inovação"],
+    correctAnswer:0,
+    explanation:"A prática visa ampliar o bem-estar dos colaboradores, empreendedores e público externo por meio de ações e políticas formalizadas de responsabilidade social."
+  },
+  "cerne4_1_1": {
+    question:"Qual o principal objetivo da Internacionalização da Incubadora?",
+    options:["Ampliar a atuação internacional do ambiente","Aumentar empreendimentos incubados localmente","Criar produtos para o mercado nacional","Expandir a equipe do ambiente"],
+    correctAnswer:0,
+    explanation:"O objetivo é ampliar a atuação internacional do ambiente por meio da atuação em rede com parceiros internacionais, captando recursos e compartilhando conhecimentos."
+  },
+  "cerne4_1_2": {
+    question:"Qual a finalidade da Internacionalização dos Empreendimentos?",
+    options:["Ampliar a atuação internacional das incubadas e graduadas","Fortalecer atuação local","Garantir exclusividade de mercado","Reduzir custos operacionais"],
+    correctAnswer:0,
+    explanation:"A prática visa operacionalizar processos para que os empreendimentos acessem e atuem em mercados internacionais."
+  }
+};
+
+/* =============================================================
+   ACHIEVEMENTS
+   ============================================================= */
+const achievements = {
+  "explorador_iniciante":  { name:"Explorador Iniciante",   desc:"Visitou sua primeira prática do modelo CERNE", icon:"fas fa-hiking" },
+  "conhecedor_cerne1":     { name:"Conhecedor do Cerne 1",  desc:"Explorou pelo menos 5 práticas do Cerne 1",   icon:"fas fa-seedling" },
+  "conhecedor_cerne2":     { name:"Conhecedor do Cerne 2",  desc:"Explorou pelo menos 3 práticas do Cerne 2",   icon:"fas fa-leaf" },
+  "conhecedor_cerne3":     { name:"Conhecedor do Cerne 3",  desc:"Explorou pelo menos 3 práticas do Cerne 3",   icon:"fas fa-tree" },
+  "conhecedor_cerne4":     { name:"Conhecedor do Cerne 4",  desc:"Explorou as práticas do Cerne 4",             icon:"fas fa-globe" },
+  "boss_cerne2":           { name:"Boss do Cerne 2",        desc:"Dominou o Cerne 2 após o Cerne 1",            icon:"fas fa-dragon" },
+  "boss_cerne3":           { name:"Boss do Cerne 3",        desc:"Dominou o Cerne 3 após os Cernes 1 e 2",      icon:"fas fa-mountain" },
+  "boss_cerne4":           { name:"Boss do Cerne 4",        desc:"Dominou todos os níveis do CERNE!",           icon:"fas fa-crown" },
+  "mestre_quiz":           { name:"Mestre dos Quizzes",     desc:"Acertou 3 quizzes consecutivos",              icon:"fas fa-award" },
+  "explorador_completo":   { name:"Explorador Completo",    desc:"Visitou práticas de todos os 4 níveis",       icon:"fas fa-star" }
+};
+
+/* =============================================================
+   BM25 ENGINE
+   ============================================================= */
+const BM25 = (() => {
+  const K1 = 1.5, B = 0.75;
+  const STOPWORDS_PT = new Set(["de","a","o","que","e","do","da","em","um","para","com","uma","os","no","se","na","por","mais","as","dos","como","mas","foi","ao","ele","das","tem","à","seu","sua","ou","ser","quando","muito","há","nos","já","também","só","pelo","pela","até","isso","ela","entre","era","depois","sem","mesmo","aos","ter","seus","quem","nas","me","esse","eles","estão","você","tinha","foram","essa","num","nem","suas","meu","às","minha","têm","numa","pelos","pelas","essa","este","del","te","lo"]);
+
+  function normalize(text) {
+    return text.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[^a-z0-9\s]/g," ");
+  }
+
+  function tokenize(text) {
+    return normalize(text).split(/\s+/).filter(t => t.length > 2 && !STOPWORDS_PT.has(t));
+  }
+
+  // Raw tokens (shorter, for highlight matching)
+  function rawTokens(text) {
+    return normalize(text).split(/\s+/).filter(t => t.length > 1);
+  }
+
+  function buildIndex(docs) {
+    const tf = [], docLen = [], rawTexts = [];
+    const df = {};
+    const N = docs.length;
+
+    docs.forEach((doc, i) => {
+      rawTexts.push(doc.text);
+      const tokens = tokenize(doc.text);
+      docLen.push(tokens.length);
+      const freq = {};
+      tokens.forEach(t => { freq[t] = (freq[t] || 0) + 1; });
+      tf.push(freq);
+      Object.keys(freq).forEach(t => { df[t] = (df[t] || 0) + 1; });
+    });
+
+    const avgdl = docLen.reduce((a,b) => a+b, 0) / N;
+
+    function score(queryTokens, docIdx) {
+      let s = 0;
+      const freq = tf[docIdx], dl = docLen[docIdx];
+      queryTokens.forEach(t => {
+        if (!freq[t]) return;
+        const idf = Math.log((N-(df[t]||0)+0.5)/((df[t]||0)+0.5)+1);
+        const tfVal = freq[t]*(K1+1)/(freq[t]+K1*(1-B+B*dl/avgdl));
+        s += idf * tfVal;
+      });
+      return s;
+    }
+
+    function search(query, topK = 20) {
+      const qTokens = tokenize(query);
+      if (!qTokens.length) return [];
+      return docs
+        .map((doc, i) => ({ id: doc.id, score: score(qTokens, i) }))
+        .filter(r => r.score > 0)
+        .sort((a, b) => b.score - a.score)
+        .slice(0, topK);
+    }
+
+    // Returns top-N autocomplete suggestions (fast prefix BM25)
+    function autocomplete(query, topN = 6) {
+      const q = normalize(query).trim();
+      if (q.length < 2) return [];
+      const partial = q.split(/\s+/).pop(); // last word for prefix match
+      const fullTokens = tokenize(query);
+      // Boost docs where the partial matches a token prefix
+      return docs.map((doc, i) => {
+        const baseScore = score(fullTokens, i);
+        const prefixBoost = Object.keys(tf[i]).some(t => t.startsWith(partial)) ? 1.5 : 1;
+        return { id: doc.id, score: baseScore * prefixBoost };
+      })
+      .filter(r => r.score > 0)
+      .sort((a,b) => b.score - a.score)
+      .slice(0, topN);
+    }
+
+    // Extract best context snippet (150 chars) around matched term
+    function snippet(docId, rawToks, maxLen = 160) {
+      const idx = docs.findIndex(d => d.id === docId);
+      if (idx < 0) return "";
+      const text = rawTexts[idx];
+      const norm = normalize(text);
+      if (!rawToks.length) return text.slice(0, maxLen);
+      // Find position of first matching token
+      let bestPos = -1;
+      for (const tok of rawToks) {
+        const p = norm.indexOf(tok);
+        if (p !== -1 && (bestPos === -1 || p < bestPos)) bestPos = p;
+      }
+      if (bestPos === -1) return text.slice(0, maxLen) + "…";
+      const start = Math.max(0, bestPos - 55);
+      const end = Math.min(text.length, start + maxLen);
+      const snip = (start > 0 ? "…" : "") + text.slice(start, end).trim() + (end < text.length ? "…" : "");
+      return snip;
+    }
+
+    return { search, autocomplete, snippet, tokenize, rawTokens };
+  }
+
+  // Levenshtein distance for did-you-mean
+  function levenshtein(a, b) {
+    const m = a.length, n = b.length;
+    const dp = Array.from({length: m+1}, (_,i) => Array.from({length: n+1}, (_,j) => i===0?j:j===0?i:0));
+    for (let i=1;i<=m;i++) for(let j=1;j<=n;j++)
+      dp[i][j] = a[i-1]===b[j-1] ? dp[i-1][j-1] : 1+Math.min(dp[i-1][j],dp[i][j-1],dp[i-1][j-1]);
+    return dp[m][n];
+  }
+
+  return { buildIndex, levenshtein, normalize };
+})();
+
+// Build corpus from groundings
+const bm25Corpus = Object.entries(groundings).map(([id, g]) => ({
+  id,
+  text: [g.pratica, g.descricao, g.objetivo, g.acoes, g.metricas, g.exemplos, g.dicas].filter(Boolean).join(" ")
+}));
+const bm25Index = BM25.buildIndex(bm25Corpus);
+
+// All practice vocabulary for did-you-mean
+const corpusVocab = (() => {
+  const words = new Set();
+  bm25Corpus.forEach(d => {
+    BM25.normalize(d.text).split(/\s+/).filter(w => w.length > 3).forEach(w => words.add(w));
+  });
+  return [...words];
+})();
+
+/* =============================================================
+   STATE
+   ============================================================= */
+function loadState() {
+  try {
+    const saved = localStorage.getItem("cerneOracle_progress");
+    if (saved) return JSON.parse(saved);
+  } catch(e) {}
+  return {
+    totalVisited: 0,
+    quizzesCompleted: 0,
+    quizzesCorrect: 0,
+    consecutiveCorrect: 0,
+    earnedAchievements: [],
+    visitedNodes: ["start"]
+  };
+}
+
+function saveState() {
+  try {
+    const s = { ...userProgress, visitedNodes: [...visitedNodes], earnedAchievements: [...userProgress.earnedAchievements] };
+    localStorage.setItem("cerneOracle_progress", JSON.stringify(s));
+  } catch(e) {}
+}
+
+const savedState = loadState();
+let currentNode = "start";
+let visitedNodes = new Set(savedState.visitedNodes || ["start"]);
+let breadcrumbHistory = [{ id: "start", text: "Início" }];
+let userProgress = {
+  totalVisited: savedState.totalVisited || 0,
+  quizzesCompleted: savedState.quizzesCompleted || 0,
+  quizzesCorrect: savedState.quizzesCorrect || 0,
+  consecutiveCorrect: savedState.consecutiveCorrect || 0,
+  earnedAchievements: new Set(savedState.earnedAchievements || [])
+};
+
+/* =============================================================
+   INIT
+   ============================================================= */
+document.addEventListener("DOMContentLoaded", () => {
+  applyTheme();
+  navigateTo("start");
+  setupListeners();
+  updateProgressBar();
+});
+
+/* =============================================================
+   AUTOCOMPLETE STATE
+   ============================================================= */
+let acActiveIdx = -1;
+let acSuggestions = [];
+
+function setupListeners() {
+  document.getElementById("dark-mode-toggle").addEventListener("click", toggleDarkMode);
+
+  const input = document.getElementById("search-input");
+  const clear  = document.getElementById("search-clear");
+  const acDrop = document.getElementById("ac-dropdown");
+  const dym    = document.getElementById("did-you-mean");
+
+  let debounce, acDebounce;
+
+  input.addEventListener("input", () => {
+    const q = input.value.trim();
+    // Autocomplete (fast, 100ms)
+    clearTimeout(acDebounce);
+    acDebounce = setTimeout(() => updateAutocomplete(q), 100);
+    // Full search (200ms)
+    clearTimeout(debounce);
+    debounce = setTimeout(() => {
+      if (q.length >= 2) handleSearch(q);
+      else if (!q) { closeAutocomplete(); dym.classList.remove("show"); }
+    }, 200);
+  });
+
+  input.addEventListener("keydown", e => {
+    if (e.key === "Escape") {
+      if (acDrop.classList.contains("open")) { closeAutocomplete(); }
+      else { input.value = ""; closeAutocomplete(); dym.classList.remove("show"); navigateTo(currentNode); }
+      return;
+    }
+    if (!acDrop.classList.contains("open")) return;
+    if (e.key === "ArrowDown") {
+      e.preventDefault();
+      acActiveIdx = Math.min(acActiveIdx + 1, acSuggestions.length - 1);
+      updateAcHighlight();
+    } else if (e.key === "ArrowUp") {
+      e.preventDefault();
+      acActiveIdx = Math.max(acActiveIdx - 1, -1);
+      updateAcHighlight();
+    } else if (e.key === "Tab" || e.key === "Enter") {
+      e.preventDefault();
+      const idx = acActiveIdx >= 0 ? acActiveIdx : 0;
+      if (acSuggestions[idx]) applyAutocomplete(acSuggestions[idx]);
+    }
+  });
+
+  // Close on outside click
+  document.addEventListener("click", e => {
+    if (!e.target.closest(".search-wrap")) closeAutocomplete();
+  });
+
+  clear.addEventListener("click", () => {
+    input.value = "";
+    closeAutocomplete();
+    dym.classList.remove("show");
+    navigateTo(currentNode);
+    input.focus();
+  });
+  clear.addEventListener("keydown", e => { if (e.key === "Enter") clear.click(); });
+}
+
+function updateAutocomplete(query) {
+  const acDrop = document.getElementById("ac-dropdown");
+  if (query.length < 2) { closeAutocomplete(); return; }
+
+  const sug = bm25Index.autocomplete(query, 6);
+  acSuggestions = sug.map(r => groundings[r.id]).filter(Boolean);
+  acActiveIdx = -1;
+
+  // Re-render items (keep hint at bottom)
+  const existingItems = acDrop.querySelectorAll(".ac-item");
+  existingItems.forEach(el => el.remove());
+  const hint = acDrop.querySelector(".ac-tab-hint");
+
+  if (!acSuggestions.length) { closeAutocomplete(); return; }
+
+  const levelColors = {1:"var(--c1)",2:"var(--c2)",3:"var(--c3)",4:"var(--c4)"};
+  const maxS = sug[0]?.score || 1;
+
+  acSuggestions.forEach((g, i) => {
+    const item = document.createElement("div");
+    item.className = "ac-item";
+    item.setAttribute("role", "option");
+    item.dataset.idx = i;
+    const barW = Math.round((sug[i].score / maxS) * 60);
+    item.innerHTML = `
+      <span class="level-badge level-${g.nivel}" style="flex-shrink:0">C${g.nivel}</span>
+      <span class="ac-label">${g.pratica}</span>
+      <svg width="${barW}" height="6" style="flex-shrink:0">
+        <rect width="${barW}" height="6" rx="3" fill="${levelColors[g.nivel]||'var(--primary)'}"/>
+      </svg>
+      <span class="ac-score">${sug[i].score.toFixed(1)}</span>`;
+    item.addEventListener("mousedown", e => { e.preventDefault(); applyAutocomplete(g); });
+    acDrop.insertBefore(item, hint);
+  });
+
+  acDrop.classList.add("open");
+  document.getElementById("search-input").setAttribute("aria-expanded","true");
+}
+
+function updateAcHighlight() {
+  document.querySelectorAll(".ac-item").forEach((el, i) => {
+    el.classList.toggle("ac-active", i === acActiveIdx);
+  });
+}
+
+function closeAutocomplete() {
+  const d = document.getElementById("ac-dropdown");
+  d.classList.remove("open");
+  document.getElementById("search-input").setAttribute("aria-expanded","false");
+  acActiveIdx = -1;
+}
+
+function applyAutocomplete(g) {
+  const input = document.getElementById("search-input");
+  input.value = g.pratica;
+  closeAutocomplete();
+  navigateTo(g.praticaId);
+}
+
+/* =============================================================
+   THEME
+   ============================================================= */
+function applyTheme() {
+  const dark = localStorage.getItem("cerneOracle_dark") === "1";
+  document.documentElement.setAttribute("data-theme", dark ? "dark" : "light");
+  const btn = document.getElementById("dark-mode-toggle");
+  btn.innerHTML = dark ? '<i class="fas fa-sun" aria-hidden="true"></i>' : '<i class="fas fa-moon" aria-hidden="true"></i>';
+  btn.setAttribute("aria-pressed", String(dark));
+  btn.setAttribute("aria-label", dark ? "Alternar para modo claro" : "Alternar para modo escuro");
+}
+
+function toggleDarkMode() {
+  const isDark = document.documentElement.getAttribute("data-theme") === "dark";
+  localStorage.setItem("cerneOracle_dark", isDark ? "0" : "1");
+  applyTheme();
+}
+
+/* =============================================================
+   NAVIGATION
+   ============================================================= */
+function navigateTo(nodeId) {
+  currentNode = nodeId;
+  if (!visitedNodes.has(nodeId)) {
+    visitedNodes.add(nodeId);
+    userProgress.totalVisited++;
+    checkAchievements();
+  }
+  updateBreadcrumb(nodeId);
+  clearContainers();
+  renderNode(nodeId);
+  updateProgressBar();
+  saveState();
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+function updateBreadcrumb(nodeId) {
+  const idx = breadcrumbHistory.findIndex(i => i.id === nodeId);
+  if (idx !== -1) {
+    breadcrumbHistory = breadcrumbHistory.slice(0, idx + 1);
+  } else {
+    let label = nodeId === "start" ? "Início"
+      : (nodeId.match(/^cerne\d$/) ? `Cerne ${nodeId.slice(-1)}` : null)
+      || groundings[nodeId]?.pratica
+      || nodeId.replace(/_/g, " ");
+    breadcrumbHistory.push({ id: nodeId, text: label });
+  }
+  renderBreadcrumb();
+}
+
+function renderBreadcrumb() {
+  const bc = document.getElementById("breadcrumb");
+  bc.innerHTML = "";
+  breadcrumbHistory.forEach((item, i) => {
+    const span = document.createElement("span");
+    span.textContent = item.text;
+    span.dataset.id = item.id;
+    span.tabIndex = 0;
+    span.setAttribute("role", "button");
+    span.addEventListener("click", () => navigateTo(item.id));
+    span.addEventListener("keydown", e => { if (e.key === "Enter") navigateTo(item.id); });
+    bc.appendChild(span);
+    if (i < breadcrumbHistory.length - 1) {
+      const sep = document.createElement("i");
+      sep.className = "fas fa-chevron-right";
+      sep.setAttribute("aria-hidden", "true");
+      bc.appendChild(sep);
+    }
+  });
+}
+
+function clearContainers() {
+  document.getElementById("chat-container").innerHTML = "";
+  document.getElementById("buttons-container").innerHTML = "";
+}
+
+/* =============================================================
+   RENDER
+   ============================================================= */
+function renderNode(nodeId) {
+  const node = conversation[nodeId];
+  renderRobot();
+  if (!node) {
+    const g = groundings[nodeId];
+    if (g) {
+      renderMessage(`Explorando: <strong>${g.pratica}</strong>`);
+      renderMiniLesson(g);
+      const q = quizzes[nodeId]; if (q) renderQuiz(q, nodeId);
+    } else {
+      renderMessage(`Conteúdo para '<em>${nodeId}</em>' não encontrado.`);
+    }
+    renderNavButtons();
+    return;
+  }
+  renderMessage(node.text);
+  const g = groundings[nodeId];
+  if (g) {
+    renderMiniLesson(g);
+    const q = quizzes[nodeId]; if (q) renderQuiz(q, nodeId);
+  }
+  if (node.options?.length) renderOptions(node.options);
+  renderNavButtons();
+}
+
+function renderRobot() {
+  const el = document.createElement("div");
+  el.className = "robot";
+  el.textContent = "🤖";
+  el.setAttribute("aria-hidden", "true");
+  document.getElementById("chat-container").appendChild(el);
+}
+
+function renderMessage(html) {
+  const el = document.createElement("div");
+  el.className = "message";
+  el.innerHTML = html;
+  const actions = document.createElement("div");
+  actions.className = "message-actions";
+
+  const plainText = el.textContent || "";
+
+  const audioBtn = makeActionBtn("fas fa-volume-up", "Ouvir", () => speakText(plainText));
+  const shareBtn = makeActionBtn("fas fa-share-alt", "Compartilhar", () => shareContent(plainText));
+  actions.append(audioBtn, shareBtn);
+  el.appendChild(actions);
+  document.getElementById("chat-container").appendChild(el);
+}
+
+function makeActionBtn(iconCls, label, onClick) {
+  const btn = document.createElement("button");
+  btn.className = "action-btn";
+  btn.setAttribute("aria-label", label);
+  btn.innerHTML = `<i class="${iconCls}" aria-hidden="true"></i> ${label}`;
+  btn.addEventListener("click", onClick);
+  return btn;
+}
+
+function renderMiniLesson(g) {
+  const sec = document.createElement("div");
+  sec.className = "mini-lesson";
+
+  const hdr = document.createElement("div");
+  hdr.className = "mini-lesson-header";
+
+  const title = document.createElement("div");
+  title.className = "mini-lesson-title";
+  title.textContent = g.pratica;
+
+  const badge = document.createElement("span");
+  badge.className = `level-badge level-${g.nivel}`;
+  badge.innerHTML = `<i class="fas fa-layer-group" aria-hidden="true"></i> Cerne ${g.nivel}`;
+
+  hdr.append(title, badge);
+  sec.appendChild(hdr);
+
+  const fields = [
+    ["descricao","Descrição"], ["objetivo","Objetivo"], ["acoes","Ações"],
+    ["metricas","Métricas"], ["evidencias","Evidências"], ["exemplos","Exemplos"], ["dicas","Dicas"]
+  ];
+
+  fields.forEach(([key, label]) => {
+    if (!g[key]) return;
+    const p = document.createElement("p");
+    const strong = document.createElement("strong");
+    strong.textContent = label + ": ";
+    p.appendChild(strong);
+
+    if (typeof g[key] === "string" && g[key].trim().startsWith("•")) {
+      const ul = document.createElement("ul");
+      g[key].split("•").map(s => s.trim()).filter(Boolean).forEach(item => {
+        const li = document.createElement("li"); li.textContent = item; ul.appendChild(li);
+      });
+      p.appendChild(ul);
+    } else {
+      p.appendChild(document.createTextNode(g[key]));
+    }
+    sec.appendChild(p);
+  });
+
+  const textForAudio = fields.map(([k,l]) => g[k] ? `${l}: ${g[k]}` : "").filter(Boolean).join(". ");
+  const actions = document.createElement("div");
+  actions.className = "message-actions";
+  actions.append(
+    makeActionBtn("fas fa-volume-up", "Ouvir", () => speakText(g.pratica + ". " + textForAudio)),
+    makeActionBtn("fas fa-share-alt", "Compartilhar", () => shareContent(g.pratica + "\n" + textForAudio))
+  );
+  sec.appendChild(actions);
+  document.getElementById("chat-container").appendChild(sec);
+}
+
+function renderQuiz(quiz, nodeId) {
+  const container = document.createElement("div");
+  container.className = "quiz-container";
+  container.id = `quiz-${nodeId}`;
+
+  const titleEl = document.createElement("div");
+  titleEl.className = "quiz-title";
+  titleEl.innerHTML = '<i class="fas fa-question-circle" aria-hidden="true"></i> Quiz: Teste seu conhecimento';
+
+  const qEl = document.createElement("div");
+  qEl.className = "quiz-question";
+  qEl.textContent = quiz.question;
+
+  const opts = document.createElement("div");
+  opts.className = "quiz-options";
+  quiz.options.forEach((opt, i) => {
+    const div = document.createElement("div");
+    div.className = "quiz-option";
+    div.tabIndex = 0;
+    div.dataset.index = i;
+    div.setAttribute("role", "button");
+    const marker = document.createElement("div");
+    marker.className = "quiz-marker";
+    marker.textContent = String.fromCharCode(65 + i);
+    const txt = document.createElement("div");
+    txt.textContent = opt;
+    div.append(marker, txt);
+    div.addEventListener("click", () => handleQuizAnswer(nodeId, i));
+    div.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); handleQuizAnswer(nodeId, i); }});
+    opts.appendChild(div);
+  });
+
+  const feedback = document.createElement("div");
+  feedback.className = "quiz-feedback";
+  feedback.id = `quiz-feedback-${nodeId}`;
+
+  container.append(titleEl, qEl, opts, feedback);
+  document.getElementById("chat-container").appendChild(container);
+}
+
+function renderOptions(options) {
+  const bc = document.getElementById("buttons-container");
+  options.forEach(opt => {
+    const btn = document.createElement("button");
+    btn.className = `btn ${opt.cls || "btn-primary"}`;
+    btn.innerHTML = opt.text;
+    btn.addEventListener("click", () => navigateTo(opt.next));
+    bc.appendChild(btn);
+  });
+}
+
+function renderNavButtons() {
+  const bc = document.getElementById("buttons-container");
+  bc.querySelectorAll(".btn-secondary, .btn-home").forEach(b => b.remove());
+
+  if (breadcrumbHistory.length > 1) {
+    const prev = breadcrumbHistory[breadcrumbHistory.length - 2].id;
+    const back = document.createElement("button");
+    back.className = "btn btn-secondary";
+    back.innerHTML = '<i class="fas fa-arrow-left" aria-hidden="true"></i> Voltar';
+    back.addEventListener("click", () => navigateTo(prev));
+    bc.insertBefore(back, bc.firstChild);
+  }
+
+  if (currentNode !== "start") {
+    const home = document.createElement("button");
+    home.className = "btn btn-home";
+    home.innerHTML = '<i class="fas fa-home" aria-hidden="true"></i> Início';
+    home.addEventListener("click", () => navigateTo("start"));
+    bc.insertBefore(home, bc.firstChild);
+  }
+}
+
+/* =============================================================
+   QUIZ HANDLING
+   ============================================================= */
+function handleQuizAnswer(nodeId, selected) {
+  const quiz = quizzes[nodeId];
+  if (!quiz) return;
+  const container = document.getElementById(`quiz-${nodeId}`);
+  if (container.dataset.answered === "true") return;
+  container.dataset.answered = "true";
+
+  const opts = container.querySelectorAll(".quiz-option");
+  opts.forEach(o => { o.style.pointerEvents = "none"; o.setAttribute("aria-disabled", "true"); });
+  opts[selected].classList.add(quiz.correctAnswer === selected ? "correct" : "incorrect");
+
+  const isCorrect = selected === quiz.correctAnswer;
+  userProgress.quizzesCompleted++;
+  isCorrect ? (userProgress.quizzesCorrect++, userProgress.consecutiveCorrect++) : (userProgress.consecutiveCorrect = 0);
+  checkAchievements();
+  saveState();
+
+  setTimeout(() => {
+    opts.forEach((o, i) => {
+      if (i === quiz.correctAnswer) o.classList.add("correct");
+      else if (i === selected && !isCorrect) o.classList.add("incorrect");
+    });
+    const fb = document.getElementById(`quiz-feedback-${nodeId}`);
+    fb.innerHTML = isCorrect
+      ? `✅ <strong>Correto!</strong> ${quiz.explanation}`
+      : `❌ <strong>Incorreto.</strong> ${quiz.explanation}`;
+    fb.classList.add(isCorrect ? "correct" : "incorrect");
+    playFeedbackSound(isCorrect);
+    updateProgressBar();
+  }, 400);
+}
+
+/* =============================================================
+   BM25 SEARCH
+   ============================================================= */
+function handleSearch(query) {
+  const results = bm25Index.search(query, 20);
+  displaySearchResults(results, query);
+}
+
+function hlText(text, rawToks) {
+  if (!rawToks.length) return text;
+  const re = new RegExp(`(${rawToks.map(t => t.replace(/[.*+?^${}()|[\]\\]/g,"\\$&")).join("|")})`, "gi");
+  return text.replace(re, "<mark>$1</mark>");
+}
+
+function didYouMean(query) {
+  const words = BM25.normalize(query).split(/\s+/).filter(w => w.length > 2);
+  if (!words.length) return null;
+  const suggestions = words.map(word => {
+    let best = null, bestDist = Infinity;
+    for (const vocab of corpusVocab) {
+      if (Math.abs(vocab.length - word.length) > 3) continue;
+      const d = BM25.levenshtein(word, vocab);
+      if (d < bestDist && d <= 2 && d > 0) { bestDist = d; best = vocab; }
+    }
+    return best;
+  });
+  if (suggestions.every(s => s === null)) return null;
+  return words.map((w,i) => suggestions[i] || w).join(" ");
+}
+
+function displaySearchResults(results, query) {
+  clearContainers();
+  closeAutocomplete();
+  renderRobot();
+
+  const rawToks = BM25.normalize(query).split(/\s+/).filter(t => t.length > 1);
+  const maxScore = results[0]?.score || 1;
+  const dymEl = document.getElementById("did-you-mean");
+
+  // Did-you-mean
+  dymEl.classList.remove("show");
+  dymEl.innerHTML = "";
+  if (results.length === 0 || (results[0]?.score ?? 0) < 0.5) {
+    const suggestion = didYouMean(query);
+    if (suggestion && suggestion !== BM25.normalize(query).trim()) {
+      dymEl.innerHTML = `🤔 Você quis dizer: <span class="dym-link" role="button" tabindex="0" aria-label="Buscar por ${suggestion}">${suggestion}</span>?`;
+      dymEl.classList.add("show");
+      const link = dymEl.querySelector(".dym-link");
+      const applyDym = () => {
+        document.getElementById("search-input").value = suggestion;
+        handleSearch(suggestion);
+      };
+      link.addEventListener("click", applyDym);
+      link.addEventListener("keydown", e => { if (e.key==="Enter") applyDym(); });
+    }
+  }
+
+  // Status message
+  const msgEl = document.createElement("div");
+  msgEl.className = "message";
+  msgEl.innerHTML = results.length > 0
+    ? `🔍 <strong>${results.length}</strong> resultado(s) para "<em>${query}</em>" <span class="search-results-info">(BM25 · score máx: ${maxScore.toFixed(2)})</span>`
+    : `🔍 Nenhum resultado para "<em>${query}</em>". Tente outros termos ou use o autocomplete.`;
+  document.getElementById("chat-container").appendChild(msgEl);
+
+  // Result cards with context snippets
+  const bc = document.getElementById("buttons-container");
+  bc.style.flexDirection = "column";
+  bc.style.alignItems = "stretch";
+
+  results.forEach((r, idx) => {
+    const g = groundings[r.id];
+    if (!g) return;
+    const barW = Math.round((r.score / maxScore) * 100);
+    const snip = bm25Index.snippet(r.id, rawToks);
+
+    const card = document.createElement("button");
+    card.className = "result-card";
+    card.style.animationDelay = `${idx * 0.04}s`;
+    card.setAttribute("aria-label", `${g.pratica} — score BM25 ${r.score.toFixed(2)}`);
+    card.innerHTML = `
+      <div class="rc-top">
+        <div style="display:flex;align-items:center;gap:.5rem">
+          <span class="level-badge level-${g.nivel}"><i class="fas fa-layer-group" aria-hidden="true"></i> Cerne ${g.nivel}</span>
+          <span class="rc-title">${hlText(g.pratica, rawToks)}</span>
+        </div>
+        <span class="result-score" title="BM25 score">${r.score.toFixed(2)}</span>
+      </div>
+      <div class="rc-score-bar" style="width:${barW}%" role="presentation"></div>
+      <div class="rc-snippet">${hlText(snip, rawToks)}</div>`;
+    card.addEventListener("click", () => {
+      bc.style.flexDirection = "";
+      bc.style.alignItems = "";
+      navigateTo(r.id);
+    });
+    bc.appendChild(card);
+  });
+
+  const homeBtn = document.createElement("button");
+  homeBtn.className = "btn btn-home";
+  homeBtn.style.alignSelf = "center";
+  homeBtn.style.marginTop = ".5rem";
+  homeBtn.innerHTML = '<i class="fas fa-home" aria-hidden="true"></i> Início';
+  homeBtn.addEventListener("click", () => {
+    bc.style.flexDirection = "";
+    bc.style.alignItems = "";
+    document.getElementById("search-input").value = "";
+    document.getElementById("did-you-mean").classList.remove("show");
+    navigateTo("start");
+  });
+  bc.appendChild(homeBtn);
+}
+
+/* =============================================================
+   PROGRESS & ACHIEVEMENTS
+   ============================================================= */
+function updateProgressBar() {
+  const total = Object.keys(groundings).length;
+  const visited = [...visitedNodes].filter(n => groundings[n]).length;
+  const pct = total > 0 ? Math.min(100, Math.round(visited / total * 100)) : 0;
+  document.getElementById("progress-bar").style.width = `${pct}%`;
+  document.getElementById("progress-label").textContent = `${pct}% explorado`;
+  document.querySelector(".progress-wrap")?.setAttribute("aria-valuenow", pct);
+}
+
+function checkAchievements() {
+  const v = visitedNodes;
+
+  if (userProgress.totalVisited > 1)                           tryUnlock("explorador_iniciante");
+  if ([...v].filter(n => n.startsWith("cerne1_")).length >= 5) tryUnlock("conhecedor_cerne1");
+  if ([...v].filter(n => n.startsWith("cerne2_")).length >= 3) tryUnlock("conhecedor_cerne2");
+  if ([...v].filter(n => n.startsWith("cerne3_")).length >= 3) tryUnlock("conhecedor_cerne3");
+  if ([...v].filter(n => n.startsWith("cerne4_")).length >= 1) tryUnlock("conhecedor_cerne4");
+
+  if (userProgress.earnedAchievements.has("conhecedor_cerne1") &&
+      userProgress.earnedAchievements.has("conhecedor_cerne2"))   tryUnlock("boss_cerne2");
+  if (userProgress.earnedAchievements.has("boss_cerne2") &&
+      userProgress.earnedAchievements.has("conhecedor_cerne3"))   tryUnlock("boss_cerne3");
+  if (userProgress.earnedAchievements.has("boss_cerne3") &&
+      userProgress.earnedAchievements.has("conhecedor_cerne4"))   tryUnlock("boss_cerne4");
+
+  if (userProgress.consecutiveCorrect >= 3)                       tryUnlock("mestre_quiz");
+
+  const levels = new Set([...v].filter(n => groundings[n]).map(n => n.match(/^cerne(\d)/)?.[1]).filter(Boolean));
+  if (levels.size >= 4)                                           tryUnlock("explorador_completo");
+}
+
+function tryUnlock(id) {
+  if (userProgress.earnedAchievements.has(id)) return;
+  const a = achievements[id]; if (!a) return;
+  userProgress.earnedAchievements.add(id);
+  saveState();
+
+  const el = document.getElementById("achievement");
+  document.getElementById("achievement-name").textContent = a.name;
+  el.querySelector(".achievement-icon i").className = a.icon;
+  el.querySelector(".achievement-content p").innerHTML = `Você desbloqueou: <strong>${a.name}</strong><br><small>${a.desc}</small>`;
+  el.classList.add("show");
+  playAchievementSound();
+  setTimeout(() => el.classList.remove("show"), 5000);
+}
+
+/* =============================================================
+   AUDIO
+   ============================================================= */
+function speakText(text) {
+  if (!("speechSynthesis" in window)) { alert("Seu navegador não suporta leitura de texto."); return; }
+  speechSynthesis.cancel();
+  const u = new SpeechSynthesisUtterance(text);
+  u.lang = "pt-BR";
+  speechSynthesis.speak(u);
+}
+
+function shareContent(text) {
+  if (navigator.share) {
+    navigator.share({ title:"CerneOracle", text }).catch(() => {});
+  } else {
+    navigator.clipboard?.writeText(text).then(() => alert("Copiado para a área de transferência!"))
+      .catch(() => alert("Não foi possível copiar."));
+  }
+}
+
+function playFeedbackSound(correct) {
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.connect(gain); gain.connect(ctx.destination);
+    osc.type = "sine";
+    gain.gain.setValueAtTime(0.08, ctx.currentTime);
+    osc.frequency.setValueAtTime(correct ? 880 : 440, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.35);
+    osc.start(ctx.currentTime); osc.stop(ctx.currentTime + 0.35);
+  } catch(e) {}
+}
+
+function playAchievementSound() {
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.connect(gain); gain.connect(ctx.destination);
+    osc.type = "triangle";
+    gain.gain.setValueAtTime(0.08, ctx.currentTime);
+    osc.frequency.setValueAtTime(523.25, ctx.currentTime);
+    osc.frequency.linearRampToValueAtTime(659.25, ctx.currentTime + 0.1);
+    osc.frequency.linearRampToValueAtTime(783.99, ctx.currentTime + 0.2);
+    osc.frequency.linearRampToValueAtTime(1046.50, ctx.currentTime + 0.3);
+    gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.5);
+    osc.start(ctx.currentTime); osc.stop(ctx.currentTime + 0.5);
+  } catch(e) {}
+}
+</script>
+<style>.ag-nav-back{position:fixed;top:12px;left:12px;z-index:9999;background:rgba(79,70,229,.9);color:#fff;border:none;border-radius:50px;padding:.4rem .9rem;font-size:.8rem;font-family:system-ui,sans-serif;font-weight:600;cursor:pointer;text-decoration:none;display:flex;align-items:center;gap:.35rem;box-shadow:0 2px 10px rgba(0,0,0,.25);backdrop-filter:blur(4px);transition:background .2s,transform .2s}.ag-nav-back:hover{background:rgba(55,48,163,.95);transform:translateY(-1px)}</style><a href="https://passosdomingues.github.io/webappshowcase/site/main.html" class="ag-nav-back" aria-label="Voltar ao índice">&#8592; Índice</a>
+</body>
+</html>

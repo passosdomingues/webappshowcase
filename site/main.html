@@ -1,0 +1,1043 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="light">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <meta name="description" content="Coleção de utilitários e projetos HTML interativos — Rafael Passos Domingues"/>
+  <meta name="author" content="Rafael Passos Domingues"/>
+  <meta name="theme-color" content="#4f46e5"/>
+  <title>Simple Utility App Suite</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --primary:#4f46e5;--primary-dark:#3730a3;--primary-light:#e0e7ff;
+      --accent:#f59e0b;--bg:#f1f5f9;--surface:#fff;--surface-2:#f8fafc;
+      --border:#e2e8f0;--text:#1e293b;--text-2:#64748b;
+      --shadow-sm:0 1px 3px rgba(0,0,0,.08);
+      --shadow-md:0 4px 14px rgba(0,0,0,.10);
+      --shadow-lg:0 10px 32px rgba(0,0,0,.13);
+      --radius-sm:8px;--radius-md:14px;--radius-lg:20px;
+      --transition:.25s ease;
+      --font:'Inter',-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+    }
+    [data-theme=dark]{
+      --primary:#818cf8;--primary-dark:#6366f1;--primary-light:#1e1b4b;
+      --accent:#fbbf24;--bg:#0f172a;--surface:#1e293b;--surface-2:#162032;
+      --border:#334155;--text:#e2e8f0;--text-2:#94a3b8;
+    }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    html{scroll-behavior:smooth}
+    body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:100vh;display:flex;flex-direction:column;transition:background var(--transition),color var(--transition)}
+
+    /* Header */
+    header{background:linear-gradient(135deg,var(--primary),var(--primary-dark));color:#fff;padding:2.2rem 1.5rem 3.2rem;text-align:center;position:relative}
+    h1{font-size:clamp(1.6rem,4vw,2.6rem);font-weight:800;letter-spacing:-.03em;margin-bottom:.35rem}
+    .subtitle{color:rgba(255,255,255,.82);font-size:1rem}
+    .header-controls{position:absolute;top:1rem;right:1.25rem;display:flex;gap:.5rem}
+    .icon-btn{background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.2);color:#fff;border-radius:50%;width:40px;height:40px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:.95rem;transition:background var(--transition)}
+    .icon-btn:hover{background:rgba(255,255,255,.28)}
+
+    /* Controls card */
+    .controls{max-width:1100px;margin:-1.6rem auto 0;padding:1rem 1.25rem;background:var(--surface);border-radius:var(--radius-lg);box-shadow:var(--shadow-md);border:1px solid var(--border);display:flex;gap:.75rem;flex-wrap:wrap;position:relative;z-index:10}
+    .search-wrap{position:relative;flex:1;min-width:200px}
+    .search-wrap input{width:100%;padding:.65rem 2.2rem .65rem 2.5rem;border:1.5px solid var(--border);border-radius:50px;font-size:.95rem;font-family:var(--font);background:var(--surface-2);color:var(--text);transition:border-color var(--transition),box-shadow var(--transition)}
+    .search-wrap input:focus{outline:none;border-color:var(--primary);box-shadow:0 0 0 3px var(--primary-light)}
+    .search-icon{position:absolute;left:.85rem;top:50%;transform:translateY(-50%);color:var(--text-2);font-size:.9rem;pointer-events:none}
+    .clear-btn{position:absolute;right:.75rem;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--text-2);cursor:pointer;display:none;font-size:.85rem}
+    .search-wrap input:not(:placeholder-shown)~.clear-btn{display:block}
+    select{padding:.65rem 1rem;border:1.5px solid var(--border);border-radius:50px;font-size:.9rem;font-family:var(--font);background:var(--surface-2);color:var(--text);cursor:pointer;transition:border-color var(--transition)}
+    select:focus{outline:none;border-color:var(--primary)}
+
+    /* Stats bar */
+    .stats-bar{max-width:1100px;margin:.9rem auto .2rem;padding:0 1.25rem;display:flex;align-items:center;justify-content:space-between;font-size:.83rem;color:var(--text-2);gap:.5rem;flex-wrap:wrap}
+    .bm25-badge{background:var(--primary-light);color:var(--primary);font-weight:600;padding:.15rem .55rem;border-radius:50px;font-size:.75rem}
+
+    /* Container */
+    .container{max-width:1100px;margin:0 auto;padding:1.2rem 1.25rem 3rem;flex:1}
+
+    /* Category section */
+    .category-section{margin-bottom:2.5rem}
+    .category-title{font-size:1.1rem;font-weight:700;color:var(--text);margin:0 0 1rem;padding-bottom:.5rem;border-bottom:2px solid var(--primary);display:flex;align-items:center;gap:.5rem}
+    .cat-count{background:var(--primary-light);color:var(--primary);font-size:.75rem;font-weight:600;padding:.15rem .5rem;border-radius:50px}
+
+    /* Grid */
+    .cards-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:1.1rem}
+
+    /* Card */
+    .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-md);text-decoration:none;color:var(--text);display:flex;flex-direction:column;transition:transform var(--transition),box-shadow var(--transition),border-color var(--transition);overflow:hidden}
+    .card:hover,.card:focus{transform:translateY(-4px);box-shadow:var(--shadow-lg);border-color:var(--primary);outline:none}
+    .card:focus-visible{outline:3px solid var(--primary);outline-offset:2px}
+    .card-header{padding:1.1rem 1.1rem .6rem;display:flex;align-items:center;gap:.65rem}
+    .card-icon{font-size:2rem;user-select:none;line-height:1}
+    .card-title{font-weight:700;font-size:.97rem;color:var(--text);line-height:1.3}
+    .card-body{padding:.1rem 1.1rem 1.1rem;flex:1;display:flex;flex-direction:column;gap:.5rem}
+    .card-desc{font-size:.83rem;color:var(--text-2);line-height:1.4;flex:1}
+    mark{background:#fef08a;color:#713f12;border-radius:2px;padding:0 1px}
+    [data-theme=dark] mark{background:#854d0e;color:#fef08a}
+    .card-meta{display:flex;align-items:center;justify-content:space-between;gap:.4rem;flex-wrap:wrap}
+    .card-cat{background:var(--primary-light);color:var(--primary);padding:.18rem .55rem;border-radius:50px;font-weight:600;font-size:.73rem;white-space:nowrap}
+    .card-date{font-size:.72rem;color:var(--text-2)}
+    .score-bar{height:3px;border-radius:2px;background:linear-gradient(90deg,var(--primary),var(--accent));opacity:.7;margin-top:.3rem;transition:width .3s}
+
+    /* SHA-512 fingerprint badge */
+    .card-fingerprint{
+      display:flex;align-items:center;gap:.3rem;
+      font-size:.68rem;color:var(--text-2);
+      font-family:'Courier New',monospace;
+      background:var(--surface-2);border:1px solid var(--border);
+      border-radius:6px;padding:.15rem .45rem;
+      cursor:pointer;transition:background var(--transition),color var(--transition);
+      user-select:none;
+    }
+    .card-fingerprint:hover{background:var(--primary-light);color:var(--primary)}
+    .card-fingerprint .fp-icon{font-size:.75rem;flex-shrink:0}
+    .card-size{font-size:.69rem;color:var(--text-2);font-weight:500}
+
+    /* Pill tabs for categories */
+    .pill-tabs{max-width:1100px;margin:.6rem auto .1rem;padding:0 1.25rem;
+      display:flex;gap:.4rem;flex-wrap:wrap;overflow-x:auto}
+    .pill{background:var(--surface);border:1.5px solid var(--border);color:var(--text-2);
+      padding:.3rem .8rem;border-radius:50px;font-size:.78rem;font-weight:600;
+      cursor:pointer;transition:all var(--transition);white-space:nowrap;flex-shrink:0}
+    .pill:hover{border-color:var(--primary);color:var(--primary)}
+    .pill.active{background:var(--primary);border-color:var(--primary);color:#fff}
+
+    /* Hover glow per card */
+    .card:hover{box-shadow:0 8px 32px rgba(79,70,229,.18),var(--shadow-lg)}
+
+    /* No results */
+    .no-results{text-align:center;padding:4rem 1rem;color:var(--text-2)}
+    .no-results svg{margin-bottom:1rem;opacity:.35}
+
+    /* Back to top */
+    #btt{position:fixed;bottom:1.75rem;right:1.75rem;width:48px;height:48px;border-radius:50%;background:var(--primary);color:#fff;border:none;cursor:pointer;font-size:1.3rem;display:flex;align-items:center;justify-content:center;box-shadow:var(--shadow-md);opacity:0;visibility:hidden;transition:all var(--transition)}
+    #btt.show{opacity:1;visibility:visible}
+    #btt:hover{background:var(--primary-dark);transform:translateY(-3px)}
+
+    /* Footer */
+    footer{background:var(--surface);border-top:1px solid var(--border);text-align:center;padding:1.25rem;font-size:.82rem;color:var(--text-2)}
+    footer a{color:var(--primary);text-decoration:none}
+
+    /* SR-only */
+    .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+
+    @media(prefers-reduced-motion:reduce){*{transition-duration:.01ms!important}}
+    @media(max-width:640px){
+      header{padding:1.75rem 1rem 2.8rem}
+      .controls{flex-direction:column}
+      .header-controls{top:.75rem;right:.75rem}
+    }
+  </style>
+</head>
+<body>
+<header>
+  <div class="header-controls">
+    <button class="icon-btn" id="darkToggle" aria-pressed="false" aria-label="Alternar modo escuro">🌙</button>
+  </div>
+  <h1>🚀 Simple Utility App Suite</h1>
+  <p class="subtitle">Vitrine tecnológica de Rafael Passos Domingues</p>
+  <div class="hero-stats" id="heroStats" style="display:flex;gap:1.8rem;justify-content:center;margin-top:1.1rem;flex-wrap:wrap">
+    <div style="text-align:center">
+      <div style="font-size:1.8rem;font-weight:800" id="countProjects">—</div>
+      <div style="font-size:.78rem;opacity:.8">projetos</div>
+    </div>
+    <div style="text-align:center">
+      <div style="font-size:1.8rem;font-weight:800" id="countCategories">—</div>
+      <div style="font-size:.78rem;opacity:.8">categorias</div>
+    </div>
+    <div style="text-align:center">
+      <div style="font-size:1.8rem;font-weight:800" id="buildDate">—</div>
+      <div style="font-size:.78rem;opacity:.8">build</div>
+    </div>
+  </div>
+</header>
+
+<div class="controls">
+  <div class="search-wrap" role="search">
+    <span class="search-icon" aria-hidden="true">🔍</span>
+    <input type="search" id="searchInput" placeholder="Buscar projetos… (Okapi BM25)" aria-label="Buscar projetos">
+    <button class="clear-btn" id="clearSearch" aria-label="Limpar busca">✕</button>
+  </div>
+  <select id="sortSelect" aria-label="Ordenar por">
+    <option value="relevance">Relevância BM25</option>
+    <option value="date">Data de modificação</option>
+    <option value="name">Nome A→Z</option>
+    <option value="size">Tamanho</option>
+  </select>
+</div>
+
+<div class="pill-tabs" id="pillTabs" role="tablist" aria-label="Filtrar por categoria">
+  <button class="pill active" data-cat="" role="tab" aria-selected="true">Todos</button>
+</div>
+
+<div class="stats-bar" id="statsBar" aria-live="polite">
+  <span id="statsText"></span>
+  <span class="bm25-badge">Okapi BM25</span>
+</div>
+
+<main class="container" id="projectsContainer" aria-label="Projetos"></main>
+
+<button id="btt" aria-label="Voltar ao topo" title="Voltar ao topo">↑</button>
+
+<footer>
+  <p>© 2026 <a href="https://github.com/passosdomingues" target="_blank" rel="noopener">Rafael Passos Domingues</a> — Simple Utility App Suite</p>
+</footer>
+
+<script>
+  const BASE_URL = 'https://passosdomingues.github.io/webappshowcase/site';
+  const projects = [
+  {
+    "id": "3DPrintScultor",
+    "title": "3D Print Scultor",
+    "description": "Clique para visualizar este projeto.",
+    "category": "Outros",
+    "icon": "🖨️",
+    "path": "https://passosdomingues.github.io/webappshowcase/site/utilities/3DPrintScultor.html",
+    "lastModified": "2026-06-27 12:19",
+    "mtime": 1782573591,
+    "sha512Short": "711724f3785f1148",
+    "sha512": "711724f3785f114813eb41a95f672fa91aca202608a6f1b4b8c59cf89826b3a1097f478906b32870acaba898b455e89efc87d5a5a2c5330ed3f5cb9a857de6cb",
+    "size": "72KB"
+  },
+  {
+    "id": "CNCImageConversor",
+    "title": "Generative Path Laser CO2 CAM",
+    "description": "Clique para visualizar este projeto.",
+    "category": "Outros",
+    "icon": "🖨️",
+    "path": "https://passosdomingues.github.io/webappshowcase/site/utilities/CNCImageConversor.html",
+    "lastModified": "2026-06-27 12:19",
+    "mtime": 1782573591,
+    "sha512Short": "f157ca8c31a8e8d5",
+    "sha512": "f157ca8c31a8e8d58d61d766eb46d8181a231e7fc1ba694c6b24ae8cc60212fd133db660adde71647557936dee3bfbe615386884854111a8614051080207f17f",
+    "size": "120KB"
+  },
+  {
+    "id": "InnovaLens",
+    "title": "InnovaLens | Decodificador Semântico de Patentes",
+    "description": "Cole o resumo (abstract) ou a descrição da patente abaixo para análise.",
+    "category": "Outros",
+    "icon": "🔭",
+    "path": "https://passosdomingues.github.io/webappshowcase/site/utilities/InnovaLens.html",
+    "lastModified": "2026-06-27 12:19",
+    "mtime": 1782573591,
+    "sha512Short": "fe3cc91ac22c217a",
+    "sha512": "fe3cc91ac22c217a7cba95129d145164977a505e2bec80ed6f320b79acba4d7468373ebcb7759c530caa5785a0ff652441696b184fcf41e5f4f19da393da3829",
+    "size": "69KB"
+  },
+  {
+    "id": "algoritmos",
+    "title": "Aula de Algoritmos - Controle de Estoque",
+    "description": "Aula Prática - Controle de Estoque",
+    "category": "Outros",
+    "icon": "🧬",
+    "path": "https://passosdomingues.github.io/webappshowcase/site/utilities/algoritmos.html",
+    "lastModified": "2026-06-27 12:19",
+    "mtime": 1782573591,
+    "sha512Short": "88c94d677fab8f9c",
+    "sha512": "88c94d677fab8f9c873a6870e388e68ffdb420cc749951ecd8ec08fddb7cf6d28224b35d9258254036c35dd56f053b9c339f0562fcabc1a11ad851333db03cef",
+    "size": "87KB"
+  },
+  {
+    "id": "barber",
+    "title": "BarberAI",
+    "description": "Sistema de agendamento premium para Barbearia - Corte de cabelo, barba e serviços completos",
+    "category": "Outros",
+    "icon": "💈",
+    "path": "https://passosdomingues.github.io/webappshowcase/site/utilities/barber.html",
+    "lastModified": "2026-06-27 12:19",
+    "mtime": 1782573591,
+    "sha512Short": "63c2a8a0ed8c9530",
+    "sha512": "63c2a8a0ed8c953079ca3103e3944b2f2c02ef38ea795b540930978891cb59a9dbeae08a5b45ca8f5084850567333d4485b717a40ed8009af3ca3b7c3a7c2b4c",
+    "size": "62KB"
+  },
+  {
+    "id": "blueParking",
+    "title": "VagAI",
+    "description": "Clique em uma vaga no mapa para registrar um veículo estacionado",
+    "category": "Outros",
+    "icon": "🅿️",
+    "path": "https://passosdomingues.github.io/webappshowcase/site/utilities/blueParking.html",
+    "lastModified": "2026-06-27 12:19",
+    "mtime": 1782573591,
+    "sha512Short": "ae261c24c85f64b5",
+    "sha512": "ae261c24c85f64b52f51b5a06215443851d176b1917087f7b5b59e5c007301dd4f1a534c66a61f421c06b20a5b7cdc6397f75fa8b8ca7d1959d11ee0cfa59c53",
+    "size": "41KB"
+  },
+  {
+    "id": "brailleTouch",
+    "title": "BrailleTouch - Conversor com Feedback Tátil",
+    "description": "Passe o dedo sobre os caracteres em Braille para sentir diferentes vibrações. Cada letra tem um padrão de vibração ún…",
+    "category": "Outros",
+    "icon": "👆♿",
+    "path": "https://passosdomingues.github.io/webappshowcase/site/utilities/brailleTouch.html",
+    "lastModified": "2026-06-27 12:19",
+    "mtime": 1782573591,
+    "sha512Short": "0f2460c8d69c28f9",
+    "sha512": "0f2460c8d69c28f9bc107dba860f8ad71f0e381d725d250991635e982ea555b722c06fd8dea801493ef35e4abec36c99398bd2ab013e0a3a1bd949f7e9f84207",
+    "size": "41KB"
+  },
+  {
+    "id": "busHour",
+    "title": "BusAI — Ônibus Alfenas/MG",
+    "description": "BusAI — Horários e próximos ônibus do transporte coletivo de Alfenas-MG (Alfetur). Veja em tempo real quando passa o próximo ônibus na sua parada.",
+    "category": "Outros",
+    "icon": "🔎🚌",
+    "path": "https://passosdomingues.github.io/webappshowcase/site/utilities/busHour.html",
+    "lastModified": "2026-06-27 12:19",
+    "mtime": 1782573591,
+    "sha512Short": "92b25f67f0927531",
+    "sha512": "92b25f67f092753107776aaf4c6e8b3a0623fc51bdd7e86a2529088bef3a3926cc3d14ee1269c67176d870ea7c5237ded929e828705edf3ffa72840e6d69e155",
+    "size": "73KB"
+  },
+  {
+    "id": "buscaContextoPDFs",
+    "title": "Context Hunter",
+    "description": "Processando arquivos...",
+    "category": "Outros",
+    "icon": "🔎📄",
+    "path": "https://passosdomingues.github.io/webappshowcase/site/utilities/buscaContextoPDFs.html",
+    "lastModified": "2026-06-27 12:19",
+    "mtime": 1782573591,
+    "sha512Short": "ddc267dd6b0a00e5",
+    "sha512": "ddc267dd6b0a00e5e81cf0d9d94d32bc8d87b9119a0f6312ea83c7a481a178ad7847e7c5af4ac912941632fefc2905024cca4925e548b165c83ee5ee7012103c",
+    "size": "23KB"
+  },
+  {
+    "id": "calculadora_trl_crl",
+    "title": "Calculadora TRL/CRL",
+    "description": "Avalie o nível de maturidade tecnológica e comercial de sua tecnologia com base nos critérios NASA / DOE / ARPA-E e N…",
+    "category": "Outros",
+    "icon": "🧑‍💻",
+    "path": "https://passosdomingues.github.io/webappshowcase/site/utilities/calculadora_trl_crl.html",
+    "lastModified": "2026-06-27 12:19",
+    "mtime": 1782573591,
+    "sha512Short": "7400304fef52c2e6",
+    "sha512": "7400304fef52c2e6531adcd389b3da3208bd0f4c9d5e2b91c567ba0611f4c6e98f5660e17237e35cb83291c2cb04eabfd52a501819b2d6e541409be9ccc188d2",
+    "size": "21KB"
+  },
+  {
+    "id": "comandaDigital",
+    "title": "ComandAI",
+    "description": "Clique para visualizar este projeto.",
+    "category": "Outros",
+    "icon": "🍢",
+    "path": "https://passosdomingues.github.io/webappshowcase/site/utilities/comandaDigital.html",
+    "lastModified": "2026-06-27 12:19",
+    "mtime": 1782573591,
+    "sha512Short": "27784f7bad2cadb3",
+    "sha512": "27784f7bad2cadb38fe466d06831b6c08b06b6f4c6542c0c6ddfdbde220cffcc307d68f59d728ced61f62946b727c8aff2f40497fbd8e728c1b5d75614e7dd78",
+    "size": "29KB"
+  },
+  {
+    "id": "confereListaSupermercado",
+    "title": "ConfereAI",
+    "description": "Clique para visualizar este projeto.",
+    "category": "Outros",
+    "icon": "🛒",
+    "path": "https://passosdomingues.github.io/webappshowcase/site/utilities/confereListaSupermercado.html",
+    "lastModified": "2026-06-27 12:19",
+    "mtime": 1782573591,
+    "sha512Short": "b62cce6129af79b1",
+    "sha512": "b62cce6129af79b1010f8b8e2bfd8cd509a463f4a3a09afb2b3ea2cde49df7570743bde235038d39892688f8d1aa9e76ca9896d836d8105260ac3e28a4478b8a",
+    "size": "45KB"
+  },
+  {
+    "id": "cras",
+    "title": "CRAS ODS - Sistema de Visitas Domiciliares",
+    "description": "Fama-MG | Alinhado aos Objetivos de Desenvolvimento Sustentável",
+    "category": "Outros",
+    "icon": "🩺",
+    "path": "https://passosdomingues.github.io/webappshowcase/site/utilities/cras.html",
+    "lastModified": "2026-06-27 12:19",
+    "mtime": 1782573591,
+    "sha512Short": "e522aef155f3cb73",
+    "sha512": "e522aef155f3cb73dbbaaa69da29d92bd00357ad73783a6e5b20064843d24ddfa9b953255a268d6c84062136a5e2765ad72b1dd1152bf74624e24cb189ef4a5f",
+    "size": "161KB"
+  },
+  {
+    "id": "dengueZero",
+    "title": "DengueAI",
+    "description": "Clique no mapa para registrar focos de dengue encontrados",
+    "category": "Outros",
+    "icon": "🦟",
+    "path": "https://passosdomingues.github.io/webappshowcase/site/utilities/dengueZero.html",
+    "lastModified": "2026-06-27 12:19",
+    "mtime": 1782573591,
+    "sha512Short": "2d831927f12e21b5",
+    "sha512": "2d831927f12e21b5390f34ae2f8cb9034ce2dbdee77ab0191065a39d8795656b1b36470c4379e7bcd2829fbdfa7aeca2bcd6f65c1b244d69c37f1871b07df259",
+    "size": "30KB"
+  },
+  {
+    "id": "dentaLog",
+    "title": "DentAI - Sistema Odontológico",
+    "description": "Clique para visualizar este projeto.",
+    "category": "Outros",
+    "icon": "🦷",
+    "path": "https://passosdomingues.github.io/webappshowcase/site/utilities/dentaLog.html",
+    "lastModified": "2026-06-27 12:19",
+    "mtime": 1782573591,
+    "sha512Short": "2cf240f78eff4166",
+    "sha512": "2cf240f78eff4166e31a6968ac14f6a194e1959445bb2c3008c9e0da5757619c8e946ed29a115fcaf82047712a903d9bfa7040a8620030fe0e59ab212f261a5b",
+    "size": "134KB"
+  },
+  {
+    "id": "devHorizons",
+    "title": "Dev Horizons",
+    "description": "This tool provides a personalized recommendation to guide your tech career choices, analyzing your profile against da…",
+    "category": "Outros",
+    "icon": "💻",
+    "path": "https://passosdomingues.github.io/webappshowcase/site/utilities/devHorizons.html",
+    "lastModified": "2026-06-27 12:19",
+    "mtime": 1782573591,
+    "sha512Short": "27546194578c2ebc",
+    "sha512": "27546194578c2ebce80530db17638720cf4abd6eb0bd343b6c180ac80ae6661fbd18cf266c9473d8a20871f0b7d12b798af22a48afebdc6405ddc52621f98b41",
+    "size": "90KB"
+  },
+  {
+    "id": "dogGuest",
+    "title": "DogNB",
+    "description": "0 dias de hospedagem",
+    "category": "Outros",
+    "icon": "🐶",
+    "path": "https://passosdomingues.github.io/webappshowcase/site/utilities/dogGuest.html",
+    "lastModified": "2026-06-27 12:19",
+    "mtime": 1782573591,
+    "sha512Short": "643d1d7a73899074",
+    "sha512": "643d1d7a738990743b7499033ecf77cf9aba92ba8af390c6c930122f0351e5fec24dfa8c671c5798badb89bfcd0445197b4b82b108a1f175a019023bedec8b00",
+    "size": "20KB"
+  },
+  {
+    "id": "encomendUAI",
+    "title": "EncomendUAI",
+    "description": "Monte seu carrinho com as melhores iguarias mineiras",
+    "category": "Outros",
+    "icon": "🍞🧀",
+    "path": "https://passosdomingues.github.io/webappshowcase/site/utilities/encomendUAI.html",
+    "lastModified": "2026-06-27 12:19",
+    "mtime": 1782573591,
+    "sha512Short": "35d27a292617f714",
+    "sha512": "35d27a292617f7148a011f77972bdf75d544b7d1df10ed9dd6927b952bf0036439a9b7efea892b46be7b6cc90d8fbe17ceff98b7f79b387701589e3cf1515008",
+    "size": "110KB"
+  },
+  {
+    "id": "essenceExtractor",
+    "title": "Essence Extractor Pro - Briefing Atômico para Websites",
+    "description": "Um briefing atômico para materializar o seu projeto web.",
+    "category": "Outros",
+    "icon": "💎",
+    "path": "https://passosdomingues.github.io/webappshowcase/site/utilities/essenceExtractor.html",
+    "lastModified": "2026-06-27 12:19",
+    "mtime": 1782573591,
+    "sha512Short": "5ffc758b50eb0633",
+    "sha512": "5ffc758b50eb063363d1b8e3045d781d8b29425b675976f3b58174adf61d2bef481dbf47ee592e17803024526cbc42844dbaff1fa2268f539696a4a7a38245ec",
+    "size": "117KB"
+  },
+  {
+    "id": "essenceMatch",
+    "title": "ESSENCE MATCH - Classificador Comportamental PMBOK 7 & Belbin",
+    "description": "Escolha como você quer salvar ou compartilhar seu perfil de essência.",
+    "category": "Outros",
+    "icon": "💎",
+    "path": "https://passosdomingues.github.io/webappshowcase/site/utilities/essenceMatch.html",
+    "lastModified": "2026-06-27 12:19",
+    "mtime": 1782573591,
+    "sha512Short": "aa048828f8332717",
+    "sha512": "aa048828f83327173acb9f1865e71e378f6f145f9e80ebc0ce3bacab6d1cd88778f57bb2500d82d1eceb9bb44e292ba1723b4b7f13e0744fc961b205b278e1f6",
+    "size": "125KB"
+  },
+  {
+    "id": "fitMotivation",
+    "title": "FitMotivation+",
+    "description": "Clique para visualizar este projeto.",
+    "category": "Outros",
+    "icon": "🏋️",
+    "path": "https://passosdomingues.github.io/webappshowcase/site/utilities/fitMotivation.html",
+    "lastModified": "2026-06-27 12:19",
+    "mtime": 1782573591,
+    "sha512Short": "b69ad11b10a10343",
+    "sha512": "b69ad11b10a10343152a65714d06eb1ad1951a38cb57fa13954e15efab01802bfbd0bebca0bd4ce2651b295ea489252d5bb53372f2c41a9f334ff8921e76b37a",
+    "size": "63KB"
+  },
+  {
+    "id": "genoma",
+    "title": "G.E.N.O.M.A. | Arquitetura Bio-Computacional",
+    "description": "A Programação Dinâmica constrói uma matriz avaliando todo o subespaço genético. A fórmula de Needleman-Wunsch define …",
+    "category": "Outros",
+    "icon": "🧬",
+    "path": "https://passosdomingues.github.io/webappshowcase/site/utilities/genoma.html",
+    "lastModified": "2026-06-27 12:19",
+    "mtime": 1782573591,
+    "sha512Short": "e44eb2d6f55e4a03",
+    "sha512": "e44eb2d6f55e4a03600e44598d3b9b70cb1832d2ee5e528be7cecd7fadd465fcaef1137c029feb0371ff6696a818a5c580c9a45e32c27c34365a1a0e2ef1851e",
+    "size": "28KB"
+  },
+  {
+    "id": "geraConviteEstrategico",
+    "title": "Invitation Strategic Generator",
+    "description": "A tool for creating event drafts by combining multidisciplinary themes.",
+    "category": "Outros",
+    "icon": "🎉",
+    "path": "https://passosdomingues.github.io/webappshowcase/site/utilities/geraConviteEstrategico.html",
+    "lastModified": "2026-06-27 12:19",
+    "mtime": 1782573591,
+    "sha512Short": "64ac389347be8b80",
+    "sha512": "64ac389347be8b803a8682d65dbca23fe88b633abf5ceefae351e685ce4bc89c89b811418b3ce4b7473c421eeb74ece77b5a389ebb9e49ebd807776bd1730856",
+    "size": "38KB"
+  },
+  {
+    "id": "gitCommands",
+    "title": "Comandos Git - Busca Inteligente",
+    "description": "Encontre rapidamente os comandos Git mais relevantes com nossa busca inteligente que pesquisa tanto pelos comandos qu…",
+    "category": "Outros",
+    "icon": "💻",
+    "path": "https://passosdomingues.github.io/webappshowcase/site/utilities/gitCommands.html",
+    "lastModified": "2026-06-27 12:19",
+    "mtime": 1782573591,
+    "sha512Short": "962dfc77451690ab",
+    "sha512": "962dfc77451690abbf565a270edfde4a218a3a25fb38778abe88395b70b743fb02971a8e348f3d91d0f496552779c2f34c115b72b8387d441d06e2ebf960fb27",
+    "size": "64KB"
+  },
+  {
+    "id": "guiaImpostoRenda",
+    "title": "Guia IRPF 2025 - Seu Assistente Pessoal",
+    "description": "Detalhes Técnicos: Utilizamos localStorage do navegador para armazenar suas respostas. Esses dados são criptografados…",
+    "category": "Outros",
+    "icon": "🤖",
+    "path": "https://passosdomingues.github.io/webappshowcase/site/utilities/guiaImpostoRenda.html",
+    "lastModified": "2026-06-27 12:19",
+    "mtime": 1782573591,
+    "sha512Short": "be8248868f6b1067",
+    "sha512": "be8248868f6b10675256fa24c238f64b8ea4adf1b26deb5c813e49d23615cb9b0f6cd01c63359c076e18b6bc41ee8aed315394b4b1891e38ace88bdbe1ca2c89",
+    "size": "92KB"
+  },
+  {
+    "id": "investAI",
+    "title": "InvestAI - Avaliação Completa para Startups",
+    "description": "Comece nos contando um pouco sobre sua startup. Essas informações nos ajudarão a criar uma análise personalizada e re…",
+    "category": "Outros",
+    "icon": "📈",
+    "path": "https://passosdomingues.github.io/webappshowcase/site/utilities/investAI.html",
+    "lastModified": "2026-06-27 12:19",
+    "mtime": 1782573591,
+    "sha512Short": "9dbef7f0042ada04",
+    "sha512": "9dbef7f0042ada04ac495d4b33be59dce9ab383fafaf7c2c92b197d11cd35727815190e650e635842e89c06a9e04f11dd673250a855339b217835ccfacd27b6e",
+    "size": "173KB"
+  },
+  {
+    "id": "jurisCopilot",
+    "title": "JurisCopilot - Assistente Jurídico",
+    "description": "Assistente jurídico para cálculos penais e análise de provas",
+    "category": "Outros",
+    "icon": "⚖️",
+    "path": "https://passosdomingues.github.io/webappshowcase/site/utilities/jurisCopilot.html",
+    "lastModified": "2026-06-27 12:19",
+    "mtime": 1782573591,
+    "sha512Short": "9ff438428df7403b",
+    "sha512": "9ff438428df7403b5c99f5e5d521f8f289588a4f79149b2c5fba7de400c9223bd447a84ca87a64bcd0c35ea22cf3b338521fed4bac18a32c8f39025f6482007d",
+    "size": "64KB"
+  },
+  {
+    "id": "marmitAI",
+    "title": "MarmitAI - Planejador Inteligente de Marmitas",
+    "description": "Planejador inteligente de marmitas semanais",
+    "category": "Outros",
+    "icon": "🍱",
+    "path": "https://passosdomingues.github.io/webappshowcase/site/utilities/marmitAI.html",
+    "lastModified": "2026-06-27 12:19",
+    "mtime": 1782573591,
+    "sha512Short": "ca94c88af4aae2ec",
+    "sha512": "ca94c88af4aae2ec6bea9078275f194043a72a6826b875f1819a72b54346aa3a7ae95b3787ca7279773a130e3001a3579c220e2c1579e1617bba8119e86e7ea8",
+    "size": "72KB"
+  },
+  {
+    "id": "maturityPro",
+    "title": "MaturityPro - Diagnóstico Completo para Startups",
+    "description": "'); background-size: cover; } h1 { font-size: 2.5rem; margin-bottom: 10px; font-weight: 700; position: relative; } h2…",
+    "category": "Outros",
+    "icon": "📋",
+    "path": "https://passosdomingues.github.io/webappshowcase/site/utilities/maturityPro.html",
+    "lastModified": "2026-06-27 12:19",
+    "mtime": 1782573591,
+    "sha512Short": "0411995fcbb20892",
+    "sha512": "0411995fcbb20892a36ea959f2c241903bb22e2a3cf630a8176a7fec8cd29f49a2af05cb91b81e093d6cd3affb4e2deb837c502c1a878b00fbc4c9ed43ed3105",
+    "size": "198KB"
+  },
+  {
+    "id": "meetMotions",
+    "title": "Meet Motions Tracking",
+    "description": "Um copiloto para moderadores de eventos online",
+    "category": "Outros",
+    "icon": "🎤",
+    "path": "https://passosdomingues.github.io/webappshowcase/site/utilities/meetMotions.html",
+    "lastModified": "2026-06-27 12:19",
+    "mtime": 1782573591,
+    "sha512Short": "25fa7fc880644e89",
+    "sha512": "25fa7fc880644e89e0e35036cb392f788cc05b206c9b028177d0144f174d0a7a752772342c46d9ef02feb01144f687994de71f29ca0261cf54fb2ec2b7cb7297",
+    "size": "69KB"
+  },
+  {
+    "id": "montaHorariosEnsinoMedio",
+    "title": "Planejador de Horários - Novo Ensino Médio MG",
+    "description": "Clique para visualizar este projeto.",
+    "category": "Outros",
+    "icon": "🔎🚌",
+    "path": "https://passosdomingues.github.io/webappshowcase/site/utilities/montaHorariosEnsinoMedio.html",
+    "lastModified": "2026-06-27 12:19",
+    "mtime": 1782573591,
+    "sha512Short": "68b6ecf84c3f1481",
+    "sha512": "68b6ecf84c3f148183da2ddfb68c7cfca97821b72bc6e322b4434285a7b6dcdea514f19f97f88bd79080468db71e758428a445fa7c1c9be2dc87a81d8d0efcc0",
+    "size": "92KB"
+  },
+  {
+    "id": "motoboyDanger",
+    "title": "Moto Guardian",
+    "description": "${ponto.rua} ${ponto.bairro ? ` ${ponto.bairro}` :",
+    "category": "Outros",
+    "icon": "🛵",
+    "path": "https://passosdomingues.github.io/webappshowcase/site/utilities/motoboyDanger.html",
+    "lastModified": "2026-06-27 12:19",
+    "mtime": 1782573591,
+    "sha512Short": "ad42bc9c96eb7095",
+    "sha512": "ad42bc9c96eb70956d804bdf7c5be36ef80606affa9cacf44343cc13c81f5ec2980cdb45c5ed6742a96f033d2ed7dfc397753b2d2df7dd1938e0f59d323ebae9",
+    "size": "21KB"
+  },
+  {
+    "id": "oraculoCerne",
+    "title": "CerneOracle — Guardião do Modelo CERNE",
+    "description": "CerneOracle — guia interativo do Modelo CERNE para incubadoras de inovação. Explore práticas, quizzes e conquistas dos 4 níveis do modelo.",
+    "category": "CERNE",
+    "icon": "🏛️🤖",
+    "path": "https://passosdomingues.github.io/webappshowcase/site/utilities/oraculoCerne.html",
+    "lastModified": "2026-06-27 12:19",
+    "mtime": 1782573591,
+    "sha512Short": "b9788bfa56f5a73a",
+    "sha512": "b9788bfa56f5a73a4fa38764aa33b6c948ec70ef82d03de108ff10528db3f0677d0661160316ca5d0a58aff8139ba5ce429f2aafb7a15179ba9e6416770147c9",
+    "size": "96KB"
+  },
+  {
+    "id": "orbitasEstrelasViaLactea",
+    "title": "Simulador de Dinâmica Galáctica",
+    "description": "Tempo: N/A Myr atrás",
+    "category": "Outros",
+    "icon": "⭐🌌",
+    "path": "https://passosdomingues.github.io/webappshowcase/site/utilities/orbitasEstrelasViaLactea.html",
+    "lastModified": "2026-06-27 12:19",
+    "mtime": 1782573591,
+    "sha512Short": "79337f8087933d2d",
+    "sha512": "79337f8087933d2da44b04809dedfb1e88077dbed27af40869e07771db1e570e175b5a340d7036456692111959d656bb094e334657df7514d49fb43ba95f7c60",
+    "size": "74KB"
+  },
+  {
+    "id": "pawgel",
+    "title": "Pawgel",
+    "description": "Clique no mapa para reportar um doguinho abandonado e nos ajudar a mudar essa realidade!",
+    "category": "Outros",
+    "icon": "🐾🪽",
+    "path": "https://passosdomingues.github.io/webappshowcase/site/utilities/pawgel.html",
+    "lastModified": "2026-06-27 12:19",
+    "mtime": 1782573591,
+    "sha512Short": "f39cf4f47dcada90",
+    "sha512": "f39cf4f47dcada9006b62dd0dbe32442cd64f8cb957053b097c2827dc0dd94fc039672a201aba47fdc8fe154b81893f2760d47d2497e0f691fbc25a2c53dda21",
+    "size": "36KB"
+  },
+  {
+    "id": "pedreiroBot",
+    "title": "PedreiroBot",
+    "description": "Calculadora de orçamento de materiais e mão de obra para pedreiros e construção civil. Planeje e gere orçamentos de forma rápida e envie por WhatsApp.",
+    "category": "Outros",
+    "icon": "🧱",
+    "path": "https://passosdomingues.github.io/webappshowcase/site/utilities/pedreiroBot.html",
+    "lastModified": "2026-06-27 12:19",
+    "mtime": 1782573591,
+    "sha512Short": "3d236bb21d420e66",
+    "sha512": "3d236bb21d420e66da0a07dde059d0ec9c990593e1523214d788ce8338ff643ca550c9d8a76cedefea87edb8931d5bebe05d099162e0bb46a84e9c1d49bd60f4",
+    "size": "41KB"
+  },
+  {
+    "id": "peregrinApp",
+    "title": "PeregrinApp",
+    "description": "Distância: 0 km",
+    "category": "Outros",
+    "icon": "🗺️🚴",
+    "path": "https://passosdomingues.github.io/webappshowcase/site/utilities/peregrinApp.html",
+    "lastModified": "2026-06-27 12:19",
+    "mtime": 1782573591,
+    "sha512Short": "1e5c334b9005ff1c",
+    "sha512": "1e5c334b9005ff1c6d0225334da394c27a2f81cafb67807f76f025c6a0b3fac3623094d48c7f3ec21f4b839e9ab9fc3bc8507495108cca2adba5fcc715421c35",
+    "size": "33KB"
+  },
+  {
+    "id": "personaLLM",
+    "title": "Construtor de Persona LLM",
+    "description": "Antes de utilizar o Construtor de Persona LLM, leia atentamente os seguintes termos:",
+    "category": "Outros",
+    "icon": "🤖",
+    "path": "https://passosdomingues.github.io/webappshowcase/site/utilities/personaLLM.html",
+    "lastModified": "2026-06-27 12:19",
+    "mtime": 1782573591,
+    "sha512Short": "4c9497ba439dafe8",
+    "sha512": "4c9497ba439dafe838ad631065a4b338b32f7d749b8b56b61caaa6ca6276cbddc0305d2e30d11ae6114f36e852b6430dd9acbb634ff05b265d73f2ec6d847bf7",
+    "size": "45KB"
+  },
+  {
+    "id": "planejaMercado",
+    "title": "ComprAI",
+    "description": "Preveja o preço de suas compras",
+    "category": "Outros",
+    "icon": "🛒",
+    "path": "https://passosdomingues.github.io/webappshowcase/site/utilities/planejaMercado.html",
+    "lastModified": "2026-06-27 12:19",
+    "mtime": 1782573591,
+    "sha512Short": "eb1a3866383b2dc1",
+    "sha512": "eb1a3866383b2dc1d034ae2568b6e84eaec540ffe8e1e06f9b84b7859e92b2ff0a1b1a39cc1b3a5fa31c1c45b4070b558d53f66d6511de92d0507ffaf0e69fa0",
+    "size": "77KB"
+  },
+  {
+    "id": "planoPerfeito",
+    "title": "Plano Perfeito - Gerador de Estratégias Empresariais",
+    "description": "Coletamos apenas as informações necessárias para gerar seu plano estratégico personalizado. Os dados coletados incluem:",
+    "category": "Outros",
+    "icon": "📋",
+    "path": "https://passosdomingues.github.io/webappshowcase/site/utilities/planoPerfeito.html",
+    "lastModified": "2026-06-27 12:19",
+    "mtime": 1782573591,
+    "sha512Short": "edf97caafa1fa01b",
+    "sha512": "edf97caafa1fa01b62c0fec39d5624e2df7bc3c44f620e77d57a8dfd92be558ead4631f6a2fd18e86bea19b81b85dd670c0739d7b26abe9d4bab28af11492c51",
+    "size": "124KB"
+  },
+  {
+    "id": "plantAI",
+    "title": "PlantAI",
+    "description": "Gestão de Irrigação de Commodities Agrícolas",
+    "category": "Outros",
+    "icon": "🛰️🌱",
+    "path": "https://passosdomingues.github.io/webappshowcase/site/utilities/plantAI.html",
+    "lastModified": "2026-06-27 12:19",
+    "mtime": 1782573591,
+    "sha512Short": "f7972cb35b4164a7",
+    "sha512": "f7972cb35b4164a743f5036806860912d9904612e1fd78f3301972c9cffc8cf840f0470eadd7031dc712a271577edb3769ea584608d57f63c4982384a881039d",
+    "size": "24KB"
+  },
+  {
+    "id": "previMax",
+    "title": "PreviMax - Engenharia Contra Incêndio - Elói Mendes e Região",
+    "description": "PreviMax - Engenharia Contra Incêndio em Elói Mendes. Projetos, laudos e sistemas completos de segurança contra incêndio para Elói Mendes e região Sul de Minas.",
+    "category": "engenharia contra incêndio",
+    "icon": "🤖",
+    "path": "https://passosdomingues.github.io/webappshowcase/site/utilities/previMax.html",
+    "lastModified": "2026-06-27 12:19",
+    "mtime": 1782573591,
+    "sha512Short": "106bf014fc634beb",
+    "sha512": "106bf014fc634beb1b9d067bf367384ebcf00e9dd3a4beee9beeea6aac9c14d7564829ee2af054551c37ae20a8b400d5d423873376df96c14ecba5755fe3f11c",
+    "size": "86KB"
+  },
+  {
+    "id": "qrCodeGenerator",
+    "title": "QR Code Safe Generator",
+    "description": "Clique para visualizar este projeto.",
+    "category": "Outros",
+    "icon": "🔒🔳",
+    "path": "https://passosdomingues.github.io/webappshowcase/site/utilities/qrCodeGenerator.html",
+    "lastModified": "2026-06-27 12:19",
+    "mtime": 1782573591,
+    "sha512Short": "b3dafcd35fc5dfcc",
+    "sha512": "b3dafcd35fc5dfcc5a5ccb1a10cfe824ecacf427704e6b491f280749065171fe59450205b9233f47f669b84bb8469203d1b5ee9e504a812d233b11fd4df772fd",
+    "size": "46KB"
+  },
+  {
+    "id": "radaresFixosAlfenasMG",
+    "title": "Radares Fixos · Alfenas-MG",
+    "description": "Clique para visualizar este projeto.",
+    "category": "Outros",
+    "icon": "📡🚨",
+    "path": "https://passosdomingues.github.io/webappshowcase/site/utilities/radaresFixosAlfenasMG.html",
+    "lastModified": "2026-06-27 12:19",
+    "mtime": 1782573591,
+    "sha512Short": "fb3319b3fec1af0a",
+    "sha512": "fb3319b3fec1af0ad024117f41a1d5100ce4fe91c980b0e10aa74869687fec856251e8ea41584d39a5e65904cd58fc6751d9ff541e4a062dc80679df9509f1e0",
+    "size": "38KB"
+  },
+  {
+    "id": "retroRadio",
+    "title": "Rádio Retrô",
+    "description": "Ouça estações de rádio de todo o mundo em um player retrô moderno",
+    "category": "Outros",
+    "icon": "📻",
+    "path": "https://passosdomingues.github.io/webappshowcase/site/utilities/retroRadio.html",
+    "lastModified": "2026-06-27 12:19",
+    "mtime": 1782573591,
+    "sha512Short": "c52ac0eee4562937",
+    "sha512": "c52ac0eee45629378d0d834894e50ffb873352c7f455e1e7dd106d8bc861656702677e4081690e1dbcfac34f2e1340742494992431af9f0bdc3accb992f90783",
+    "size": "47KB"
+  },
+  {
+    "id": "revisaoCarro",
+    "title": "AutoCheck",
+    "description": "Nenhum item prioritário identificado.",
+    "category": "Outros",
+    "icon": "🔎🚗",
+    "path": "https://passosdomingues.github.io/webappshowcase/site/utilities/revisaoCarro.html",
+    "lastModified": "2026-06-27 12:19",
+    "mtime": 1782573591,
+    "sha512Short": "0d389aed709c01f1",
+    "sha512": "0d389aed709c01f185f7f40204f86d25f8d0947c0e65646e0f16c20238aea7cb370146a8188ae85de290193028f01deaf04498adc5ab8c90f28f0541852eb992",
+    "size": "69KB"
+  },
+  {
+    "id": "rondaSegura",
+    "title": "RondAI",
+    "description": "Clique no mapa para registrar ocorrências durante sua ronda",
+    "category": "Outros",
+    "icon": "👮📝",
+    "path": "https://passosdomingues.github.io/webappshowcase/site/utilities/rondaSegura.html",
+    "lastModified": "2026-06-27 12:19",
+    "mtime": 1782573591,
+    "sha512Short": "5cdf5d0279a83852",
+    "sha512": "5cdf5d0279a838529cb3b4e9769e3188990ebe70b067d4d7093c9ac528d35967d8968625055185599b209ef7a634f27bde58343dab2315247af582beeca73ba9",
+    "size": "30KB"
+  },
+  {
+    "id": "startupFinances",
+    "title": "Análise Financeira Avançada - Monte Carlo",
+    "description": "Calculando cenários probabilísticos...",
+    "category": "Outros",
+    "icon": "📈",
+    "path": "https://passosdomingues.github.io/webappshowcase/site/utilities/startupFinances.html",
+    "lastModified": "2026-06-27 12:19",
+    "mtime": 1782573591,
+    "sha512Short": "c3a7b8d1b86acafd",
+    "sha512": "c3a7b8d1b86acafd8c588adfef9a1f6dfb3490db28de2d9397bb70274c4bc3416476ef412af4bc2d1855740310bfa915c2e3a038f022462265e79beeafcdcb3d",
+    "size": "106KB"
+  },
+  {
+    "id": "teleprompter",
+    "title": "Mini Teleprompter 🎬",
+    "description": "Mini Teleprompter — app de script com scroll automático, controle de velocidade em tempo real e atalhos de teclado.",
+    "category": "Outros",
+    "icon": "🎬",
+    "path": "https://passosdomingues.github.io/webappshowcase/site/utilities/teleprompter.html",
+    "lastModified": "2026-06-27 12:19",
+    "mtime": 1782573591,
+    "sha512Short": "2b8e1e69310aa901",
+    "sha512": "2b8e1e69310aa901dd9c7c832dbec6fb466f7f9a0102db3fc525fa0bd380cde95ce6c6aaade3943f9c88d0fe1e788c99504021591cfc127edf2c2262bd4413d1",
+    "size": "10KB"
+  }
+];
+
+  /* ── BM25 ENGINE ─────────────────────────────────────────── */
+  const BM25 = (() => {
+    const K1 = 1.5, B = 0.75;
+    const SW = new Set("de a o que e do da em um para com uma os no se na por mais as dos como mas foi ao ele das tem à seu sua ou ser quando muito há nos já também só pelo pela até isso ela entre era depois sem mesmo aos ter seus quem nas me esse eles estão você tinha foram essa num nem suas meu às minha têm numa pelos pelas este del te lo".split(" "));
+
+    function tok(t) {
+      return t.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"")
+        .replace(/[^a-z0-9\s]/g," ").split(/\s+/).filter(w => w.length > 2 && !SW.has(w));
+    }
+
+    const N = projects.length;
+    const tfs = [], lens = [];
+    const df = {};
+
+    projects.forEach((p, i) => {
+      const tokens = tok([p.title, p.description, p.category].join(" "));
+      lens.push(tokens.length);
+      const freq = {};
+      tokens.forEach(w => { freq[w] = (freq[w]||0)+1; });
+      tfs.push(freq);
+      Object.keys(freq).forEach(w => { df[w] = (df[w]||0)+1; });
+    });
+    const avgdl = lens.reduce((a,b)=>a+b,0) / N;
+
+    function score(qTokens, i) {
+      let s = 0;
+      const freq = tfs[i], dl = lens[i];
+      qTokens.forEach(w => {
+        if (!freq[w]) return;
+        const idf = Math.log((N-(df[w]||0)+0.5)/((df[w]||0)+0.5)+1);
+        const tf = freq[w]*(K1+1)/(freq[w]+K1*(1-B+B*dl/avgdl));
+        s += idf * tf;
+      });
+      return s;
+    }
+
+    function search(query) {
+      const qt = tok(query);
+      if (!qt.length) return projects.map((p,i)=>({...p,score:0,idx:i}));
+      return projects
+        .map((p,i) => ({...p, score: score(qt,i), idx:i}))
+        .filter(r => r.score > 0)
+        .sort((a,b) => b.score - a.score);
+    }
+
+    return { search, tok };
+  })();
+
+  /* ── HIGHLIGHT ────────────────────────────────────────────── */
+  function hl(text, tokens) {
+    if (!tokens.length) return text;
+    const re = new RegExp(`(${tokens.map(t=>t.replace(/[.*+?^${}()|[\]\\]/g,"\\$&")).join("|")})`, "gi");
+    return text.replace(re,"<mark>$1</mark>");
+  }
+
+  /* ── INIT ────────────────────────────────────────────────── */
+  const allCats = [...new Set(projects.map(p=>p.category))].sort();
+  const pillTabs = document.getElementById("pillTabs");
+  let activeCat = "";
+
+  allCats.forEach(c => {
+    const btn = document.createElement("button");
+    btn.className = "pill";
+    btn.dataset.cat = c;
+    btn.setAttribute("role","tab");
+    btn.setAttribute("aria-selected","false");
+    btn.textContent = c;
+    pillTabs.appendChild(btn);
+  });
+
+  pillTabs.addEventListener("click", e => {
+    const pill = e.target.closest(".pill");
+    if (!pill) return;
+    activeCat = pill.dataset.cat;
+    pillTabs.querySelectorAll(".pill").forEach(p => {
+      p.classList.toggle("active", p.dataset.cat === activeCat);
+      p.setAttribute("aria-selected", String(p.dataset.cat === activeCat));
+    });
+    render(allResults);
+  });
+
+  const searchInput = document.getElementById("searchInput");
+  const clearBtn = document.getElementById("clearSearch");
+  const sortSelect = document.getElementById("sortSelect");
+  const container = document.getElementById("projectsContainer");
+  const statsText = document.getElementById("statsText");
+  const btt = document.getElementById("btt");
+  const darkToggle = document.getElementById("darkToggle");
+
+  function applyTheme() {
+    const dark = localStorage.getItem("agDark") === "1";
+    document.documentElement.setAttribute("data-theme", dark ? "dark" : "light");
+    darkToggle.textContent = dark ? "☀️" : "🌙";
+    darkToggle.setAttribute("aria-pressed", String(dark));
+    darkToggle.setAttribute("aria-label", dark ? "Alternar para modo claro" : "Alternar para modo escuro");
+  }
+  applyTheme();
+  darkToggle.addEventListener("click", () => {
+    localStorage.setItem("agDark", document.documentElement.getAttribute("data-theme")==="dark" ? "0" : "1");
+    applyTheme();
+  });
+
+  /* Hero stats */
+  document.getElementById("countProjects").textContent = projects.length;
+  document.getElementById("countCategories").textContent = allCats.length;
+  document.getElementById("buildDate").textContent = new Date().toLocaleDateString("pt-BR",{day:"2-digit",month:"2-digit"});
+
+  function maxScore(results) { return results.reduce((m,r)=>Math.max(m,r.score),0)||1; }
+
+  function render(results) {
+    container.innerHTML = "";
+    const query = searchInput.value.trim();
+    const qTokens = query.length >= 2 ? BM25.tok(query) : [];
+    const sort = sortSelect.value;
+
+    let filtered = activeCat ? results.filter(r=>r.category===activeCat) : results;
+
+    if (sort === "date")  filtered = [...filtered].sort((a,b) => b.mtime - a.mtime);
+    else if (sort === "name") filtered = [...filtered].sort((a,b) => a.title.localeCompare(b.title));
+    else if (sort === "size") filtered = [...filtered].sort((a,b) => {
+      const parseSize = s => { if(!s) return 0; const n=parseInt(s); return s.includes("MB")?n*1e6:s.includes("KB")?n*1e3:n; };
+      return parseSize(b.size) - parseSize(a.size);
+    });
+
+    statsText.textContent = `${filtered.length} de ${projects.length} projetos • ${allCats.length} categorias${query ? ` • busca: "${query}"` : ""}`;
+
+    if (!filtered.length) {
+      container.innerHTML = `<div class="no-results">
+        <svg width="64" height="64" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+        <p>Nenhum projeto encontrado para <strong>"${query}"</strong>.</p>
+        <p style="font-size:.85rem;margin-top:.5rem">Tente outros termos ou limpe a busca.</p>
+      </div>`;
+      return;
+    }
+
+    const maxS = query ? maxScore(filtered) : 1;
+    const byCategory = {};
+    filtered.forEach(p => { (byCategory[p.category]??=[]).push(p); });
+
+    Object.keys(byCategory).sort().forEach(cat => {
+      const sec = document.createElement("section");
+      sec.className = "category-section";
+      const h2 = document.createElement("h2");
+      h2.className = "category-title";
+      h2.innerHTML = `${cat}<span class="cat-count">${byCategory[cat].length}</span>`;
+      sec.appendChild(h2);
+      const grid = document.createElement("div");
+      grid.className = "cards-grid";
+
+      byCategory[cat].forEach(proj => {
+        const a = document.createElement("a");
+        a.className = "card";
+        a.href = proj.path;
+        a.target = "_blank";
+        a.rel = "noopener noreferrer";
+        a.setAttribute("aria-label", `${proj.title} — abre em nova aba`);
+        a.setAttribute("data-id", proj.id);
+
+        const hlTitle = hl(proj.title, qTokens);
+        const hlDesc  = hl(proj.description, qTokens);
+        const scoreWidth = query && proj.score > 0 ? Math.round((proj.score/maxS)*100) : 0;
+        const sha = proj.sha512Short || "";
+        const size = proj.size || "";
+
+        a.innerHTML = `
+          <div class="card-header">
+            <div class="card-icon" aria-hidden="true">${proj.icon}</div>
+            <div class="card-title">${hlTitle}</div>
+          </div>
+          <div class="card-body">
+            <div class="card-desc">${hlDesc}</div>
+            ${scoreWidth > 0 ? `<div class="score-bar" style="width:${scoreWidth}%" title="Relevância BM25: ${proj.score.toFixed(2)}"></div>` : ""}
+            <div class="card-meta">
+              <span class="card-cat">${proj.category}</span>
+              <span class="card-size">${size}</span>
+              <span class="card-date">${proj.lastModified}</span>
+            </div>
+            ${sha ? `<button class="card-fingerprint" title="SHA-512: ${proj.sha512||sha}\nClique para copiar" onclick="event.preventDefault();navigator.clipboard&&navigator.clipboard.writeText('${proj.sha512||sha}').then(()=>{this.textContent='\\u2714 copiado!';setTimeout(()=>{this.innerHTML='<span class=fp-icon>\\uD83D\\uDD0F</span>${sha}'},1200)})" aria-label="Copiar SHA-512"><span class=fp-icon>\\uD83D\\uDD0F</span>${sha}</button>` : ""}
+          </div>`;
+        grid.appendChild(a);
+      });
+
+      sec.appendChild(grid);
+      container.appendChild(sec);
+    });
+  }
+
+  let allResults = projects.map((p,i) => ({...p, score:0, idx:i}));
+  render(allResults);
+
+  let debounce;
+  searchInput.addEventListener("input", () => {
+    clearTimeout(debounce);
+    debounce = setTimeout(() => {
+      const q = searchInput.value.trim();
+      allResults = q.length >= 2 ? BM25.search(q) : projects.map((p,i)=>({...p,score:0,idx:i}));
+      render(allResults);
+    }, 180);
+  });
+
+  clearBtn.addEventListener("click", () => { searchInput.value = ""; allResults = projects.map((p,i)=>({...p,score:0,idx:i})); render(allResults); searchInput.focus(); });
+  sortSelect.addEventListener("change", () => render(allResults));
+  statsText.textContent = `${projects.length} de ${projects.length} projetos \u2022 ${allCats.length} categorias`;
+
+  window.addEventListener("scroll", () => { btt.classList.toggle("show", window.scrollY > 350); });
+  btt.addEventListener("click", () => window.scrollTo({top:0,behavior:"smooth"}));
+
+  if (!localStorage.getItem("agDark")) {
+    localStorage.setItem("agDark", window.matchMedia("(prefers-color-scheme:dark)").matches ? "1" : "0");
+    applyTheme();
+  }
+</script>
+</body>
+</html>

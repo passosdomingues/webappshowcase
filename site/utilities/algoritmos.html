@@ -1,0 +1,2077 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Aula Prática - Controle de Estoque"/>
+    <title>Aula de Algoritmos - Controle de Estoque</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --primary: #005EB8;
+            --secondary: #00A651;
+            --accent: #FFD100;
+            --dark: #003A75;
+            --light: #F0F7FF;
+            --danger: #E53935;
+            --success: #27ae60;
+            --warning: #FF9800;
+            --text: #333333;
+            --light-gray: #E9ECEF;
+            --border-radius: 16px;
+            --transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            --box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #f5f9ff, #e6f2ff);
+            color: var(--text);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .presentation-container {
+            display: flex;
+            min-height: 100vh;
+            perspective: 1000px;
+        }
+
+        .navigation {
+            width: 280px;
+            background: var(--primary);
+            color: white;
+            padding: 30px 15px;
+            box-shadow: 5px 0 25px rgba(0,0,0,0.15);
+            z-index: 10;
+            display: flex;
+            flex-direction: column;
+            transition: var(--transition);
+            overflow-y: auto;
+            position: relative;
+        }
+
+        .nav-header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid rgba(255,255,255,0.2);
+        }
+        
+        .nav-header .icon {
+            font-size: 2.8rem;
+            margin-bottom: 15px;
+            color: var(--accent);
+            text-shadow: 0 3px 10px rgba(0,0,0,0.2);
+        }
+
+        .nav-header h2 {
+            font-size: 1.4rem;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+
+        .nav-index {
+            list-style: none;
+            flex-grow: 1;
+        }
+
+        .nav-item {
+            padding: 15px 20px;
+            margin: 8px 0;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            transition: var(--transition);
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            background: rgba(255,255,255,0.1);
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .nav-item:before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            height: 100%;
+            width: 4px;
+            background: var(--accent);
+            transform: scaleY(0);
+            transition: var(--transition);
+        }
+
+        .nav-item:hover {
+            background: rgba(255,255,255,0.2);
+            transform: translateX(5px);
+        }
+
+        .nav-item:hover:before {
+            transform: scaleY(1);
+        }
+
+        .nav-item.active {
+            background: white;
+            color: var(--primary);
+            font-weight: 700;
+            transform: translateX(10px);
+            box-shadow: 0 8px 15px rgba(0,0,0,0.1);
+        }
+
+        .nav-item.active:before {
+            transform: scaleY(1);
+        }
+
+        .slides-container {
+            flex: 1;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .slide {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            padding: 150px 60px 40px;
+            opacity: 0;
+            transform: translateX(50px) rotateY(10deg);
+            transition: var(--transition);
+            z-index: 1;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            background: white;
+            background: linear-gradient(to bottom, #ffffff, #f0f7ff);
+        }
+
+        .slide.active {
+            opacity: 1;
+            transform: translateX(0) rotateY(0);
+            z-index: 2;
+            box-shadow: 0 0 50px rgba(0,0,0,0.1);
+        }
+
+        .slide-header {
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 3px solid var(--primary);
+            position: relative;
+        }
+
+        .slide-title {
+            font-size: 2.5rem;
+            color: var(--primary);
+            font-weight: 800;
+            margin-bottom: 10px;
+            letter-spacing: -0.5px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        .slide-subtitle {
+            font-size: 1.5rem;
+            color: var(--secondary);
+            font-weight: 600;
+            margin-top: 5px;
+            font-style: italic;
+        }
+
+        .slide-content {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+        }
+
+        /* TIMELINE FIXA */
+        .timeline-fixed {
+            position: fixed;
+            top: 0;
+            left: 280px;
+            right: 0;
+            background: white;
+            padding: 15px 60px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            z-index: 50;
+            border-bottom: 2px solid var(--primary);
+        }
+
+        .timeline-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .total-timer {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--dark);
+            font-family: 'Courier New', monospace;
+        }
+
+        .timeline-label {
+            font-size: 0.9rem;
+            color: var(--primary);
+            font-weight: 600;
+        }
+
+        .timeline-bar {
+            height: 12px;
+            background: #e9ecef;
+            border-radius: 6px;
+            overflow: hidden;
+            margin: 10px 0;
+            position: relative;
+        }
+
+        .sectors {
+            display: flex;
+            height: 100%;
+            width: 100%;
+        }
+
+        .sector {
+            height: 100%;
+            position: relative;
+        }
+
+        .sector-1 { background: #005EB8; width: 10%; }
+        .sector-2 { background: #00A651; width: 33.33%; }
+        .sector-3 { background: #FFD100; width: 13.33%; }
+        .sector-4 { background: #003A75; width: 16.67%; }
+        .sector-5 { background: #27ae60; width: 26.67%; }
+
+        .timeline-indicator {
+            position: absolute;
+            top: -4px;
+            width: 4px;
+            height: 20px;
+            background: var(--accent);
+            transform: translateX(-50%);
+            z-index: 10;
+            box-shadow: 0 0 10px rgba(0,0,0,0.3);
+            transition: left 0.5s ease;
+        }
+
+        .sector-labels {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 5px;
+            font-size: 0.8rem;
+            color: #666;
+        }
+
+        .sector-label {
+            text-align: center;
+            width: 20%;
+        }
+
+        .sector-time {
+            font-weight: 600;
+            color: var(--dark);
+        }
+
+        .current-sector {
+            font-size: 0.9rem;
+            color: var(--text);
+            margin-top: 10px;
+            text-align: center;
+            font-weight: 500;
+        }
+
+        .card {
+            background: white;
+            border-radius: var(--border-radius);
+            padding: 30px;
+            box-shadow: var(--box-shadow);
+            margin-top: 25px;
+            border-left: 5px solid var(--secondary);
+            transition: var(--transition);
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 50px rgba(0, 94, 184, 0.15);
+        }
+
+        .card-title {
+            font-size: 1.7rem;
+            color: var(--dark);
+            margin-bottom: 20px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .card-content p, .card-content li {
+            font-size: 1.15rem;
+            line-height: 1.8;
+            margin-bottom: 10px;
+            color: var(--text);
+        }
+        
+        .card-content ul, .card-content ol {
+            padding-left: 30px;
+            margin-top: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .card-content li {
+            margin-bottom: 12px;
+            position: relative;
+        }
+
+        .card-content li:before {
+            content: "•";
+            color: var(--primary);
+            font-weight: bold;
+            display: inline-block; 
+            width: 1em;
+            margin-left: -1em;
+        }
+
+        .highlight {
+            color: var(--primary);
+            font-weight: 700;
+            background-color: var(--light);
+            padding: 3px 8px;
+            border-radius: 6px;
+            display: inline-block;
+        }
+        
+        .drawback {
+            color: #c7254e;
+            font-weight: 700;
+            background-color: #f9f2f4;
+            padding: 3px 8px;
+            border-radius: 6px;
+            display: inline-block;
+        }
+
+        .controls {
+            position: absolute;
+            bottom: 30px;
+            right: 30px;
+            display: flex;
+            gap: 15px;
+            z-index: 20;
+        }
+
+        .control-btn {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: var(--primary);
+            color: white;
+            border: none;
+            font-size: 1.3rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: var(--transition);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+        }
+
+        .control-btn:hover {
+            transform: translateY(-5px) scale(1.1);
+            background: var(--dark);
+            box-shadow: 0 12px 25px rgba(0,0,0,0.25);
+        }
+        
+        .cover-slide {
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            background: linear-gradient(135deg, var(--primary), var(--dark));
+            color: white;
+        }
+        
+        .cover-slide .slide-title {
+            color: white;
+            font-size: 4.5rem;
+            margin-bottom: 20px;
+            text-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            animation: fadeInUp 1s ease;
+        }
+        
+        .cover-slide .slide-subtitle {
+            color: var(--accent);
+            font-size: 2.5rem;
+            margin-bottom: 40px;
+            animation: fadeInUp 1s ease 0.2s forwards;
+            opacity: 0;
+        }
+        
+        .cover-slide .author {
+            color: white;
+            margin-top: 40px;
+            font-size: 1.4rem;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+            line-height: 1.8;
+            animation: fadeInUp 1s ease 0.4s forwards;
+            opacity: 0;
+        }
+
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 30px;
+            margin-top: 25px;
+        }
+        
+        .grid-item {
+            background: white;
+            padding: 30px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            border-top: 5px solid var(--secondary);
+            transition: var(--transition);
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .grid-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+        }
+        
+        .grid-item h3 {
+            font-size: 1.5rem;
+            color: var(--dark);
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .grid-item p {
+            line-height: 1.8;
+            flex-grow: 1;
+            color: var(--text);
+        }
+
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 25px;
+            background: white;
+            border-radius: var(--border-radius);
+            overflow: hidden;
+            box-shadow: var(--box-shadow);
+        }
+        
+        .comparison-table th, .comparison-table td {
+            padding: 18px;
+            text-align: left;
+            border-bottom: 1px solid var(--light-gray);
+            color: var(--text);
+        }
+        
+        .comparison-table th {
+            background: var(--primary);
+            color: white;
+            font-size: 1.15rem;
+            font-weight: 600;
+        }
+        
+        .comparison-table tr:nth-child(even) {
+            background: var(--light);
+        }
+        
+        .comparison-table td {
+            vertical-align: top;
+        }
+
+        .chart-container {
+            width: 100%;
+            height: 350px;
+            margin: 30px 0;
+            background: white;
+            border-radius: var(--border-radius);
+            padding: 15px;
+            box-shadow: var(--box-shadow);
+            position: relative;
+        }
+
+        .roadmap {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            margin-top: 30px;
+        }
+
+        .roadmap-step {
+            display: flex;
+            align-items: flex-start;
+            gap: 20px;
+            padding: 20px;
+            background: white;
+            border-radius: var(--border-radius);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.05);
+            position: relative;
+            border-left: 4px solid var(--secondary);
+            transition: var(--transition);
+        }
+
+        .roadmap-step:hover {
+            transform: translateX(5px);
+        }
+
+        .step-number {
+            width: 40px;
+            height: 40px;
+            background: var(--primary);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+
+        .step-content {
+            flex-grow: 1;
+        }
+
+        .step-content h4 {
+            color: var(--dark);
+            font-size: 1.3rem;
+            margin-bottom: 8px;
+        }
+
+        .step-content p {
+            color: var(--text);
+            line-height: 1.7;
+        }
+
+        .formula {
+            background: var(--light);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 1.2rem;
+            text-align: center;
+            border: 1px solid var(--primary);
+            color: var(--dark);
+        }
+
+        .evaluation-panel {
+            position: fixed;
+            top: 40px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: white;
+            border-radius: var(--border-radius);
+            padding: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            z-index: 100;
+            width: 90%;
+            max-width: 800px;
+            max-height: 80vh;
+            overflow-y: auto;
+            display: none;
+            border: 4px solid var(--primary);
+        }
+
+        .evaluation-panel.active {
+            display: block;
+            animation: slideDown 0.5s ease;
+        }
+
+        .evaluation-title {
+            color: var(--primary);
+            font-size: 1.8rem;
+            margin-bottom: 20px;
+            text-align: center;
+            padding-bottom: 15px;
+            border-bottom: 2px solid var(--light);
+        }
+
+        .evaluation-section {
+            margin-bottom: 25px;
+            padding: 15px;
+            background: var(--light);
+            border-radius: var(--border-radius);
+        }
+
+        .evaluation-item {
+            margin-bottom: 20px;
+        }
+
+        .evaluation-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--dark);
+        }
+
+        .evaluation-weight {
+            font-size: 0.85rem;
+            color: #666;
+            margin-left: 10px;
+        }
+
+        .rating-buttons {
+            display: flex;
+            gap: 8px;
+            margin-top: 10px;
+            flex-wrap: wrap;
+        }
+
+        .rating-btn {
+            width: 40px;
+            height: 40px;
+            border: 2px solid #ddd;
+            border-radius: 50%;
+            background: white;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .rating-btn:hover {
+            border-color: var(--primary);
+            background: var(--light);
+            transform: scale(1.1);
+        }
+
+        .rating-btn.selected {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+            transform: scale(1.2);
+        }
+
+        .notes-input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: var(--border-radius);
+            font-family: inherit;
+            resize: vertical;
+            min-height: 80px;
+            margin-top: 10px;
+            transition: var(--transition);
+        }
+
+        .notes-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(0, 94, 184, 0.1);
+        }
+
+        .score-display {
+            background: linear-gradient(135deg, var(--primary), var(--dark));
+            color: white;
+            padding: 20px;
+            border-radius: var(--border-radius);
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        .score-value {
+            font-size: 3.5rem;
+            font-weight: 800;
+            margin: 10px 0;
+        }
+
+        .score-label {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .score-description {
+            font-size: 0.9rem;
+            margin-top: 10px;
+            opacity: 0.8;
+        }
+
+        .radar-container {
+            background: white;
+            padding: 20px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            margin-top: 20px;
+            height: 400px;
+        }
+
+        .close-eval-btn {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: var(--danger);
+            color: white;
+            border: none;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: var(--transition);
+        }
+
+        .close-eval-btn:hover {
+            transform: scale(1.1);
+            background: #c62828;
+        }
+
+        .open-eval-btn {
+            position: absolute;
+            bottom: 30px;
+            left: 30px;
+            background: var(--secondary);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: var(--border-radius);
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+            z-index: 20;
+        }
+
+        .open-eval-btn:hover {
+            transform: translateY(-5px);
+            background: #008f40;
+            box-shadow: 0 12px 25px rgba(0,0,0,0.25);
+        }
+
+        .slide-indicator {
+            position: absolute;
+            bottom: 15px;
+            left: 15px;
+            background: rgba(0,0,0,0.7);
+            color: white;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            z-index: 10;
+        }
+
+        .class-activity {
+            background: #FFF9E6;
+            border-left: 5px solid var(--accent);
+            padding: 20px;
+            border-radius: 0 var(--border-radius) var(--border-radius) 0;
+            margin: 20px 0;
+        }
+
+        .class-activity h4 {
+            color: #E65100;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .teacher-notes {
+            background: #E8F5E9;
+            border-left: 5px solid var(--success);
+            padding: 20px;
+            border-radius: 0 var(--border-radius) var(--border-radius) 0;
+            margin: 20px 0;
+        }
+
+        .teacher-notes h4 {
+            color: var(--success);
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .time-markers {
+            display: flex;
+            justify-content: space-between;
+            margin: 20px 0;
+            padding: 0 10px;
+        }
+
+        .time-marker {
+            text-align: center;
+            font-size: 0.9rem;
+            color: var(--text);
+        }
+
+        .time-marker.active {
+            color: var(--primary);
+            font-weight: 700;
+        }
+
+        .time-marker.completed {
+            color: var(--success);
+        }
+
+        .progress-bar {
+            height: 6px;
+            background: #e9ecef;
+            border-radius: 3px;
+            overflow: hidden;
+            margin: 10px 0 30px;
+            position: relative;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            width: 0%;
+            transition: width 0.5s ease;
+            border-radius: 3px;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translate(-50%, -20px);
+            }
+            to {
+                opacity: 1;
+                transform: translate(-50%, 0);
+            }
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.7; }
+            100% { opacity: 1; }
+        }
+
+        .animate-in {
+            animation: fadeInUp 0.8s ease forwards;
+        }
+
+        /* Responsividade */
+        @media (max-width: 1200px) {
+            .presentation-container {
+                flex-direction: column;
+            }
+            .navigation {
+                width: 100%;
+                height: auto;
+                padding: 15px;
+            }
+            .nav-header { 
+                margin-bottom: 15px;
+                padding-bottom: 10px;
+            }
+            .nav-index { 
+                display: flex;
+                flex-wrap: wrap;
+                justify-content: center;
+                gap: 10px;
+            }
+            .nav-item { 
+                padding: 10px 15px;
+                margin: 5px;
+                font-size: 0.9rem;
+            }
+            .nav-item.active { 
+                transform: none;
+            }
+            .slide { 
+                padding: 130px 30px 30px;
+            }
+            .slide-title { 
+                font-size: 2.2rem; 
+            }
+            .slide-subtitle { 
+                font-size: 1.3rem; 
+            }
+            .cover-slide .slide-title {
+                font-size: 3.5rem;
+            }
+            .cover-slide .slide-subtitle {
+                font-size: 2rem;
+            }
+            .grid-container {
+                grid-template-columns: 1fr;
+            }
+            .timeline-fixed {
+                left: 0;
+                padding: 15px 30px;
+            }
+            .open-eval-btn {
+                position: relative;
+                bottom: auto;
+                left: auto;
+                margin: 20px auto;
+                width: 90%;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .slide {
+                padding: 120px 20px 20px;
+            }
+            .slide-title {
+                font-size: 1.8rem;
+            }
+            .slide-subtitle {
+                font-size: 1.2rem;
+            }
+            .card {
+                padding: 20px;
+            }
+            .card-title {
+                font-size: 1.4rem;
+            }
+            .chart-container {
+                height: 250px;
+                padding: 10px;
+            }
+            .controls {
+                bottom: 15px;
+                right: 15px;
+            }
+            .control-btn {
+                width: 50px;
+                height: 50px;
+                font-size: 1.1rem;
+            }
+            .evaluation-panel {
+                width: 95%;
+                padding: 15px;
+            }
+            .timeline-fixed {
+                padding: 10px 20px;
+            }
+            .sector-labels {
+                font-size: 0.7rem;
+            }
+            .total-timer {
+                font-size: 1.5rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .slide {
+                padding: 110px 15px 15px;
+            }
+            .slide-title {
+                font-size: 1.6rem;
+            }
+            .slide-subtitle {
+                font-size: 1.1rem;
+            }
+            .card {
+                padding: 15px;
+            }
+            .chart-container {
+                height: 220px;
+            }
+            .cover-slide .slide-title {
+                font-size: 2.5rem;
+            }
+            .cover-slide .slide-subtitle {
+                font-size: 1.5rem;
+            }
+            .rating-buttons {
+                justify-content: center;
+            }
+            .timeline-fixed {
+                padding: 8px 15px;
+            }
+            .sector-labels {
+                flex-wrap: wrap;
+                gap: 5px;
+            }
+            .sector-label {
+                width: 48%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="presentation-container">
+        <!-- Navegação / Índice -->
+        <nav class="navigation">
+            <div class="nav-header">
+                <div class="icon"><i class="fas fa-calculator"></i></div>
+                <h2>Desenvolvimento de Algoritmos</h2>
+                <p style="font-size: 0.9rem; margin-top: 10px; opacity: 0.9;">Aula Prática - Controle de Estoque</p>
+            </div>
+            <ul class="nav-index">
+                <li class="nav-item active" data-slide="0"><i class="fas fa-star"></i> Início da Aula</li>
+                <li class="nav-item" data-slide="1"><i class="fas fa-briefcase"></i> Desafio Corporativo</li>
+                <li class="nav-item" data-slide="2"><i class="fas fa-users"></i> Trabalho em Grupo</li>
+                <li class="nav-item" data-slide="3"><i class="fas fa-chalkboard-teacher"></i> Apresentações</li>
+                <li class="nav-item" data-slide="4"><i class="fas fa-cogs"></i> Conceitos Fundamentais</li>
+                <li class="nav-item" data-slide="5"><i class="fas fa-road"></i> Próximos Passos</li>
+                <li class="nav-item" data-slide="6"><i class="fas fa-chart-line"></i> Dashboard da Aula</li>
+            </ul>
+            <div class="slide-indicator">Slide 1 de 7</div>
+        </nav>
+
+        <!-- TIMELINE FIXA -->
+        <div class="timeline-fixed">
+            <div class="timeline-header">
+                <div class="timeline-label">TEMPO DA AULA</div>
+                <div class="total-timer" id="totalTimer">30:00</div>
+            </div>
+            
+            <div class="timeline-bar">
+                <div class="sectors">
+                    <div class="sector sector-1"></div>
+                    <div class="sector sector-2"></div>
+                    <div class="sector sector-3"></div>
+                    <div class="sector sector-4"></div>
+                    <div class="sector sector-5"></div>
+                </div>
+                <div class="timeline-indicator" id="timelineIndicator" style="left: 0%"></div>
+            </div>
+            
+            <div class="sector-labels">
+                <div class="sector-label"><div class="sector-time">3:00</div>Desafio</div>
+                <div class="sector-label"><div class="sector-time">10:00</div>Grupos</div>
+                <div class="sector-label"><div class="sector-time">4:00</div>Apresentações</div>
+                <div class="sector-label"><div class="sector-time">5:00</div>Conceitos</div>
+                <div class="sector-label"><div class="sector-time">8:00</div>Síntese</div>
+            </div>
+            
+            <div class="current-sector" id="currentSector">Pronto para iniciar a aula</div>
+        </div>
+
+        <!-- Slides -->
+        <main class="slides-container">
+            <!-- Slide 0: Início da Aula -->
+            <section class="slide active cover-slide">
+                <h1 class="slide-title">Desenvolvimento de Algoritmos</h1>
+                <h2 class="slide-subtitle">Controle Inteligente de Estoque</h2>
+                <p class="author">Aula prática para Técnico em Informática e Desenvolvimento de Sistemas<br>Professor: Rafael Passos Domingues | 20 de Janeiro de 2026</p>
+                
+                <div class="roadmap" style="max-width: 800px; margin-top: 40px;">
+                    <div class="roadmap-step">
+                        <div class="step-number"><i class="fas fa-briefcase"></i></div>
+                        <div class="step-content">
+                            <h4>Desafio Real</h4>
+                            <p>Problema corporativo: Rede de supermercados com prejuízo de R$120.000/mês</p>
+                        </div>
+                    </div>
+                    <div class="roadmap-step">
+                        <div class="step-number"><i class="fas fa-users"></i></div>
+                        <div class="step-content">
+                            <h4>Trabalho em Grupo</h4>
+                            <p>Grupos multietários desenvolvendo soluções práticas</p>
+                        </div>
+                    </div>
+                    <div class="roadmap-step">
+                        <div class="step-number"><i class="fas fa-lightbulb"></i></div>
+                        <div class="step-content">
+                            <h4>Conceitos Fundamentais</h4>
+                            <p>Sequência lógica, decisão condicional e variáveis</p>
+                        </div>
+                    </div>
+                </div>
+                <!--
+                <button class="open-eval-btn" id="openEvalBtn">
+                    <i class="fas fa-chart-bar"></i> Abrir Painel de Avaliação
+                </button>
+                -->
+            </section>
+
+            <!-- Slide 1: Desafio Corporativo -->
+            <section class="slide">
+                <header class="slide-header">
+                    <h1 class="slide-title">O Desafio Corporativo</h1>
+                    <h2 class="slide-subtitle">Problematização (3 minutos)</h2>
+                </header>
+                <div class="slide-content">
+                    <div class="class-activity">
+                        <h4><i class="fas fa-bullhorn"></i> CONTEXTUALIZAÇÃO PROFISSIONAL</h4>
+                        <p>"Imaginem que vocês são consultores de uma grande rede de supermercados. O problema: o controle de estoque de produtos perecíveis está causando prejuízos mensais de <span class="highlight">R$ 120.000</span> devido a vencimentos."</p>
+                    </div>
+                    
+                    <div class="card">
+                        <h3 class="card-title"><i class="fas fa-chart-line"></i> Dados do Caso</h3>
+                        <div class="card-content">
+                            <div class="grid-container">
+                                <div class="grid-item">
+                                    <h3><i class="fas fa-boxes"></i> Volume</h3>
+                                    <p><span class="highlight">3.000 itens perecíveis</span> por loja em 5 categorias diferentes (laticínios, frios, hortifruti, açougue, padaria)</p>
+                                </div>
+                                <div class="grid-item">
+                                    <h3><i class="fas fa-calendar-alt"></i> Prazos</h3>
+                                    <p>Validades variando de <span class="highlight">2 dias a 1 mês</span> dependendo do produto</p>
+                                </div>
+                                <div class="grid-item">
+                                    <h3><i class="fas fa-exchange-alt"></i> Rotatividade</h3>
+                                    <p>Rotatividade diferenciada por produto</p>
+                                </div>
+                            </div>
+                            
+                            <!--
+                            <div class="teacher-notes">
+                                <h4><i class="fas fa-clipboard-check"></i> CHECKLIST DO PROFESSOR</h4>
+                                <p>Apresentar o caso, destacando o impacto financeiro. Fazer perguntas como: "O que acontece quando um produto vence?" e "Como vocês organizariam o estoque?".</p>
+                                <p><strong>Organização:</strong> Dividir a turma em 2 grupos multietários (14 a 65 anos), garantindo diversidade de perspectivas.</p>
+                            </div>
+                            -->
+                            
+                            <h3>Desafio Principal:</h3>
+                            <p>"Como criar um processo sistemático (algoritmo) para que os funcionários gerenciem o estoque, minimizando perdas e maximizando o giro?"</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Slide 2: Trabalho em Grupo -->
+            <section class="slide">
+                <header class="slide-header">
+                    <h1 class="slide-title">Planejamento Estratégico</h1>
+                    <h2 class="slide-subtitle">Trabalho em Grupo (10 minutos)</h2>
+                </header>
+                <div class="slide-content">
+                    <div class="class-activity">
+                        <h4><i class="fas fa-users"></i> TAREFA DO GRUPO</h4>
+                        <p>Cada grupo atuará como equipe de consultoria. Devem desenvolver um algoritmo em linguagem natural que:</p>
+                    </div>
+                    
+                    <div class="card">
+                        <h3 class="card-title"><i class="fas fa-tasks"></i> Requisitos do Algoritmo</h3>
+                        <div class="card-content">
+                            <div class="roadmap">
+                                <div class="roadmap-step">
+                                    <div class="step-number">1</div>
+                                    <div class="step-content">
+                                        <h4>Priorização</h4>
+                                        <p>Priorizar produtos por prazo de validade (mais próximo primeiro)</p>
+                                    </div>
+                                </div>
+                                <div class="roadmap-step">
+                                    <div class="step-number">2</div>
+                                    <div class="step-content">
+                                        <h4>Ações</h4>
+                                        <p>Definir ações para produtos próximos ao vencimento</p>
+                                    </div>
+                                </div>
+                                <div class="roadmap-step">
+                                    <div class="step-number">3</div>
+                                    <div class="step-content">
+                                        <h4>Otimização</h4>
+                                        <p>Otimizar o espaço físico do estoque</p>
+                                    </div>
+                                </div>
+                                <div class="roadmap-step">
+                                    <div class="step-number">4</div>
+                                    <div class="step-content">
+                                        <h4>Rotatividade</h4>
+                                        <p>Considerar diferentes taxas de rotatividade</p>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="teacher-notes">
+                                <h4><i class="fas fa-walking"></i> PAPEL DO INSTRUTOR</h4>
+                                <p>Circular entre os grupos, fazendo perguntas desafiadoras:</p>
+                                <ul>
+                                    <li>"Como lidar com produtos que têm validade diferente mas ocupam o mesmo espaço?"</li>
+                                    <li>"O que fazer quando um produto tem alta rotatividade mas validade curta?"</li>
+                                    <li>"Como o algoritmo se adapta a variações sazonais?"</li>
+                                </ul>
+                                <p><strong>Entregável:</strong> Escrever em papel o passo a passo detalhado, incluindo decisões condicionais.</p>
+                                <p><strong>Documentação:</strong> Anotar mentalmente padrões interessantes para discussão posterior.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Slide 3: Apresentações -->
+            <section class="slide">
+                <header class="slide-header">
+                    <h1 class="slide-title">Apresentação Executiva</h1>
+                    <h2 class="slide-subtitle">Compartilhamento (4 minutos)</h2>
+                </header>
+                <div class="slide-content">
+                    <div class="class-activity">
+                        <h4><i class="fas fa-microphone-alt"></i> FORMATO PITCH</h4>
+                        <p>Cada grupo tem <span class="highlight">1 minuto</span> para apresentar sua solução. Cronometrar.</p>
+                    </div>
+                    
+                    <div class="card">
+                        <h3 class="card-title"><i class="fas fa-chalkboard"></i> Foco na Lousa</h3>
+                        <div class="card-content">
+                            <div class="grid-container">
+                                <div class="grid-item">
+                                    <h3><i class="fas fa-search"></i> Termos Técnicos Emergentes</h3>
+                                    <p>Anotar enquanto ouvem:</p>
+                                    <ul>
+                                        <li><strong>Condições:</strong> "se", "caso", "quando", "dependendo"</li>
+                                        <li><strong>Comparações:</strong> "mais próximo", "primeiro a vencer"</li>
+                                        <li><strong>Ações:</strong> "reposicionar", "descontar", "repor"</li>
+                                        <li><strong>Estruturas:</strong> "verificar", "comparar", "listar"</li>
+                                    </ul>
+                                </div>
+                                <div class="grid-item">
+                                    <h3><i class="fas fa-sync-alt"></i> Síntese e Transição</h3>
+                                    <p><strong>Síntese Imediata:</strong> "Percebam como ambos os grupos naturalmente criaram estruturas condicionais e sequências lógicas."</p>
+                                    <p><strong>Transição:</strong> "Esses elementos que identificamos são exatamente os blocos de construção da programação."</p>
+                                </div>
+                            </div>
+                            
+                            <div class="teacher-notes">
+                                <h4><i class="fas fa-clock"></i> TIMING CRÍTICO</h4>
+                                <p>1 minuto por grupo = 2 minutos total<br>
+                                2 minutos para síntese e transição<br>
+                                <strong>Total: 4 minutos</strong></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Slide 4: Conceitos Fundamentais -->
+            <section class="slide">
+                <header class="slide-header">
+                    <h1 class="slide-title">Framework Conceitual</h1>
+                    <h2 class="slide-subtitle">Mediação (5 minutos)</h2>
+                </header>
+                <div class="slide-content">
+                    <div class="class-activity">
+                        <h4><i class="fas fa-graduation-cap"></i> DEFINIÇÃO FORMAL</h4>
+                        <p>"Algoritmo: sequência finita de instruções não ambíguas para resolver um problema específico." <em>José Augusto N.G. Manzano</em></p>
+                    </div>
+                    
+                    <div class="card">
+                        <h3 class="card-title"><i class="fas fa-sitemap"></i> Estruturas Identificadas</h3>
+                        <div class="card-content">
+                            <div class="grid-container">
+                                <div class="grid-item">
+                                    <h3><i class="fas fa-list-ol"></i> Sequência Lógica</h3>
+                                    <p>Instruções em ordem específica:</p>
+                                    <ol>
+                                        <li>Verificar data de validade</li>
+                                        <li>Comparar com data atual</li>
+                                        <li>Calcular dias restantes</li>
+                                    </ol>
+                                </div>
+                                <div class="grid-item">
+                                    <h3><i class="fas fa-code-branch"></i> Decisão Condicional</h3>
+                                    <p>Escolhas baseadas em condições:</p>
+                                    <pre style="background: #f5f5f5; padding: 15px; border-radius: 8px; margin: 10px 0; overflow-x: auto;">
+Algoritmo ControleDeValidade
+inicio
+  para cada produto do estoque faca
+    conferir dataDeValidade
+    se dataDeValidade esta proxima entao
+      colocar produto na frente da prateleira
+    senao
+      colocar produto na parte de tras da prateleira
+    fimse
+    
+    se faltam poucos dias para vencer entao
+      separar produto para promocao
+      avisar responsavel
+    senao
+      nao fazer nada
+    fimse
+  fimpara
+fim</pre>
+                                </div>
+                            </div>
+                            
+                            <div class="teacher-notes">
+                                <h4><i class="fas fa-link"></i> CONEXÃO COM A REALIDADE</h4>
+                                <p>"Isso que criaram manualmente é exatamente a lógica que rodaria em um sistema de gestão de estoque."</p>
+                                <p><strong>Variáveis do Mundo Real:</strong></p>
+                                <ul>
+                                    <li><strong>data_validade:</strong> quando o produto vence</li>
+                                    <li><strong>rotatividade:</strong> velocidade de venda</li>
+                                    <li><strong>estoque_atual:</strong> quantidade disponível</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Slide 5: Próximos Passos -->
+            <section class="slide">
+                <header class="slide-header">
+                    <h1 class="slide-title">Roadmap para Próxima Aula</h1>
+                    <h2 class="slide-subtitle">Síntese (8 minutos)</h2>
+                </header>
+                <div class="slide-content">
+                    <div class="class-activity">
+                        <h4><i class="fas fa-trophy"></i> VALIDAÇÃO DAS SOLUÇÕES</h4>
+                        <p>"Grupo A focou em priorização por validade - excelente para minimizar perdas. Grupo B incluiu rotatividade no cálculo - visão estratégica de giro."</p>
+                    </div>
+                    
+                    <div class="card">
+                        <h3 class="card-title"><i class="fas fa-road"></i> Preview Conceitual</h3>
+                        <div class="card-content">
+                            <p><strong>Ponto Crítico:</strong> "Ambas as soluções resolvem o problema, mas com estratégias diferentes. Isso nos leva a três questões fundamentais para a próxima aula:"</p>
+                            
+                            <div class="grid-container">
+                                <div class="grid-item">
+                                    <h3><i class="fas fa-bolt"></i> Eficiência</h3>
+                                    <p>Qual solução usa menos recursos (tempo, espaço, pessoal)?</p>
+                                </div>
+                                <div class="grid-item">
+                                    <h3><i class="fas fa-bullseye"></i> Eficácia</h3>
+                                    <p>Qual solução atinge melhor o objetivo de reduzir perdas?</p>
+                                </div>
+                                <div class="grid-item">
+                                    <h3><i class="fas fa-chart-line"></i> Efetividade</h3>
+                                    <p>Qual solução tem melhor impacto no negócio (lucro, satisfação do cliente, redução de stress da equipe)?</p>
+                                </div>
+                            </div>
+                            
+                            <div class="teacher-notes">
+                                <h4><i class="fas fa-anchor"></i> GANCHO PARA PRÓXIMA AULA</h4>
+                                <p><strong>Marcas Formativas:</strong></p>
+                                <ul>
+                                    <li>"Como a colaboração entre grupos poderia gerar uma solução ainda melhor?"</li>
+                                    <li>"Como a empatia com os funcionários que executarão o algoritmo afeta seu design?"</li>
+                                    <li>"Quais considerações éticas surgem ao automatizar decisões que afetam questões de saúde pública?"</li>
+                                </ul>
+                                <p><strong>Tarefa de Preparação:</strong> "Na próxima aula, traga ideias sobre como medir a eficiência do seu algoritmo. Pense em métricas que uma grande rede de supermercados realmente usaria."</p>
+                            </div>
+                            
+                            <div class="formula">
+                                <strong>Fechamento:</strong> "Hoje demos o primeiro passo na modelagem de processos de negócio. Na próxima, evoluíremos para otimização sistêmica, pensando não apenas no 'como fazer', mas no 'como fazer melhor'."
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Slide 6: Dashboard -->
+            <section class="slide">
+                <header class="slide-header">
+                    <h1 class="slide-title">Dashboard da Aula</h1>
+                    <h2 class="slide-subtitle">Avaliação de desempenho e reflexão</h2>
+                </header>
+                <div class="slide-content">
+                    <div class="score-display">
+                        <div class="score-label">SCORE FINAL DA AULA</div>
+                        <div class="score-value" id="finalScoreValue">0.0</div>
+                        <div class="score-description" id="finalScoreDescription">Avalie os indicadores para calcular o score</div>
+                    </div>
+                    
+                    <div class="card">
+                        <h3 class="card-title"><i class="fas fa-radar"></i> Radar de Avaliação</h3>
+                        <div class="card-content">
+                            <div class="chart-container">
+                                <canvas id="radarChart"></canvas>
+                            </div>
+                            <!--
+                            <div class="teacher-notes">
+                                <h4><i class="fas fa-lightbulb"></i> PERGUNTAS PARA REFLEXÃO QUALITATIVA</h4>
+                                <ol>
+                                    <li><strong>Momentos de Maior Densidade Cognitiva:</strong> Em quais momentos específicos você percebeu que os alunos estavam realmente "conectando os pontos" entre o problema real e a área temática proposta para a aula? Descreva as interações e o contexto.</li>
+                                    <li><strong>Dinâmica Intergeracional como Recurso Pedagógico:</strong> Como a variação etária (14-65 anos) se manifestou durante a atividade? Que contribuições específicas de diferentes faixas etárias você observou e como elas enriqueceram a solução?</li>
+                                    <li><strong>Ajustes em Tempo Real e Insights Improvisados:</strong> Qual foi a maior adaptação que você precisou fazer em relação ao planejado durante a condução da aula? Que insight não antecipado surgiu da mediação que poderia ser formalizado em futuros planejamentos?</li>
+                                    <li><strong>Ponte para a Próxima Aula:</strong> Com base nas soluções apresentadas pelos grupos, quais contradições, lacunas ou variações você identificou que servirão como material bruto para introduzir os "conceitos-ponte" na próxima aula?</li>
+                                </ol>
+                            </div>
+                            -->
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- Controles de navegação -->
+        <div class="controls">
+            <button class="control-btn" id="prev-btn" title="Slide Anterior"><i class="fas fa-arrow-left"></i></button>
+            <button class="control-btn" id="next-btn" title="Próximo Slide"><i class="fas fa-arrow-right"></i></button>
+        </div>
+
+        <!-- Botão para abrir painel de avaliação -->
+        <button class="open-eval-btn" id="openEvalBtnFixed">
+            <i class="fas fa-star"></i> Avaliar Aula
+        </button>
+
+        <!-- Painel de Avaliação -->
+        <div class="evaluation-panel" id="evaluationPanel">
+            <button class="close-eval-btn" id="closeEvalBtn">×</button>
+            <h2 class="evaluation-title">Avaliação da Aula em Tempo Real</h2>
+            
+            <div class="score-display" style="margin-top: 0;">
+                <div class="score-label">SCORE ATUAL</div>
+                <div class="score-value" id="currentScoreValue">0.0</div>
+                <div class="score-description" id="currentScoreDescription">Avalie os indicadores durante a aula</div>
+            </div>
+            
+            <div class="evaluation-section">
+                <h3>1. Problematização Inicial</h3>
+                
+                <div class="evaluation-item">
+                    <label class="evaluation-label">Clareza na apresentação do contexto corporativo <span class="evaluation-weight">(Peso: 1.0)</span></label>
+                    <div class="rating-buttons">
+                        <button class="rating-btn" data-indicator="1a" data-value="1">1</button>
+                        <button class="rating-btn" data-indicator="1a" data-value="2">2</button>
+                        <button class="rating-btn" data-indicator="1a" data-value="3">3</button>
+                        <button class="rating-btn" data-indicator="1a" data-value="4">4</button>
+                        <button class="rating-btn" data-indicator="1a" data-value="5">5</button>
+                    </div>
+                    <textarea class="notes-input" data-indicator="1a" placeholder="Anotações sobre este indicador..."></textarea>
+                </div>
+                
+                <div class="evaluation-item">
+                    <label class="evaluation-label">Engajamento inicial dos alunos com o problema <span class="evaluation-weight">(Peso: 1.2)</span></label>
+                    <div class="rating-buttons">
+                        <button class="rating-btn" data-indicator="1b" data-value="1">1</button>
+                        <button class="rating-btn" data-indicator="1b" data-value="2">2</button>
+                        <button class="rating-btn" data-indicator="1b" data-value="3">3</button>
+                        <button class="rating-btn" data-indicator="1b" data-value="4">4</button>
+                        <button class="rating-btn" data-indicator="1b" data-value="5">5</button>
+                    </div>
+                    <textarea class="notes-input" data-indicator="1b" placeholder="Anotações sobre este indicador..."></textarea>
+                </div>
+            </div>
+            
+            <div class="evaluation-section">
+                <h3>2. Atividade em Grupo</h3>
+                
+                <div class="evaluation-item">
+                    <label class="evaluation-label">Participação ativa de membros de diferentes faixas etárias <span class="evaluation-weight">(Peso: 1.5)</span></label>
+                    <div class="rating-buttons">
+                        <button class="rating-btn" data-indicator="2a" data-value="1">1</button>
+                        <button class="rating-btn" data-indicator="2a" data-value="2">2</button>
+                        <button class="rating-btn" data-indicator="2a" data-value="3">3</button>
+                        <button class="rating-btn" data-indicator="2a" data-value="4">4</button>
+                        <button class="rating-btn" data-indicator="2a" data-value="5">5</button>
+                    </div>
+                    <textarea class="notes-input" data-indicator="2a" placeholder="Anotações sobre este indicador..."></textarea>
+                </div>
+                
+                <div class="evaluation-item">
+                    <label class="evaluation-label">Qualidade das discussões internas (ouvir, argumentar) <span class="evaluation-weight">(Peso: 1.3)</span></label>
+                    <div class="rating-buttons">
+                        <button class="rating-btn" data-indicator="2b" data-value="1">1</button>
+                        <button class="rating-btn" data-indicator="2b" data-value="2">2</button>
+                        <button class="rating-btn" data-indicator="2b" data-value="3">3</button>
+                        <button class="rating-btn" data-indicator="2b" data-value="4">4</button>
+                        <button class="rating-btn" data-indicator="2b" data-value="5">5</button>
+                    </div>
+                    <textarea class="notes-input" data-indicator="2b" placeholder="Anotações sobre este indicador..."></textarea>
+                </div>
+                
+                <div class="evaluation-item">
+                    <label class="evaluation-label">Capacidade de transformar o problema em passos lógicos <span class="evaluation-weight">(Peso: 1.4)</span></label>
+                    <div class="rating-buttons">
+                        <button class="rating-btn" data-indicator="2c" data-value="1">1</button>
+                        <button class="rating-btn" data-indicator="2c" data-value="2">2</button>
+                        <button class="rating-btn" data-indicator="2c" data-value="3">3</button>
+                        <button class="rating-btn" data-indicator="2c" data-value="4">4</button>
+                        <button class="rating-btn" data-indicator="2c" data-value="5">5</button>
+                    </div>
+                    <textarea class="notes-input" data-indicator="2c" placeholder="Anotações sobre este indicador..."></textarea>
+                </div>
+            </div>
+            
+            <div class="evaluation-section">
+                <h3>3. Mediação do Instrutor</h3>
+                
+                <div class="evaluation-item">
+                    <label class="evaluation-label">Circulação efetiva entre os grupos <span class="evaluation-weight">(Peso: 0.8)</span></label>
+                    <div class="rating-buttons">
+                        <button class="rating-btn" data-indicator="3a" data-value="1">1</button>
+                        <button class="rating-btn" data-indicator="3a" data-value="2">2</button>
+                        <button class="rating-btn" data-indicator="3a" data-value="3">3</button>
+                        <button class="rating-btn" data-indicator="3a" data-value="4">4</button>
+                        <button class="rating-btn" data-indicator="3a" data-value="5">5</button>
+                    </div>
+                    <textarea class="notes-input" data-indicator="3a" placeholder="Anotações sobre este indicador..."></textarea>
+                </div>
+                
+                <div class="evaluation-item">
+                    <label class="evaluation-label">Qualidade das perguntas desafiadoras feitas <span class="evaluation-weight">(Peso: 1.2)</span></label>
+                    <div class="rating-buttons">
+                        <button class="rating-btn" data-indicator="3b" data-value="1">1</button>
+                        <button class="rating-btn" data-indicator="3b" data-value="2">2</button>
+                        <button class="rating-btn" data-indicator="3b" data-value="3">3</button>
+                        <button class="rating-btn" data-indicator="3b" data-value="4">4</button>
+                        <button class="rating-btn" data-indicator="3b" data-value="5">5</button>
+                    </div>
+                    <textarea class="notes-input" data-indicator="3b" placeholder="Anotações sobre este indicador..."></textarea>
+                </div>
+                
+                <div class="evaluation-item">
+                    <label class="evaluation-label">Timing adequado de intervenção (não interferir cedo demais) <span class="evaluation-weight">(Peso: 1.0)</span></label>
+                    <div class="rating-buttons">
+                        <button class="rating-btn" data-indicator="3c" data-value="1">1</button>
+                        <button class="rating-btn" data-indicator="3c" data-value="2">2</button>
+                        <button class="rating-btn" data-indicator="3c" data-value="3">3</button>
+                        <button class="rating-btn" data-indicator="3c" data-value="4">4</button>
+                        <button class="rating-btn" data-indicator="3c" data-value="5">5</button>
+                    </div>
+                    <textarea class="notes-input" data-indicator="3c" placeholder="Anotações sobre este indicador..."></textarea>
+                </div>
+            </div>
+            
+            <div class="evaluation-section">
+                <h3>4. Apresentação dos Grupos</h3>
+                
+                <div class="evaluation-item">
+                    <label class="evaluation-label">Clareza na comunicação do algoritmo criado <span class="evaluation-weight">(Peso: 1.1)</span></label>
+                    <div class="rating-buttons">
+                        <button class="rating-btn" data-indicator="4a" data-value="1">1</button>
+                        <button class="rating-btn" data-indicator="4a" data-value="2">2</button>
+                        <button class="rating-btn" data-indicator="4a" data-value="3">3</button>
+                        <button class="rating-btn" data-indicator="4a" data-value="4">4</button>
+                        <button class="rating-btn" data-indicator="4a" data-value="5">5</button>
+                    </div>
+                    <textarea class="notes-input" data-indicator="4a" placeholder="Anotações sobre este indicador..."></textarea>
+                </div>
+                
+                <div class="evaluation-item">
+                    <label class="evaluation-label">Respeito ao tempo limite (1 minuto) <span class="evaluation-weight">(Peso: 0.7)</span></label>
+                    <div class="rating-buttons">
+                        <button class="rating-btn" data-indicator="4b" data-value="1">1</button>
+                        <button class="rating-btn" data-indicator="4b" data-value="2">2</button>
+                        <button class="rating-btn" data-indicator="4b" data-value="3">3</button>
+                        <button class="rating-btn" data-indicator="4b" data-value="4">4</button>
+                        <button class="rating-btn" data-indicator="4b" data-value="5">5</button>
+                    </div>
+                    <textarea class="notes-input" data-indicator="4b" placeholder="Anotações sobre este indicador..."></textarea>
+                </div>
+                
+                <div class="evaluation-item">
+                    <label class="evaluation-label">Utilização de termos que evidenciam lógica (se, então, enquanto) <span class="evaluation-weight">(Peso: 1.3)</span></label>
+                    <div class="rating-buttons">
+                        <button class="rating-btn" data-indicator="4c" data-value="1">1</button>
+                        <button class="rating-btn" data-indicator="4c" data-value="2">2</button>
+                        <button class="rating-btn" data-indicator="4c" data-value="3">3</button>
+                        <button class="rating-btn" data-indicator="4c" data-value="4">4</button>
+                        <button class="rating-btn" data-indicator="4c" data-value="5">5</button>
+                    </div>
+                    <textarea class="notes-input" data-indicator="4c" placeholder="Anotações sobre este indicador..."></textarea>
+                </div>
+            </div>
+            
+            <div class="evaluation-section">
+                <h3>5. Síntese e Ponte Conceitual</h3>
+                
+                <div class="evaluation-item">
+                    <label class="evaluation-label">Eficácia na identificação e registro dos termos-chave na lousa <span class="evaluation-weight">(Peso: 1.0)</span></label>
+                    <div class="rating-buttons">
+                        <button class="rating-btn" data-indicator="5a" data-value="1">1</button>
+                        <button class="rating-btn" data-indicator="5a" data-value="2">2</button>
+                        <button class="rating-btn" data-indicator="5a" data-value="3">3</button>
+                        <button class="rating-btn" data-indicator="5a" data-value="4">4</button>
+                        <button class="rating-btn" data-indicator="5a" data-value="5">5</button>
+                    </div>
+                    <textarea class="notes-input" data-indicator="5a" placeholder="Anotações sobre este indicador..."></textarea>
+                </div>
+                
+                <div class="evaluation-item">
+                    <label class="evaluation-label">Clareza na explicação dos conceitos de sequência e decisão <span class="evaluation-weight">(Peso: 1.4)</span></label>
+                    <div class="rating-buttons">
+                        <button class="rating-btn" data-indicator="5b" data-value="1">1</button>
+                        <button class="rating-btn" data-indicator="5b" data-value="2">2</button>
+                        <button class="rating-btn" data-indicator="5b" data-value="3">3</button>
+                        <button class="rating-btn" data-indicator="5b" data-value="4">4</button>
+                        <button class="rating-btn" data-indicator="5b" data-value="5">5</button>
+                    </div>
+                    <textarea class="notes-input" data-indicator="5b" placeholder="Anotações sobre este indicador..."></textarea>
+                </div>
+                
+                <div class="evaluation-item">
+                    <label class="evaluation-label">Conexão convincente entre exemplos dos alunos e teoria <span class="evaluation-weight">(Peso: 1.2)</span></label>
+                    <div class="rating-buttons">
+                        <button class="rating-btn" data-indicator="5c" data-value="1">1</button>
+                        <button class="rating-btn" data-indicator="5c" data-value="2">2</button>
+                        <button class="rating-btn" data-indicator="5c" data-value="3">3</button>
+                        <button class="rating-btn" data-indicator="5c" data-value="4">4</button>
+                        <button class="rating-btn" data-indicator="5c" data-value="5">5</button>
+                    </div>
+                    <textarea class="notes-input" data-indicator="5c" placeholder="Anotações sobre este indicador..."></textarea>
+                </div>
+            </div>
+            
+            <div class="evaluation-section">
+                <h3>6. Engajamento Geral</h3>
+                
+                <div class="evaluation-item">
+                    <label class="evaluation-label">Percentual de alunos que contribuíram ativamente <span class="evaluation-weight">(Peso: 1.5)</span></label>
+                    <div class="rating-buttons">
+                        <button class="rating-btn" data-indicator="6a" data-value="1">1</button>
+                        <button class="rating-btn" data-indicator="6a" data-value="2">2</button>
+                        <button class="rating-btn" data-indicator="6a" data-value="3">3</button>
+                        <button class="rating-btn" data-indicator="6a" data-value="4">4</button>
+                        <button class="rating-btn" data-indicator="6a" data-value="5">5</button>
+                    </div>
+                    <textarea class="notes-input" data-indicator="6a" placeholder="Anotações sobre este indicador..."></textarea>
+                </div>
+                
+                <div class="evaluation-item">
+                    <label class="evaluation-label">Manutenção da atenção durante os 30 minutos <span class="evaluation-weight">(Peso: 1.3)</span></label>
+                    <div class="rating-buttons">
+                        <button class="rating-btn" data-indicator="6b" data-value="1">1</button>
+                        <button class="rating-btn" data-indicator="6b" data-value="2">2</button>
+                        <button class="rating-btn" data-indicator="6b" data-value="3">3</button>
+                        <button class="rating-btn" data-indicator="6b" data-value="4">4</button>
+                        <button class="rating-btn" data-indicator="6b" data-value="5">5</button>
+                    </div>
+                    <textarea class="notes-input" data-indicator="6b" placeholder="Anotações sobre este indicador..."></textarea>
+                </div>
+                
+                <div class="evaluation-item">
+                    <label class="evaluation-label">Ambiente de escuta ativa durante apresentações <span class="evaluation-weight">(Peso: 1.1)</span></label>
+                    <div class="rating-buttons">
+                        <button class="rating-btn" data-indicator="6c" data-value="1">1</button>
+                        <button class="rating-btn" data-indicator="6c" data-value="2">2</button>
+                        <button class="rating-btn" data-indicator="6c" data-value="3">3</button>
+                        <button class="rating-btn" data-indicator="6c" data-value="4">4</button>
+                        <button class="rating-btn" data-indicator="6c" data-value="5">5</button>
+                    </div>
+                    <textarea class="notes-input" data-indicator="6c" placeholder="Anotações sobre este indicador..."></textarea>
+                </div>
+            </div>
+            
+            <div class="evaluation-section">
+                <h3>7. Transição para Próxima Aula</h3>
+                
+                <div class="evaluation-item">
+                    <label class="evaluation-label">Clareza no preview dos conceitos de eficiência/eficácia/efetividade <span class="evaluation-weight">(Peso: 1.2)</span></label>
+                    <div class="rating-buttons">
+                        <button class="rating-btn" data-indicator="7a" data-value="1">1</button>
+                        <button class="rating-btn" data-indicator="7a" data-value="2">2</button>
+                        <button class="rating-btn" data-indicator="7a" data-value="3">3</button>
+                        <button class="rating-btn" data-indicator="7a" data-value="4">4</button>
+                        <button class="rating-btn" data-indicator="7a" data-value="5">5</button>
+                    </div>
+                    <textarea class="notes-input" data-indicator="7a" placeholder="Anotações sobre este indicador..."></textarea>
+                </div>
+                
+                <div class="evaluation-item">
+                    <label class="evaluation-label">Geração de curiosidade/expectativa para próxima aula <span class="evaluation-weight">(Peso: 1.0)</span></label>
+                    <div class="rating-buttons">
+                        <button class="rating-btn" data-indicator="7b" data-value="1">1</button>
+                        <button class="rating-btn" data-indicator="7b" data-value="2">2</button>
+                        <button class="rating-btn" data-indicator="7b" data-value="3">3</button>
+                        <button class="rating-btn" data-indicator="7b" data-value="4">4</button>
+                        <button class="rating-btn" data-indicator="7b" data-value="5">5</button>
+                    </div>
+                    <textarea class="notes-input" data-indicator="7b" placeholder="Anotações sobre este indicador..."></textarea>
+                </div>
+            </div>
+            
+            <div class="score-display">
+                <div class="score-label">CÁLCULO DO SCORE FINAL</div>
+                <div class="score-value" id="calculatedScoreValue">0.0</div>
+                <div class="score-description">
+                    <strong>Fórmula:</strong> Score = Σ(Nota × Peso) / Σ(Pesos)<br>
+                    <strong>Interpretação:</strong><br>
+                    4.5 - 5.0: Excelente (praticamente todos os objetivos atingidos)<br>
+                    4.0 - 4.4: Muito Bom (objetivos principais atingidos)<br>
+                    3.5 - 3.9: Bom (objetivos atingidos, mas com espaço para melhoria)<br>
+                    3.0 - 3.4: Satisfatório (objetivos mínimos atingidos)<br>
+                    Abaixo de 3.0: Requer replanejamento significativo
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Elementos da interface
+            const slides = document.querySelectorAll('.slide');
+            const navItems = document.querySelectorAll('.nav-item');
+            const prevBtn = document.getElementById('prev-btn');
+            const nextBtn = document.getElementById('next-btn');
+            const slideIndicator = document.querySelector('.slide-indicator');
+            const evaluationPanel = document.getElementById('evaluationPanel');
+            const openEvalBtn = document.getElementById('openEvalBtnFixed');
+            const closeEvalBtn = document.getElementById('closeEvalBtn');
+            
+            // Elementos da timeline
+            const totalTimerEl = document.getElementById('totalTimer');
+            const timelineIndicatorEl = document.getElementById('timelineIndicator');
+            const currentSectorEl = document.getElementById('currentSector');
+            
+            let currentSlide = 0;
+            let classTimer = 30 * 60; // 30 minutos em segundos
+            let timerInterval = null;
+            let isRunning = false;
+            
+            // Configuração dos setores conforme PDF
+            const sectors = [
+                { name: "Desafio Corporativo", duration: 3 * 60, color: "#005EB8" },
+                { name: "Planejamento Estratégico", duration: 10 * 60, color: "#00A651" },
+                { name: "Apresentação Executiva", duration: 4 * 60, color: "#FFD100" },
+                { name: "Framework Conceitual", duration: 5 * 60, color: "#003A75" },
+                { name: "Roadmap Próxima Aula", duration: 8 * 60, color: "#27ae60" }
+            ];
+            
+            // Avaliações baseadas na tabela do PDF
+            const evaluations = {
+                '1a': {weight: 1.0, note: 0, notes: ''},
+                '1b': {weight: 1.2, note: 0, notes: ''},
+                '2a': {weight: 1.5, note: 0, notes: ''},
+                '2b': {weight: 1.3, note: 0, notes: ''},
+                '2c': {weight: 1.4, note: 0, notes: ''},
+                '3a': {weight: 0.8, note: 0, notes: ''},
+                '3b': {weight: 1.2, note: 0, notes: ''},
+                '3c': {weight: 1.0, note: 0, notes: ''},
+                '4a': {weight: 1.1, note: 0, notes: ''},
+                '4b': {weight: 0.7, note: 0, notes: ''},
+                '4c': {weight: 1.3, note: 0, notes: ''},
+                '5a': {weight: 1.0, note: 0, notes: ''},
+                '5b': {weight: 1.4, note: 0, notes: ''},
+                '5c': {weight: 1.2, note: 0, notes: ''},
+                '6a': {weight: 1.5, note: 0, notes: ''},
+                '6b': {weight: 1.3, note: 0, notes: ''},
+                '6c': {weight: 1.1, note: 0, notes: ''},
+                '7a': {weight: 1.2, note: 0, notes: ''},
+                '7b': {weight: 1.0, note: 0, notes: ''}
+            };
+            
+            // Gráfico radar
+            let radarChart = null;
+            
+            // Funções de tempo
+            function formatTime(seconds) {
+                const mins = Math.floor(seconds / 60);
+                const secs = seconds % 60;
+                return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+            }
+            
+            function updateTimeline() {
+                // Atualizar timer total
+                totalTimerEl.textContent = formatTime(classTimer);
+                
+                // Calcular posição do indicador
+                const elapsed = 30 * 60 - classTimer;
+                const percent = (elapsed / (30 * 60)) * 100;
+                timelineIndicatorEl.style.left = `${percent}%`;
+                
+                // Determinar setor atual
+                let accumulated = 0;
+                let currentSectorIndex = 0;
+                let currentSectorName = "Aula concluída";
+                
+                for (let i = 0; i < sectors.length; i++) {
+                    accumulated += sectors[i].duration;
+                    if (elapsed < accumulated) {
+                        currentSectorIndex = i;
+                        currentSectorName = sectors[i].name;
+                        break;
+                    }
+                }
+                
+                if (classTimer <= 0) {
+                    currentSectorName = "Aula concluída";
+                }
+                
+                currentSectorEl.textContent = `Setor atual: ${currentSectorName}`;
+            }
+            
+            function startTimer() {
+                if (isRunning) return;
+                
+                isRunning = true;
+                timerInterval = setInterval(() => {
+                    classTimer--;
+                    updateTimeline();
+                    
+                    if (classTimer <= 0) {
+                        clearInterval(timerInterval);
+                        isRunning = false;
+                        totalTimerEl.textContent = "AULA CONCLUÍDA";
+                    }
+                }, 1000);
+            }
+            
+            function pauseTimer() {
+                if (!isRunning) return;
+                
+                isRunning = false;
+                clearInterval(timerInterval);
+            }
+            
+            // Funções de navegação
+            function showSlide(index) {
+                if (index >= slides.length) index = 0;
+                if (index < 0) index = slides.length - 1;
+
+                slides.forEach(slide => slide.classList.remove('active'));
+                slides[index].classList.add('active');
+                
+                navItems.forEach(item => item.classList.remove('active'));
+                navItems[index].classList.add('active');
+                
+                currentSlide = index;
+                
+                // Atualizar indicador de slide
+                slideIndicator.textContent = `Slide ${currentSlide + 1} de ${slides.length}`;
+                
+                // Iniciar timer na primeira navegação (se ainda não iniciado)
+                if (!isRunning && index > 0) {
+                    startTimer();
+                }
+                
+                // Atualizar gráfico radar se estiver no dashboard
+                if (index === 6) {
+                    updateRadarChart();
+                }
+            }
+
+            // Event Listeners
+            nextBtn.addEventListener('click', () => showSlide(currentSlide + 1));
+            prevBtn.addEventListener('click', () => showSlide(currentSlide - 1));
+            navItems.forEach((item, index) => item.addEventListener('click', () => showSlide(index)));
+            document.addEventListener('keydown', e => {
+                if (e.key === 'ArrowRight') nextBtn.click();
+                else if (e.key === 'ArrowLeft') prevBtn.click();
+                else if (e.key === ' ') nextBtn.click();
+            });
+
+            // Controle do painel de avaliação
+            openEvalBtn.addEventListener('click', () => {
+                evaluationPanel.classList.add('active');
+            });
+            
+            document.getElementById('openEvalBtnFixed').addEventListener('click', () => {
+                evaluationPanel.classList.add('active');
+            });
+            
+            closeEvalBtn.addEventListener('click', () => {
+                evaluationPanel.classList.remove('active');
+            });
+            
+            // Fechar painel ao clicar fora
+            evaluationPanel.addEventListener('click', (e) => {
+                if (e.target === evaluationPanel) {
+                    evaluationPanel.classList.remove('active');
+                }
+            });
+
+            // Sistema de avaliação
+            document.querySelectorAll('.rating-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const indicator = this.getAttribute('data-indicator');
+                    const value = parseInt(this.getAttribute('data-value'));
+                    
+                    // Remover seleção de todos os botões deste indicador
+                    document.querySelectorAll(`.rating-btn[data-indicator="${indicator}"]`).forEach(b => {
+                        b.classList.remove('selected');
+                    });
+                    
+                    // Selecionar este botão
+                    this.classList.add('selected');
+                    
+                    // Atualizar avaliação
+                    evaluations[indicator].note = value;
+                    
+                    // Atualizar score
+                    updateScoreDisplay();
+                });
+            });
+            
+            // Anotações
+            document.querySelectorAll('.notes-input').forEach(textarea => {
+                textarea.addEventListener('input', function() {
+                    const indicator = this.getAttribute('data-indicator');
+                    evaluations[indicator].notes = this.value;
+                });
+            });
+            
+            // Calcular score (média ponderada)
+            function calculateScore() {
+                let totalWeighted = 0;
+                let totalWeight = 0;
+                let totalNotes = 0;
+                
+                for (const key in evaluations) {
+                    if (evaluations[key].note > 0) {
+                        totalWeighted += evaluations[key].note * evaluations[key].weight;
+                        totalWeight += evaluations[key].weight;
+                        totalNotes++;
+                    }
+                }
+                
+                if (totalWeight === 0) return {score: 0, description: "Avalie os indicadores para calcular o score"};
+                
+                const score = totalWeighted / totalWeight;
+                
+                // Determinar descrição baseada no score
+                let description = "";
+                if (score >= 4.5) description = "Excelente (praticamente todos os objetivos atingidos)";
+                else if (score >= 4.0) description = "Muito Bom (objetivos principais atingidos)";
+                else if (score >= 3.5) description = "Bom (objetivos atingidos, mas com espaço para melhoria)";
+                else if (score >= 3.0) description = "Satisfatório (objetivos mínimos atingidos)";
+                else description = "Requer replanejamento significativo";
+                
+                return {score: score.toFixed(1), description};
+            }
+            
+            // Atualizar display do score
+            function updateScoreDisplay() {
+                const result = calculateScore();
+                document.getElementById('currentScoreValue').textContent = result.score;
+                document.getElementById('currentScoreDescription').textContent = result.description;
+                document.getElementById('finalScoreValue').textContent = result.score;
+                document.getElementById('finalScoreDescription').textContent = result.description;
+                document.getElementById('calculatedScoreValue').textContent = result.score;
+                
+                // Atualizar cor baseada no score
+                const scoreNum = parseFloat(result.score);
+                const scoreElements = [
+                    document.getElementById('currentScoreValue'),
+                    document.getElementById('finalScoreValue'),
+                    document.getElementById('calculatedScoreValue')
+                ];
+                
+                scoreElements.forEach(el => {
+                    if (scoreNum >= 4.5) {
+                        el.style.color = '#00A651';
+                    } else if (scoreNum >= 4.0) {
+                        el.style.color = '#4CAF50';
+                    } else if (scoreNum >= 3.5) {
+                        el.style.color = '#FF9800';
+                    } else if (scoreNum >= 3.0) {
+                        el.style.color = '#FF5722';
+                    } else {
+                        el.style.color = '#E53935';
+                    }
+                });
+                
+                // Atualizar gráfico radar
+                updateRadarChart();
+            }
+            
+            // Inicializar gráfico radar
+            function initRadarChart() {
+                const ctx = document.getElementById('radarChart').getContext('2d');
+                radarChart = new Chart(ctx, {
+                    type: 'radar',
+                    data: {
+                        labels: [
+                            'Problematização',
+                            'Atividade em Grupo', 
+                            'Mediação',
+                            'Apresentações',
+                            'Síntese',
+                            'Engajamento',
+                            'Transição'
+                        ],
+                        datasets: [{
+                            label: 'Desempenho da Aula',
+                            data: [0, 0, 0, 0, 0, 0, 0],
+                            backgroundColor: 'rgba(0, 94, 184, 0.2)',
+                            borderColor: '#005EB8',
+                            pointBackgroundColor: '#005EB8',
+                            pointBorderColor: '#fff',
+                            pointHoverBackgroundColor: '#fff',
+                            pointHoverBorderColor: '#005EB8'
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            r: {
+                                angleLines: { display: true },
+                                suggestedMin: 0,
+                                suggestedMax: 5,
+                                ticks: { stepSize: 1 }
+                            }
+                        }
+                    }
+                });
+            }
+            
+            // Atualizar gráfico radar com dados da avaliação
+            function updateRadarChart() {
+                if (!radarChart) return;
+                
+                // Calcular médias para cada categoria
+                const categoria1 = (evaluations['1a'].note + evaluations['1b'].note) / 2;
+                const categoria2 = (evaluations['2a'].note + evaluations['2b'].note + evaluations['2c'].note) / 3;
+                const categoria3 = (evaluations['3a'].note + evaluations['3b'].note + evaluations['3c'].note) / 3;
+                const categoria4 = (evaluations['4a'].note + evaluations['4b'].note + evaluations['4c'].note) / 3;
+                const categoria5 = (evaluations['5a'].note + evaluations['5b'].note + evaluations['5c'].note) / 3;
+                const categoria6 = (evaluations['6a'].note + evaluations['6b'].note + evaluations['6c'].note) / 3;
+                const categoria7 = (evaluations['7a'].note + evaluations['7b'].note) / 2;
+                
+                radarChart.data.datasets[0].data = [
+                    categoria1, categoria2, categoria3, categoria4, 
+                    categoria5, categoria6, categoria7
+                ];
+                
+                radarChart.update();
+            }
+            
+            // Inicialização
+            function init() {
+                initRadarChart();
+                updateScoreDisplay();
+                showSlide(0);
+                updateTimeline();
+                
+                // Simular avaliações para demo
+                setTimeout(() => {
+                    const demoEvaluations = {
+                        '1a': 4, '1b': 5,
+                        '2a': 5, '2b': 4, '2c': 4,
+                        '3a': 5, '3b': 4, '3c': 5,
+                        '4a': 4, '4b': 4, '4c': 5,
+                        '5a': 5, '5b': 4, '5c': 5,
+                        '6a': 4, '6b': 5, '6c': 4,
+                        '7a': 5, '7b': 5
+                    };
+                    
+                    for (const key in demoEvaluations) {
+                        if (evaluations[key]) {
+                            evaluations[key].note = demoEvaluations[key];
+                            // Selecionar botões correspondentes
+                            document.querySelectorAll(`.rating-btn[data-indicator="${key}"][data-value="${demoEvaluations[key]}"]`).forEach(btn => {
+                                btn.classList.add('selected');
+                            });
+                        }
+                    }
+                    
+                    updateScoreDisplay();
+                }, 1000);
+            }
+            
+            // Inicializar quando a página carregar
+            init();
+        });
+    </script>
+<style>.ag-nav-back{position:fixed;top:12px;left:12px;z-index:9999;background:rgba(79,70,229,.9);color:#fff;border:none;border-radius:50px;padding:.4rem .9rem;font-size:.8rem;font-family:system-ui,sans-serif;font-weight:600;cursor:pointer;text-decoration:none;display:flex;align-items:center;gap:.35rem;box-shadow:0 2px 10px rgba(0,0,0,.25);backdrop-filter:blur(4px);transition:background .2s,transform .2s}.ag-nav-back:hover{background:rgba(55,48,163,.95);transform:translateY(-1px)}</style><a href="https://passosdomingues.github.io/webappshowcase/site/main.html" class="ag-nav-back" aria-label="Voltar ao índice">&#8592; Índice</a>
+</body>
+</html>

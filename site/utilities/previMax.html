@@ -1,0 +1,2346 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="PreviMax - Engenharia Contra Incêndio em Elói Mendes. Projetos, laudos e sistemas completos de segurança contra incêndio para Elói Mendes e região Sul de Minas.">
+    <meta name="keywords" content="engenharia contra incêndio, Elói Mendes, AVCB, CLCB, projeto incêndio, segurança incêndio, sul de minas">
+    <title>PreviMax - Engenharia Contra Incêndio - Elói Mendes e Região</title>
+    
+    <!-- Schema Markup para SEO Local -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "LocalBusiness",
+        "name": "PreviMax Engenharia Contra Incêndio",
+        "description": "Especialistas em projetos, laudos e sistemas completos de segurança contra incêndio para Elói Mendes e região Sul de Minas",
+        "url": "https://www.previmax.com.br",
+        "telephone": "+55-35-99999-9999",
+        "address": {
+            "@type": "PostalAddress",
+            "streetAddress": "Rua Exemplo, 123",
+            "addressLocality": "Elói Mendes",
+            "addressRegion": "MG",
+            "addressCountry": "BR"
+        },
+        "geo": {
+            "@type": "GeoCoordinates",
+            "latitude": "-21.6100",
+            "longitude": "-45.5656"
+        },
+        "openingHours": "Mo-Fr 08:00-18:00",
+        "areaServed": "Elói Mendes, Varginha, Três Corações, Boa Esperança, Paraguaçu, Sul de Minas",
+        "founders": ["José Carlos da Silva", "Valdemir Martins Filho"]
+    }
+    </script>
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Chart.js para gráficos da calculadora -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <!-- jsPDF para geração de PDF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    
+    <style>
+        :root {
+            --primary: #f66151;
+            --primary-dark: #d84a3b;
+            --secondary: #2c3e50;
+            --accent: #f8f9fa;
+            --text: #1a1a1a;
+            --text-light: #6c757d;
+            --success: #28a745;
+            --warning: #ffc107;
+            --danger: #dc3545;
+            --white: #ffffff;
+            --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s ease;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: var(--text);
+            overflow-x: hidden;
+        }
+
+        /* Header e Navegação */
+        header {
+            background-color: var(--white);
+            box-shadow: var(--shadow);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            transition: var(--transition);
+        }
+
+        header.scrolled {
+            padding: 5px 0;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 0;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+        }
+
+        .logo i {
+            color: var(--primary);
+            font-size: 2rem;
+            margin-right: 10px;
+        }
+
+        .logo-text {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .location-badge {
+            background: var(--primary);
+            color: var(--white);
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 0.7rem;
+            margin-left: 8px;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 25px;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: var(--text);
+            font-weight: 500;
+            transition: var(--transition);
+            position: relative;
+        }
+
+        .nav-links a:hover {
+            color: var(--primary);
+        }
+
+        .nav-links a:after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 2px;
+            bottom: -5px;
+            left: 0;
+            background-color: var(--primary);
+            transition: var(--transition);
+        }
+
+        .nav-links a:hover:after {
+            width: 100%;
+        }
+
+        .cta-button {
+            background: var(--primary);
+            color: var(--white);
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: var(--transition);
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .cta-button:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(246, 97, 81, 0.3);
+        }
+
+        .mobile-menu-btn {
+            display: none;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            color: var(--primary);
+            cursor: pointer;
+        }
+
+        /* Seção Hero */
+        .hero {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            padding: 100px 0;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero:before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000" opacity="0.03"><path fill="%23f66151" d="M500,100C229.4,100,10,319.4,10,590s219.4,490,490,490s490-219.4,490-490S770.6,100,500,100z M500,920c-182.1,0-330-147.9-330-330s147.9-330,330-330s330,147.9,330,330S682.1,920,500,920z"/></svg>') no-repeat center;
+            background-size: contain;
+        }
+
+        .hero-content {
+            max-width: 800px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 1;
+        }
+
+        .hero h1 {
+            font-size: 3rem;
+            margin-bottom: 20px;
+            color: var(--text);
+        }
+
+        .hero h1 span {
+            color: var(--primary);
+        }
+
+        .hero p {
+            font-size: 1.2rem;
+            color: var(--text-light);
+            margin-bottom: 40px;
+        }
+
+        .hero-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 12px 30px;
+            border-radius: 8px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: var(--transition);
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            border: none;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: var(--white);
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(246, 97, 81, 0.3);
+        }
+
+        .btn-secondary {
+            background: var(--secondary);
+            color: var(--white);
+        }
+
+        .btn-secondary:hover {
+            background: #1a2530;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(44, 62, 80, 0.3);
+        }
+
+        /* Seção Serviços */
+        .section {
+            padding: 80px 0;
+        }
+
+        .section-title {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .section-title h2 {
+            font-size: 2.5rem;
+            color: var(--text);
+            margin-bottom: 10px;
+        }
+
+        .section-title p {
+            color: var(--text-light);
+            max-width: 700px;
+            margin: 0 auto;
+        }
+
+        .services-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-top: 50px;
+        }
+
+        .service-card {
+            background: var(--white);
+            border-radius: 10px;
+            padding: 30px;
+            box-shadow: var(--shadow);
+            transition: var(--transition);
+            text-align: center;
+        }
+
+        .service-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .service-icon {
+            width: 70px;
+            height: 70px;
+            background: var(--primary);
+            color: var(--white);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            font-size: 1.8rem;
+        }
+
+        .service-card h3 {
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+            color: var(--text);
+        }
+
+        .service-card p {
+            color: var(--text-light);
+        }
+
+        /* Seção Sobre */
+        .about {
+            background: var(--accent);
+        }
+
+        .about-content {
+            display: flex;
+            align-items: center;
+            gap: 50px;
+        }
+
+        .about-text {
+            flex: 1;
+        }
+
+        .about-text h2 {
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+            color: var(--text);
+        }
+
+        .about-text p {
+            margin-bottom: 20px;
+            color: var(--text-light);
+        }
+
+        .founders {
+            margin: 25px 0;
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+
+        .highlight-box {
+            background: var(--primary);
+            color: var(--white);
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 30px;
+        }
+
+        .highlight-box h3 {
+            margin-bottom: 10px;
+        }
+
+        .about-values {
+            flex: 1;
+        }
+
+        .values-card {
+            background: var(--white);
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: var(--shadow);
+        }
+
+        .values-card h3 {
+            color: var(--primary);
+            font-size: 1.8rem;
+            margin-bottom: 25px;
+        }
+
+        .value-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .value-icon {
+            background: var(--primary);
+            color: var(--white);
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .value-text h4 {
+            margin-bottom: 5px;
+            color: var(--text);
+        }
+
+        .value-text p {
+            color: var(--text-light);
+            font-size: 0.9rem;
+        }
+
+        /* Seção Contato */
+        .contact-content {
+            display: flex;
+            gap: 40px;
+        }
+
+        .contact-form {
+            flex: 1;
+            background: var(--white);
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: var(--shadow);
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: var(--text);
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: var(--transition);
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(246, 97, 81, 0.2);
+        }
+
+        .contact-info {
+            flex: 1;
+        }
+
+        .info-card {
+            background: var(--white);
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: var(--shadow);
+            margin-bottom: 30px;
+        }
+
+        .info-card h3 {
+            color: var(--primary);
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+        }
+
+        .map-placeholder {
+            background: #e9ecef;
+            height: 200px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 15px;
+            color: var(--text-light);
+        }
+
+        .contact-details {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .contact-detail {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .contact-detail i {
+            color: var(--primary);
+            width: 20px;
+        }
+
+        /* FAQ */
+        .faq-section {
+            margin-top: 80px;
+        }
+
+        .faq-container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .faq-item {
+            background: var(--white);
+            border-radius: 8px;
+            margin-bottom: 15px;
+            box-shadow: var(--shadow);
+            overflow: hidden;
+        }
+
+        .faq-question {
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            font-weight: 600;
+            transition: var(--transition);
+        }
+
+        .faq-question:hover {
+            background: #f8f9fa;
+        }
+
+        .faq-question i {
+            transition: var(--transition);
+        }
+
+        .faq-question.active i {
+            transform: rotate(180deg);
+        }
+
+        .faq-answer {
+            padding: 0 20px;
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+        }
+
+        .faq-answer.active {
+            padding: 0 20px 20px;
+            max-height: 500px;
+        }
+
+        /* Footer */
+        footer {
+            background: var(--text);
+            color: var(--white);
+            padding: 60px 0 30px;
+        }
+
+        .footer-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .footer-logo {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .footer-logo i {
+            color: var(--primary);
+            font-size: 2rem;
+            margin-right: 10px;
+        }
+
+        .footer-logo-text {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--white);
+        }
+
+        .footer-info {
+            color: #adb5bd;
+        }
+
+        .footer-social {
+            display: flex;
+            gap: 15px;
+        }
+
+        .social-link {
+            color: #adb5bd;
+            font-size: 1.5rem;
+            transition: var(--transition);
+        }
+
+        .social-link:hover {
+            color: var(--primary);
+        }
+
+        .footer-bottom {
+            border-top: 1px solid #343a40;
+            padding-top: 20px;
+            text-align: center;
+            color: #adb5bd;
+            font-size: 0.9rem;
+        }
+
+        /* Modal da Calculadora */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+
+        .modal.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal-content {
+            background: var(--white);
+            width: 90%;
+            max-width: 1000px;
+            max-height: 90vh;
+            border-radius: 10px;
+            overflow: hidden;
+            position: relative;
+            transform: scale(0.9);
+            transition: transform 0.3s ease;
+        }
+
+        .modal.active .modal-content {
+            transform: scale(1);
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: none;
+            border: none;
+            font-size: 2rem;
+            color: var(--text-light);
+            cursor: pointer;
+            z-index: 10;
+            transition: var(--transition);
+        }
+
+        .modal-close:hover {
+            color: var(--primary);
+        }
+
+        /* Estilos da Calculadora */
+        .calculator-container {
+            padding: 30px;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .calculator-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .calculator-header h2 {
+            color: var(--primary);
+            margin-bottom: 10px;
+        }
+
+        .calculator-progress {
+            margin-bottom: 30px;
+        }
+
+        .progress-bar {
+            height: 8px;
+            background: #e9ecef;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-bottom: 10px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: var(--primary);
+            border-radius: 4px;
+            transition: width 0.5s ease;
+        }
+
+        .progress-text {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.8rem;
+            color: var(--text-light);
+        }
+
+        .calculator-steps {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 30px;
+        }
+
+        .step {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            flex: 1;
+            position: relative;
+        }
+
+        .step:not(:last-child):after {
+            content: '';
+            position: absolute;
+            top: 15px;
+            left: 60%;
+            width: 80%;
+            height: 2px;
+            background: #e9ecef;
+            z-index: 1;
+        }
+
+        .step.active:not(:last-child):after {
+            background: var(--primary);
+        }
+
+        .step-icon {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: #e9ecef;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            margin-bottom: 8px;
+            z-index: 2;
+            transition: var(--transition);
+        }
+
+        .step.active .step-icon {
+            background: var(--primary);
+            color: var(--white);
+        }
+
+        .step.complete .step-icon {
+            background: var(--success);
+            color: var(--white);
+        }
+
+        .step-label {
+            font-size: 0.8rem;
+            text-align: center;
+            color: var(--text-light);
+        }
+
+        .step.active .step-label {
+            color: var(--primary);
+            font-weight: 600;
+        }
+
+        .calculator-form {
+            margin-bottom: 30px;
+        }
+
+        .form-section {
+            display: none;
+        }
+
+        .form-section.active {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .form-section h3 {
+            margin-bottom: 20px;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .form-actions {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 30px;
+        }
+
+        /* Resultado da Calculadora */
+        .calculator-result {
+            display: none;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .calculator-result.active {
+            display: block;
+        }
+
+        .result-card {
+            background: var(--accent);
+            border-radius: 10px;
+            padding: 30px;
+            box-shadow: var(--shadow);
+            text-align: center;
+        }
+
+        .result-id {
+            background: var(--primary);
+            color: var(--white);
+            padding: 5px 15px;
+            border-radius: 20px;
+            display: inline-block;
+            margin-bottom: 20px;
+            font-size: 0.9rem;
+        }
+
+        .result-title {
+            color: var(--primary);
+            margin-bottom: 20px;
+        }
+
+        .result-values {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .result-value {
+            text-align: center;
+        }
+
+        .value-number {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .value-label {
+            color: var(--text-light);
+            font-size: 0.9rem;
+        }
+
+        .result-details {
+            background: var(--white);
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            text-align: left;
+        }
+
+        .result-details h4 {
+            margin-bottom: 15px;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .detail-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .detail-item:last-child {
+            border-bottom: none;
+        }
+
+        .whatsapp-section {
+            margin-top: 30px;
+        }
+
+        .whatsapp-section h4 {
+            margin-bottom: 15px;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .whatsapp-message {
+            background: #f1f3f4;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+            text-align: left;
+            font-size: 0.9rem;
+            max-height: 150px;
+            overflow-y: auto;
+        }
+
+        /* Responsividade */
+        @media (max-width: 992px) {
+            .about-content {
+                flex-direction: column;
+            }
+            
+            .contact-content {
+                flex-direction: column;
+            }
+            
+            .footer-content {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .footer-social {
+                margin-top: 20px;
+                justify-content: center;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+            }
+            
+            .mobile-menu-btn {
+                display: block;
+            }
+            
+            .hero h1 {
+                font-size: 2.2rem;
+            }
+            
+            .hero-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .services-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .result-values {
+                flex-direction: column;
+                gap: 15px;
+            }
+        }
+
+        /* Animações */
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+
+        /* Notificações */
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 20px;
+            border-radius: 8px;
+            color: var(--white);
+            box-shadow: var(--shadow);
+            z-index: 3000;
+            transform: translateX(150%);
+            transition: transform 0.3s ease;
+        }
+
+        .notification.show {
+            transform: translateX(0);
+        }
+
+        .notification.success {
+            background: var(--success);
+        }
+
+        .notification.error {
+            background: var(--danger);
+        }
+
+        /* Lead Magnet */
+        .lead-magnet {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--white);
+            padding: 40px;
+            border-radius: 10px;
+            margin: 40px 0;
+            text-align: center;
+        }
+
+        .lead-magnet h3 {
+            margin-bottom: 15px;
+            font-size: 1.8rem;
+        }
+
+        .lead-magnet p {
+            margin-bottom: 20px;
+            opacity: 0.9;
+        }
+
+        .lead-form {
+            display: flex;
+            gap: 10px;
+            max-width: 500px;
+            margin: 0 auto;
+        }
+
+        .lead-form input {
+            flex: 1;
+            padding: 12px 15px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+        }
+
+        .lead-form button {
+            background: var(--secondary);
+            color: var(--white);
+            border: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .lead-form button:hover {
+            background: #1a2530;
+        }
+
+        @media (max-width: 576px) {
+            .lead-form {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header id="header">
+        <div class="container">
+            <nav>
+                <div class="logo">
+                    <i class="fas fa-fire-extinguisher"></i>
+                    <span class="logo-text">PreviMax</span>
+                    <span class="location-badge">Elói Mendes</span>
+                </div>
+                
+                <div class="nav-links">
+                    <a href="#home">Início</a>
+                    <a href="#services">Serviços</a>
+                    <a href="#about">Sobre Nós</a>
+                    <a href="#contact">Contato</a>
+                    <a href="#" class="cta-button" id="openCalculator">
+                        <i class="fas fa-calculator"></i> Orçamento Online
+                    </a>
+                </div>
+                
+                <button class="mobile-menu-btn" id="mobileMenuBtn">
+                    <i class="fas fa-bars"></i>
+                </button>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero" id="home">
+        <div class="container">
+            <div class="hero-content">
+                <h1>Engenharia Contra Incêndio para <span>Elói Mendes</span> e Região</h1>
+                <p>Projetos, laudos e sistemas completos de segurança contra incêndio. Atendemos todo o Sul de Minas com expertise e confiabilidade.</p>
+                
+                <div class="hero-buttons">
+                    <a href="#" class="btn btn-primary pulse" id="openCalculatorHero">
+                        <i class="fas fa-calculator"></i> Iniciar Orçamento Online
+                    </a>
+                    <a href="#services" class="btn btn-secondary">
+                        Nossos Serviços
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Serviços -->
+    <section class="section" id="services">
+        <div class="container">
+            <div class="section-title">
+                <h2>Nossos Serviços</h2>
+                <p>Especializados em regularizar e proteger seu patrimônio conforme as normas técnicas (ABNT) e do Corpo de Bombeiros (CBMMG).</p>
+            </div>
+            
+            <div class="services-grid">
+                <div class="service-card">
+                    <div class="service-icon">
+                        <i class="fas fa-fire"></i>
+                    </div>
+                    <h3>PI - Planta e Laudo de Incêndio</h3>
+                    <p>Projeto completo para planta e laudo de incêndio (AVCB / CLCB) conforme normas ABNT e CBMMG.</p>
+                </div>
+                
+                <div class="service-card">
+                    <div class="service-icon">
+                        <i class="fas fa-fire-extinguisher"></i>
+                    </div>
+                    <h3>Extintores e Sinalização</h3>
+                    <p>Projeto e dimensionamento de sistema de extintores e sinalização de emergência (fotoluminescente).</p>
+                </div>
+                
+                <div class="service-card">
+                    <div class="service-icon">
+                        <i class="fas fa-tint"></i>
+                    </div>
+                    <h3>Hidrantes e Bombas</h3>
+                    <p>Projeto completo de hidrantes, bombas de incêndio, mangotinhos e reservatórios técnicos (RTI).</p>
+                </div>
+                
+                <div class="service-card">
+                    <div class="service-icon">
+                        <i class="fas fa-bell"></i>
+                    </div>
+                    <h3>Detecção e Alarme</h3>
+                    <p>Projeto de sistema de detecção de fumaça e calor, e alarme de incêndio automatizado (SDAI).</p>
+                </div>
+                
+                <div class="service-card">
+                    <div class="service-icon">
+                        <i class="fas fa-shower"></i>
+                    </div>
+                    <h3>Sistema de Sprinklers</h3>
+                    <p>Projeto de sistema de chuveiros automáticos (sprinklers) para controle e supressão de incêndio.</p>
+                </div>
+                
+                <div class="service-card">
+                    <div class="service-icon">
+                        <i class="fas fa-compress-arrows-alt"></i>
+                    </div>
+                    <h3>Contenção e Fumaça</h3>
+                    <p>Projeto de sistema de contenção de incêndio, controle de fumaça e compartimentação.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Lead Magnet -->
+    <section class="section">
+        <div class="container">
+            <div class="lead-magnet">
+                <h3>Guia Gratuito: Como Regularizar Seu Estabelecimento</h3>
+                <p>Baixe nosso e-book gratuito e aprenda os passos necessários para regularizar seu estabelecimento junto ao Corpo de Bombeiros.</p>
+                <form class="lead-form" id="leadForm">
+                    <input type="email" placeholder="Seu melhor e-mail" required>
+                    <button type="submit">Baixar Agora</button>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <!-- Sobre Nós -->
+    <section class="section about" id="about">
+        <div class="container">
+            <div class="about-content">
+                <div class="about-text">
+                    <h2>Sobre a PreviMax</h2>
+                    <p>A PreviMax é uma empresa especializada em engenharia contra incêndio, com sede em Elói Mendes - MG e atendimento em todo o Sul de Minas. Somos fundados por profissionais com vasta experiência na área.</p>
+                    
+                    <div class="founders">
+                        • José Carlos da Silva<br>
+                        • Valdemir Martins Filho
+                    </div>
+                    
+                    <p>Nossa missão é fornecer soluções técnicas de alta qualidade que garantam a segurança de vidas e do patrimônio dos nossos clientes, sempre em total conformidade com as legislações vigentes.</p>
+                    
+                    <div class="highlight-box">
+                        <h3>Área de Atuação</h3>
+                        <p>Atendemos Elói Mendes e toda a região, incluindo Varginha, Três Corações, Boa Esperança, Paraguaçu e cidades vizinhas.</p>
+                    </div>
+                </div>
+                
+                <div class="about-values">
+                    <div class="values-card">
+                        <h3>Nossos Valores</h3>
+                        
+                        <div class="value-item">
+                            <div class="value-icon">
+                                <i class="fas fa-shield-alt"></i>
+                            </div>
+                            <div class="value-text">
+                                <h4>Segurança</h4>
+                                <p>Nossa prioridade absoluta. Projetos que protegem vidas e patrimônio.</p>
+                            </div>
+                        </div>
+                        
+                        <div class="value-item">
+                            <div class="value-icon">
+                                <i class="fas fa-balance-scale"></i>
+                            </div>
+                            <div class="value-text">
+                                <h4>Conformidade</h4>
+                                <p>Garantia de projetos 100% adequados às normas da ABNT e do Corpo de Bombeiros.</p>
+                            </div>
+                        </div>
+                        
+                        <div class="value-item">
+                            <div class="value-icon">
+                                <i class="fas fa-handshake"></i>
+                            </div>
+                            <div class="value-text">
+                                <h4>Parceria</h4>
+                                <p>Trabalhamos lado a lado com nossos clientes, entendendo suas necessidades específicas.</p>
+                            </div>
+                        </div>
+                        
+                        <div class="value-item">
+                            <div class="value-icon">
+                                <i class="fas fa-map-marker-alt"></i>
+                            </div>
+                            <div class="value-text">
+                                <h4>Atendimento Local</h4>
+                                <p>Conhecemos profundamente a realidade de Elói Mendes e do Sul de Minas.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contato -->
+    <section class="section" id="contact">
+        <div class="container">
+            <div class="section-title">
+                <h2>Entre em Contato</h2>
+                <p>Estamos localizados em Elói Mendes e atendemos toda a região. Entre em contato para uma consultoria ou utilize nosso sistema de orçamento online.</p>
+            </div>
+            
+            <div class="contact-content">
+                <div class="contact-form">
+                    <form id="contactForm">
+                        <div class="form-group">
+                            <label for="name">Nome Completo *</label>
+                            <input type="text" id="name" class="form-control" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="company">Empresa *</label>
+                            <input type="text" id="company" class="form-control" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="email">E-mail *</label>
+                            <input type="email" id="email" class="form-control" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="phone">Telefone/WhatsApp *</label>
+                            <input type="tel" id="phone" class="form-control" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="service">Serviço de Interesse</label>
+                            <select id="service" class="form-control">
+                                <option value="">Selecione um serviço</option>
+                                <option value="pi">PI - Planta e Laudo de Incêndio</option>
+                                <option value="extintores">Extintores e Sinalização</option>
+                                <option value="hidrantes">Hidrantes e Bombas</option>
+                                <option value="alarme">Detecção e Alarme</option>
+                                <option value="sprinklers">Sprinklers</option>
+                                <option value="outro">Outro</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="message">Mensagem *</label>
+                            <textarea id="message" rows="4" class="form-control" required></textarea>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary btn-block">
+                            Enviar Mensagem
+                        </button>
+                    </form>
+                </div>
+                
+                <div class="contact-info">
+                    <div class="info-card">
+                        <h3>Nossa Localização</h3>
+                        <div class="map-placeholder">
+                            <div class="text-center">
+                                <i class="fas fa-map-marked-alt text-4xl mb-2"></i>
+                                <p class="font-bold">Elói Mendes, MG</p>
+                                <p class="text-sm">Atendemos todo o Sul de Minas</p>
+                            </div>
+                        </div>
+                        <p class="text-sm text-center">Rua Exemplo, 123 - Centro, Elói Mendes - MG</p>
+                    </div>
+                    
+                    <div class="info-card">
+                        <h3>Outras Formas de Contato</h3>
+                        <div class="contact-details">
+                            <div class="contact-detail">
+                                <i class="fas fa-phone"></i>
+                                <span>(35) 99999-9999</span>
+                            </div>
+                            <div class="contact-detail">
+                                <i class="fab fa-whatsapp"></i>
+                                <span>(35) 98888-8888</span>
+                            </div>
+                            <div class="contact-detail">
+                                <i class="fas fa-envelope"></i>
+                                <span>contato@previmax.com.br</span>
+                            </div>
+                            <div class="contact-detail">
+                                <i class="fas fa-clock"></i>
+                                <span>Segunda a Sexta, 8h às 18h</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- FAQ -->
+            <div class="faq-section">
+                <div class="section-title">
+                    <h3>Perguntas Frequentes</h3>
+                    <p>Tire suas dúvidas sobre nossos serviços para Elói Mendes e região</p>
+                </div>
+                
+                <div class="faq-container">
+                    <div class="faq-item">
+                        <div class="faq-question">
+                            <span>Quais cidades da região de Elói Mendes vocês atendem?</span>
+                            <i class="fas fa-chevron-down"></i>
+                        </div>
+                        <div class="faq-answer">
+                            <p>Atendemos Elói Mendes e todo o Sul de Minas, incluindo Varginha, Três Corações, Boa Esperança, Paraguaçu, Alfenas e cidades vizinhas.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="faq-item">
+                        <div class="faq-question">
+                            <span>Meu estabelecimento precisa de um Projeto de Incêndio (AVCB)?</span>
+                            <i class="fas fa-chevron-down"></i>
+                        </div>
+                        <div class="faq-answer">
+                            <p>Depende do tamanho (área), altura e tipo de ocupação. A maioria dos estabelecimentos comerciais, industriais e condomínios necessita de alguma forma de regularização (AVCB ou CLCB). Entre em contato que analisamos seu caso.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="faq-item">
+                        <div class="faq-question">
+                            <span>Qual a diferença entre AVCB e CLCB?</span>
+                            <i class="fas fa-chevron-down"></i>
+                        </div>
+                        <div class="faq-answer">
+                            <p>De forma simples, o CLCB (Certificado de Licença do Corpo de Bombeiros) é para edificações de menor risco e área (geralmente até 750m²). O AVCB (Auto de Vistoria do Corpo de Bombeiros) é para edificações maiores e de risco mais elevado, exigindo um projeto técnico completo.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div>
+                    <div class="footer-logo">
+                        <i class="fas fa-fire-extinguisher"></i>
+                        <span class="footer-logo-text">PreviMax</span>
+                    </div>
+                    <p class="footer-info">Engenharia Contra Incêndio - Elói Mendes e Região</p>
+                    <p class="footer-info">José Carlos da Silva | Valdemir Martins Filho</p>
+                </div>
+                
+                <div class="footer-social">
+                    <a href="#" class="social-link">
+                        <i class="fab fa-linkedin"></i>
+                    </a>
+                    <a href="#" class="social-link">
+                        <i class="fab fa-instagram"></i>
+                    </a>
+                    <a href="#" class="social-link">
+                        <i class="fab fa-whatsapp"></i>
+                    </a>
+                </div>
+            </div>
+            
+            <div class="footer-bottom">
+                <p>&copy; 2023 PreviMax Engenharia Contra Incêndio. Todos os direitos reservados. | Elói Mendes - MG</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Modal da Calculadora -->
+    <div class="modal" id="calculatorModal">
+        <div class="modal-content">
+            <button class="modal-close" id="closeCalculator">
+                <i class="fas fa-times"></i>
+            </button>
+            
+            <div class="calculator-container">
+                <div class="calculator-header">
+                    <h2>Calculadora de Orçamento</h2>
+                    <p>Preencha as informações abaixo para receber um orçamento personalizado</p>
+                </div>
+                
+                <div class="calculator-progress">
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progressFill" style="width: 25%"></div>
+                    </div>
+                    <div class="progress-text">
+                        <span>Início</span>
+                        <span id="progressText">25% concluído</span>
+                        <span>Concluído</span>
+                    </div>
+                </div>
+                
+                <div class="calculator-steps">
+                    <div class="step active" id="step1">
+                        <div class="step-icon">1</div>
+                        <div class="step-label">Dados do Cliente</div>
+                    </div>
+                    <div class="step" id="step2">
+                        <div class="step-icon">2</div>
+                        <div class="step-label">Análise do Projeto</div>
+                    </div>
+                    <div class="step" id="step3">
+                        <div class="step-icon">3</div>
+                        <div class="step-label">Serviços</div>
+                    </div>
+                    <div class="step" id="step4">
+                        <div class="step-icon">4</div>
+                        <div class="step-label">Orçamento</div>
+                    </div>
+                </div>
+                
+                <!-- Formulário da Calculadora -->
+                <form id="calculatorForm">
+                    <!-- Passo 1: Dados do Cliente -->
+                    <div class="form-section active" id="step1Form">
+                        <h3><i class="fas fa-user"></i> Dados do Cliente</h3>
+                        
+                        <div class="form-group">
+                            <label for="clientName">Nome Completo do Cliente/Empresa</label>
+                            <input type="text" id="clientName" class="form-control" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="clientPhone">Telefone para Contato (WhatsApp)</label>
+                            <input type="tel" id="clientPhone" class="form-control" placeholder="(35) 99999-9999" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="clientEmail">E-mail para Contato</label>
+                            <input type="email" id="clientEmail" class="form-control" placeholder="cliente@empresa.com">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="propertyArea">Metragem Quadrada (m²) do Imóvel</label>
+                            <input type="number" id="propertyArea" class="form-control" min="1" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="propertyType">Tipo de Estabelecimento</label>
+                            <select id="propertyType" class="form-control" required>
+                                <option value="">Selecione o tipo</option>
+                                <option value="comercio">Comércio Varejista</option>
+                                <option value="shopping">Shopping Center</option>
+                                <option value="industria">Indústria</option>
+                                <option value="hospital">Hospital/Clínica</option>
+                                <option value="escola">Escola/Universidade</option>
+                                <option value="hotel">Hotel/Pousada</option>
+                                <option value="restaurante">Restaurante/Bar</option>
+                                <option value="eventos">Casa de Shows/Eventos</option>
+                                <option value="condominio">Condomínio Residencial</option>
+                                <option value="galpao">Galpão/Depósito</option>
+                                <option value="outro">Outro</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="projectDescription">Descrição Resumida do Projeto</label>
+                            <textarea id="projectDescription" class="form-control" rows="3" placeholder="Descreva brevemente o objetivo principal do projeto..."></textarea>
+                        </div>
+                        
+                        <div class="form-actions">
+                            <button type="button" class="btn btn-secondary" id="closeCalculatorForm">Cancelar</button>
+                            <button type="button" class="btn btn-primary" id="nextToStep2">Próximo</button>
+                        </div>
+                    </div>
+                    
+                    <!-- Passo 2: Análise do Projeto -->
+                    <div class="form-section" id="step2Form">
+                        <h3><i class="fas fa-clipboard-check"></i> Análise Detalhada do Projeto</h3>
+                        
+                        <div class="form-group">
+                            <label>Complexidade Arquitetônica</label>
+                            <div class="complexity-slider-container">
+                                <input type="range" min="1" max="5" value="3" class="complexity-slider" id="archComplexity">
+                                <div class="slider-labels">
+                                    <span>Simples</span>
+                                    <span>Moderada</span>
+                                    <span>Complexa</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Acessibilidade do Local</label>
+                            <div class="complexity-slider-container">
+                                <input type="range" min="1" max="5" value="3" class="complexity-slider" id="accessComplexity">
+                                <div class="slider-labels">
+                                    <span>Fácil</span>
+                                    <span>Moderada</span>
+                                    <span>Difícil</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Documentação Existente</label>
+                            <div class="complexity-slider-container">
+                                <input type="range" min="1" max="5" value="3" class="complexity-slider" id="docComplexity">
+                                <div class="slider-labels">
+                                    <span>Completa</span>
+                                    <span>Parcial</span>
+                                    <span>Inexistente</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="form-actions">
+                            <button type="button" class="btn btn-secondary" id="backToStep1">Voltar</button>
+                            <button type="button" class="btn btn-primary" id="nextToStep3">Próximo</button>
+                        </div>
+                    </div>
+                    
+                    <!-- Passo 3: Serviços -->
+                    <div class="form-section" id="step3Form">
+                        <h3><i class="fas fa-clipboard-list"></i> Serviços Solicitados</h3>
+                        
+                        <div class="form-group">
+                            <label>Selecione os Projetos de Infraestrutura Necessários</label>
+                            
+                            <div class="service-options">
+                                <div class="service-option">
+                                    <input type="checkbox" id="servicePI" name="service" value="PI">
+                                    <label for="servicePI">
+                                        <span class="service-title">PI - Planta e Laudo de Incêndio</span>
+                                        <span class="service-desc">Projeto completo para planta e laudo de incêndio conforme normas ABNT</span>
+                                    </label>
+                                </div>
+                                
+                                <div class="service-option">
+                                    <input type="checkbox" id="serviceSE" name="service" value="SE">
+                                    <label for="serviceSE">
+                                        <span class="service-title">SE - Sistema de Extintores e Sinalização</span>
+                                        <span class="service-desc">Projeto de sistema de extintores e sinalização de emergência</span>
+                                    </label>
+                                </div>
+                                
+                                <div class="service-option">
+                                    <input type="checkbox" id="serviceHD" name="service" value="HD">
+                                    <label for="serviceHD">
+                                        <span class="service-title">HD - Hidrantes, Bombas e Reservatórios</span>
+                                        <span class="service-desc">Projeto completo de hidrantes, bombas de incêndio e reservatórios</span>
+                                    </label>
+                                </div>
+                                
+                                <div class="service-option">
+                                    <input type="checkbox" id="serviceSD" name="service" value="SD">
+                                    <label for="serviceSD">
+                                        <span class="service-title">SD - Sistema de Detecção e Alarme</span>
+                                        <span class="service-desc">Projeto de sistema de detecção e alarme de incêndio automatizado</span>
+                                    </label>
+                                </div>
+                                
+                                <div class="service-option">
+                                    <input type="checkbox" id="serviceSP" name="service" value="SP">
+                                    <label for="serviceSP">
+                                        <span class="service-title">SP - Sistema de Sprinklers</span>
+                                        <span class="service-desc">Projeto de sistema de chuveiros automáticos (sprinklers)</span>
+                                    </label>
+                                </div>
+                                
+                                <div class="service-option">
+                                    <input type="checkbox" id="serviceSC" name="service" value="SC">
+                                    <label for="serviceSC">
+                                        <span class="service-title">SC - Sistema de Contenção</span>
+                                        <span class="service-desc">Projeto de sistema de contenção de incêndio e fumaça</span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="urgency">Urgência do Projeto</label>
+                            <select id="urgency" class="form-control" required>
+                                <option value="1.0">Normal (até 30 dias)</option>
+                                <option value="1.2">Urgente (15-20 dias)</option>
+                                <option value="1.5">Muito Urgente (até 10 dias)</option>
+                                <option value="2.0">Emergencial (até 5 dias)</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-actions">
+                            <button type="button" class="btn btn-secondary" id="backToStep2">Voltar</button>
+                            <button type="submit" class="btn btn-primary">Calcular Orçamento</button>
+                        </div>
+                    </div>
+                </form>
+                
+                <!-- Resultado da Calculadora -->
+                <div class="calculator-result" id="calculatorResult">
+                    <div class="result-card">
+                        <div class="result-id" id="resultId">ID da Proposta: PM-2023-001</div>
+                        <h2 class="result-title">Orçamento PreviMax</h2>
+                        
+                        <div class="result-values">
+                            <div class="result-value">
+                                <div class="value-number" id="estimatedDays">15</div>
+                                <div class="value-label">Dias Úteis Estimados</div>
+                            </div>
+                            <div class="result-value">
+                                <div class="value-number" id="estimatedCost">R$ 5.250,00</div>
+                                <div class="value-label">Valor do Projeto</div>
+                            </div>
+                        </div>
+                        
+                        <div class="result-details">
+                            <h4><i class="fas fa-info-circle"></i> Detalhes da Proposta</h4>
+                            <div class="detail-item">
+                                <span>Cliente:</span>
+                                <span id="detailClient">Nome do Cliente</span>
+                            </div>
+                            <div class="detail-item">
+                                <span>Metragem:</span>
+                                <span id="detailArea">150 m²</span>
+                            </div>
+                            <div class="detail-item">
+                                <span>Tipo:</span>
+                                <span id="detailType">Comércio Varejista</span>
+                            </div>
+                            <div class="detail-item">
+                                <span>Serviços:</span>
+                                <span id="detailServices">PI - Planta e Laudo de Incêndio</span>
+                            </div>
+                            <div class="detail-item">
+                                <span>Urgência:</span>
+                                <span id="detailUrgency">Normal (até 30 dias)</span>
+                            </div>
+                        </div>
+                        
+                        <div class="whatsapp-section">
+                            <h4><i class="fab fa-whatsapp"></i> Enviar Proposta por WhatsApp</h4>
+                            <div class="whatsapp-message" id="whatsappMessage">
+                                🔥 PREVIMAX - ENGENHARIA CONTRA INCÊNDIO 🔥
+
+                                📋 PROPOSTA COMERCIAL
+
+                                👤 Cliente: Nome do Cliente
+                                🆔 ID da Proposta: PM-2023-001
+                                📅 Data: 01/11/2023
+
+                                🏢 DADOS DO PROJETO:
+                                • Metragem: 150 m²
+                                • Tipo: Comércio Varejista
+                                • Serviços: PI - Planta e Laudo de Incêndio
+
+                                💰 PROPOSTA:
+                                • Prazo: 15 dias úteis
+                                • Valor: R$ 5.250,00
+
+                                📄 CONDIÇÕES:
+                                • Pagamento: 50% na assinatura, 50% na entrega
+                                • Validade: 30 dias
+
+                                🏆 PreviMax Engenharia Contra Incêndio
+                                🔧 Especialistas em Projetos de Segurança
+                                📍 Elói Mendes - MG | Atendemos todo o Sul de Minas
+                            </div>
+                            
+                            <div class="form-actions">
+                                <button type="button" class="btn btn-success" id="sendWhatsApp">
+                                    <i class="fab fa-whatsapp"></i> Enviar para o Cliente
+                                </button>
+                                <button type="button" class="btn btn-secondary" id="downloadPdf">
+                                    <i class="fas fa-file-pdf"></i> Baixar PDF
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <button type="button" class="btn btn-primary" id="newEstimation" style="margin-top: 20px;">
+                            <i class="fas fa-redo"></i> Nova Estimativa
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notificações -->
+    <div class="notification" id="notification"></div>
+
+    <script>
+        // Model - Dados e Lógica de Negócio
+        const Model = {
+            // Catálogo de serviços
+            CATALOGO_SERVICOS: {
+                'PI': { 
+                    sigla: 'PI', 
+                    descricao: 'Planta e Laudo de Incêndio', 
+                    horasBase: 40, 
+                    fatorComplexidade: 1.0
+                },
+                'SE': { 
+                    sigla: 'SE', 
+                    descricao: 'Sistema de Extintores e Sinalização', 
+                    horasBase: 60, 
+                    fatorComplexidade: 1.3
+                },
+                'HD': { 
+                    sigla: 'HD', 
+                    descricao: 'Hidrantes, Bombas e Reservatórios', 
+                    horasBase: 120, 
+                    fatorComplexidade: 1.8
+                },
+                'SD': { 
+                    sigla: 'SD', 
+                    descricao: 'Sistema de Detecção e Alarme', 
+                    horasBase: 80, 
+                    fatorComplexidade: 1.5
+                },
+                'SP': { 
+                    sigla: 'SP', 
+                    descricao: 'Sistema de Sprinklers', 
+                    horasBase: 100, 
+                    fatorComplexidade: 1.7
+                },
+                'SC': { 
+                    sigla: 'SC', 
+                    descricao: 'Sistema de Contenção', 
+                    horasBase: 70, 
+                    fatorComplexidade: 1.4
+                }
+            },
+
+            // Tipos de estabelecimento
+            TIPOS_ESTABELECIMENTO: {
+                'comercio': { nome: 'Comércio Varejista', fator: 1.0 },
+                'shopping': { nome: 'Shopping Center', fator: 1.4 },
+                'industria': { nome: 'Indústria', fator: 1.6 },
+                'hospital': { nome: 'Hospital/Clínica', fator: 1.8 },
+                'escola': { nome: 'Escola/Universidade', fator: 1.3 },
+                'hotel': { nome: 'Hotel/Pousada', fator: 1.5 },
+                'restaurante': { nome: 'Restaurante/Bar', fator: 1.2 },
+                'eventos': { nome: 'Casa de Shows/Eventos', fator: 1.7 },
+                'condominio': { nome: 'Condomínio Residencial', fator: 1.1 },
+                'galpao': { nome: 'Galpão/Depósito', fator: 1.3 },
+                'outro': { nome: 'Outro', fator: 1.0 }
+            },
+
+            // Constantes do sistema
+            CUSTO_HORA_ESPECIALISTA: 150.00,
+            FATOR_CORRECAO_REGIAO: 1.15,
+            FATOR_RISCO_INICIAL: 1.25,
+            HORAS_POR_DIA: 8,
+
+            // Gerar ID do pedido
+            gerarIdPedido: function(nomeCliente) {
+                const agora = new Date();
+                const timestamp = `${agora.getFullYear()}${(agora.getMonth()+1).toString().padStart(2, '0')}${agora.getDate().toString().padStart(2, '0')}`;
+                const idNumerico = Math.floor(Math.random() * 1000).toString().padStart(3, '0');
+                return `PM-${timestamp}-${idNumerico}`;
+            },
+
+            // Calcular fator de metragem
+            calcularFatorMetragem: function(metragem) {
+                if (metragem < 100) return 1.0;
+                return Math.log10(metragem) / Math.log10(100);
+            },
+
+            // Calcular fator de complexidade
+            calcularFatorComplexidade: function(pontosAnalise) {
+                let soma = 0;
+                let total = 0;
+                
+                for (const [ponto, valor] of Object.entries(pontosAnalise)) {
+                    soma += parseInt(valor);
+                    total++;
+                }
+                
+                const media = soma / total;
+                return 1.0 + (media - 1) * 0.375;
+            },
+
+            // Obter pontos de análise
+            obterPontosAnalise: function() {
+                return {
+                    archComplexity: document.getElementById('archComplexity').value,
+                    accessComplexity: document.getElementById('accessComplexity').value,
+                    docComplexity: document.getElementById('docComplexity').value
+                };
+            },
+
+            // Obter serviços selecionados
+            obterServicosSelecionados: function() {
+                const checkboxes = document.querySelectorAll('#calculatorForm input[name="service"]:checked');
+                const servicos = [];
+                
+                checkboxes.forEach(cb => {
+                    servicos.push(this.CATALOGO_SERVICOS[cb.value]);
+                });
+                
+                return servicos;
+            },
+
+            // Calcular tempo estimado
+            calcularTempoEstimado: function(servicos, metragem, complexidade, urgencia, tipoEstabelecimento) {
+                const fatorMetragem = this.calcularFatorMetragem(metragem);
+                const fatorComplexidade = this.calcularFatorComplexidade(complexidade);
+                const fatorUrgencia = parseFloat(urgencia);
+                const fatorTipoEstabelecimento = this.TIPOS_ESTABELECIMENTO[tipoEstabelecimento].fator;
+                
+                let horasTotais = 0;
+                servicos.forEach(servico => {
+                    horasTotais += servico.horasBase * servico.fatorComplexidade;
+                });
+                
+                horasTotais = horasTotais * fatorMetragem * fatorComplexidade * fatorUrgencia * fatorTipoEstabelecimento;
+                
+                const tempoEstimadoDias = (horasTotais * this.FATOR_RISCO_INICIAL) / this.HORAS_POR_DIA;
+                
+                return {
+                    dias: Math.ceil(tempoEstimadoDias),
+                    horas: horasTotais
+                };
+            },
+
+            // Calcular custo estimado
+            calcularCustoEstimado: function(horasTotais) {
+                return horasTotais * this.CUSTO_HORA_ESPECIALISTA * this.FATOR_CORRECAO_REGIAO;
+            },
+
+            // Formatar moeda
+            formatarMoeda: function(valor) {
+                return new Intl.NumberFormat('pt-BR', {
+                    style: 'currency',
+                    currency: 'BRL'
+                }).format(valor);
+            }
+        };
+
+        // View - Interface do Usuário
+        const View = {
+            // Mostrar notificação
+            showNotification: function(message, isSuccess = true) {
+                const notification = document.getElementById('notification');
+                notification.textContent = message;
+                notification.className = `notification ${isSuccess ? 'success' : 'error'}`;
+                notification.classList.add('show');
+                
+                setTimeout(() => {
+                    notification.classList.remove('show');
+                }, 5000);
+            },
+
+            // Atualizar progresso
+            atualizarProgresso: function(passo) {
+                let progresso = 0;
+                let textoProgresso = '';
+                
+                switch(passo) {
+                    case 1:
+                        progresso = 25;
+                        textoProgresso = '25% concluído';
+                        break;
+                    case 2:
+                        progresso = 50;
+                        textoProgresso = '50% concluído';
+                        break;
+                    case 3:
+                        progresso = 75;
+                        textoProgresso = '75% concluído';
+                        break;
+                    case 4:
+                        progresso = 100;
+                        textoProgresso = '100% concluído';
+                        break;
+                }
+                
+                document.getElementById('progressFill').style.width = `${progresso}%`;
+                document.getElementById('progressText').textContent = textoProgresso;
+            },
+
+            // Mostrar seção do formulário
+            mostrarSecao: function(secaoId) {
+                // Esconder todas as seções
+                document.querySelectorAll('.form-section').forEach(sec => {
+                    sec.classList.remove('active');
+                });
+                
+                document.querySelectorAll('.calculator-result').forEach(sec => {
+                    sec.classList.remove('active');
+                });
+                
+                // Mostrar a seção solicitada
+                if (secaoId === 'result') {
+                    document.getElementById('calculatorResult').classList.add('active');
+                } else {
+                    document.getElementById(secaoId).classList.add('active');
+                }
+            },
+
+            // Atualizar etapas
+            atualizarEtapas: function(etapaAtiva) {
+                // Resetar todas as etapas
+                document.querySelectorAll('.step').forEach(step => {
+                    step.classList.remove('active', 'complete');
+                });
+                
+                // Atualizar etapas
+                for (let i = 1; i <= 4; i++) {
+                    const step = document.getElementById(`step${i}`);
+                    
+                    if (i < etapaAtiva) {
+                        step.classList.add('complete');
+                    } else if (i === etapaAtiva) {
+                        step.classList.add('active');
+                    }
+                }
+            },
+
+            // Gerar mensagem para WhatsApp
+            gerarMensagemWhatsApp: function(dadosProjeto, estimativas) {
+                let mensagem = `🔥 *PREVIMAX - ENGENHARIA CONTRA INCÊNDIO* 🔥\n\n`;
+                mensagem += `📋 *PROPOSTA COMERCIAL* 📋\n\n`;
+                mensagem += `👤 *Cliente:* ${dadosProjeto.nomeCliente}\n`;
+                mensagem += `🆔 *ID da Proposta:* ${dadosProjeto.idPedido}\n`;
+                mensagem += `📅 *Data:* ${new Date().toLocaleDateString('pt-BR')}\n\n`;
+                mensagem += `🏢 *DADOS DO PROJETO:*\n`;
+                mensagem += `• 📏 Metragem: ${dadosProjeto.metragem} m²\n`;
+                mensagem += `• 🏭 Tipo: ${Model.TIPOS_ESTABELECIMENTO[dadosProjeto.tipo].nome}\n`;
+                mensagem += `• 📝 Descrição: ${dadosProjeto.descricao || 'Não informada'}\n`;
+                mensagem += `• 🛠️ Serviços: ${dadosProjeto.servicos.map(s => s.descricao).join(', ')}\n\n`;
+                mensagem += `💰 *PROPOSTA:*\n`;
+                mensagem += `• ⏱️ Prazo: ${estimativas.dias} dias úteis\n`;
+                mensagem += `• 💵 Valor: ${Model.formatarMoeda(estimativas.custo)}\n\n`;
+                mensagem += `📄 *CONDIÇÕES:*\n`;
+                mensagem += `• 💳 Pagamento: 50% na assinatura, 50% na entrega\n`;
+                mensagem += `• 📆 Validade: 30 dias\n\n`;
+                mensagem += `🏆 _PreviMax Engenharia Contra Incêndio_\n`;
+                mensagem += `🔧 _Especialistas em Projetos de Segurança_\n`;
+                mensagem += `📍 _Elói Mendes - MG | Atendemos todo o Sul de Minas_`;
+                
+                return mensagem;
+            },
+
+            // Atualizar resultado
+            atualizarResultado: function(dadosProjeto, estimativas) {
+                document.getElementById('resultId').textContent = `ID da Proposta: ${dadosProjeto.idPedido}`;
+                document.getElementById('estimatedDays').textContent = estimativas.dias;
+                document.getElementById('estimatedCost').textContent = Model.formatarMoeda(estimativas.custo);
+                document.getElementById('detailClient').textContent = dadosProjeto.nomeCliente;
+                document.getElementById('detailArea').textContent = `${dadosProjeto.metragem} m²`;
+                document.getElementById('detailType').textContent = Model.TIPOS_ESTABELECIMENTO[dadosProjeto.tipo].nome;
+                document.getElementById('detailServices').textContent = dadosProjeto.servicos.map(s => s.descricao).join(', ');
+                document.getElementById('detailUrgency').textContent = document.getElementById('urgency').options[document.getElementById('urgency').selectedIndex].text;
+                
+                const mensagemWhatsApp = this.gerarMensagemWhatsApp(dadosProjeto, estimativas);
+                document.getElementById('whatsappMessage').textContent = mensagemWhatsApp;
+                
+                // Configurar botão do WhatsApp
+                const sendWhatsAppBtn = document.getElementById('sendWhatsApp');
+                sendWhatsAppBtn.dataset.phone = dadosProjeto.telefone.replace(/\D/g, '');
+                sendWhatsAppBtn.dataset.message = encodeURIComponent(mensagemWhatsApp);
+            }
+        };
+
+        // Controller - Lógica de Aplicação
+        const Controller = {
+            init: function() {
+                this.setupEventListeners();
+            },
+
+            setupEventListeners: function() {
+                // Abrir calculadora
+                document.getElementById('openCalculator').addEventListener('click', (e) => {
+                    e.preventDefault();
+                    this.abrirCalculadora();
+                });
+                
+                document.getElementById('openCalculatorHero').addEventListener('click', (e) => {
+                    e.preventDefault();
+                    this.abrirCalculadora();
+                });
+
+                // Fechar calculadora
+                document.getElementById('closeCalculator').addEventListener('click', () => {
+                    this.fecharCalculadora();
+                });
+                
+                document.getElementById('closeCalculatorForm').addEventListener('click', () => {
+                    this.fecharCalculadora();
+                });
+
+                // Navegação do formulário
+                document.getElementById('nextToStep2').addEventListener('click', () => {
+                    this.validarPasso1();
+                });
+                
+                document.getElementById('backToStep1').addEventListener('click', () => {
+                    this.voltarParaPasso(1);
+                });
+                
+                document.getElementById('nextToStep3').addEventListener('click', () => {
+                    this.irParaPasso(3);
+                });
+                
+                document.getElementById('backToStep2').addEventListener('click', () => {
+                    this.voltarParaPasso(2);
+                });
+
+                // Enviar formulário
+                document.getElementById('calculatorForm').addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    this.calcularOrcamento();
+                });
+
+                // Botões de resultado
+                document.getElementById('sendWhatsApp').addEventListener('click', () => {
+                    this.enviarWhatsApp();
+                });
+                
+                document.getElementById('downloadPdf').addEventListener('click', () => {
+                    this.gerarPDF();
+                });
+                
+                document.getElementById('newEstimation').addEventListener('click', () => {
+                    this.novaEstimativa();
+                });
+
+                // FAQ
+                document.querySelectorAll('.faq-question').forEach(question => {
+                    question.addEventListener('click', () => {
+                        this.toggleFAQ(question);
+                    });
+                });
+
+                // Formulário de contato
+                document.getElementById('contactForm').addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    this.enviarContato();
+                });
+
+                // Formulário de lead magnet
+                document.getElementById('leadForm').addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    this.capturarLead();
+                });
+
+                // Menu mobile
+                document.getElementById('mobileMenuBtn').addEventListener('click', () => {
+                    this.toggleMobileMenu();
+                });
+
+                // Scroll do header
+                window.addEventListener('scroll', () => {
+                    this.toggleHeaderScroll();
+                });
+
+                // Fechar modal ao clicar fora
+                document.getElementById('calculatorModal').addEventListener('click', (e) => {
+                    if (e.target === document.getElementById('calculatorModal')) {
+                        this.fecharCalculadora();
+                    }
+                });
+            },
+
+            abrirCalculadora: function() {
+                document.getElementById('calculatorModal').classList.add('active');
+                document.body.style.overflow = 'hidden';
+            },
+
+            fecharCalculadora: function() {
+                document.getElementById('calculatorModal').classList.remove('active');
+                document.body.style.overflow = 'auto';
+                this.novaEstimativa();
+            },
+
+            validarPasso1: function() {
+                const clientName = document.getElementById('clientName').value;
+                const clientPhone = document.getElementById('clientPhone').value;
+                const propertyArea = document.getElementById('propertyArea').value;
+                const propertyType = document.getElementById('propertyType').value;
+                
+                if (!clientName || clientName.length < 3) {
+                    View.showNotification('Por favor, insira um nome válido para o cliente (mínimo 3 caracteres).', false);
+                    return;
+                }
+                
+                if (!clientPhone || clientPhone.length < 10) {
+                    View.showNotification('Por favor, insira um telefone válido para contato.', false);
+                    return;
+                }
+                
+                if (!propertyArea || propertyArea < 1) {
+                    View.showNotification('Por favor, insira uma metragem válida (maior que 0).', false);
+                    return;
+                }
+                
+                if (!propertyType) {
+                    View.showNotification('Por favor, selecione o tipo de estabelecimento.', false);
+                    return;
+                }
+                
+                this.irParaPasso(2);
+            },
+
+            irParaPasso: function(passo) {
+                View.mostrarSecao(`step${passo}Form`);
+                View.atualizarEtapas(passo);
+                View.atualizarProgresso(passo);
+            },
+
+            voltarParaPasso: function(passo) {
+                View.mostrarSecao(`step${passo}Form`);
+                View.atualizarEtapas(passo);
+                View.atualizarProgresso(passo);
+            },
+
+            calcularOrcamento: function() {
+                const clientName = document.getElementById('clientName').value;
+                const clientPhone = document.getElementById('clientPhone').value;
+                const clientEmail = document.getElementById('clientEmail').value;
+                const propertyArea = parseInt(document.getElementById('propertyArea').value);
+                const propertyType = document.getElementById('propertyType').value;
+                const projectDescription = document.getElementById('projectDescription').value;
+                const pontosAnalise = Model.obterPontosAnalise();
+                const servicos = Model.obterServicosSelecionados();
+                const urgencia = document.getElementById('urgency').value;
+                
+                if (servicos.length === 0) {
+                    View.showNotification('Por favor, selecione pelo menos um serviço.', false);
+                    return;
+                }
+                
+                const tempoEstimado = Model.calcularTempoEstimado(
+                    servicos, 
+                    propertyArea, 
+                    pontosAnalise, 
+                    urgencia, 
+                    propertyType
+                );
+                
+                const custoEstimado = Model.calcularCustoEstimado(tempoEstimado.horas);
+                const idPedido = Model.gerarIdPedido(clientName);
+                
+                const dadosProjeto = {
+                    nomeCliente: clientName,
+                    telefone: clientPhone,
+                    email: clientEmail,
+                    metragem: propertyArea,
+                    tipo: propertyType,
+                    descricao: projectDescription,
+                    pontosAnalise: pontosAnalise,
+                    servicos: servicos,
+                    urgencia: urgencia,
+                    idPedido: idPedido
+                };
+                
+                View.atualizarResultado(dadosProjeto, {
+                    dias: tempoEstimado.dias,
+                    custo: custoEstimado
+                });
+                
+                View.mostrarSecao('result');
+                View.atualizarEtapas(4);
+                View.atualizarProgresso(4);
+                
+                // Pixel de conversão (simulado)
+                console.log('Pixel de conversão acionado: Orçamento gerado');
+            },
+
+            enviarWhatsApp: function() {
+                const btn = document.getElementById('sendWhatsApp');
+                const phone = btn.dataset.phone;
+                const message = btn.dataset.message;
+                
+                window.open(`https://wa.me/55${phone}?text=${message}`, '_blank');
+                
+                // Pixel de remarketing (simulado)
+                console.log('Pixel de remarketing acionado: WhatsApp enviado');
+            },
+
+            gerarPDF: function() {
+                // Simulação de geração de PDF
+                View.showNotification('PDF gerado com sucesso!');
+                
+                // Em uma implementação real, aqui usariamos jsPDF
+                // para gerar um PDF com os dados do orçamento
+            },
+
+            novaEstimativa: function() {
+                document.getElementById('calculatorForm').reset();
+                this.irParaPasso(1);
+            },
+
+            toggleFAQ: function(question) {
+                const answer = question.nextElementSibling;
+                const isActive = question.classList.contains('active');
+                
+                // Fechar todas as FAQs
+                document.querySelectorAll('.faq-question').forEach(q => {
+                    q.classList.remove('active');
+                    q.nextElementSibling.classList.remove('active');
+                });
+                
+                // Abrir a FAQ clicada se não estava ativa
+                if (!isActive) {
+                    question.classList.add('active');
+                    answer.classList.add('active');
+                }
+            },
+
+            enviarContato: function() {
+                // Validação básica
+                const name = document.getElementById('name').value;
+                const company = document.getElementById('company').value;
+                const email = document.getElementById('email').value;
+                const phone = document.getElementById('phone').value;
+                const message = document.getElementById('message').value;
+                
+                if (!name || !company || !email || !phone || !message) {
+                    View.showNotification('Por favor, preencha todos os campos obrigatórios.', false);
+                    return;
+                }
+                
+                // Simulação de envio
+                View.showNotification('Mensagem enviada com sucesso! Entraremos em contato em breve.');
+                document.getElementById('contactForm').reset();
+                
+                // Pixel de conversão (simulado)
+                console.log('Pixel de conversão acionado: Formulário de contato enviado');
+            },
+
+            capturarLead: function() {
+                const email = document.querySelector('#leadForm input[type="email"]').value;
+                
+                if (!email) {
+                    View.showNotification('Por favor, insira seu e-mail.', false);
+                    return;
+                }
+                
+                // Simulação de captura de lead
+                View.showNotification('Obrigado! Seu e-book será enviado para o e-mail informado.');
+                document.querySelector('#leadForm input[type="email"]').value = '';
+                
+                // Pixel de conversão (simulado)
+                console.log('Pixel de conversão acionado: Lead capturado');
+            },
+
+            toggleMobileMenu: function() {
+                const navLinks = document.querySelector('.nav-links');
+                navLinks.classList.toggle('active');
+            },
+
+            toggleHeaderScroll: function() {
+                const header = document.getElementById('header');
+                if (window.scrollY > 50) {
+                    header.classList.add('scrolled');
+                } else {
+                    header.classList.remove('scrolled');
+                }
+            }
+        };
+
+        // Inicializar a aplicação
+        document.addEventListener('DOMContentLoaded', function() {
+            Controller.init();
+            
+            // Inicializar tooltips (simulação)
+            const tooltipElements = document.querySelectorAll('.tooltip-icon');
+            tooltipElements.forEach(el => {
+                el.addEventListener('mouseenter', function() {
+                    // Em uma implementação real, mostraríamos o tooltip
+                });
+            });
+            
+            // Scroll suave para âncoras
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function(e) {
+                    const href = this.getAttribute('href');
+                    
+                    if(href === '#') {
+                         e.preventDefault();
+                         return;
+                    }
+
+                    const targetElement = document.querySelector(href);
+                    
+                    if (targetElement) {
+                        e.preventDefault();
+                        window.scrollTo({
+                            top: targetElement.offsetTop - 80,
+                            behavior: 'smooth'
+                        });
+                    }
+                });
+            });
+        });
+    </script>
+<style>.ag-nav-back{position:fixed;top:12px;left:12px;z-index:9999;background:rgba(79,70,229,.9);color:#fff;border:none;border-radius:50px;padding:.4rem .9rem;font-size:.8rem;font-family:system-ui,sans-serif;font-weight:600;cursor:pointer;text-decoration:none;display:flex;align-items:center;gap:.35rem;box-shadow:0 2px 10px rgba(0,0,0,.25);backdrop-filter:blur(4px);transition:background .2s,transform .2s}.ag-nav-back:hover{background:rgba(55,48,163,.95);transform:translateY(-1px)}</style><a href="https://passosdomingues.github.io/webappshowcase/site/main.html" class="ag-nav-back" aria-label="Voltar ao índice">&#8592; Índice</a>
+</body>
+</html>

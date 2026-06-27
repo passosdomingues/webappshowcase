@@ -1,0 +1,2198 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Um briefing atômico para materializar o seu projeto web."/>
+    <title>Essence Extractor Pro - Briefing Atômico para Websites</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class'
+        }
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #f3f4f6;
+            --text-color: #1f2937;
+            --card-bg: #ffffff;
+            --border-color: #e5e7eb;
+        }
+        .dark {
+            --bg-color: #0f172a;
+            --text-color: #f1f5f9;
+            --card-bg: #1e293b;
+            --border-color: #334155;
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            scroll-behavior: smooth;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            transition: background-color 0.3s, color 0.3s;
+        }
+        .slider-label {
+            transition: color 0.3s ease;
+        }
+        input[type=range] {
+            -webkit-appearance: none; appearance: none;
+            width: 100%; height: 8px; background: #e5e7eb;
+            outline: none; opacity: 0.8;
+            -webkit-transition: .2s; transition: opacity .2s;
+            border-radius: 5px;
+        }
+        input[type=range]:hover { opacity: 1; }
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none; appearance: none;
+            width: 24px; height: 24px; background: #3b82f6;
+            cursor: pointer; border-radius: 50%;
+            border: 4px solid #fff;
+            box-shadow: 0 0 5px rgba(0,0,0,0.2);
+        }
+        input[type=range]::-moz-range-thumb {
+            width: 24px; height: 24px; background: #3b82f6;
+            cursor: pointer; border-radius: 50%;
+            border: 4px solid #fff;
+            box-shadow: 0 0 5px rgba(0,0,0,0.2);
+        }
+        .card-hover {
+            transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+        }
+        .card-hover:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+        }
+        input[type=radio]:checked + div, input[type=checkbox]:checked + div {
+             border-color: #3b82f6;
+             background-color: #eff6ff;
+             box-shadow: 0 0 0 2px #3b82f6;
+        }
+        .needs-validation {
+            border-color: #ef4444 !important;
+            box-shadow: 0 0 0 2px #ef4444;
+        }
+        .result-icon {
+            width: 50px;
+            height: 50px;
+            background-color: #eff6ff;
+            color: #3b82f6;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .progress-container {
+            margin: 20px 0;
+            background-color: #e9ecef;
+            border-radius: 20px;
+            height: 10px;
+            overflow: hidden;
+        }
+        .progress-bar {
+            height: 100%;
+            background-color: #3b82f6;
+            width: 0%;
+            transition: all 0.3s ease;
+        }
+        .section {
+            display: none;
+        }
+        .section.active {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .color-preview {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 8px;
+            border: 1px solid #e5e7eb;
+        }
+        .preset-card {
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        .preset-card:hover {
+            transform: scale(1.05);
+        }
+        .preset-card.active {
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px #3b82f6;
+        }
+        
+        /* Estilos da Prévia do Layout */
+        .layout-preview {
+            width: 100%;
+            height: 300px;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            overflow: hidden;
+            position: relative;
+            background-color: #f9fafb;
+            font-size: 0.75rem;
+            transition: all 0.3s ease;
+        }
+        .layout-preview > div, .layout-preview .preview-content > div {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            padding: 4px;
+            text-align: center;
+        }
+        .preview-header { height: 15%; }
+        .preview-nav { height: 10%; }
+        .preview-hero { height: 25%; }
+        .preview-content { height: 35%; display: flex; }
+        .preview-sidebar { width: 30%; height: 100%; }
+        .preview-main { width: 70%; height: 100%; }
+        .preview-footer { height: 15%; }
+
+        /* Estilos específicos de layout */
+        .layout-preview[data-layout="standard"] .preview-sidebar { display: none; }
+        .layout-preview[data-layout="standard"] .preview-main { width: 100%; }
+        
+        .layout-preview[data-layout="sidebar"] .preview-sidebar { display: flex; }
+        .layout-preview[data-layout="sidebar"] .preview-main { width: 70%; }
+
+        .layout-preview[data-layout="fullscreen"] .preview-header,
+        .layout-preview[data-layout="fullscreen"] .preview-nav,
+        .layout-preview[data-layout="fullscreen"] .preview-footer { display: none; }
+        .layout-preview[data-layout="fullscreen"] .preview-hero { height: 100%; font-size: 1.2rem; }
+        .layout-preview[data-layout="fullscreen"] .preview-content { display: none; }
+
+        .layout-preview[data-layout="magazine"] .preview-content { flex-wrap: wrap; }
+        .layout-preview[data-layout="magazine"] .preview-main { width: 60%; }
+        .layout-preview[data-layout="magazine"] .preview-sidebar { width: 40%; }
+        
+        .layout-preview[data-layout="dashboard"] { display: flex; flex-wrap: wrap; }
+        .layout-preview[data-layout="dashboard"] .preview-header { width: 100%; height: 15%; }
+        .layout-preview[data-layout="dashboard"] .preview-nav { display: none; }
+        .layout-preview[data-layout="dashboard"] .preview-hero { display: none; }
+        .layout-preview[data-layout="dashboard"] .preview-sidebar { width: 25%; height: 85%; }
+        .layout-preview[data-layout="dashboard"] .preview-main { width: 75%; height: 85%; }
+        .layout-preview[data-layout="dashboard"] .preview-content { width: 100%; height: 85%; }
+        .layout-preview[data-layout="dashboard"] .preview-footer { display: none; }
+
+        .layout-preview[data-layout="asymmetric"] .preview-hero { width: 60%; height: 40%; position: absolute; top: 20%; left: 5%; }
+        .layout-preview[data-layout="asymmetric"] .preview-main { width: 50%; height: 40%; position: absolute; top: 40%; right: 5%; }
+        .layout-preview[data-layout="asymmetric"] .preview-content { height: 100%; }
+        .layout-preview[data-layout="asymmetric"] .preview-sidebar { display: none; }
+
+        .tooltip {
+            position: relative;
+            display: inline-block;
+            margin-left: 5px;
+            color: #6b7280;
+            cursor: help;
+        }
+        .tooltip-text {
+            visibility: hidden;
+            width: 200px;
+            background-color: #1f2937;
+            color: white;
+            text-align: center;
+            border-radius: 8px;
+            padding: 10px;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%;
+            left: 50%;
+            transform: translateX(-50%);
+            opacity: 0;
+            transition: opacity 0.3s;
+            font-size: 0.9rem;
+            font-weight: normal;
+        }
+        .tooltip:hover .tooltip-text {
+            visibility: visible;
+            opacity: 1;
+        }
+        .roadmap-timeline {
+            margin: 20px 0;
+        }
+        .timeline-item {
+            display: flex;
+            margin-bottom: 15px;
+            position: relative;
+        }
+        .timeline-date {
+            width: 100px;
+            font-weight: bold;
+            color: #3b82f6;
+        }
+        .timeline-content {
+            flex: 1;
+            padding-left: 20px;
+            position: relative;
+        }
+        .timeline-content:before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background-color: #3b82f6;
+        }
+        .timeline-content:after {
+            content: '';
+            position: absolute;
+            left: -5px;
+            top: 5px;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background-color: #3b82f6;
+        }
+        
+        /* Novos estilos para a análise avançada */
+        .complexity-meter {
+            height: 20px;
+            border-radius: 10px;
+            background: linear-gradient(90deg, #10b981 0%, #f59e0b 50%, #ef4444 100%);
+            position: relative;
+            margin: 10px 0;
+        }
+        .complexity-indicator {
+            position: absolute;
+            top: -5px;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: white;
+            border: 3px solid #3b82f6;
+            transform: translateX(-15px);
+        }
+        .risk-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 5px;
+        }
+        .risk-low { background-color: #10b981; }
+        .risk-medium { background-color: #f59e0b; }
+        .risk-high { background-color: #ef4444; }
+        .feature-card {
+            border-left: 4px solid #e5e7eb;
+            padding-left: 12px;
+            margin-bottom: 8px;
+            transition: all 0.3s ease;
+        }
+        .feature-card:hover {
+            border-left-color: #3b82f6;
+            background-color: #f8fafc;
+        }
+        .priority-tag {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: bold;
+            margin-left: 8px;
+        }
+        .priority-high { background-color: #fee2e2; color: #dc2626; }
+        .priority-medium { background-color: #fef3c7; color: #d97706; }
+        .priority-low { background-color: #d1fae5; color: #065f46; }
+        
+        /* Estilos para o seletor de cores avançado */
+        .color-palette {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .palette-option {
+            width: 100%;
+            aspect-ratio: 1;
+            border-radius: 8px;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: all 0.2s ease;
+        }
+        .palette-option:hover {
+            transform: scale(1.05);
+        }
+        .palette-option.active {
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3);
+        }
+        .color-input-group {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        .color-input-group label {
+            width: 150px;
+            font-weight: 500;
+        }
+        .color-input-wrapper {
+            display: flex;
+            align-items: center;
+            flex: 1;
+        }
+        .color-input-wrapper input[type="color"] {
+            width: 60px;
+            height: 40px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            margin-right: 10px;
+        }
+        .color-input-wrapper input[type="text"] {
+            flex: 1;
+            padding: 8px 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            font-family: monospace;
+        }
+
+        /* Novos estilos para melhorias */
+        .section-indicator {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+        .section-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background-color: #d1d5db;
+            margin: 0 5px;
+            transition: all 0.3s ease;
+        }
+        .section-dot.active {
+            background-color: #3b82f6;
+            transform: scale(1.2);
+        }
+        .export-options {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+            margin-top: 20px;
+        }
+        .export-btn {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        .export-json {
+            background-color: #10b981;
+            color: white;
+        }
+        .export-json:hover {
+            background-color: #059669;
+        }
+        .export-xml {
+            background-color: #8b5cf6;
+            color: white;
+        }
+        .export-xml:hover {
+            background-color: #7c3aed;
+        }
+        .export-md {
+            background-color: #3b82f6;
+            color: white;
+        }
+        .export-md:hover {
+            background-color: #2563eb;
+        }
+        .success-message {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background-color: #10b981;
+            color: white;
+            padding: 12px 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+            transform: translateX(150%);
+            transition: transform 0.3s ease;
+        }
+        .success-message.show {
+            transform: translateX(0);
+        }
+    </style>
+</head>
+<body class="bg-gray-100 text-gray-800 transition-colors duration-300 dark:bg-slate-950 dark:text-slate-100">
+
+    <div class="container mx-auto p-4 md:p-8 max-w-7xl relative">
+
+        <header class="text-center mb-10 relative">
+            <button id="themeToggle" class="absolute top-0 right-0 bg-blue-100 dark:bg-blue-900/50 text-blue-600 dark:text-blue-400 border-none rounded-full w-10 h-10 flex items-center justify-center cursor-pointer shadow-md transition-colors" onclick="toggleTheme()" aria-label="Alternar tema">🌙</button>
+            <h1 class="text-4xl md:text-5xl font-bold text-blue-600 dark:text-blue-500 mb-2">Essence Extractor Pro</h1>
+            <p class="text-lg text-gray-600 dark:text-gray-400">Um briefing atômico para materializar o seu projeto web.</p>
+            
+            <div class="progress-container mt-6">
+                <div class="progress-bar" id="progressBar"></div>
+            </div>
+        </header>
+
+        <div class="bg-white dark:bg-slate-900 p-6 md:p-8 rounded-2xl shadow-lg border border-gray-200 dark:border-slate-800 mb-10">
+            <h2 class="text-2xl font-bold text-gray-800 dark:text-slate-100 mb-6 border-b dark:border-slate-800 pb-3">🚀 Presets Pré-definidos</h2>
+            <p class="text-gray-600 dark:text-gray-400 mb-6">Selecione um modelo pré-definido para começar mais rapidamente:</p>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div class="preset-card bg-gray-50 dark:bg-slate-800/50 p-4 rounded-lg border-2 border-gray-200 dark:border-slate-700 text-center" data-preset="landing">
+                    <div class="text-3xl mb-2">📱</div>
+                    <h3 class="font-bold text-gray-900 dark:text-slate-200">Landing Page</h3>
+                    <p class="text-gray-500 dark:text-gray-400 text-sm">Uma página de conversão focada em vendas ou captura de leads</p>
+                </div>
+                <div class="preset-card bg-gray-50 dark:bg-slate-800/50 p-4 rounded-lg border-2 border-gray-200 dark:border-slate-700 text-center" data-preset="ecommerce">
+                    <div class="text-3xl mb-2">🛒</div>
+                    <h3 class="font-bold text-gray-900 dark:text-slate-200">E-commerce</h3>
+                    <p class="text-gray-500 dark:text-gray-400 text-sm">Loja virtual completa com catálogo e carrinho de compras</p>
+                </div>
+                <div class="preset-card bg-gray-50 dark:bg-slate-800/50 p-4 rounded-lg border-2 border-gray-200 dark:border-slate-700 text-center" data-preset="portfolio">
+                    <div class="text-3xl mb-2">🎨</div>
+                    <h3 class="font-bold text-gray-900 dark:text-slate-200">Portfólio</h3>
+                    <p class="text-gray-500 dark:text-gray-400 text-sm">Site para mostrar trabalhos e conquistas profissionais</p>
+                </div>
+                <div class="preset-card bg-gray-50 dark:bg-slate-800/50 p-4 rounded-lg border-2 border-gray-200 dark:border-slate-700 text-center" data-preset="corporate">
+                    <div class="text-3xl mb-2">🏢</div>
+                    <h3 class="font-bold text-gray-900 dark:text-slate-200">Site Corporativo</h3>
+                    <p class="text-gray-500 dark:text-gray-400 text-sm">Site institucional para empresas com múltiplas páginas</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <div class="lg:col-span-2">
+                <div class="section-indicator" id="sectionIndicator"></div>
+                <form id="briefingForm" class="space-y-12">
+                    <!-- As seções serão renderizadas via JavaScript -->
+                </form>
+ 
+                <div id="validationMessage" class="text-center text-red-600 font-semibold mt-8 mb-4 hidden">
+                    Por favor, preencha todas as seções destacadas para continuar.
+                </div>
+ 
+                <div class="text-center mt-12">
+                    <button type="button" id="generateAnalysisBtn" class="bg-blue-600 text-white font-bold py-4 px-10 rounded-full shadow-lg hover:bg-blue-700 transition-all duration-300 transform hover:scale-105 text-lg disabled:opacity-50 disabled:cursor-not-allowed">
+                        Gerar Análise Estratégica
+                    </button>
+                </div>
+ 
+                <div id="resultsSection" class="mt-16 bg-white dark:bg-slate-900 p-8 rounded-2xl shadow-xl border border-gray-200 dark:border-slate-800 hidden">
+                    <!-- Resultados serão inseridos aqui via JavaScript -->
+                </div>
+            </div>
+ 
+            <div class="lg:col-span-1">
+                <div class="bg-white dark:bg-slate-900 p-6 rounded-2xl shadow-lg border border-gray-200 dark:border-slate-800 sticky top-4">
+                    <h2 class="text-2xl font-bold text-gray-800 dark:text-slate-100 mb-4 border-b dark:border-slate-800 pb-3">👁️ Prévia do Site</h2>
+                    
+                    <div class="mb-6">
+                        <h3 class="font-bold text-gray-700 dark:text-slate-200 mb-2">Layout Selecionado:</h3>
+                        <div id="layoutPreview" class="layout-preview dark:bg-slate-950 dark:border-slate-800" data-layout="standard">
+                            <!-- Layout será renderizado via JavaScript -->
+                        </div>
+                    </div>
+                    
+                    <div class="mb-6">
+                        <h3 class="font-bold text-gray-700 dark:text-slate-200 mb-2">Paleta de Cores:</h3>
+                        <div class="flex flex-wrap gap-2">
+                            <div class="color-preview" id="previewColor1"></div>
+                            <div class="color-preview" id="previewColor2"></div>
+                            <div class="color-preview" id="previewColor3"></div>
+                            <div class="color-preview" id="previewColor4"></div>
+                            <div class="color-preview" id="previewColor5"></div>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <h3 class="font-bold text-gray-700 dark:text-slate-200 mb-2">Detalhes do Projeto:</h3>
+                        <div class="space-y-2 text-sm">
+                            <div class="flex justify-between">
+                                <span class="text-gray-600 dark:text-gray-400">Tipo:</span>
+                                <span id="previewType" class="font-medium text-right">-</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-600 dark:text-gray-400">Objetivo:</span>
+                                <span id="previewGoal" class="font-medium text-right">-</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-600 dark:text-gray-400">Público:</span>
+                                <span id="previewAudience" class="font-medium text-right">-</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-600 dark:text-gray-400">Estilo:</span>
+                                <span id="previewStyle" class="font-medium text-right">-</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-600 dark:text-gray-400">Funções:</span>
+                                <span id="previewFeatures" class="font-medium text-right">-</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <footer class="text-center mt-16 text-sm text-gray-500">
+            <p>100% Privado. Todas as informações são processadas apenas no seu navegador.</p>
+            <p><a href="#" id="privacyBtn" class="text-blue-500 hover:underline">Política de Privacidade e LGPD</a></p>
+        </footer>
+
+    </div>
+
+    <!-- Modal de Privacidade -->
+    <div id="privacyModal" class="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center p-4 z-50 hidden">
+        <div class="bg-white rounded-2xl shadow-2xl p-8 max-w-lg w-full transform transition-all scale-95 opacity-0" id="privacyModalContent">
+            <h2 class="text-2xl font-bold mb-4">Política de Privacidade e Uso de Dados</h2>
+            <div class="space-y-4 text-gray-600">
+                <p>Este aplicativo foi projetado com sua privacidade como prioridade máxima, em conformidade com a LGPD.</p>
+                <p><strong>1. Processamento Local:</strong> Toda e qualquer informação inserida é processada e armazenada temporariamente <strong class="text-blue-600">exclusivamente no seu navegador</strong>. Nenhum dado é enviado, salvo ou rastreado por servidores externos.</p>
+                <p><strong>2. Anonimato Total:</strong> O uso da ferramenta é completamente anônimo. Não há cookies de rastreamento ou qualquer tecnologia de identificação.</p>
+                <p><strong>3. Seu Controle Total:</strong> Você tem 100% de controle sobre seus dados. Fechar a aba apaga tudo. A função "Exportar JSON" é uma ação voluntária para que você salve uma cópia local dos seus dados.</p>
+            </div>
+            <div class="text-right mt-6">
+                <button id="closeModalBtn" class="bg-blue-600 text-white font-bold py-2 px-6 rounded-lg hover:bg-blue-700 transition-colors">Entendi</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Mensagem de Sucesso -->
+    <div id="successMessage" class="success-message">
+        Arquivo exportado com sucesso!
+    </div>
+
+    <script>
+    // Theme switcher logic
+    function applyTheme() {
+        const dark = localStorage.getItem("essenceDark") === "1" || 
+                     (!localStorage.getItem("essenceDark") && window.matchMedia("(prefers-color-scheme: dark)").matches);
+        document.documentElement.classList.toggle("dark", dark);
+        const toggleBtn = document.getElementById("themeToggle");
+        if (toggleBtn) toggleBtn.textContent = dark ? "☀️" : "🌙";
+    }
+    function toggleTheme() {
+        const isDark = document.documentElement.classList.contains("dark");
+        localStorage.setItem("essenceDark", isDark ? "0" : "1");
+        applyTheme();
+    }
+    applyTheme();
+
+    document.addEventListener('DOMContentLoaded', function () {
+        
+        // --- CONFIGURAÇÕES E DADOS GLOBAIS ---
+
+        const DEV_DAILY_RATE_BRL = 350;
+        const SPRINT_DAYS = 5;
+
+        // Paletas de cores pré-definidas para cada psicologia de cores
+        const colorPalettes = {
+            warm: {
+                primary: '#dc2626',
+                secondary: '#ea580c',
+                accent: '#d97706',
+                background: '#fef2f2',
+                text: '#1f2937'
+            },
+            cool: {
+                primary: '#1e40af',
+                secondary: '#0f766e',
+                accent: '#3b82f6',
+                background: '#f0f9ff',
+                text: '#1f2937'
+            },
+            earth: {
+                primary: '#92400e',
+                secondary: '#065f46',
+                accent: '#d97706',
+                background: '#fefce8',
+                text: '#1f2937'
+            },
+            mono: {
+                primary: '#4b5563',
+                secondary: '#6b7280',
+                accent: '#9ca3af',
+                background: '#ffffff',
+                text: '#1f2937'
+            },
+            pastel: {
+                primary: '#a78bfa',
+                secondary: '#67e8f9',
+                accent: '#f0abfc',
+                background: '#faf5ff',
+                text: '#1f2937'
+            },
+            neon: {
+                primary: '#db2777',
+                secondary: '#4f46e5',
+                accent: '#06b6d4',
+                background: '#ffffff',
+                text: '#1f2937'
+            }
+        };
+
+        // Estrutura de perguntas otimizada
+        const questions = {
+            "🧠 Identidade e Propósito": [
+                { id: 'companyName', text: 'Qual o nome da sua empresa?', type: 'text', placeholder: 'Ex: Soluções Digitais LTDA', required: true },
+                { id: 'companyArea', text: 'Qual o ramo de atividade da empresa?', type: 'radio', required: true, options: [
+                    { value: 'retail', label: 'Varejo', description: 'Venda de produtos para o consumidor final.' },
+                    { value: 'services', label: 'Serviços', description: 'Oferece consultoria, mão de obra, etc.' },
+                    { value: 'tech', label: 'Tecnologia / SaaS', description: 'Software, apps, soluções digitais.' },
+                    { value: 'health', label: 'Saúde e Bem-estar', description: 'Clínicas, profissionais, produtos fitness.' },
+                    { value: 'food', label: 'Alimentação', description: 'Restaurantes, cafés, delivery.' },
+                    { value: 'industry', label: 'Indústria / B2B', description: 'Venda de produtos para outras empresas.' },
+                    { value: 'education', label: 'Educação', description: 'Cursos, treinamentos, escolas.' },
+                    { value: 'entertainment', label: 'Entretenimento', description: 'Eventos, mídia, conteúdo.' },
+                    { value: 'nonprofit', label: 'ONG / Sem Fins Lucrativos', description: 'Causas sociais, organizações sem fins lucrativos.' },
+                    { value: 'realestate', label: 'Imobiliário', description: 'Corretores, incorporadoras, aluguel.' },
+                ]},
+                { id: 'companySize', text: 'Qual o porte da empresa?', type: 'radio', required: true, options: [
+                    { value: 'micro', label: 'Microempresa', description: 'Até 9 funcionários.' },
+                    { value: 'small', label: 'Pequena Empresa', description: '10 a 49 funcionários.' },
+                    { value: 'medium', label: 'Média Empresa', description: '50 a 249 funcionários.' },
+                    { value: 'large', label: 'Grande Empresa', description: 'Mais de 250 funcionários.' },
+                ]},
+                { id: 'primaryGoal', text: 'Qual é o objetivo principal e imediato do site?', type: 'radio', required: true, options: [
+                    { value: 'sell', label: 'Vender Produtos/Serviços', description: 'Foco em e-commerce e conversão direta.' },
+                    { value: 'leads', label: 'Gerar Leads (Contatos)', description: 'Capturar e qualificar potenciais clientes.' },
+                    { value: 'inform', label: 'Fortalecer a Marca (Branding)', description: 'Ser uma fonte de autoridade e confiança.' },
+                    { value: 'community', label: 'Criar uma Comunidade', description: 'Engajar usuários em um espaço online.' },
+                    { value: 'support', label: 'Suporte ao Cliente', description: 'Oferecer ajuda e resolver problemas.' },
+                    { value: 'recruitment', label: 'Recrutamento', description: 'Atrair talentos para a empresa.' },
+                    { value: 'showcase', label: 'Mostrar Trabalhos (Portfólio)', description: 'Exibir portfólio ou cases de sucesso.' },
+                ]},
+                { id: 'secondaryGoal', text: 'E objetivos secundários importantes?', type: 'checkbox', options: [
+                    { value: 'educate', label: 'Educar o Público', description: 'Compartilhar conhecimento sobre o setor.' },
+                    { value: 'entertain', label: 'Entreter', description: 'Oferecer conteúdo divertido ou interessante.' },
+                    { value: 'network', label: 'Networking', description: 'Conectar pessoas e empresas.' },
+                    { value: 'showcase', label: 'Mostrar Trabalhos', description: 'Exibir portfólio ou cases de sucesso.' },
+                    { value: 'promote', label: 'Promover Eventos', description: 'Divulgar e vender ingressos para eventos.' },
+                ]},
+            ],
+            "🎯 Público-Alvo": [
+                { id: 'audience', text: 'Vamos atomizar o público-alvo:', type: 'title' },
+                { id: 'audienceGender', text: 'Gênero Predominante:', type: 'radio', required: true, options: [
+                    { value: 'male', label: 'Masculino', description: 'Foco principal em homens.' },
+                    { value: 'female', label: 'Feminino', description: 'Foco principal em mulheres.' },
+                    { value: 'balanced', label: 'Equilibrado', description: 'Ambos os gêneros igualmente.' },
+                    { value: 'not_applicable', label: 'Não se aplica', description: 'O gênero não é relevante.' },
+                ]},
+                { id: 'audienceDevice', text: 'Dispositivo Principal de Acesso:', type: 'radio', required: true, options: [
+                    { value: 'mobile', label: 'Mobile (Celular)', description: 'A maioria acessa pelo celular.' },
+                    { value: 'desktop', label: 'Desktop (Computador)', description: 'A maioria acessa pelo computador.' },
+                    { value: 'both', label: 'Ambos', description: 'Uso dividido entre celular e computador.' },
+                ]},
+                { id: 'audienceFocus', text: 'Foco Principal:', type: 'slider', labels: ['B2C (Consumidor Final)', 'B2B (Outras Empresas)'] },
+                { id: 'audienceAge', text: 'Faixa Etária:', type: 'slider', labels: ['Jovem (abaixo de 30)', 'Maduro (acima de 30)'] },
+                { id: 'audienceTechSavvy', text: 'Familiaridade com Tecnologia:', type: 'slider', labels: ['Iniciante', 'Avançado'] },
+                { id: 'audienceIncome', text: 'Nível Socioeconômico:', type: 'slider', labels: ['Baixo/Médio', 'Alto'] },
+                { id: 'audienceInterests', text: 'Interesses Principais (selecione até 3):', type: 'checkbox', options: [
+                    { value: 'tech', label: 'Tecnologia', description: '' },
+                    { value: 'fashion', label: 'Moda e Beleza', description: '' },
+                    { value: 'sports', label: 'Esportes e Fitness', description: '' },
+                    { value: 'culture', label: 'Cultura e Arte', description: '' },
+                    { value: 'business', label: 'Negócios e Finanças', description: '' },
+                    { value: 'health', label: 'Saúde e Bem-estar', description: '' },
+                    { value: 'travel', label: 'Viagens e Turismo', description: '' },
+                    { value: 'food', label: 'Gastronomia', description: '' },
+                ]},
+                { id: 'personality', text: 'Agora, a personalidade da marca (em espectros):', type: 'title' },
+                { id: 'formalCasual', text: 'Tom de Voz:', type: 'slider', labels: ['Extremamente Formal', 'Super Casual'] },
+                { id: 'seriousFun', text: 'Abordagem:', type: 'slider', labels: ['Séria e Corporativa', 'Divertida e Leve'] },
+                { id: 'traditionalInnovative', text: 'Estilo:', type: 'slider', labels: ['Tradicional e Confiável', 'Inovadora e Ousada'] },
+                { id: 'luxuryAffordable', text: 'Posicionamento de Mercado:', type: 'slider', labels: ['Exclusivo e de Luxo', 'Acessível e Popular'] },
+                { id: 'localGlobal', text: 'Alcance:', type: 'slider', labels: ['Local/Regional', 'Global/Internacional'] }
+            ],
+            "🎨 Estilo Visual": [
+                { id: 'inspirationStyle', text: 'Qual arquétipo de design te inspira mais?', type: 'radio', required: true, options: [
+                    { value: 'minimalist', label: 'O Purista (Apple)', description: 'Elegância, espaços em branco, foco no essencial.' },
+                    { value: 'vibrant', label: 'O Artista (Spotify)', description: 'Cores ousadas, energia, microinterações.' },
+                    { value: 'corporate', label: 'O Confiável (Microsoft)', description: 'Confiança, seriedade, estrutura clara.' },
+                    { value: 'editorial', label: 'O Intelectual (Medium)', description: 'Foco na tipografia, legibilidade e conteúdo.' },
+                    { value: 'handcrafted', label: 'O Artesão (Etsy)', description: 'Texturas orgânicas, detalhes manuais, autenticidade.' },
+                    { value: 'futuristic', label: 'O Futurista (Tesla)', description: 'Tecnologia, inovação, design arrojado.' },
+                ]},
+                { id: 'colorPalette', text: 'Qual psicologia de cores você prefere?', type: 'radio', required: true, options: [
+                    { value: 'warm', label: 'Tons Quentes (Vermelhos, Laranjas)', description: 'Energia, paixão, urgência.' },
+                    { value: 'cool', label: 'Tons Frios (Azuis, Verdes)', description: 'Calma, confiança, profissionalismo.' },
+                    { value: 'earth', label: 'Tons Terrosos (Marrons, Beges)', description: 'Orgânico, conforto, natureza.' },
+                    { value: 'mono', label: 'Monocromático (Preto, Branco)', description: 'Sofisticação, luxo, simplicidade.' },
+                    { value: 'pastel', label: 'Pastéis Suaves', description: 'Delicadeza, tranquilidade, modernidade.' },
+                    { value: 'neon', label: 'Cores Vibrantes/Neon', description: 'Juventude, energia, modernidade.' },
+                ]},
+                { id: 'colorPicker', text: 'Selecione suas cores preferidas:', type: 'title' },
+                { id: 'primaryColor', text: 'Cor Principal:', type: 'color', value: '#3b82f6' },
+                { id: 'secondaryColor', text: 'Cor Secundária:', type: 'color', value: '#1e40af' },
+                { id: 'accentColor', text: 'Cor de Destaque:', type: 'color', value: '#60a5fa' },
+                { id: 'backgroundColor', text: 'Cor de Fundo:', type: 'color', value: '#ffffff' },
+                { id: 'textColor', text: 'Cor do Texto:', type: 'color', value: '#1f2937' },
+                { id: 'visualIdentity', text: 'Refinando o visual do site (em espectros):', type: 'title' },
+                { id: 'minimalistDetailed', text: 'Densidade da Informação:', type: 'slider', labels: ['Minimalista, muito espaço', 'Detalhado, rico em informações'] },
+                { id: 'darkLight', text: 'Esquema de Luminosidade:', type: 'slider', labels: ['Tema Escuro (Dark Mode)', 'Tema Claro (Light Mode)'] },
+                { id: 'photosIllustrations', text: 'Linguagem Visual:', type: 'slider', labels: ['Fotografias Reais', 'Ilustrações e Gráficos'] },
+                { id: 'layoutStyle', text: 'Estrutura do Layout:', type: 'slider', labels: ['Linear e Padrão', 'Quebrado e Experimental'] },
+                { id: 'animationLevel', text: 'Nível de Animações:', type: 'slider', labels: ['Estático e Sóbrio', 'Dinâmico e Interativo'] }
+            ],
+            "🛠️ Funcionalidades e Escopo": [
+                { id: 'layoutType', text: 'Qual estrutura de layout você prefere?', type: 'radio', required: true, options: [
+                    { value: 'standard', label: 'Layout Padrão', description: 'Cabeçalho, conteúdo principal, rodapé.' },
+                    { value: 'sidebar', label: 'Com Sidebar', description: 'Navegação lateral além do cabeçalho.' },
+                    { value: 'fullscreen', label: 'Tela Cheia', description: 'Conteúdo que ocupa toda a tela.' },
+                    { value: 'magazine', label: 'Estilo Revista', description: 'Múltiplas colunas e seções.' },
+                    { value: 'dashboard', label: 'Dashboard', description: 'Interface com métricas e controles.' },
+                    { value: 'asymmetric', label: 'Assimétrico', description: 'Layout que quebra padrões tradicionais.' },
+                ]},
+                { id: 'features', text: 'Selecione as funcionalidades. O "peso" afeta o prazo e custo.', type: 'title' },
+                { id: 'featureList', type: 'checkbox', options: [
+                    { value: 'home', label: 'Página Inicial Estratégica', weight: 2, description: 'A principal vitrine e conversor do site.' },
+                    { value: 'about', label: 'Página "Sobre Nós"', weight: 1, description: 'Conte a história e os valores da empresa.' },
+                    { value: 'contact', label: 'Formulário de Contato Avançado', weight: 2, description: 'Com mapa, FAQs e múltiplos canais.' },
+                    { value: 'services', label: 'Página de Serviços/Produtos', weight: 3, description: 'Catálogo detalhado do que você oferece.' },
+                    { value: 'portfolio', label: 'Galeria / Portfólio', weight: 3, description: 'Exiba seus trabalhos de forma visual.' },
+                    { value: 'blog', label: 'Blog com SEO Otimizado', weight: 5, description: 'Publique artigos e atraia tráfego orgânico.' },
+                    { value: 'ecommerce', label: 'Loja Virtual (Básica)', weight: 15, description: 'Venda produtos com carrinho e checkout.' },
+                    { value: 'members', label: 'Área de Membros (Login)', weight: 10, description: 'Conteúdo exclusivo para usuários cadastrados.' },
+                    { value: 'booking', label: 'Sistema de Agendamento', weight: 8, description: 'Permita que clientes agendem horários.' },
+                    { value: 'forum', label: 'Fórum ou Comunidade', weight: 12, description: 'Espaço para discussões entre usuários.' },
+                    { value: 'multilingual', label: 'Site Multilíngue', weight: 6, description: 'Conteúdo disponível em vários idiomas.' },
+                    { value: 'search', label: 'Sistema de Busca Avançado', weight: 4, description: 'Permita encontrar conteúdo rapidamente.' },
+                    { value: 'newsletter', label: 'Sistema de Newsletter', weight: 3, description: 'Capture e-mails e envie atualizações.' },
+                    { value: 'social', label: 'Integração com Redes Sociais', weight: 2, description: 'Compartilhamento e feeds integrados.' },
+                    { value: 'maps', label: 'Mapas e Localização', weight: 2, description: 'Mostre localizações físicas.' },
+                    { value: 'calculator', label: 'Calculadoras ou Ferramentas', weight: 5, description: 'Ofereça utilitários interativos.' },
+                ]}
+            ],
+            "🚀 Extras e Integrações": [
+                { id: 'extras', text: 'Selecione as funcionalidades adicionais desejadas.', type: 'title' },
+                { id: 'extrasList', type: 'checkbox', options: [
+                    { value: 'seo', label: 'SEO Técnico Avançado', weight: 3, description: 'Otimizações para melhor ranking no Google.' },
+                    { value: 'analytics', label: 'Google Analytics & Tag Manager', weight: 2, description: 'Instalação e configuração para métricas.' },
+                    { value: 'crm', label: 'Integração com CRM / E-mail Mkt', weight: 4, description: 'Conectar formulários com ferramentas externas.' },
+                    { value: 'multilang', label: 'Suporte a Múltiplos Idiomas', weight: 4, description: 'Traduza o site para outros idiomas.' },
+                ]}
+            ],
+            "💰 Orçamento e Prazos": [
+                 { id: 'constraints', text: 'Defina as restrições do projeto.', type: 'title' },
+                 { id: 'budget', text: 'Qual o nível de investimento disponível?', type: 'slider', labels: ['Essencial (até R$2k)', 'Intermediário (R$2k-R$5k)', 'Avançado (+R$5k)'] },
+                 { id: 'deadline', text: 'Qual a urgência do projeto?', type: 'slider', labels: ['Flexível (sem pressa)', 'Normal (~2-3 meses)', 'Urgente (até 1 mês)'] },
+                 { id: 'maintenance', text: 'Precisa de manutenção contínua?', type: 'radio', required: true, options: [
+                    { value: 'none', label: 'Não, apenas o desenvolvimento', description: 'Apenas a criação do site.' },
+                    { value: 'basic', label: 'Básica (atualizações ocasionais)', description: 'Pequenas correções e atualizações.' },
+                    { value: 'full', label: 'Completa (suporte contínuo)', description: 'Manutenção regular e suporte técnico.' },
+                 ]},
+                 { id: 'hosting', text: 'Precisa de hospedagem e domínio?', type: 'radio', required: true, options: [
+                    { value: 'no', label: 'Não, já tenho', description: 'Já possuo domínio e hospedagem.' },
+                    { value: 'yes', label: 'Sim, preciso', description: 'Preciso de domínio e hospedagem incluídos.' },
+                    { value: 'advice', label: 'Preciso de orientação', description: 'Não sei como funciona e preciso de ajuda.' },
+                 ]},
+                 { id: 'additionalNotes', text: 'Há alguma observação adicional?', type: 'textarea', placeholder: 'Ex: Preciso de um domínio específico, já tenho logotipo...' }
+            ]
+        };
+        
+        // --- ELEMENTOS DO DOM ---
+        const form = document.getElementById('briefingForm');
+        const generateAnalysisBtn = document.getElementById('generateAnalysisBtn');
+        const resultsSection = document.getElementById('resultsSection');
+        const validationMessage = document.getElementById('validationMessage');
+        const privacyBtn = document.getElementById('privacyBtn');
+        const privacyModal = document.getElementById('privacyModal');
+        const privacyModalContent = document.getElementById('privacyModalContent');
+        const closeModalBtn = document.getElementById('closeModalBtn');
+        const presetCards = document.querySelectorAll('.preset-card');
+        const layoutPreview = document.getElementById('layoutPreview');
+        const progressBar = document.getElementById('progressBar');
+        const sectionIndicator = document.getElementById('sectionIndicator');
+        const successMessage = document.getElementById('successMessage');
+
+        // --- VARIÁVEIS GLOBAIS ---
+        let currentSection = 0;
+        const totalSections = Object.keys(questions).length;
+
+        // --- RENDERIZAÇÃO DO FORMULÁRIO ---
+        function renderForm() {
+            // Criar indicador de seções
+            sectionIndicator.innerHTML = '';
+            Object.keys(questions).forEach((_, index) => {
+                const dot = document.createElement('div');
+                dot.className = `section-dot ${index === 0 ? 'active' : ''}`;
+                dot.dataset.section = index;
+                sectionIndicator.appendChild(dot);
+            });
+
+            Object.keys(questions).forEach((sectionTitle, sectionIndex) => {
+                const sectionEl = document.createElement('div');
+                sectionEl.className = `section bg-white dark:bg-slate-900 p-6 md:p-8 rounded-2xl shadow-lg border-2 border-transparent dark:border-slate-800 card-hover ${sectionIndex === 0 ? 'active' : ''}`;
+                sectionEl.id = `section-${sectionIndex}`;
+                
+                const titleEl = document.createElement('h2');
+                titleEl.className = 'text-2xl font-bold text-gray-800 dark:text-slate-100 mb-6 border-b dark:border-slate-800 pb-3';
+                titleEl.textContent = sectionTitle;
+                sectionEl.appendChild(titleEl);
+
+                const gridEl = document.createElement('div');
+                gridEl.className = 'space-y-8';
+
+                questions[sectionTitle].forEach(q => {
+                    const questionWrapper = document.createElement('div');
+                    
+                    if (q.type === 'title') {
+                        const subtitle = document.createElement('h3');
+                        subtitle.className = 'text-lg font-semibold text-blue-600 dark:text-blue-400';
+                        subtitle.textContent = q.text;
+                        questionWrapper.appendChild(subtitle);
+                    } else if (q.type === 'text') {
+                        questionWrapper.innerHTML = `
+                            <label class="block font-medium text-gray-700 dark:text-gray-300 mb-2">${q.text} ${q.required ? '<span class="text-red-500">*</span>' : ''}</label>
+                            <input type="text" id="${q.id}" name="${q.id}" placeholder="${q.placeholder}" class="w-full p-3 border border-gray-300 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-800 text-gray-800 dark:text-slate-100 focus:ring-2 focus:ring-blue-500 focus:border-blue-500" ${q.required ? 'required' : ''}>
+                        `;
+                    } else if (q.type === 'textarea') {
+                        questionWrapper.innerHTML = `
+                            <label class="block font-medium text-gray-700 dark:text-gray-300 mb-2">${q.text}</label>
+                            <textarea id="${q.id}" name="${q.id}" placeholder="${q.placeholder}" class="w-full p-3 border border-gray-300 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-800 text-gray-800 dark:text-slate-100 focus:ring-2 focus:ring-blue-500 focus:border-blue-500" rows="3"></textarea>
+                        `;
+                    } else if (q.type === 'slider') {
+                        questionWrapper.innerHTML = `
+                            <label class="block font-medium text-gray-700 dark:text-gray-300 mb-2">${q.text}</label>
+                            <div class="flex items-center space-x-4">
+                                <span class="text-sm text-gray-500 dark:text-gray-400 slider-label font-bold w-1/4 text-center">${q.labels[0]}</span>
+                                <input type="range" id="${q.id}" name="${q.id}" min="0" max="100" value="50" class="w-1/2">
+                                <span class="text-sm text-gray-500 dark:text-gray-400 slider-label w-1/4 text-center">${q.labels[1]}</span>
+                            </div>
+                        `;
+                    } else if (q.type === 'color') {
+                        questionWrapper.innerHTML = `
+                            <div class="color-input-group">
+                                <label class="font-medium text-gray-700 dark:text-gray-300">${q.text}</label>
+                                <div class="color-input-wrapper">
+                                    <input type="color" id="${q.id}" name="${q.id}" value="${q.value}" class="rounded border border-gray-300 dark:border-slate-700 bg-white dark:bg-slate-800">
+                                    <input type="text" id="${q.id}Text" value="${q.value}" class="rounded border border-gray-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-gray-800 dark:text-slate-100 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                </div>
+                            </div>
+                        `;
+                    } else if (q.type === 'radio' || q.type === 'checkbox') {
+                         const fieldset = document.createElement('fieldset');
+                         fieldset.id = q.id;
+                         const legend = document.createElement('legend');
+                         legend.className = 'block font-medium text-gray-700 dark:text-gray-300 mb-4';
+                         legend.innerHTML = `${q.text} ${q.required ? '<span class="text-red-500">*</span>' : ''}`;
+                         fieldset.appendChild(legend);
+
+                         // Adicionar paleta de cores para a pergunta de psicologia de cores
+                         if (q.id === 'colorPalette') {
+                            const paletteContainer = document.createElement('div');
+                            paletteContainer.className = 'color-palette mb-6';
+                            
+                            q.options.forEach(opt => {
+                                const paletteOption = document.createElement('div');
+                                paletteOption.className = 'palette-option';
+                                paletteOption.dataset.value = opt.value;
+                                paletteOption.style.backgroundColor = colorPalettes[opt.value].primary;
+                                paletteOption.title = opt.label;
+                                
+                                paletteOption.addEventListener('click', function() {
+                                    document.querySelectorAll('.palette-option').forEach(el => {
+                                        el.classList.remove('active');
+                                    });
+                                    this.classList.add('active');
+                                    
+                                    const radio = document.querySelector(`input[name="colorPalette"][value="${this.dataset.value}"]`);
+                                    if (radio) {
+                                        radio.checked = true;
+                                        applyColorPalette(this.dataset.value);
+                                        updatePreview();
+                                    }
+                                });
+                                
+                                paletteContainer.appendChild(paletteOption);
+                            });
+                            
+                            fieldset.appendChild(paletteContainer);
+                         }
+                         
+                         const container = document.createElement('div');
+                         let gridCols = 'md:grid-cols-2';
+                         if (q.id === 'audienceInterests') {
+                            gridCols = 'md:grid-cols-4';
+                         } else if (q.options.length > 2) {
+                            gridCols = 'md:grid-cols-2';
+                         }
+                         
+                         container.className = `grid grid-cols-1 ${gridCols} gap-4`;
+                         
+                         q.options.forEach(opt => {
+                             const itemWrapper = document.createElement('label');
+                             itemWrapper.htmlFor = `${q.id}_${opt.value}`;
+                             itemWrapper.className = 'cursor-pointer block';
+
+                             const input = document.createElement('input');
+                             input.id = `${q.id}_${opt.value}`;
+                             input.name = q.id || (q.type === 'checkbox' ? q.id : '');
+                             input.type = q.type;
+                             input.value = opt.value;
+                             if(q.type === 'checkbox') input.dataset.weight = opt.weight;
+                             input.className = 'sr-only';
+
+                             const content = document.createElement('div');
+                             content.className = 'h-full bg-gray-50 dark:bg-slate-800/50 p-4 rounded-lg border-2 border-gray-200 dark:border-slate-700 transition';
+                             
+                             let descriptionHtml = opt.description ? `<p class="text-gray-500 dark:text-gray-400 text-sm">${opt.description}</p>` : '';
+                             let weightHtml = q.type === 'checkbox' && opt.weight ? `<p class="text-xs text-blue-500 font-semibold mt-1">Peso: ${opt.weight}</p>` : '';
+
+                             content.innerHTML = `
+                                 <span class="font-bold text-gray-900 dark:text-slate-100">${opt.label}</span>
+                                 ${descriptionHtml}
+                                 ${weightHtml}
+                             `;
+                             
+                             itemWrapper.appendChild(input);
+                             itemWrapper.appendChild(content);
+                             container.appendChild(itemWrapper);
+                         });
+                         fieldset.appendChild(container);
+                         questionWrapper.appendChild(fieldset);
+                    }
+                    
+                    gridEl.appendChild(questionWrapper);
+                });
+
+                // Adicionar navegação entre seções
+                const navigation = document.createElement('div');
+                navigation.className = 'flex justify-between mt-8 pt-6 border-t border-gray-200';
+                
+                if (sectionIndex > 0) {
+                    const prevButton = document.createElement('button');
+                    prevButton.type = 'button';
+                    prevButton.className = 'bg-gray-500 text-white font-bold py-3 px-6 rounded-lg hover:bg-gray-600 transition-colors prev-btn';
+                    prevButton.textContent = 'Anterior';
+                    prevButton.dataset.prev = sectionIndex - 1;
+                    navigation.appendChild(prevButton);
+                } else {
+                    navigation.appendChild(document.createElement('div')); // Espaço vazio
+                }
+                
+                if (sectionIndex < totalSections - 1) {
+                    const nextButton = document.createElement('button');
+                    nextButton.type = 'button';
+                    nextButton.className = 'bg-blue-600 text-white font-bold py-3 px-6 rounded-lg hover:bg-blue-700 transition-colors next-btn';
+                    nextButton.textContent = 'Próximo';
+                    nextButton.dataset.next = sectionIndex + 1;
+                    navigation.appendChild(nextButton);
+                } else {
+                    navigation.appendChild(document.createElement('div')); // Espaço vazio
+                }
+                
+                sectionEl.appendChild(gridEl);
+                sectionEl.appendChild(navigation);
+                form.appendChild(sectionEl);
+            });
+        }
+
+        // --- FUNÇÕES AUXILIARES ---
+        function updateProgress() {
+            const progress = ((currentSection) / (totalSections - 1)) * 100;
+            progressBar.style.width = `${progress}%`;
+        }
+
+        function showSection(sectionNumber) {
+            document.querySelectorAll('.section').forEach(section => {
+                section.classList.remove('active');
+            });
+            document.getElementById(`section-${sectionNumber}`).classList.add('active');
+            
+            // Atualizar indicador de seções
+            document.querySelectorAll('.section-dot').forEach((dot, index) => {
+                dot.classList.toggle('active', index === sectionNumber);
+            });
+            
+            currentSection = sectionNumber;
+            updateProgress();
+        }
+
+        function updateSliderLabels() {
+            document.querySelectorAll('input[type="range"]').forEach(slider => {
+                const container = slider.parentElement;
+                const leftLabel = container.querySelector('span:first-child');
+                const rightLabel = container.querySelector('span:last-child');
+                
+                const value = parseInt(slider.value, 10);
+                
+                leftLabel.classList.toggle('text-blue-600', value < 50);
+                rightLabel.classList.toggle('text-blue-600', value > 50);
+            });
+        }
+        
+        function validateForm() {
+            let isValid = true;
+            let firstInvalidElement = null;
+
+            // Limpa validações anteriores
+            document.querySelectorAll('.needs-validation').forEach(el => el.classList.remove('needs-validation'));
+            validationMessage.classList.add('hidden');
+
+            for (const section in questions) {
+                for (const q of questions[section]) {
+                    if (q.required && q.type === 'radio') {
+                        const selected = form.querySelector(`input[name="${q.id}"]:checked`);
+                        if (!selected) {
+                            isValid = false;
+                            const fieldset = document.getElementById(q.id);
+                            if (fieldset) {
+                                const parentCard = fieldset.closest('.card-hover');
+                                parentCard.classList.add('needs-validation');
+                                if (!firstInvalidElement) {
+                                    firstInvalidElement = parentCard;
+                                }
+                            }
+                        }
+                    } else if (q.required && q.type === 'text') {
+                        const input = document.getElementById(q.id);
+                        if (input && !input.value.trim()) {
+                            isValid = false;
+                            input.classList.add('needs-validation');
+                            if (!firstInvalidElement) {
+                                firstInvalidElement = input;
+                            }
+                        }
+                    }
+                }
+            }
+
+            if (!isValid) {
+                validationMessage.classList.remove('hidden');
+                if (firstInvalidElement) {
+                    firstInvalidElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+            }
+            return isValid;
+        }
+
+        function collectAnswers() {
+            const formData = new FormData(form);
+            const answers = {};
+            for (const [key, value] of formData.entries()) {
+                if (answers[key]) {
+                    if (!Array.isArray(answers[key])) answers[key] = [answers[key]];
+                    answers[key].push(value);
+                } else {
+                    answers[key] = value;
+                }
+            }
+            // Garante que as listas de checkboxes existam, mesmo que vazias
+            answers.featureList = Array.from(form.querySelectorAll('input[name="featureList"]:checked')).map(cb => cb.value);
+            answers.extrasList = Array.from(form.querySelectorAll('input[name="extrasList"]:checked')).map(cb => cb.value);
+            answers.secondaryGoal = Array.from(form.querySelectorAll('input[name="secondaryGoal"]:checked')).map(cb => cb.value);
+            answers.audienceInterests = Array.from(form.querySelectorAll('input[name="audienceInterests"]:checked')).map(cb => cb.value);
+            
+            // Coletar cores
+            answers.primaryColor = document.getElementById('primaryColor').value;
+            answers.secondaryColor = document.getElementById('secondaryColor').value;
+            answers.accentColor = document.getElementById('accentColor').value;
+            answers.backgroundColor = document.getElementById('backgroundColor').value;
+            answers.textColor = document.getElementById('textColor').value;
+            
+            return answers;
+        }
+        
+        function getSelectedOptionLabel(questionId, selectedValue) {
+            for (const section in questions) {
+                const question = questions[section].find(q => q.id === questionId);
+                if (question && question.type === 'radio') {
+                    const option = question.options.find(opt => opt.value === selectedValue);
+                    return option ? option.label : '-';
+                }
+            }
+            return '-';
+        }
+
+        function interpretSlider(value, labels) {
+            const val = parseInt(value, 10);
+            if (val < 20) return `fortemente inclinado para "${labels[0]}"`;
+            if (val < 45) return `com preferência por "${labels[0]}"`;
+            if (val <= 55) return `um equilíbrio entre "${labels[0]}" e "${labels[1]}"`;
+            if (val <= 80) return `com preferência por "${labels[1]}"`;
+            return `fortemente inclinado para "${labels[1]}"`;
+        }
+        
+        // Aplicar paleta de cores baseada na psicologia selecionada
+        function applyColorPalette(paletteKey) {
+            const palette = colorPalettes[paletteKey];
+            if (!palette) return;
+            
+            document.getElementById('primaryColor').value = palette.primary;
+            document.getElementById('primaryColorText').value = palette.primary;
+            document.getElementById('secondaryColor').value = palette.secondary;
+            document.getElementById('secondaryColorText').value = palette.secondary;
+            document.getElementById('accentColor').value = palette.accent;
+            document.getElementById('accentColorText').value = palette.accent;
+            document.getElementById('backgroundColor').value = palette.background;
+            document.getElementById('backgroundColorText').value = palette.background;
+            document.getElementById('textColor').value = palette.text;
+            document.getElementById('textColorText').value = palette.text;
+        }
+        
+        // --- ATUALIZAÇÃO DA PRÉVIA EM TEMPO REAL ---
+
+        function renderLayoutPreview(layoutType = 'standard') {
+            layoutPreview.dataset.layout = layoutType;
+            let html = '';
+
+            switch (layoutType) {
+                case 'sidebar':
+                    html = `
+                        <div class="preview-header">Cabeçalho</div>
+                        <div class="preview-nav">Navegação</div>
+                        <div class="preview-hero">Destaque</div>
+                        <div class="preview-content">
+                            <div class="preview-sidebar">Sidebar</div>
+                            <div class="preview-main">Conteúdo Principal</div>
+                        </div>
+                        <div class="preview-footer">Rodapé</div>
+                    `;
+                    break;
+                case 'fullscreen':
+                    html = `
+                        <div class="preview-hero">Destaque em Tela Cheia</div>
+                    `;
+                    break;
+                case 'magazine':
+                    html = `
+                        <div class="preview-header">Cabeçalho</div>
+                        <div class="preview-nav">Navegação</div>
+                        <div class="preview-hero">Destaque</div>
+                        <div class="preview-content">
+                            <div class="preview-main">Conteúdo Principal (2 col)</div>
+                            <div class="preview-sidebar">Conteúdo Secundário</div>
+                        </div>
+                        <div class="preview-footer">Rodapé</div>
+                    `;
+                    break;
+                case 'dashboard':
+                    html = `
+                        <div class="preview-header">Cabeçalho (App)</div>
+                        <div class="preview-content">
+                            <div class="preview-sidebar">Menu Lateral</div>
+                            <div class="preview-main">Dashboard / Conteúdo</div>
+                        </div>
+                    `;
+                    break;
+                case 'asymmetric':
+                    html = `
+                        <div class="preview-header">Cabeçalho</div>
+                        <div class="preview-nav">Navegação</div>
+                        <div class="preview-content">
+                            <div class="preview-hero">Destaque Assimétrico</div>
+                            <div class="preview-main">Conteúdo Flutuante</div>
+                        </div>
+                        <div class="preview-footer">Rodapé</div>
+                    `;
+                    break;
+                case 'standard':
+                default:
+                    html = `
+                        <div class="preview-header">Cabeçalho</div>
+                        <div class="preview-nav">Navegação</div>
+                        <div class="preview-hero">Destaque</div>
+                        <div class="preview-content">
+                            <div class="preview-main">Conteúdo Principal</div>
+                        </div>
+                        <div class="preview-footer">Rodapé</div>
+                    `;
+                    break;
+            }
+            layoutPreview.innerHTML = html;
+        }
+
+        function updatePreview() {
+            const answers = collectAnswers();
+            
+            // 1. Renderizar o layout
+            renderLayoutPreview(answers.layoutType);
+            
+            // 2. Coletar cores e textos
+            const primaryColor = answers.primaryColor || '#3b82f6';
+            const secondaryColor = answers.secondaryColor || '#1e40af';
+            const accentColor = answers.accentColor || '#60a5fa';
+            const backgroundColor = answers.backgroundColor || '#ffffff';
+            const textColor = answers.textColor || '#1f2937';
+            
+            const companyName = answers.companyName || 'Sua Empresa';
+            const goalLabel = getSelectedOptionLabel('primaryGoal', answers.primaryGoal);
+
+            // 3. Atualizar paleta de cores visual
+            document.getElementById('previewColor1').style.backgroundColor = primaryColor;
+            document.getElementById('previewColor2').style.backgroundColor = secondaryColor;
+            document.getElementById('previewColor3').style.backgroundColor = accentColor;
+            document.getElementById('previewColor4').style.backgroundColor = backgroundColor;
+            document.getElementById('previewColor5').style.backgroundColor = textColor;
+            
+            // 4. Aplicar cores e textos ao layout dinâmico
+            const header = layoutPreview.querySelector('.preview-header');
+            const nav = layoutPreview.querySelector('.preview-nav');
+            const hero = layoutPreview.querySelector('.preview-hero');
+            const content = layoutPreview.querySelector('.preview-content');
+            const sidebar = layoutPreview.querySelector('.preview-sidebar');
+            const main = layoutPreview.querySelector('.preview-main');
+            const footer = layoutPreview.querySelector('.preview-footer');
+
+            if (header) {
+                header.style.backgroundColor = primaryColor;
+                header.style.color = getContrastingColor(primaryColor);
+                header.textContent = companyName;
+            }
+            if (nav) {
+                nav.style.backgroundColor = secondaryColor;
+                nav.style.color = getContrastingColor(secondaryColor);
+                nav.textContent = 'Menu';
+            }
+            if (hero) {
+                hero.style.backgroundColor = accentColor;
+                hero.style.color = getContrastingColor(accentColor);
+                hero.textContent = goalLabel;
+            }
+            if (content) {
+                content.style.backgroundColor = backgroundColor;
+            }
+            if (sidebar) {
+                sidebar.style.backgroundColor = secondaryColor;
+                sidebar.style.opacity = '0.6';
+                sidebar.style.color = getContrastingColor(secondaryColor);
+            }
+            if (main) {
+                main.style.color = textColor;
+            }
+            if (footer) {
+                footer.style.backgroundColor = primaryColor;
+                footer.style.color = getContrastingColor(primaryColor);
+                footer.textContent = 'Rodapé';
+            }
+            
+            // 5. Atualizar texto da prévia
+            document.getElementById('previewType').textContent = getSelectedOptionLabel('companyArea', answers.companyArea);
+            document.getElementById('previewGoal').textContent = goalLabel;
+            document.getElementById('previewAudience').textContent = getSelectedOptionLabel('audienceDevice', answers.audienceDevice);
+            document.getElementById('previewStyle').textContent = getSelectedOptionLabel('inspirationStyle', answers.inspirationStyle);
+            document.getElementById('previewFeatures').textContent = (answers.featureList ? answers.featureList.length : 0) + ' Funções';
+        }
+        
+        function getContrastingColor(hexcolor) {
+            if (!hexcolor) return '#1f2937';
+            hexcolor = hexcolor.replace("#", "");
+            const r = parseInt(hexcolor.substr(0, 2), 16);
+            const g = parseInt(hexcolor.substr(2, 2), 16);
+            const b = parseInt(hexcolor.substr(4, 2), 16);
+            const yiq = ((r * 299) + (g * 587) + (b * 114)) / 1000;
+            return (yiq >= 128) ? '#1f2937' : '#ffffff';
+        }
+
+        // --- LÓGICA DE ANÁLISE E GERAÇÃO ---
+        function generateAnalysis() {
+            if (!validateForm()) return;
+
+            generateAnalysisBtn.disabled = true;
+            generateAnalysisBtn.textContent = 'Calculando...';
+
+            const answers = collectAnswers();
+            
+            // Análise de complexidade aprimorada
+            const complexityAnalysis = calculateComplexity(answers);
+            
+            // Gerar roadmap
+            const roadmap = generateRoadmap(complexityAnalysis.estimatedDays);
+            
+            // Gerar prompt inteligente
+            const llmPrompt = generateIntelligentPrompt(answers, complexityAnalysis);
+            
+            // Gerar XML para draw.io
+            const drawIoXml = generateDrawIoXml(answers, complexityAnalysis);
+            
+            const companyAreaLabel = getSelectedOptionLabel('companyArea', answers.companyArea);
+            const primaryGoalLabel = getSelectedOptionLabel('primaryGoal', answers.primaryGoal);
+            const inspirationLabel = getSelectedOptionLabel('inspirationStyle', answers.inspirationStyle);
+            
+            const summary = `O projeto para ${answers.companyName || 'sua empresa'} no ramo de **${companyAreaLabel.toLowerCase()}** visa **${primaryGoalLabel.toLowerCase()}**. A marca tem uma personalidade **${interpretSlider(answers.formalCasual, ['formal', 'casual'])}** e **${interpretSlider(answers.traditionalInnovative, ['tradicional', 'inovadora'])}**. O design deve seguir o arquétipo **"${inspirationLabel}"**, com um layout **${interpretSlider(answers.minimalistDetailed, ['minimalista', 'detalhado'])}** e uma paleta de cores **${getSelectedOptionLabel('colorPalette', answers.colorPalette).toLowerCase()}**. O público principal acessa via **${getSelectedOptionLabel('audienceDevice', answers.audienceDevice).toLowerCase()}**.`;
+
+            const analysisData = { 
+                answers, 
+                summary, 
+                complexityAnalysis,
+                roadmap, 
+                llmPrompt,
+                drawIoXml
+            };
+            
+            displayResults(analysisData);
+            
+            generateAnalysisBtn.disabled = false;
+            generateAnalysisBtn.textContent = 'Gerar Análise Estratégica';
+        }
+
+        // Função aprimorada de cálculo de complexidade
+        function calculateComplexity(answers) {
+            let totalWeight = 0;
+            const allFeatures = [
+                ...(questions['🛠️ Funcionalidades e Escopo'].find(q => q.id === 'featureList').options),
+                ...(questions['🚀 Extras e Integrações'].find(q => q.id === 'extrasList').options)
+            ];
+
+            const selectedFeatureIds = [...answers.featureList, ...answers.extrasList];
+            
+            const featureDetails = selectedFeatureIds.map(featureId => {
+                const featureData = allFeatures.find(opt => opt.value === featureId);
+                if (featureData) {
+                    totalWeight += featureData.weight;
+                    return { 
+                        name: featureData.label, 
+                        weight: featureData.weight,
+                        description: featureData.description 
+                    };
+                }
+                return null;
+            }).filter(Boolean);
+
+            // Cálculo de incerteza
+            const uncertaintyScore = calculateUncertaintyScore(answers);
+            
+            // Aplicar lógica fuzzy para estimativa de esforço
+            const urgencyMultiplier = 1 + (parseInt(answers.deadline, 10) / 100) * 0.5;
+            const budgetMultiplier = calculateBudgetMultiplier(answers.budget);
+            const complexityMultiplier = calculateComplexityMultiplier(totalWeight);
+            
+            // Estimativa base usando lógica fuzzy
+            const estimatedDays = Math.ceil(totalWeight * urgencyMultiplier * budgetMultiplier * complexityMultiplier * (1 + uncertaintyScore));
+            const estimatedWeeks = Math.ceil(estimatedDays / SPRINT_DAYS);
+            const cost = estimatedDays * DEV_DAILY_RATE_BRL;
+            
+            // Priorização de funcionalidades
+            const prioritizedFeatures = prioritizeFeatures(featureDetails, answers);
+            
+            // Análise de riscos
+            const riskLevel = calculateRiskLevel(totalWeight, uncertaintyScore, answers);
+            
+            return {
+                totalWeight,
+                estimatedDays,
+                estimatedWeeks,
+                cost,
+                featureDetails,
+                prioritizedFeatures,
+                uncertaintyScore,
+                riskLevel,
+                complexityLevel: getComplexityLevel(totalWeight)
+            };
+        }
+
+        // Cálculo de incerteza
+        function calculateUncertaintyScore(answers) {
+            let uncertainty = 0;
+            const maxUncertainty = 0.5;
+            
+            // Verificar se há campos não preenchidos
+            const totalRequiredQuestions = Object.values(questions).flat().filter(q => q.required).length;
+            const answeredRequiredQuestions = Object.values(questions).flat().filter(q => {
+                if (q.required) {
+                    if (q.type === 'radio') {
+                        return form.querySelector(`input[name="${q.id}"]:checked`);
+                    } else if (q.type === 'text') {
+                        return document.getElementById(q.id) && document.getElementById(q.id).value.trim();
+                    }
+                }
+                return false;
+            }).length;
+            
+            const completionRate = answeredRequiredQuestions / totalRequiredQuestions;
+            uncertainty += (1 - completionRate) * 0.3;
+            
+            // Verificar se há respostas neutras em sliders (indicando indecisão)
+            const sliderValues = Object.keys(answers).filter(key => 
+                questions['🎯 Público-Alvo'].some(q => q.id === key && q.type === 'slider') ||
+                questions['🎨 Estilo Visual'].some(q => q.id === key && q.type === 'slider')
+            );
+            
+            let neutralSliders = 0;
+            sliderValues.forEach(key => {
+                const value = parseInt(answers[key], 10);
+                if (value >= 40 && value <= 60) {
+                    neutralSliders++;
+                }
+            });
+            
+            if (sliderValues.length > 0) {
+                uncertainty += (neutralSliders / sliderValues.length) * 0.2;
+            }
+            
+            // Considerar urgência do projeto
+            const deadlineValue = parseInt(answers.deadline, 10);
+            if (deadlineValue > 80) {
+                uncertainty += 0.2;
+            }
+            
+            return Math.min(uncertainty, maxUncertainty);
+        }
+
+        // Multiplicador baseado no orçamento
+        function calculateBudgetMultiplier(budgetValue) {
+            const budget = parseInt(budgetValue, 10);
+            if (budget < 33) return 0.8;
+            if (budget < 66) return 1.0;
+            return 1.2;
+        }
+
+        // Multiplicador baseado na complexidade
+        function calculateComplexityMultiplier(totalWeight) {
+            if (totalWeight < 10) return 0.8;
+            if (totalWeight < 20) return 1.0;
+            if (totalWeight < 30) return 1.2;
+            return 1.5;
+        }
+
+        // Nível de complexidade
+        function getComplexityLevel(totalWeight) {
+            if (totalWeight < 10) return 'Baixa';
+            if (totalWeight < 20) return 'Média';
+            return 'Alta';
+        }
+
+        // Priorização de funcionalidades
+        function prioritizeFeatures(features, answers) {
+            return features.map(feature => {
+                let priority = 'medium';
+                
+                // Funcionalidades críticas para o objetivo principal
+                const primaryGoal = answers.primaryGoal;
+                if (
+                    (primaryGoal === 'sell' && feature.name.includes('Loja Virtual')) ||
+                    (primaryGoal === 'leads' && feature.name.includes('Formulário de Contato')) ||
+                    (primaryGoal === 'showcase' && feature.name.includes('Portfólio'))
+                ) {
+                    priority = 'high';
+                }
+                
+                // Funcionalidades com peso alto são prioritárias
+                if (feature.weight >= 8) {
+                    priority = 'high';
+                } else if (feature.weight <= 3) {
+                    priority = 'low';
+                }
+                
+                return {
+                    ...feature,
+                    priority
+                };
+            }).sort((a, b) => {
+                // Ordenar por prioridade (alta primeiro) e depois por peso
+                const priorityOrder = { high: 3, medium: 2, low: 1 };
+                if (priorityOrder[a.priority] !== priorityOrder[b.priority]) {
+                    return priorityOrder[b.priority] - priorityOrder[a.priority];
+                }
+                return b.weight - a.weight;
+            });
+        }
+
+        // Cálculo de nível de risco
+        function calculateRiskLevel(totalWeight, uncertaintyScore, answers) {
+            let riskScore = 0;
+            
+            // Complexidade alta aumenta o risco
+            if (totalWeight >= 20) riskScore += 0.4;
+            else if (totalWeight >= 10) riskScore += 0.2;
+            
+            // Incerteza alta aumenta o risco
+            riskScore += uncertaintyScore;
+            
+            // Prazos curtos aumentam o risco
+            const deadlineValue = parseInt(answers.deadline, 10);
+            if (deadlineValue > 80) riskScore += 0.3;
+            
+            // Projetos B2B geralmente têm mais risco
+            const audienceFocusValue = parseInt(answers.audienceFocus, 10);
+            if (audienceFocusValue > 70) riskScore += 0.1;
+            
+            if (riskScore >= 0.7) return 'high';
+            if (riskScore >= 0.4) return 'medium';
+            return 'low';
+        }
+
+        // Gerar roadmap baseado no prazo
+        function generateRoadmap(days) {
+            const roadmap = [];
+            const startDate = new Date();
+            
+            // Fases do desenvolvimento
+            const phases = [
+                { name: 'Planejamento e Análise', percent: 10 },
+                { name: 'Design e Prototipagem', percent: 20 },
+                { name: 'Desenvolvimento Front-end', percent: 30 },
+                { name: 'Desenvolvimento Back-end', percent: 20 },
+                { name: 'Testes e Ajustes', percent: 15 },
+                { name: 'Lançamento e Treinamento', percent: 5 }
+            ];
+            
+            let currentDate = new Date(startDate);
+            
+            phases.forEach(phase => {
+                const phaseDays = Math.max(1, Math.round(days * phase.percent / 100));
+                const endDate = new Date(currentDate);
+                endDate.setDate(endDate.getDate() + phaseDays);
+                
+                roadmap.push({
+                    phase: phase.name,
+                    duration: phaseDays,
+                    start: new Date(currentDate),
+                    end: new Date(endDate)
+                });
+                
+                currentDate = new Date(endDate);
+                currentDate.setDate(currentDate.getDate() + 1);
+            });
+            
+            return roadmap;
+        }
+
+        // Geração de prompt inteligente aprimorada
+        function generateIntelligentPrompt(answers, complexityAnalysis) {
+            const companyAreaLabel = getSelectedOptionLabel('companyArea', answers.companyArea);
+            const primaryGoalLabel = getSelectedOptionLabel('primaryGoal', answers.primaryGoal);
+            const companySizeLabel = getSelectedOptionLabel('companySize', answers.companySize);
+            const inspirationLabel = getSelectedOptionLabel('inspirationStyle', answers.inspirationStyle);
+            const colorPaletteLabel = getSelectedOptionLabel('colorPalette', answers.colorPalette);
+            const layoutLabel = getSelectedOptionLabel('layoutType', answers.layoutType);
+            
+            // Análise de personalidade da marca
+            const personalityTraits = analyzePersonality(answers);
+            
+            // Análise do público-alvo
+            const audienceProfile = analyzeAudience(answers);
+            
+            // Diretrizes de design
+            const designGuidelines = generateDesignGuidelines(answers);
+            
+            // Análise de requisitos funcionais e não funcionais
+            const requirementsAnalysis = analyzeRequirements(answers, complexityAnalysis);
+            
+            return {
+                instruction: "Crie o código completo em um único arquivo HTML para um site responsivo usando HTML, CSS e JavaScript. O design deve materializar todas as diretrizes acima, sendo coeso e profissional. Use imagens de placeholder (placehold.co) onde necessário. O código deve ser limpo e bem comentado, respeitando a arquitetura MVC mesmo em um único arquivo, separando claramente a estrutura HTML, os estilos CSS e a lógica JavaScript.",
+                projectContext: {
+                    company: {
+                        name: answers.companyName || 'Não informado',
+                        industry: companyAreaLabel,
+                        size: companySizeLabel,
+                        primaryGoal: primaryGoalLabel,
+                        secondaryGoals: answers.secondaryGoal ? answers.secondaryGoal.map(goal => 
+                            getSelectedOptionLabel('secondaryGoal', goal)
+                        ) : []
+                    },
+                    constraints: {
+                        budget: interpretSlider(answers.budget, ['essencial', 'intermediário', 'avançado']),
+                        deadline: interpretSlider(answers.deadline, ['flexível', 'normal', 'urgente']),
+                        hosting: getSelectedOptionLabel('hosting', answers.hosting),
+                        maintenance: getSelectedOptionLabel('maintenance', answers.maintenance)
+                    }
+                },
+                brandPersonality: personalityTraits,
+                targetAudience: audienceProfile,
+                designStrategy: {
+                    inspiration: inspirationLabel,
+                    colorPsychology: colorPaletteLabel,
+                    layout: layoutLabel,
+                    guidelines: designGuidelines,
+                    colorScheme: {
+                        primary: answers.primaryColor || '#3b82f6',
+                        secondary: answers.secondaryColor || '#1e40af',
+                        accent: answers.accentColor || '#60a5fa',
+                        background: answers.backgroundColor || '#ffffff',
+                        text: answers.textColor || '#1f2937'
+                    }
+                },
+                technicalRequirements: requirementsAnalysis,
+                developmentPlan: {
+                    complexity: complexityAnalysis.complexityLevel,
+                    estimatedEffort: `${complexityAnalysis.estimatedDays} dias (${complexityAnalysis.estimatedWeeks} semanas)`,
+                    estimatedCost: `R$ ${complexityAnalysis.cost.toFixed(2)}`,
+                    riskLevel: complexityAnalysis.riskLevel,
+                    uncertaintyScore: `${(complexityAnalysis.uncertaintyScore * 100).toFixed(0)}%`,
+                    prioritizedFeatures: complexityAnalysis.prioritizedFeatures.map(f => ({
+                        name: f.name,
+                        priority: f.priority,
+                        weight: f.weight,
+                        description: f.description
+                    }))
+                },
+                additionalNotes: answers.additionalNotes || 'Nenhuma observação adicional'
+            };
+        }
+
+        // Análise de personalidade da marca
+        function analyzePersonality(answers) {
+            return {
+                tone: interpretSlider(answers.formalCasual, ['formal e corporativa', 'casual e próxima']),
+                approach: interpretSlider(answers.seriousFun, ['séria e direta', 'leve e divertida']),
+                style: interpretSlider(answers.traditionalInnovative, ['tradicional e confiável', 'moderna e ousada']),
+                positioning: interpretSlider(answers.luxuryAffordable, ['premium e de luxo', 'acessível e popular']),
+                reach: interpretSlider(answers.localGlobal, ['local/regional', 'global/internacional'])
+            };
+        }
+
+        // Análise do público-alvo
+        function analyzeAudience(answers) {
+            const interests = answers.audienceInterests ? 
+                answers.audienceInterests.map(interest => 
+                    getSelectedOptionLabel('audienceInterests', interest)
+                ) : [];
+                
+            return {
+                gender: getSelectedOptionLabel('audienceGender', answers.audienceGender),
+                device: getSelectedOptionLabel('audienceDevice', answers.audienceDevice),
+                focus: interpretSlider(answers.audienceFocus, ['B2C (Consumidor Final)', 'B2B (Outras Empresas)']),
+                age: interpretSlider(answers.audienceAge, ['jovem, antenado', 'maduro, decidido']),
+                techSavviness: interpretSlider(answers.audienceTechSavvy, ['busca simplicidade', 'aprecia tecnologia']),
+                income: interpretSlider(answers.audienceIncome, ['baixo/médio', 'alto']),
+                interests: interests
+            };
+        }
+
+        // Geração de diretrizes de design
+        function generateDesignGuidelines(answers) {
+            return {
+                informationDensity: interpretSlider(answers.minimalistDetailed, ['layout minimalista com espaços de respiro', 'layout rico em informações e detalhes']),
+                colorScheme: interpretSlider(answers.darkLight, ['tema escuro (dark mode)', 'tema claro (light mode)']),
+                visualLanguage: interpretSlider(answers.photosIllustrations, ['uso de fotografias reais e impactantes', 'uso de ilustrações, ícones e gráficos']),
+                layoutStructure: interpretSlider(answers.layoutStyle, ['linear e padrão', 'quebrado e experimental']),
+                animationLevel: interpretSlider(answers.animationLevel, ['estático e sóbrio', 'dinâmico e interativo'])
+            };
+        }
+
+        // Análise de requisitos funcionais e não funcionais
+        function analyzeRequirements(answers, complexityAnalysis) {
+            const functionalReqs = complexityAnalysis.featureDetails.map(f => ({
+                name: f.name,
+                description: f.description,
+                complexity: f.weight
+            }));
+            
+            const nonFunctionalReqs = [];
+            
+            // Requisitos não funcionais baseados nas escolhas de design
+            if (parseInt(answers.animationLevel, 10) > 70) {
+                nonFunctionalReqs.push({
+                    type: 'Performance',
+                    requirement: 'Animações fluidas e responsivas',
+                    priority: 'medium'
+                });
+            }
+            
+            if (answers.audienceDevice === 'mobile') {
+                nonFunctionalReqs.push({
+                    type: 'Usability',
+                    requirement: 'Design totalmente responsivo para dispositivos móveis',
+                    priority: 'high'
+                });
+            }
+            
+            if (parseInt(answers.darkLight, 10) < 30) {
+                nonFunctionalReqs.push({
+                    type: 'Accessibility',
+                    requirement: 'Suporte completo a modo escuro',
+                    priority: 'medium'
+                });
+            }
+            
+            return {
+                functional: functionalReqs,
+                nonFunctional: nonFunctionalReqs
+            };
+        }
+
+        // Gerar XML para draw.io
+        function generateDrawIoXml(answers, complexityAnalysis) {
+            const companyName = answers.companyName || 'Projeto Web';
+            const layoutType = answers.layoutType || 'standard';
+            
+            // Mapeamento de layout para estrutura XML
+            const layoutStructures = {
+                standard: [
+                    { id: '1', value: 'Cabeçalho', style: 'rounded=1;whiteSpace=wrap;html=1;', x: 100, y: 50, width: 600, height: 60 },
+                    { id: '2', value: 'Navegação', style: 'rounded=1;whiteSpace=wrap;html=1;', x: 100, y: 130, width: 600, height: 40 },
+                    { id: '3', value: 'Conteúdo Principal', style: 'rounded=1;whiteSpace=wrap;html=1;', x: 100, y: 190, width: 600, height: 300 },
+                    { id: '4', value: 'Rodapé', style: 'rounded=1;whiteSpace=wrap;html=1;', x: 100, y: 510, width: 600, height: 60 }
+                ],
+                sidebar: [
+                    { id: '1', value: 'Cabeçalho', style: 'rounded=1;whiteSpace=wrap;html=1;', x: 100, y: 50, width: 600, height: 60 },
+                    { id: '2', value: 'Navegação', style: 'rounded=1;whiteSpace=wrap;html=1;', x: 100, y: 130, width: 600, height: 40 },
+                    { id: '3', value: 'Conteúdo Principal', style: 'rounded=1;whiteSpace=wrap;html=1;', x: 250, y: 190, width: 450, height: 300 },
+                    { id: '4', value: 'Sidebar', style: 'rounded=1;whiteSpace=wrap;html=1;', x: 100, y: 190, width: 130, height: 300 },
+                    { id: '5', value: 'Rodapé', style: 'rounded=1;whiteSpace=wrap;html=1;', x: 100, y: 510, width: 600, height: 60 }
+                ],
+                fullscreen: [
+                    { id: '1', value: 'Conteúdo em Tela Cheia', style: 'rounded=1;whiteSpace=wrap;html=1;', x: 100, y: 50, width: 600, height: 520 }
+                ],
+                magazine: [
+                    { id: '1', value: 'Cabeçalho', style: 'rounded=1;whiteSpace=wrap;html=1;', x: 100, y: 50, width: 600, height: 60 },
+                    { id: '2', value: 'Navegação', style: 'rounded=1;whiteSpace=wrap;html=1;', x: 100, y: 130, width: 600, height: 40 },
+                    { id: '3', value: 'Destaque', style: 'rounded=1;whiteSpace=wrap;html=1;', x: 100, y: 190, width: 600, height: 100 },
+                    { id: '4', value: 'Conteúdo Principal', style: 'rounded=1;whiteSpace=wrap;html=1;', x: 100, y: 310, width: 350, height: 200 },
+                    { id: '5', value: 'Conteúdo Secundário', style: 'rounded=1;whiteSpace=wrap;html=1;', x: 470, y: 310, width: 230, height: 200 },
+                    { id: '6', value: 'Rodapé', style: 'rounded=1;whiteSpace=wrap;html=1;', x: 100, y: 530, width: 600, height: 60 }
+                ]
+            };
+            
+            const structure = layoutStructures[layoutType] || layoutStructures.standard;
+            
+            // Gerar XML
+            let xml = `<?xml version="1.0" encoding="UTF-8"?>
+<mxfile host="app.diagrams.net">
+    <diagram name="${companyName}" id="layout-diagram">
+        <mxGraphModel dx="1426" dy="881" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+            <root>
+                <mxCell id="0" />
+                <mxCell id="1" parent="0" />`;
+                
+            structure.forEach(item => {
+                xml += `
+                <mxCell id="${item.id}" value="${item.value}" style="${item.style}" vertex="1" parent="1">
+                    <mxGeometry x="${item.x}" y="${item.y}" width="${item.width}" height="${item.height}" as="geometry" />
+                </mxCell>`;
+            });
+                
+            xml += `
+            </root>
+        </mxGraphModel>
+    </diagram>
+</mxfile>`;
+            
+            return xml;
+        }
+
+        // Mostrar mensagem de sucesso
+        function showSuccessMessage() {
+            successMessage.classList.add('show');
+            setTimeout(() => {
+                successMessage.classList.remove('show');
+            }, 3000);
+        }
+
+        // --- RENDERIZAÇÃO DOS RESULTADOS ---
+        function displayResults(data) {
+            // Formatar data para exibição
+            function formatDate(date) {
+                return date.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
+            }
+
+            // Gerar indicador de risco
+            function getRiskIndicator(riskLevel) {
+                const riskClasses = {
+                    low: 'risk-low',
+                    medium: 'risk-medium',
+                    high: 'risk-high'
+                };
+                const riskLabels = {
+                    low: 'Baixo',
+                    medium: 'Médio',
+                    high: 'Alto'
+                };
+                return `<span class="risk-indicator ${riskClasses[riskLevel]}"></span>${riskLabels[riskLevel]}`;
+            }
+
+            // Gerar indicador de prioridade
+            function getPriorityBadge(priority) {
+                const priorityClasses = {
+                    high: 'priority-high',
+                    medium: 'priority-medium',
+                    low: 'priority-low'
+                };
+                const priorityLabels = {
+                    high: 'Alta',
+                    medium: 'Média',
+                    low: 'Baixa'
+                };
+                return `<span class="priority-tag ${priorityClasses[priority]}">${priorityLabels[priority]}</span>`;
+            }
+
+            // Posicionar indicador de complexidade
+            const complexityPosition = data.complexityAnalysis.totalWeight > 30 ? 100 : 
+                                     data.complexityAnalysis.totalWeight > 20 ? 75 :
+                                     data.complexityAnalysis.totalWeight > 10 ? 50 : 25;
+
+            resultsSection.innerHTML = `
+                <h2 class="text-3xl font-bold text-gray-800 mb-6 border-b pb-4">Análise Estratégica do Projeto</h2>
+                
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8 text-center">
+                    <div class="bg-gray-50 p-4 rounded-lg">
+                        <div class="result-icon mx-auto mb-2"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg></div>
+                        <p class="text-sm text-gray-500">Custo Estimado</p>
+                        <p class="text-xl font-bold">R$ ${data.complexityAnalysis.cost.toFixed(2)}</p>
+                    </div>
+                    <div class="bg-gray-50 p-4 rounded-lg">
+                        <div class="result-icon mx-auto mb-2"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg></div>
+                        <p class="text-sm text-gray-500">Prazo Estimado</p>
+                        <p class="text-xl font-bold">${data.complexityAnalysis.estimatedWeeks} semanas</p>
+                    </div>
+                    <div class="bg-gray-50 p-4 rounded-lg">
+                        <div class="result-icon mx-auto mb-2"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg></div>
+                        <p class="text-sm text-gray-500">Complexidade</p>
+                        <p class="text-xl font-bold">${data.complexityAnalysis.totalWeight} Pontos</p>
+                    </div>
+                </div>
+
+                <div class="space-y-6">
+                    <div>
+                        <h3 class="text-xl font-semibold text-blue-600 mb-2">Sumário da Visão</h3>
+                        <p class="bg-blue-50 p-4 rounded-lg">${data.summary}</p>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <h3 class="text-xl font-semibold text-blue-600 mb-2">Análise de Complexidade</h3>
+                            <div class="bg-gray-50 p-4 rounded-lg">
+                                <div class="complexity-meter">
+                                    <div class="complexity-indicator" style="left: ${complexityPosition}%"></div>
+                                </div>
+                                <div class="flex justify-between text-sm text-gray-600 mt-2">
+                                    <span>Baixa</span>
+                                    <span>Média</span>
+                                    <span>Alta</span>
+                                </div>
+                                <div class="mt-4">
+                                    <p><strong>Nível:</strong> ${data.complexityAnalysis.complexityLevel}</p>
+                                    <p><strong>Pontuação de Incerteza:</strong> ${(data.complexityAnalysis.uncertaintyScore * 100).toFixed(0)}%</p>
+                                    <p><strong>Nível de Risco:</strong> ${getRiskIndicator(data.complexityAnalysis.riskLevel)}</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <h3 class="text-xl font-semibold text-blue-600 mb-2">Detalhes do Projeto</h3>
+                            <div class="bg-gray-50 p-4 rounded-lg space-y-2">
+                                <div class="flex justify-between">
+                                    <span class="text-gray-600">Empresa:</span>
+                                    <span class="font-medium">${data.answers.companyName || 'Não informado'}</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-gray-600">Porte:</span>
+                                    <span class="font-medium">${getSelectedOptionLabel('companySize', data.answers.companySize)}</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-gray-600">Hospedagem:</span>
+                                    <span class="font-medium">${getSelectedOptionLabel('hosting', data.answers.hosting)}</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-gray-600">Manutenção:</span>
+                                    <span class="font-medium">${getSelectedOptionLabel('maintenance', data.answers.maintenance)}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <h3 class="text-xl font-semibold text-blue-600 mb-2">Funcionalidades Priorizadas</h3>
+                        <div class="bg-gray-50 p-4 rounded-lg">
+                            ${data.complexityAnalysis.prioritizedFeatures.map(feature => `
+                                <div class="feature-card">
+                                    <div class="flex justify-between items-center">
+                                        <div>
+                                            <strong>${feature.name}</strong>
+                                            ${getPriorityBadge(feature.priority)}
+                                        </div>
+                                        <span class="text-sm text-gray-500">Peso: ${feature.weight}</span>
+                                    </div>
+                                    <p class="text-sm text-gray-600 mt-1">${feature.description}</p>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <h3 class="text-xl font-semibold text-blue-600 mb-2">Roadmap de Desenvolvimento</h3>
+                        <div class="roadmap-timeline">
+                            ${data.roadmap.map(item => `
+                                <div class="timeline-item">
+                                    <div class="timeline-date">${formatDate(item.start)} - ${formatDate(item.end)}</div>
+                                    <div class="timeline-content">
+                                        <strong>${item.phase}</strong><br>
+                                        <span>${item.duration} dia${item.duration > 1 ? 's' : ''}</span>
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <h3 class="text-xl font-semibold text-blue-600 mb-2">Prompt Estratégico para LLM</h3>
+                        <div class="bg-gray-100 p-4 rounded-lg">
+                            <div class="mb-4 p-3 bg-blue-50 rounded-lg">
+                                <h4 class="font-bold text-blue-700 mb-2">Instrução Principal:</h4>
+                                <p class="text-sm">${data.llmPrompt.instruction}</p>
+                            </div>
+                            <pre class="text-sm whitespace-pre-wrap overflow-x-auto">${JSON.stringify(data.llmPrompt, null, 2)}</pre>
+                        </div>
+                    </div>
+                </div>
+                <div class="text-center mt-10">
+                    <div class="export-options">
+                        <button type="button" id="exportJsonBtn" class="export-btn export-json">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                            Exportar JSON
+                        </button>
+                        <button type="button" id="exportXmlBtn" class="export-btn export-xml">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                            Exportar XML (draw.io)
+                        </button>
+                        <button type="button" id="exportMarkdownBtn" class="export-btn export-md">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                            Exportar Markdown
+                        </button>
+                    </div>
+                    <button type="button" id="editBtn" class="bg-gray-600 text-white font-bold py-3 px-8 rounded-full shadow-lg hover:bg-gray-700 transition-all duration-300 transform hover:scale-105 mt-4">
+                        Editar Respostas
+                    </button>
+                </div>
+            `;
+            resultsSection.classList.remove('hidden');
+            resultsSection.scrollIntoView({ behavior: 'smooth' });
+            
+            // Event listeners para exportação
+            document.getElementById('exportJsonBtn').onclick = () => {
+                const dataStr = JSON.stringify(data, null, 2);
+                downloadFile(dataStr, 'briefing.json', 'application/json');
+                showSuccessMessage();
+            };
+
+            document.getElementById('exportXmlBtn').onclick = () => {
+                downloadFile(data.drawIoXml, 'layout-diagram.drawio', 'application/xml');
+                showSuccessMessage();
+            };
+
+            document.getElementById('exportMarkdownBtn').onclick = () => {
+                const markdown = generateMarkdownReport(data);
+                downloadFile(markdown, 'briefing-report.md', 'text/markdown');
+                showSuccessMessage();
+            };
+
+            document.getElementById('editBtn').onclick = () => {
+                resultsSection.classList.add('hidden');
+                showSection(0);
+            };
+        }
+
+        // Função para gerar relatório em Markdown
+        function generateMarkdownReport(data) {
+            const answers = data.answers;
+            
+            let markdown = `# Briefing do Projeto: ${answers.companyName || 'Projeto Web'}\n\n`;
+            markdown += `**Data:** ${new Date().toLocaleDateString('pt-BR')}\n\n`;
+            
+            markdown += `## Sumário Executivo\n\n`;
+            markdown += `${data.summary}\n\n`;
+            
+            markdown += `## Detalhes do Projeto\n\n`;
+            markdown += `- **Empresa:** ${answers.companyName || 'Não informado'}\n`;
+            markdown += `- **Ramo:** ${getSelectedOptionLabel('companyArea', answers.companyArea)}\n`;
+            markdown += `- **Porte:** ${getSelectedOptionLabel('companySize', answers.companySize)}\n`;
+            markdown += `- **Objetivo Principal:** ${getSelectedOptionLabel('primaryGoal', answers.primaryGoal)}\n\n`;
+            
+            markdown += `## Análise de Complexidade\n\n`;
+            markdown += `- **Nível de Complexidade:** ${data.complexityAnalysis.complexityLevel}\n`;
+            markdown += `- **Pontuação Total:** ${data.complexityAnalysis.totalWeight} pontos\n`;
+            markdown += `- **Prazo Estimado:** ${data.complexityAnalysis.estimatedWeeks} semanas\n`;
+            markdown += `- **Custo Estimado:** R$ ${data.complexityAnalysis.cost.toFixed(2)}\n`;
+            markdown += `- **Nível de Risco:** ${data.complexityAnalysis.riskLevel}\n\n`;
+            
+            markdown += `## Funcionalidades Priorizadas\n\n`;
+            data.complexityAnalysis.prioritizedFeatures.forEach(feature => {
+                const priorityIcon = feature.priority === 'high' ? '🔴' : feature.priority === 'medium' ? '🟡' : '🟢';
+                markdown += `- ${priorityIcon} **${feature.name}** (Peso: ${feature.weight}) - ${feature.description}\n`;
+            });
+            
+            markdown += `\n## Roadmap de Desenvolvimento\n\n`;
+            data.roadmap.forEach(item => {
+                const startDate = item.start.toLocaleDateString('pt-BR');
+                const endDate = item.end.toLocaleDateString('pt-BR');
+                markdown += `- **${item.phase}** (${item.duration} dias): ${startDate} - ${endDate}\n`;
+            });
+            
+            return markdown;
+        }
+
+        // Função para download de arquivo
+        function downloadFile(content, fileName, contentType) {
+            const blob = new Blob([content], { type: contentType });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = fileName;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+        }
+
+        // --- PRESETS PRÉ-DEFINIDOS ---
+        function applyPreset(presetType) {
+            // Limpar seleções anteriores
+            document.querySelectorAll('input[type="radio"]').forEach(radio => radio.checked = false);
+            document.querySelectorAll('input[type="checkbox"]').forEach(checkbox => checkbox.checked = false);
+            document.querySelectorAll('input[type="range"]').forEach(slider => slider.value = 50);
+            
+            // Aplicar configurações baseadas no preset
+            switch(presetType) {
+                case 'landing':
+                    document.querySelector('input[name="companyArea"][value="services"]').checked = true;
+                    document.querySelector('input[name="primaryGoal"][value="leads"]').checked = true;
+                    document.querySelector('input[name="audienceDevice"][value="mobile"]').checked = true;
+                    document.querySelector('input[name="inspirationStyle"][value="minimalist"]').checked = true;
+                    document.querySelector('input[name="colorPalette"][value="cool"]').checked = true;
+                    document.querySelector('input[name="layoutType"][value="standard"]').checked = true;
+                    document.querySelector('input[name="featureList"][value="home"]').checked = true;
+                    document.querySelector('input[name="featureList"][value="contact"]').checked = true;
+                    document.getElementById('budget').value = 40;
+                    document.getElementById('deadline').value = 70;
+                    // Aplicar paleta de cores
+                    applyColorPalette('cool');
+                    break;
+                    
+                case 'ecommerce':
+                    document.querySelector('input[name="companyArea"][value="retail"]').checked = true;
+                    document.querySelector('input[name="primaryGoal"][value="sell"]').checked = true;
+                    document.querySelector('input[name="audienceDevice"][value="mobile"]').checked = true;
+                    document.querySelector('input[name="inspirationStyle"][value="vibrant"]').checked = true;
+                    document.querySelector('input[name="colorPalette"][value="warm"]').checked = true;
+                    document.querySelector('input[name="layoutType"][value="standard"]').checked = true;
+                    document.querySelectorAll('input[name="featureList"]').forEach(cb => {
+                        if(['home', 'services', 'ecommerce', 'contact'].includes(cb.value)) cb.checked = true;
+                    });
+                    document.getElementById('budget').value = 80;
+                    document.getElementById('deadline').value = 60;
+                    // Aplicar paleta de cores
+                    applyColorPalette('warm');
+                    break;
+                    
+                case 'portfolio':
+                    document.querySelector('input[name="companyArea"][value="services"]').checked = true;
+                    document.querySelector('input[name="primaryGoal"][value="showcase"]').checked = true;
+                    document.querySelector('input[name="audienceDevice"][value="desktop"]').checked = true;
+                    document.querySelector('input[name="inspirationStyle"][value="editorial"]').checked = true;
+                    document.querySelector('input[name="colorPalette"][value="mono"]').checked = true;
+                    document.querySelector('input[name="layoutType"][value="magazine"]').checked = true;
+                    document.querySelectorAll('input[name="featureList"]').forEach(cb => {
+                        if(['home', 'about', 'portfolio', 'contact'].includes(cb.value)) cb.checked = true;
+                    });
+                    document.getElementById('budget').value = 30;
+                    document.getElementById('deadline').value = 40;
+                    // Aplicar paleta de cores
+                    applyColorPalette('mono');
+                    break;
+                    
+                case 'corporate':
+                    document.querySelector('input[name="companyArea"][value="industry"]').checked = true;
+                    document.querySelector('input[name="primaryGoal"][value="inform"]').checked = true;
+                    document.querySelector('input[name="audienceDevice"][value="desktop"]').checked = true;
+                    document.querySelector('input[name="inspirationStyle"][value="corporate"]').checked = true;
+                    document.querySelector('input[name="colorPalette"][value="cool"]').checked = true;
+                    document.querySelector('input[name="layoutType"][value="sidebar"]').checked = true;
+                    document.querySelectorAll('input[name="featureList"]').forEach(cb => {
+                        if(['home', 'about', 'services', 'blog', 'contact'].includes(cb.value)) cb.checked = true;
+                    });
+                    document.getElementById('budget').value = 60;
+                    document.getElementById('deadline').value = 50;
+                    // Aplicar paleta de cores
+                    applyColorPalette('cool');
+                    break;
+            }
+            
+            // Atualizar UI
+            updateSliderLabels();
+            updatePreview();
+        }
+
+        // --- INICIALIZAÇÃO ---
+        renderForm();
+        updateSliderLabels();
+        updatePreview();
+        updateProgress();
+
+        // --- EVENT LISTENERS ---
+        form.addEventListener('input', (e) => {
+            if (e.target.type === 'range') updateSliderLabels();
+            if (e.target.type === 'color') {
+                // Atualizar o campo de texto correspondente
+                const textInput = document.getElementById(`${e.target.id}Text`);
+                if (textInput) {
+                    textInput.value = e.target.value;
+                }
+                updatePreview();
+            }
+            if (e.target.type === 'text' && e.target.id.includes('ColorText')) {
+                // Atualizar o campo de cor correspondente
+                const colorInput = document.getElementById(e.target.id.replace('Text', ''));
+                if (colorInput && /^#[0-9A-F]{6}$/i.test(e.target.value)) {
+                    colorInput.value = e.target.value;
+                    updatePreview();
+                }
+            }
+            updatePreview();
+        });
+
+        // Event listener para a pergunta de psicologia de cores
+        document.addEventListener('change', (e) => {
+            if (e.target.name === 'colorPalette') {
+                applyColorPalette(e.target.value);
+                updatePreview();
+            }
+        });
+
+        // Navegação entre seções
+        document.addEventListener('click', (e) => {
+            if (e.target.classList.contains('next-btn')) {
+                const nextSection = parseInt(e.target.dataset.next);
+                showSection(nextSection);
+            } else if (e.target.classList.contains('prev-btn')) {
+                const prevSection = parseInt(e.target.dataset.prev);
+                showSection(prevSection);
+            }
+        });
+        
+        generateAnalysisBtn.addEventListener('click', generateAnalysis);
+
+        privacyBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            privacyModal.classList.remove('hidden');
+            setTimeout(() => privacyModalContent.classList.remove('scale-95', 'opacity-0'), 10);
+        });
+        
+        const closeModal = () => {
+            privacyModalContent.classList.add('scale-95', 'opacity-0');
+            setTimeout(() => privacyModal.classList.add('hidden'), 200);
+        };
+        closeModalBtn.addEventListener('click', closeModal);
+        privacyModal.addEventListener('click', (e) => {
+            if(e.target === privacyModal) closeModal();
+        });
+
+        // Event listeners para presets
+        presetCards.forEach(card => {
+            card.addEventListener('click', () => {
+                // Remover classe active de todos os cards
+                presetCards.forEach(c => c.classList.remove('active'));
+                // Adicionar classe active ao card clicado
+                card.classList.add('active');
+                // Aplicar o preset
+                applyPreset(card.dataset.preset);
+            });
+        });
+
+    });
+    </script>
+<style>.ag-nav-back{position:fixed;top:12px;left:12px;z-index:9999;background:rgba(79,70,229,.9);color:#fff;border:none;border-radius:50px;padding:.4rem .9rem;font-size:.8rem;font-family:system-ui,sans-serif;font-weight:600;cursor:pointer;text-decoration:none;display:flex;align-items:center;gap:.35rem;box-shadow:0 2px 10px rgba(0,0,0,.25);backdrop-filter:blur(4px);transition:background .2s,transform .2s}.ag-nav-back:hover{background:rgba(55,48,163,.95);transform:translateY(-1px)}</style><a href="https://passosdomingues.github.io/webappshowcase/site/main.html" class="ag-nav-back" aria-label="Voltar ao índice">&#8592; Índice</a>
+</body>
+</html>

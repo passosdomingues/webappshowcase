@@ -1,0 +1,1866 @@
+<!--
+ * --------------------------------------------------------------
+ * BusAI — Transporte Coletivo Alfenas/MG
+ * Author: Rafael Passos Domingues
+ * Inspired by: Alfetur Transportes (alfetur.com.br/mapa)
+ * Last Update: 2026 Jun 18
+ * --------------------------------------------------------------
+-->
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="light">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+<meta name="description" content="BusAI — Horários e próximos ônibus do transporte coletivo de Alfenas-MG (Alfetur). Veja em tempo real quando passa o próximo ônibus na sua parada." />
+<meta name="author" content="Rafael Passos Domingues" />
+<meta name="theme-color" content="#00512a" />
+<title>BusAI — Ônibus Alfenas/MG</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Sora:wght@600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+
+<style>
+/* ═══════════════════════════════════════════════════════════════
+   DESIGN TOKENS
+═══════════════════════════════════════════════════════════════ */
+:root {
+  --green-900: #00512a;
+  --green-800: #006635;
+  --green-700: #007a40;
+  --green-600: #009241;
+  --green-500: #00a84c;
+  --green-400: #33c06e;
+  --green-100: #d4f5e2;
+  --green-50:  #edfaf4;
+
+  --blue-600: #1565c0;
+  --blue-500: #1e88e5;
+  --blue-100: #e3f2fd;
+
+  --amber-500: #f59e0b;
+  --red-500:   #ef4444;
+  --red-600:   #dc2626;
+
+  --surface:     #ffffff;
+  --surface-2:   #f4f7f5;
+  --surface-3:   #e8f2ec;
+  --border:      #d1e8da;
+  --text:        #1a2e22;
+  --text-2:      #4a6455;
+  --text-3:      #7a9a88;
+
+  --shadow-sm:  0 1px 3px rgba(0,82,42,.08);
+  --shadow:     0 4px 12px rgba(0,82,42,.12);
+  --shadow-lg:  0 8px 28px rgba(0,82,42,.16);
+  --radius:     12px;
+  --radius-sm:  8px;
+  --transition: .18s cubic-bezier(.4,0,.2,1);
+
+  --font: 'Inter', system-ui, sans-serif;
+  --font-display: 'Sora', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+}
+
+[data-theme="dark"] {
+  --surface:   #0d1f15;
+  --surface-2: #152b1e;
+  --surface-3: #1e3828;
+  --border:    #2a4a36;
+  --text:      #e0f0e8;
+  --text-2:    #94c4aa;
+  --text-3:    #5a8a70;
+  --green-50:  #0a1a10;
+  --green-100: #1a3a24;
+  --shadow:    0 4px 12px rgba(0,0,0,.4);
+  --shadow-lg: 0 8px 28px rgba(0,0,0,.5);
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   RESET & BASE
+═══════════════════════════════════════════════════════════════ */
+*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+
+body {
+  font-family: var(--font);
+  background: var(--surface-2);
+  color: var(--text);
+  line-height: 1.6;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  transition: background var(--transition), color var(--transition);
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   HEADER
+═══════════════════════════════════════════════════════════════ */
+header {
+  background: linear-gradient(135deg, var(--green-900) 0%, var(--green-700) 60%, var(--green-600) 100%);
+  color: white;
+  padding: 1rem 1.25rem 0;
+  box-shadow: 0 4px 20px rgba(0,82,42,.35);
+  position: relative;
+  z-index: 50;
+}
+
+.header-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  max-width: 1300px;
+  margin: 0 auto;
+  gap: 1rem;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: .6rem;
+}
+
+.brand-icon {
+  width: 42px;
+  height: 42px;
+  background: rgba(255,255,255,.15);
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.3rem;
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255,255,255,.2);
+}
+
+.brand h1 {
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  font-weight: 800;
+  letter-spacing: -.03em;
+  line-height: 1.1;
+}
+
+.brand small {
+  display: block;
+  font-size: .72rem;
+  font-weight: 500;
+  opacity: .75;
+  margin-top: .1rem;
+  letter-spacing: .01em;
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: .6rem;
+}
+
+#liveClock {
+  font-family: var(--font-mono);
+  font-size: 1.05rem;
+  font-weight: 700;
+  background: rgba(0,0,0,.2);
+  padding: .3rem .75rem;
+  border-radius: 8px;
+  letter-spacing: .05em;
+  border: 1px solid rgba(255,255,255,.12);
+}
+
+.icon-btn {
+  width: 38px;
+  height: 38px;
+  background: rgba(255,255,255,.12);
+  border: 1px solid rgba(255,255,255,.2);
+  border-radius: 8px;
+  color: white;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  transition: var(--transition);
+  backdrop-filter: blur(6px);
+}
+
+.icon-btn:hover { background: rgba(255,255,255,.22); }
+
+/* Search bar */
+.header-search {
+  max-width: 1300px;
+  margin: .9rem auto 0;
+  padding-bottom: .9rem;
+  display: flex;
+  gap: .5rem;
+}
+
+.search-wrap {
+  flex: 1;
+  position: relative;
+}
+
+.search-wrap input {
+  width: 100%;
+  padding: .7rem 2.8rem .7rem 2.8rem;
+  background: rgba(255,255,255,.14);
+  border: 1.5px solid rgba(255,255,255,.22);
+  border-radius: var(--radius-sm);
+  color: white;
+  font-family: var(--font);
+  font-size: .95rem;
+  backdrop-filter: blur(8px);
+  transition: var(--transition);
+}
+
+.search-wrap input::placeholder { color: rgba(255,255,255,.65); }
+.search-wrap input:focus { outline: none; border-color: rgba(255,255,255,.5); background: rgba(255,255,255,.2); }
+
+.search-wrap .si { position: absolute; left: .85rem; top:50%; transform:translateY(-50%); opacity:.75; }
+.search-wrap .sc { position:absolute; right:.75rem; top:50%; transform:translateY(-50%); background:none; border:none; color:white; opacity:.75; cursor:pointer; }
+.search-wrap .sc:hover { opacity:1; }
+
+/* Autocomplete dropdown */
+#searchDropdown {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0; right: 0;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-lg);
+  z-index: 200;
+  overflow: hidden;
+  max-height: 260px;
+  overflow-y: auto;
+  display: none;
+}
+
+#searchDropdown.open { display: block; }
+
+.sd-item {
+  padding: .65rem 1rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: .6rem;
+  font-size: .9rem;
+  transition: background var(--transition);
+  border-bottom: 1px solid var(--border);
+}
+
+.sd-item:last-child { border-bottom: none; }
+.sd-item:hover, .sd-item.active { background: var(--green-50); color: var(--green-700); }
+
+.sd-badge {
+  padding: .15rem .5rem;
+  border-radius: 20px;
+  font-size: .72rem;
+  font-weight: 700;
+  background: var(--green-600);
+  color: white;
+  flex-shrink: 0;
+}
+
+/* Line pills nav */
+.lines-nav-wrap {
+  background: rgba(0,0,0,.15);
+  border-top: 1px solid rgba(255,255,255,.08);
+  padding: .4rem 0;
+}
+
+.lines-nav {
+  max-width: 1300px;
+  margin: 0 auto;
+  padding: 0 1.25rem;
+  display: flex;
+  gap: .4rem;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  align-items: center;
+}
+
+.lines-nav::-webkit-scrollbar { display: none; }
+
+.line-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: .35rem;
+  padding: .3rem .75rem;
+  border-radius: 50px;
+  border: 1.5px solid rgba(255,255,255,.25);
+  background: rgba(255,255,255,.1);
+  color: white;
+  font-size: .8rem;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: var(--transition);
+  flex-shrink: 0;
+}
+
+.line-pill .dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  display: inline-block;
+  flex-shrink: 0;
+}
+
+.line-pill:hover { background: rgba(255,255,255,.22); border-color: rgba(255,255,255,.45); }
+.line-pill.active { background: white; color: var(--green-800); border-color: white; }
+
+.pill-loc-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: .35rem;
+  padding: .3rem .75rem;
+  border-radius: 50px;
+  border: 1.5px solid rgba(255,255,255,.45);
+  background: rgba(255,255,255,.18);
+  color: white;
+  font-size: .8rem;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: var(--transition);
+  flex-shrink: 0;
+}
+
+.pill-loc-btn:hover { background: rgba(255,255,255,.3); }
+.pill-loc-btn.locating { animation: locPulse .9s infinite; }
+
+@keyframes locPulse {
+  0%,100% { opacity:1; }
+  50% { opacity:.5; }
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   MAIN LAYOUT
+═══════════════════════════════════════════════════════════════ */
+main {
+  flex: 1;
+  display: grid;
+  grid-template-columns: 1fr 380px;
+  grid-template-rows: 1fr;
+  gap: 0;
+  max-width: 1300px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 1.25rem;
+  gap: 1.25rem;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   MAP
+═══════════════════════════════════════════════════════════════ */
+#map {
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  border: 1px solid var(--border);
+  min-height: 480px;
+  position: relative;
+  z-index: 1;
+  overflow: hidden;
+}
+
+.map-fab-group {
+  position: absolute;
+  bottom: 14px;
+  right: 14px;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.map-fab {
+  width: 40px;
+  height: 40px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  box-shadow: var(--shadow);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: var(--transition);
+  color: var(--green-700);
+  font-size: 1rem;
+}
+
+.map-fab:hover { background: var(--green-50); box-shadow: var(--shadow-lg); transform: scale(1.06); }
+
+/* ═══════════════════════════════════════════════════════════════
+   INFO PANEL
+═══════════════════════════════════════════════════════════════ */
+#panel {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  overflow-y: auto;
+  max-height: calc(100vh - 200px);
+  scrollbar-width: thin;
+  scrollbar-color: var(--green-400) transparent;
+}
+
+#panel::-webkit-scrollbar { width: 4px; }
+#panel::-webkit-scrollbar-thumb { background: var(--green-400); border-radius: 10px; }
+
+/* ─── Hero countdown card ─── */
+.hero-card {
+  background: linear-gradient(135deg, var(--green-800) 0%, var(--green-600) 100%);
+  border-radius: var(--radius);
+  padding: 1.2rem 1.25rem;
+  color: white;
+  box-shadow: var(--shadow-lg);
+  position: relative;
+  overflow: hidden;
+}
+
+.hero-card::before {
+  content: '';
+  position: absolute;
+  top: -30%; right: -10%;
+  width: 200px; height: 200px;
+  background: rgba(255,255,255,.06);
+  border-radius: 50%;
+}
+
+.hero-card::after {
+  content: '';
+  position: absolute;
+  bottom: -40%; left: -5%;
+  width: 160px; height: 160px;
+  background: rgba(255,255,255,.04);
+  border-radius: 50%;
+}
+
+.hero-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: .75rem;
+  position: relative;
+  z-index: 1;
+}
+
+.hero-line-badge {
+  display: flex;
+  align-items: center;
+  gap: .4rem;
+  font-size: .8rem;
+  font-weight: 700;
+  background: rgba(0,0,0,.2);
+  padding: .25rem .65rem;
+  border-radius: 50px;
+}
+
+.day-badge {
+  font-size: .73rem;
+  font-weight: 700;
+  padding: .2rem .6rem;
+  border-radius: 50px;
+  background: rgba(255,255,255,.18);
+}
+
+.hero-time-main {
+  position: relative;
+  z-index: 1;
+  text-align: center;
+  margin: .5rem 0;
+}
+
+.hero-countdown {
+  font-family: var(--font-display);
+  font-size: 3.2rem;
+  font-weight: 800;
+  letter-spacing: -.04em;
+  line-height: 1;
+  text-shadow: 0 2px 12px rgba(0,0,0,.3);
+}
+
+.hero-countdown.urgent { animation: countdownPulse 1s ease-in-out infinite; color: #ffda6a; }
+
+@keyframes countdownPulse {
+  0%,100% { transform: scale(1); }
+  50% { transform: scale(1.04); }
+}
+
+.hero-next-label {
+  font-size: .8rem;
+  opacity: .8;
+  margin-top: .15rem;
+  font-weight: 500;
+}
+
+.hero-next-time {
+  font-family: var(--font-mono);
+  font-size: 1.2rem;
+  font-weight: 700;
+  margin-top: .2rem;
+}
+
+.hero-stop {
+  position: relative;
+  z-index: 1;
+  margin-top: .75rem;
+  padding-top: .65rem;
+  border-top: 1px solid rgba(255,255,255,.18);
+  font-size: .83rem;
+  opacity: .9;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: .3rem;
+}
+
+.hero-stop span { display: flex; align-items: center; gap: .3rem; }
+
+.walk-badge {
+  background: rgba(255,255,255,.18);
+  padding: .15rem .5rem;
+  border-radius: 50px;
+  font-size: .75rem;
+  font-weight: 700;
+}
+
+/* ─── Panel section card ─── */
+.panel-card {
+  background: var(--surface);
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+}
+
+.panel-card-header {
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+  padding: .8rem 1rem;
+  border-bottom: 1px solid var(--border);
+  font-weight: 700;
+  font-size: .88rem;
+  color: var(--text);
+  background: var(--surface-2);
+}
+
+.panel-card-header i { color: var(--green-600); font-size: .95rem; }
+
+/* ─── Multi-line upcoming ─── */
+.upcoming-list {
+  list-style: none;
+}
+
+.upcoming-item {
+  display: flex;
+  align-items: center;
+  gap: .65rem;
+  padding: .7rem 1rem;
+  border-bottom: 1px solid var(--border);
+  cursor: pointer;
+  transition: background var(--transition);
+}
+
+.upcoming-item:last-child { border-bottom: none; }
+.upcoming-item:hover { background: var(--green-50); }
+.upcoming-item.active-line { background: var(--green-50); }
+
+.upcoming-line-dot {
+  width: 10px; height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.upcoming-line-name {
+  flex: 1;
+  font-size: .85rem;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.upcoming-line-sub {
+  font-size: .73rem;
+  color: var(--text-2);
+  font-weight: 400;
+}
+
+.upcoming-eta {
+  text-align: right;
+  flex-shrink: 0;
+}
+
+.eta-mins {
+  font-family: var(--font-mono);
+  font-size: .95rem;
+  font-weight: 700;
+  color: var(--green-700);
+  display: block;
+}
+
+.eta-time {
+  font-size: .72rem;
+  color: var(--text-3);
+}
+
+.eta-urgent .eta-mins { color: var(--red-500); }
+.eta-gone { opacity: .45; }
+
+/* ─── Schedule timeline ─── */
+.schedule-timeline {
+  padding: .5rem 0;
+  max-height: 260px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--green-400) transparent;
+}
+
+.schedule-timeline::-webkit-scrollbar { width: 3px; }
+.schedule-timeline::-webkit-scrollbar-thumb { background: var(--green-400); border-radius: 10px; }
+
+.tl-item {
+  display: flex;
+  align-items: center;
+  gap: .6rem;
+  padding: .42rem 1rem;
+  transition: background var(--transition);
+  cursor: default;
+}
+
+.tl-item:hover { background: var(--surface-2); }
+.tl-item.past { opacity: .38; }
+.tl-item.next {
+  background: var(--green-50);
+  border-left: 3px solid var(--green-500);
+}
+
+.tl-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: var(--green-400);
+  flex-shrink: 0;
+}
+
+.tl-item.past .tl-dot { background: var(--text-3); }
+.tl-item.next .tl-dot { background: var(--green-600); box-shadow: 0 0 0 3px rgba(0,146,65,.2); }
+
+.tl-time {
+  font-family: var(--font-mono);
+  font-size: .88rem;
+  font-weight: 700;
+  color: var(--text);
+  min-width: 44px;
+}
+
+.tl-remaining {
+  font-size: .78rem;
+  color: var(--green-600);
+  font-weight: 600;
+  margin-left: auto;
+  background: var(--green-100);
+  padding: .1rem .45rem;
+  border-radius: 50px;
+}
+
+/* ─── Address card ─── */
+.address-card {
+  padding: .85rem 1rem;
+}
+
+.addr-row {
+  display: flex;
+  align-items: center;
+  gap: .55rem;
+  padding: .28rem 0;
+  font-size: .85rem;
+  color: var(--text-2);
+}
+
+.addr-row i {
+  color: var(--green-600);
+  width: 16px;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.addr-row strong { color: var(--text); }
+
+/* ─── Location actions ─── */
+.loc-actions {
+  display: flex;
+  gap: .6rem;
+  padding: .85rem 1rem;
+}
+
+.btn {
+  flex: 1;
+  padding: .65rem .5rem;
+  border-radius: var(--radius-sm);
+  border: none;
+  font-family: var(--font);
+  font-size: .85rem;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: .4rem;
+  transition: var(--transition);
+}
+
+.btn-green { background: var(--green-600); color: white; }
+.btn-green:hover { background: var(--green-700); }
+.btn-green:disabled { opacity: .45; cursor: not-allowed; }
+
+.btn-outline { background: transparent; color: var(--green-700); border: 1.5px solid var(--green-600); }
+.btn-outline:hover { background: var(--green-50); }
+.btn-outline:disabled { opacity: .45; cursor: not-allowed; }
+
+/* ─── Location status ─── */
+#locationStatus {
+  margin: 0 1rem .85rem;
+  padding: .65rem .8rem;
+  background: var(--surface-2);
+  border-radius: var(--radius-sm);
+  font-size: .83rem;
+  color: var(--text-2);
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+  border: 1px solid var(--border);
+}
+
+#locationStatus i { color: var(--green-600); flex-shrink: 0; }
+
+/* Search-by-address in panel */
+.addr-search-wrap {
+  display: flex;
+  gap: .5rem;
+  padding: .85rem 1rem;
+}
+
+.addr-search-wrap input {
+  flex: 1;
+  padding: .6rem .85rem;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-family: var(--font);
+  font-size: .88rem;
+  background: var(--surface);
+  color: var(--text);
+  transition: var(--transition);
+}
+
+.addr-search-wrap input:focus {
+  outline: none;
+  border-color: var(--green-500);
+  box-shadow: 0 0 0 3px rgba(0,168,76,.15);
+}
+
+.addr-search-wrap button {
+  padding: .6rem .9rem;
+  background: var(--green-600);
+  color: white;
+  border: none;
+  border-radius: var(--radius-sm);
+  font-weight: 700;
+  font-size: .88rem;
+  cursor: pointer;
+  transition: var(--transition);
+  white-space: nowrap;
+}
+
+.addr-search-wrap button:hover { background: var(--green-700); }
+
+/* ═══════════════════════════════════════════════════════════════
+   TOAST NOTIFICATION
+═══════════════════════════════════════════════════════════════ */
+#toast {
+  position: fixed;
+  bottom: 1.5rem;
+  left: 50%;
+  transform: translateX(-50%) translateY(80px);
+  background: var(--green-900);
+  color: white;
+  padding: .75rem 1.4rem;
+  border-radius: 50px;
+  font-size: .88rem;
+  font-weight: 600;
+  box-shadow: var(--shadow-lg);
+  z-index: 9999;
+  opacity: 0;
+  transition: all .3s ease;
+  white-space: nowrap;
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+  pointer-events: none;
+}
+
+#toast.show {
+  transform: translateX(-50%) translateY(0);
+  opacity: 1;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   LEAFLET OVERRIDES
+═══════════════════════════════════════════════════════════════ */
+.leaflet-popup-content-wrapper {
+  border-radius: var(--radius-sm) !important;
+  box-shadow: var(--shadow) !important;
+  font-family: var(--font) !important;
+}
+
+.leaflet-popup-content { font-size: .88rem !important; }
+
+/* ═══════════════════════════════════════════════════════════════
+   ANIMATIONS
+═══════════════════════════════════════════════════════════════ */
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.spinner {
+  display: inline-block;
+  width: 14px; height: 14px;
+  border: 2px solid rgba(255,255,255,.4);
+  border-top-color: white;
+  border-radius: 50%;
+  animation: spin .8s linear infinite;
+  vertical-align: middle;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   RESPONSIVE
+═══════════════════════════════════════════════════════════════ */
+@media (max-width: 900px) {
+  main {
+    grid-template-columns: 1fr;
+    padding: .75rem;
+    gap: .75rem;
+  }
+
+  #map { min-height: 320px; order: 1; }
+  #panel { order: 2; max-height: none; overflow-y: visible; }
+
+  .hero-countdown { font-size: 2.6rem; }
+}
+
+@media (max-width: 520px) {
+  .brand h1 { font-size: 1.25rem; }
+  .brand small { display: none; }
+  #liveClock { font-size: .9rem; padding: .25rem .55rem; }
+  .header-search { padding-bottom: .6rem; }
+  .loc-actions { flex-direction: column; }
+}
+</style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════
+     HEADER
+══════════════════════════════════════ -->
+<header>
+  <div class="header-top">
+    <div class="brand">
+      <div class="brand-icon">🚌</div>
+      <div>
+        <h1>BusAI</h1>
+        <small>Transporte Coletivo — Alfenas/MG</small>
+      </div>
+    </div>
+    <div class="header-right">
+      <span id="liveClock">--:--:--</span>
+      <button class="icon-btn" id="darkToggle" title="Alternar tema" aria-label="Alternar modo escuro">🌙</button>
+    </div>
+  </div>
+
+  <div class="header-search">
+    <div class="search-wrap">
+      <i class="fas fa-search si" aria-hidden="true"></i>
+      <input type="search" id="globalSearch" placeholder="Busque bairro, linha ou destino…" aria-label="Buscar linha ou bairro" autocomplete="off" />
+      <button class="sc" id="clearGlobalSearch" aria-label="Limpar busca">✕</button>
+      <div id="searchDropdown" role="listbox" aria-label="Resultados da busca"></div>
+    </div>
+  </div>
+
+  <div class="lines-nav-wrap">
+    <nav class="lines-nav" id="linesNav" aria-label="Linhas de ônibus">
+      <button class="pill-loc-btn" id="btnGetLocation" onclick="getUserLocation()">
+        <i class="fas fa-location-arrow"></i> Minha localização
+      </button>
+    </nav>
+  </div>
+</header>
+
+<!-- ══════════════════════════════════════
+     MAIN
+══════════════════════════════════════ -->
+<main>
+  <!-- MAP -->
+  <div id="map" role="region" aria-label="Mapa de rotas">
+    <div class="map-fab-group">
+      <button class="map-fab" id="btnCenterMap" title="Centralizar na minha localização" aria-label="Centralizar mapa">
+        <i class="fas fa-crosshairs"></i>
+      </button>
+      <button class="map-fab" id="btnToggleDrag" title="Ajustar posição manualmente" aria-label="Ajustar posição">
+        <i class="fas fa-hand-pointer"></i>
+      </button>
+    </div>
+  </div>
+
+  <!-- INFO PANEL -->
+  <aside id="panel" role="complementary" aria-label="Informações de horários">
+
+    <!-- Hero countdown -->
+    <div class="hero-card" id="heroCard">
+      <div class="hero-top">
+        <div class="hero-line-badge" id="heroLineBadge">
+          <span class="dot" id="heroLineDot" style="background:#00a84c"></span>
+          <span id="heroLineLabel">Selecione uma linha</span>
+        </div>
+        <span class="day-badge" id="heroDayBadge">Dia Útil</span>
+      </div>
+      <div class="hero-time-main">
+        <div class="hero-countdown" id="heroCountdown" aria-live="polite">--</div>
+        <div class="hero-next-label">próxima partida</div>
+        <div class="hero-next-time" id="heroNextTime">--:--</div>
+      </div>
+      <div class="hero-stop" id="heroStop">
+        <span><i class="fas fa-map-pin"></i> <span id="heroStopName">Selecione uma parada</span></span>
+        <span class="walk-badge" id="heroWalk">--</span>
+      </div>
+    </div>
+
+    <!-- All lines next bus -->
+    <div class="panel-card" id="cardAllLines">
+      <div class="panel-card-header">
+        <i class="fas fa-layer-group"></i> Próximos ônibus — todas as linhas
+      </div>
+      <ul class="upcoming-list" id="upcomingList">
+        <li style="padding:1rem;text-align:center;color:var(--text-2);font-size:.85rem;">
+          Ative sua localização para ver os próximos ônibus de todas as linhas
+        </li>
+      </ul>
+    </div>
+
+    <!-- Schedule for selected line -->
+    <div class="panel-card" id="cardSchedule">
+      <div class="panel-card-header">
+        <i class="fas fa-clock"></i> Horários — <span id="scheduleLineLabel">linha selecionada</span>
+      </div>
+      <div class="schedule-timeline" id="scheduleTimeline">
+        <div style="padding:1rem;text-align:center;color:var(--text-2);font-size:.85rem;">
+          Selecione uma linha para ver os horários
+        </div>
+      </div>
+    </div>
+
+    <!-- Where am I -->
+    <div class="panel-card">
+      <div class="panel-card-header">
+        <i class="fas fa-location-dot"></i> Onde estou?
+      </div>
+      <div class="address-card">
+        <div class="addr-row"><i class="fas fa-road"></i> <span id="addrStreet"><strong>Rua:</strong> --</span></div>
+        <div class="addr-row"><i class="fas fa-map-marker-alt"></i> <span id="addrNeighborhood"><strong>Bairro:</strong> --</span></div>
+        <div class="addr-row"><i class="fas fa-envelope"></i> <span id="addrCEP"><strong>CEP:</strong> --</span></div>
+      </div>
+      <div id="locationStatus">
+        <i class="fas fa-info-circle"></i>
+        <span id="locationStatusText">Clique em "Minha localização" para começar</span>
+      </div>
+      <div class="loc-actions">
+        <button class="btn btn-green" id="btn-confirm" onclick="confirmLocation()" disabled>
+          <i class="fas fa-check"></i> Confirmar parada
+        </button>
+        <button class="btn btn-outline" id="btn-adjust" onclick="enablePositionAdjustment()" disabled>
+          <i class="fas fa-arrows-alt"></i> Ajustar
+        </button>
+      </div>
+    </div>
+
+    <!-- Search by address -->
+    <div class="panel-card">
+      <div class="panel-card-header">
+        <i class="fas fa-search-location"></i> Buscar por endereço
+      </div>
+      <div class="addr-search-wrap">
+        <input type="text" id="addressInput" placeholder="Ex: Praça Fausto Monteiro" aria-label="Endereço para buscar" />
+        <button id="btn-search" onclick="searchByAddress()">
+          <i class="fas fa-search"></i> Buscar
+        </button>
+      </div>
+    </div>
+
+  </aside>
+</main>
+
+<!-- Toast notification -->
+<div id="toast" role="status" aria-live="polite">
+  <i class="fas fa-check-circle"></i>
+  <span id="toastText">Notificação</span>
+</div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+/* ═══════════════════════════════════════════════════════════════
+   DATA — Linhas da Alfetur / Alfenas-MG
+═══════════════════════════════════════════════════════════════ */
+const busLines = {
+  "001": {
+    nome: "Jardim Alvorada / Campus", cor: "#e6194b",
+    itinerario: ["Terminal rodoviário","Campus Unifenas","Avenida José Paulino da Costa","Praça Dr. Emílio da Silveira","Praça Fausto Monteiro","Rua Leão de Faria","Avenida Jovino Fernandes Sales","Praça Melvin Jones"],
+    horarios: {
+      dias_uteis: ["06:10","06:15","06:30","06:45","07:05","07:15","07:30","07:45","08:15","08:30","08:45","09:05","09:15","09:30","09:45","10:05","10:15","10:30","10:45","11:05","11:15","11:30","11:45","12:05","12:10","12:15","12:30","12:45","13:05","13:15","13:30","13:45","14:05","14:15","14:30","14:45","15:05","15:15","15:30","15:45","16:05","16:15","16:30","16:45","17:05","17:15","17:30","17:45","18:05","18:15","18:30","18:45","19:05","19:15","19:30","19:45","20:05","20:15","20:30","20:45","21:05","21:15","21:30","21:45","22:05","22:15","22:30","22:40","22:50","23:00"],
+      sabado: ["06:15","07:15","08:15","09:15","10:15","11:15","12:15","13:15","14:15","15:15","16:15","17:15","18:15","19:15","20:15","21:15","22:15","23:00"],
+      domingo: ["06:15","07:15","08:15","09:15","10:15","11:15","12:15","13:15","14:15","15:15","16:15","17:15","18:15","19:15","20:15","21:15","22:15"],
+      feriado: ["06:15","07:15","08:15","10:15","11:15","12:15","13:15","15:15","16:15","17:15","18:15"]
+    },
+    paradas: [
+      {lat:-21.4330,lng:-45.9590,name:"Terminal rodoviário",tempoViagem:{"Campus Unifenas":5,"Praça Dr. Emílio da Silveira":7}},
+      {lat:-21.4200,lng:-45.9300,name:"Campus Unifenas",tempoViagem:{"Terminal rodoviário":5,"Praça Fausto Monteiro":6}},
+      {lat:-21.4290,lng:-45.9480,name:"Praça Dr. Emílio da Silveira",tempoViagem:{"Praça Fausto Monteiro":2,"Avenida Jovino Fernandes Sales":4}},
+      {lat:-21.4300,lng:-45.9470,name:"Praça Fausto Monteiro",tempoViagem:{"Praça Dr. Emílio da Silveira":2,"Rua Leão de Faria":3}},
+      {lat:-21.4285,lng:-45.9460,name:"Praça Melvin Jones",tempoViagem:{"Praça Fausto Monteiro":5}}
+    ],
+    bairros: ["Jardim Alvorada","Alvorada","Campus"]
+  },
+  "002": {
+    nome: "Pinheirinho / Vila Formosa", cor: "#3cb44b",
+    itinerario: ["Terminal rodoviário","Campus Unifenas","Praça Dr. Emílio da Silveira","Praça Fausto Monteiro","Avenida Antônio Ivo de Carvalho"],
+    horarios: {
+      dias_uteis: ["04:50","05:00","05:15","05:30","06:15","06:30","07:15","07:30","08:15","08:30","09:15","09:30","10:15","10:30","11:15","12:15","12:30","13:15","14:15","14:30","15:15","15:30","16:15","16:30","17:15","17:30","18:15","18:30","19:15","19:30","21:15","21:30","22:05","22:30"],
+      sabado: ["04:50","05:00","05:15","05:30","06:15","06:30","07:15","07:30","08:15","08:30","09:15","09:30","10:15","10:30","11:15","12:15","12:30","13:15","14:15","14:30","15:15","15:30","16:15","16:30","17:15","17:30","18:15","18:30","19:15"],
+      domingo: ["04:50","05:00","05:15","05:30","06:15","06:30","07:15","07:30","08:15","08:30","09:15","09:30","10:15","10:30","11:15","12:15","12:30","13:15","14:15","14:30","15:15"],
+      feriado: ["04:50","05:00","05:15","05:30","06:15","06:30","07:15","07:30","08:15","08:30","09:15","11:15","11:30","12:15","12:30","13:15","16:15","16:30","17:15","17:30","18:15"]
+    },
+    paradas: [
+      {lat:-21.4340,lng:-45.9500,name:"Terminal rodoviário",tempoViagem:{"Campus Unifenas":5}},
+      {lat:-21.4200,lng:-45.9305,name:"Campus Unifenas",tempoViagem:{"Terminal rodoviário":5}},
+      {lat:-21.4260,lng:-45.9480,name:"Praça Dr. Emílio da Silveira",tempoViagem:{"Praça Fausto Monteiro":2}},
+      {lat:-21.4255,lng:-45.9475,name:"Praça Fausto Monteiro",tempoViagem:{"Praça Dr. Emílio da Silveira":2}}
+    ],
+    bairros: ["Pinheirinho","Vila Formosa","Campus"]
+  },
+  "003": {
+    nome: "Jardim Vista Grande / Campus", cor: "#f4d03f",
+    itinerario: ["Terminal rodoviário","Campus Unifenas","Praça Dr. Emílio da Silveira","Praça Fausto Monteiro"],
+    horarios: {
+      dias_uteis: ["05:15","05:30","06:15","06:35","07:15","07:35","08:15","08:35","09:15","09:35","10:15","10:35","11:15","11:35","12:15","12:35","13:15","13:35","14:15","14:35","15:15","15:35","16:15","16:35","17:15","17:35","18:15","18:35","20:30","21:30"],
+      sabado: ["05:15","05:30","06:15","06:35","07:15","07:35","08:15","08:35","09:15","09:35","10:15","10:35","11:15","11:35","12:15","12:35","13:15","13:35","14:15","14:35","15:15","15:35","16:15","16:35","17:15","18:35"],
+      domingo: ["05:15","05:30","06:15","06:35","07:15","07:35","08:15","08:35","09:15","09:35","10:15","10:35","11:15","11:35","12:15","12:35","13:15","13:35","14:15","16:15","16:35","17:15","17:35","18:15","20:30","21:30"],
+      feriado: ["05:15","05:30","06:15","06:35","07:15","07:35","08:15","08:35","10:15","10:35","11:15","11:35","12:15","12:35","13:15","15:15","15:35","16:15","16:35","17:15","17:35","18:15"]
+    },
+    paradas: [
+      {lat:-21.4355,lng:-45.9490,name:"Terminal rodoviário",tempoViagem:{"Campus Unifenas":6}},
+      {lat:-21.4220,lng:-45.9310,name:"Campus Unifenas",tempoViagem:{"Terminal rodoviário":6}},
+      {lat:-21.4320,lng:-45.9470,name:"Praça Dr. Emílio da Silveira",tempoViagem:{"Praça Fausto Monteiro":2}},
+      {lat:-21.4320,lng:-45.9485,name:"Praça Fausto Monteiro",tempoViagem:{"Praça Dr. Emílio da Silveira":2}}
+    ],
+    bairros: ["Vista Grande","Jardim Vista Grande","Campus"]
+  },
+  "004": {
+    nome: "Morada do Sol / Campus", cor: "#4363d8",
+    itinerario: ["Terminal rodoviário","Campus Unifenas","Praça Dr. Emílio da Silveira","Praça Fausto Monteiro","Praça Melvin Jones"],
+    horarios: {
+      dias_uteis: ["05:50","06:00","06:30","07:00","07:20","07:50","08:00","08:20","09:00","09:20","10:00","10:20","11:00","11:20","12:00","12:20","13:00","13:20","14:00","14:20","15:00","15:20","16:00","16:20","17:00","17:20","18:00","18:20","19:00","21:50","22:30","22:40"],
+      sabado: ["05:50","06:00","06:30","07:00","07:20","07:50","08:00","08:20","09:00","09:20","10:00","10:20","11:00","11:20","12:00","12:20","13:00","13:20","14:00","14:20","15:00","15:20","16:00","16:20","17:00","17:20","18:00","18:20","19:00","21:50","22:30","22:40"],
+      domingo: ["05:50","06:00","06:30","07:00","07:20","07:50","08:00","08:20","09:00","09:20","10:00","10:20","11:00","11:20","12:00","12:20","13:00","14:00","16:00","16:20","17:00","17:20","18:00","18:20"],
+      feriado: ["05:50","06:00","06:30","07:00","07:20","07:50","08:00","09:00","11:00","11:20","12:00","12:20","13:00","14:00","16:00","16:20","17:00","17:20","18:00","18:20"]
+    },
+    paradas: [
+      {lat:-21.4340,lng:-45.9590,name:"Terminal rodoviário",tempoViagem:{"Campus Unifenas":5}},
+      {lat:-21.4200,lng:-45.9310,name:"Campus Unifenas",tempoViagem:{"Terminal rodoviário":5}},
+      {lat:-21.4320,lng:-45.9450,name:"Praça Dr. Emílio da Silveira",tempoViagem:{"Praça Fausto Monteiro":2}},
+      {lat:-21.4325,lng:-45.9470,name:"Praça Fausto Monteiro",tempoViagem:{"Praça Dr. Emílio da Silveira":2}}
+    ],
+    bairros: ["Morada do Sol","Distrito Industrial"]
+  },
+  "005": {
+    nome: "Santa Luzia / Imesa", cor: "#f58231",
+    itinerario: ["Terminal rodoviário","Praça Dr. Emílio da Silveira","Praça Fausto Monteiro","Alameda dos Jacarandas","Rua Martins Alfenas"],
+    horarios: {
+      dias_uteis: ["05:45","06:00","06:15","06:30","06:45","07:00","07:15","07:30","07:45","08:00","08:15","08:30","08:45","09:00","09:15","09:30","09:45","10:00","10:15","10:30","10:45","11:05","11:15","11:30","11:45","12:05","12:15","12:30","12:45","13:00","13:15","13:30","13:45","14:00","14:15","14:30","15:00","15:15","15:30","15:45","16:00","16:30","16:45","17:00","17:15","17:30","18:00","18:05","18:15","18:30"],
+      sabado: ["05:45","06:00","06:15","06:30","06:45","07:00","07:15","07:30","07:45","08:00","08:15","08:30","08:45","09:00","09:15","09:30","09:45","10:00","10:15","10:30","10:45","11:05","11:15","11:30","11:45","12:05","12:15","12:30","12:45","13:00","13:15","13:30","13:45","14:00","14:15","14:30","15:00","15:15","15:30","15:45","16:00"],
+      domingo: ["05:45","06:00","06:15","06:30","06:45","07:00","07:15","07:30","07:45","08:00","08:15","08:30","08:45","09:00","09:15","09:30","09:45","11:15","11:30","11:45","12:00","12:15","12:30","13:00","16:00"],
+      feriado: ["05:45","06:00","06:15","06:30","06:45","07:00","07:15","07:30","07:45","10:15","11:05","11:15","11:30","12:00","12:15","12:45","13:00","15:15","16:05","16:15","17:05","17:15","18:05"]
+    },
+    paradas: [
+      {lat:-21.4330,lng:-45.9560,name:"Terminal rodoviário",tempoViagem:{"Imesa":8,"Santa Luzia":6}},
+      {lat:-21.4290,lng:-45.9465,name:"Praça Dr. Emílio da Silveira",tempoViagem:{"Praça Fausto Monteiro":2}},
+      {lat:-21.4275,lng:-45.9450,name:"Praça Fausto Monteiro",tempoViagem:{"Praça Dr. Emílio da Silveira":2}}
+    ],
+    bairros: ["Santa Luzia","Imesa"]
+  },
+  "006": {
+    nome: "Jardim Primavera / Centro", cor: "#911eb4",
+    itinerario: ["Praça Dr. Emílio da Silveira","Avenida Governador Valadares","Rua Padre João Batista"],
+    horarios: {
+      dias_uteis: ["06:30","07:30","08:30","11:30","12:30","17:30","18:30","22:30"],
+      sabado: ["06:30","07:30","08:30","11:30","12:30","17:30","18:30","22:30"],
+      domingo: ["06:30","07:30","11:30","12:30","17:30","18:30","22:30"],
+      feriado: ["06:30","07:30","11:30","12:30","17:30","18:30","22:30"]
+    },
+    paradas: [
+      {lat:-21.4330,lng:-45.9500,name:"Terminal rodoviário",tempoViagem:{"Praça Dr. Emílio da Silveira":6}},
+      {lat:-21.4320,lng:-45.9470,name:"Praça Dr. Emílio da Silveira",tempoViagem:{"Praça Fausto Monteiro":2}},
+      {lat:-21.4315,lng:-45.9455,name:"Praça Fausto Monteiro",tempoViagem:{"Praça Dr. Emílio da Silveira":2}}
+    ],
+    bairros: ["Jardim Primavera","Centro"]
+  },
+  "007": {
+    nome: "Jardim Boa Esperança / Campus", cor: "#00aaff",
+    itinerario: ["Terminal Urbano","Jardim Boa Esperança","Campus Unifenas"],
+    horarios: {
+      dias_uteis: ["06:30","07:35","08:35","09:35","10:35","11:35","12:30","13:35","14:35","15:35","16:35","17:30","18:35","19:30","21:30","22:30"],
+      sabado: ["06:30","07:35","08:35","09:35","10:35","11:35","12:30","13:35"],
+      domingo: ["06:30","07:35","08:35","09:35","10:35","11:35","12:30","13:35"],
+      feriado: ["06:30","07:35","08:35","09:35","10:35","11:35","12:30","13:35"]
+    },
+    paradas: [
+      {lat:-21.4289,lng:-45.9472,name:"Terminal Urbano",tempoViagem:{"Jardim Boa Esperança":15,"Campus Unifenas":35}},
+      {lat:-21.4300,lng:-45.9500,name:"Jardim Boa Esperança",tempoViagem:{"Terminal Urbano":15,"Campus Unifenas":20}},
+      {lat:-21.4200,lng:-45.9300,name:"Campus Unifenas",tempoViagem:{"Terminal Urbano":35,"Jardim Boa Esperança":20}}
+    ],
+    bairros: ["Jardim Boa Esperança","Boa Esperança","Campus"]
+  },
+  "008": {
+    nome: "Recreio Vale do Sol / Jd. São Carlos", cor: "#ffaa00",
+    itinerario: ["Terminal Urbano","Recreio (Unifal – Santa Clara)","Jd. São Carlos"],
+    horarios: {
+      dias_uteis: ["06:00","07:00","08:00","09:00","10:00","11:00","12:00","13:00","14:00","15:00","16:00","17:00","18:00","19:00","20:00","21:00","22:00"],
+      sabado: ["06:00","07:00","08:00","09:00","10:00","11:00","12:00","13:00","14:00","15:00","16:00","17:00","18:00","19:00","20:00","21:00","22:00"],
+      domingo: ["06:00","07:00","08:00","09:00","10:00","11:00","12:00","13:00","14:00","15:00","16:00","17:00","18:00","19:00","20:00","21:00","22:00"],
+      feriado: ["06:00","07:00","08:00","09:00","11:00","12:00","13:00","14:00","16:00","17:00","18:00","19:00","20:00","21:00","22:00"]
+    },
+    paradas: [
+      {lat:-21.4289,lng:-45.9472,name:"Terminal Urbano",tempoViagem:{"Recreio":35,"Jd. São Carlos":55}},
+      {lat:-21.4250,lng:-45.9450,name:"Recreio (Unifal – Santa Clara)",tempoViagem:{"Terminal Urbano":35,"Jd. São Carlos":20}},
+      {lat:-21.4300,lng:-45.9400,name:"Jd. São Carlos",tempoViagem:{"Terminal Urbano":55,"Recreio":20}}
+    ],
+    bairros: ["Recreio","Recreio Vale do Sol","Jardim São Carlos","São Carlos"]
+  },
+  "009": {
+    nome: "Pinheirinho / Jardim Aeroporto", cor: "#ff0055",
+    itinerario: ["Terminal Urbano","Praça Dr. Emílio da Silveira","Pinheirinho (Unifal – Santa Clara)","Jardim Aeroporto"],
+    horarios: {
+      dias_uteis: ["05:45","06:45","07:45","08:45","09:45","10:45","11:45","12:45","13:45","14:45","15:45","16:45","17:45","18:45","19:45"],
+      sabado: ["05:45","06:45","07:45","08:45","09:45","10:45","11:45","12:45","13:45","14:45","15:45","16:45","17:45","18:45","19:45"],
+      domingo: ["05:45","06:45","07:45","08:45","09:45","10:45","11:45","12:45","13:45","15:45","16:45","17:45","18:45"],
+      feriado: ["05:45","06:45","07:45","08:45","10:45","11:45","12:45","13:45","15:45","16:45","17:45","18:45"]
+    },
+    paradas: [
+      {lat:-21.4289,lng:-45.9472,name:"Terminal Urbano",tempoViagem:{"Pinheirinho":20,"Jardim Aeroporto":35}},
+      {lat:-21.4340,lng:-45.9535,name:"Praça Dr. Emílio da Silveira",tempoViagem:{"Terminal Urbano":12,"Jardim Aeroporto":23}},
+      {lat:-21.4350,lng:-45.9600,name:"Pinheirinho (Unifal – Santa Clara)",tempoViagem:{"Terminal Urbano":20,"Jardim Aeroporto":15}},
+      {lat:-21.4300,lng:-45.9400,name:"Jardim Aeroporto",tempoViagem:{"Terminal Urbano":35,"Pinheirinho":15}}
+    ],
+    bairros: ["Pinheirinho","Jardim Aeroporto","Aeroporto"]
+  },
+  "010": {
+    nome: "Pôr do Sol / Campus", cor: "#8866ee",
+    itinerario: ["Terminal Urbano","Pôr do Sol","Campus Unifenas"],
+    horarios: {
+      dias_uteis: ["06:15","07:15","08:15","11:15","12:15","13:15","17:15","18:15","19:15"],
+      sabado: ["06:15","07:15","08:15","11:15","12:15","13:15","17:15","18:15"],
+      domingo: ["06:15","07:15","08:15","11:15","12:15","13:15","17:15","18:15"],
+      feriado: ["06:15","07:15","08:15","11:15","12:15","13:15","17:15","18:15"]
+    },
+    paradas: [
+      {lat:-21.4289,lng:-45.9472,name:"Terminal Urbano",tempoViagem:{"Pôr do Sol":20,"Campus Unifenas":40}},
+      {lat:-21.4400,lng:-45.9500,name:"Pôr do Sol",tempoViagem:{"Terminal Urbano":20,"Campus Unifenas":20}},
+      {lat:-21.4200,lng:-45.9300,name:"Campus Unifenas",tempoViagem:{"Terminal Urbano":40,"Pôr do Sol":20}}
+    ],
+    bairros: ["Pôr do Sol","Por do Sol","Campus"]
+  },
+  "011": {
+    nome: "Gaspar Lopes / Centro", cor: "#00cc66",
+    itinerario: ["Terminal Urbano","Praça Dr. Emílio da Silveira","Avenida Governador Valadares","Distrito de Gaspar Lopes","Campus Unifenas"],
+    horarios: {
+      dias_uteis: ["05:45","06:45","07:45","08:45","09:45","10:45","11:45","12:45","13:45","14:45","15:45","16:45","17:45","18:45","19:30","20:45","21:45","23:00"],
+      sabado: ["05:45","06:45","07:45","08:45","09:45","10:45","11:45","12:45","13:45","14:45","15:45","16:45","17:45","18:45","19:30","20:45","21:45","23:00"],
+      domingo: ["05:45","06:45","07:45","08:45","09:45","10:45","11:45","12:45","13:45","15:45","16:45","17:45","18:45","19:30","20:45","21:45","23:00"],
+      feriado: ["05:45","06:45","07:45","08:45","10:45","11:45","12:45","13:45","15:45","16:45","17:45","18:45","19:30","20:45","21:45","23:00"]
+    },
+    paradas: [
+      {lat:-21.4289,lng:-45.9472,name:"Terminal Urbano",tempoViagem:{"Distrito de Gaspar Lopes":40,"Campus Unifenas":50}},
+      {lat:-21.4340,lng:-45.9535,name:"Praça Dr. Emílio da Silveira",tempoViagem:{"Terminal Urbano":5,"Campus Unifenas":45}},
+      {lat:-21.4450,lng:-45.9750,name:"Distrito de Gaspar Lopes",tempoViagem:{"Terminal Urbano":40}},
+      {lat:-21.4200,lng:-45.9300,name:"Campus Unifenas",tempoViagem:{"Terminal Urbano":50}}
+    ],
+    bairros: ["Gaspar Lopes","Centro","Campus"]
+  },
+  "012": {
+    nome: "Jardim Nova América / Pinheirinho", cor: "#dd0066",
+    itinerario: ["Terminal Urbano","Praça Dr. Emílio da Silveira","Jardim Nova América","Pinheirinho (Unifal – Santa Clara)"],
+    horarios: {
+      dias_uteis: ["07:00","08:00","09:00","10:00","11:00","12:00","13:00","14:00","15:00","16:00","17:00","18:00","19:00","20:00","21:00","22:00","23:00"],
+      sabado: ["07:00","08:00","09:00","10:00","11:00","12:00","13:00","14:00","15:00","16:00","17:00","18:00","19:00","20:00","21:00","22:00","23:00"],
+      domingo: ["07:00","08:00","09:00","10:00","11:00","12:00","13:00","14:00","15:00","16:00","17:00","18:00","19:00","20:00","21:00","22:00","23:00"],
+      feriado: ["07:00","08:00","09:00","10:00","11:00","12:00","13:00","14:00","15:00","16:00","17:00","18:00","19:00","20:00","21:00","22:00","23:00"]
+    },
+    paradas: [
+      {lat:-21.4289,lng:-45.9472,name:"Terminal Urbano",tempoViagem:{"Jardim Nova América":15,"Pinheirinho (Unifal – Santa Clara)":40}},
+      {lat:-21.4340,lng:-45.9535,name:"Praça Dr. Emílio da Silveira",tempoViagem:{"Terminal Urbano":12,"Pinheirinho (Unifal – Santa Clara)":28}},
+      {lat:-21.4350,lng:-45.9580,name:"Jardim Nova América",tempoViagem:{"Terminal Urbano":15,"Pinheirinho (Unifal – Santa Clara)":25}},
+      {lat:-21.4450,lng:-45.9750,name:"Pinheirinho (Unifal – Santa Clara)",tempoViagem:{"Terminal Urbano":40}}
+    ],
+    bairros: ["Jardim Nova América","Pinheirinho"]
+  },
+  "018": {
+    nome: "Jardim Primavera / Campus", cor: "#009999",
+    itinerario: ["Terminal Urbano","Alameda dos Jacarandas","Praça Dr. Emílio da Silveira","Campus Unifenas"],
+    horarios: {
+      dias_uteis: ["06:15","07:15","11:15","12:15","17:15","18:15"],
+      sabado: ["06:15","07:15","11:15","12:15","17:15","18:15"],
+      domingo: ["06:15","07:15","11:15","12:15","17:15","18:15"],
+      feriado: ["06:15","07:15","11:15","12:15","17:15","18:15"]
+    },
+    paradas: [
+      {lat:-21.4289,lng:-45.9472,name:"Terminal Urbano",tempoViagem:{"Alameda dos Jacarandas":5,"Campus Unifenas":25}},
+      {lat:-21.4305,lng:-45.9480,name:"Alameda dos Jacarandas",tempoViagem:{"Terminal Urbano":5,"Campus Unifenas":20}},
+      {lat:-21.4360,lng:-45.9535,name:"Praça Dr. Emílio da Silveira",tempoViagem:{"Terminal Urbano":10,"Campus Unifenas":15}},
+      {lat:-21.4200,lng:-45.9300,name:"Campus Unifenas",tempoViagem:{"Terminal Urbano":25}}
+    ],
+    bairros: ["Jardim Primavera","Campus"]
+  }
+};
+
+const neighborhoodLines = {
+  'Jardim Alvorada':['001'],'Alvorada':['001'],'Pinheirinho':['002','009','012'],
+  'Vila Formosa':['002'],'Vista Grande':['003'],'Jardim Vista Grande':['003'],
+  'Morada do Sol':['004'],'Distrito Industrial':['004'],'Imesa':['005'],
+  'Santa Luzia':['005'],'Jardim Primavera':['006','018'],'Centro':['006','011'],
+  'Gaspar Lopes':['011'],'Jardim Boa Esperança':['007'],'Boa Esperança':['007'],
+  'Recreio':['008'],'Recreio Vale do Sol':['008'],'Jardim São Carlos':['008'],
+  'São Carlos':['008'],'Jardim Aeroporto':['009'],'Aeroporto':['009'],
+  'Pôr do Sol':['010'],'Por do Sol':['010'],
+  'Jardim Nova América':['012'],
+  'Campus Unifenas':Object.keys(busLines),'Campus':Object.keys(busLines),
+  'Unifenas':Object.keys(busLines),'Terminal Urbano':Object.keys(busLines),
+  'Terminal':Object.keys(busLines)
+};
+
+/* ═══════════════════════════════════════════════════════════════
+   STATE
+═══════════════════════════════════════════════════════════════ */
+const ALFENAS = [-21.4289, -45.9472];
+let map, markers = [], userMarker = null, routeLayer = null;
+let userLocation = null, currentLine = null, selectedStop = null;
+let isDragMode = false, currentAddress = null;
+let countdownInterval = null;
+
+/* ═══════════════════════════════════════════════════════════════
+   UTILITIES
+═══════════════════════════════════════════════════════════════ */
+function haversine(lat1, lon1, lat2, lon2) {
+  const R = 6371e3;
+  const φ1 = lat1 * Math.PI/180, φ2 = lat2 * Math.PI/180;
+  const Δφ = (lat2-lat1)*Math.PI/180, Δλ = (lon2-lon1)*Math.PI/180;
+  const a = Math.sin(Δφ/2)**2 + Math.cos(φ1)*Math.cos(φ2)*Math.sin(Δλ/2)**2;
+  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+}
+
+function getDayType() {
+  const d = new Date();
+  const dow = d.getDay();
+  const md = `${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+  const feriados = ['01-01','03-03','03-04','03-05','04-18','04-21','05-01','06-19','09-07','10-12','11-02','11-15','11-20','12-25','12-24','12-31','03-19','10-15','12-08'];
+  if (feriados.includes(md)) return 'feriado';
+  if (dow === 0) return 'domingo';
+  if (dow === 6) return 'sabado';
+  return 'dias_uteis';
+}
+
+function dayLabel(t) {
+  return {dias_uteis:'Dia Útil',sabado:'Sábado',domingo:'Domingo',feriado:'Feriado'}[t];
+}
+
+function timeToMins(t) {
+  const [h, m] = t.split(':').map(Number);
+  return h * 60 + m;
+}
+
+function nowMins() {
+  const n = new Date();
+  return n.getHours() * 60 + n.getMinutes();
+}
+
+function getNextBusForLine(lineId) {
+  const dt = getDayType();
+  const nm = nowMins();
+  const times = busLines[lineId].horarios[dt];
+  for (const t of times) {
+    const diff = timeToMins(t) - nm;
+    if (diff >= 0) return {time: t, diff};
+  }
+  return null;
+}
+
+function fmtCountdown(mins, secs) {
+  if (mins === 0 && secs < 60) return `${secs}s`;
+  if (mins < 60) return `${mins} min`;
+  const h = Math.floor(mins / 60), m = mins % 60;
+  return `${h}h${m > 0 ? ` ${m}min` : ''}`;
+}
+
+function walkingTime(meters) {
+  const mins = Math.round(meters / (5000/60));
+  return mins <= 1 ? '< 1 min a pé' : `~${mins} min a pé`;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   MAP INIT
+═══════════════════════════════════════════════════════════════ */
+function initMap() {
+  map = L.map('map', {zoomControl: true}).setView(ALFENAS, 13);
+
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '© <a href="https://www.openstreetmap.org/copyright" rel="noopener noreferrer">OpenStreetMap</a>'
+  }).addTo(map);
+
+  document.getElementById('btnCenterMap').addEventListener('click', () => {
+    if (userLocation) map.setView([userLocation.lat, userLocation.lng], 15);
+    else toast('Localize-se primeiro');
+  });
+
+  document.getElementById('btnToggleDrag').addEventListener('click', toggleDragMode);
+
+  map.on('click', e => {
+    if (isDragMode) {
+      userLocation = {lat: e.latlng.lat, lng: e.latlng.lng, accuracy: 10};
+      updateUserMarker();
+      reverseGeocode(userLocation.lat, userLocation.lng);
+      if (currentLine) findNearestStop();
+      toast('Localização definida no mapa');
+    }
+  });
+}
+
+function clearMapLayers() {
+  markers.forEach(m => map.removeLayer(m));
+  markers = [];
+  if (routeLayer) { map.removeLayer(routeLayer); routeLayer = null; }
+}
+
+function showLine(lineId) {
+  if (!busLines[lineId]) return;
+  currentLine = lineId;
+  clearMapLayers();
+
+  const line = busLines[lineId];
+  const coords = line.paradas.map(s => [s.lat, s.lng]);
+
+  routeLayer = L.polyline(coords, {
+    color: line.cor, weight: 5, opacity: .75,
+    dashArray: '8, 5', lineCap: 'round', lineJoin: 'round'
+  }).addTo(map);
+
+  line.paradas.forEach((stop, i) => {
+    const isFirst = i === 0, isLast = i === line.paradas.length - 1;
+    const size = (isFirst || isLast) ? 30 : 22;
+    const icon = L.divIcon({
+      className: '',
+      html: `<div style="
+        background:${line.cor};color:white;width:${size}px;height:${size}px;
+        border-radius:50%;display:flex;align-items:center;justify-content:center;
+        font-size:${size > 24 ? 13 : 10}px;font-weight:800;
+        border:2.5px solid white;box-shadow:0 2px 8px rgba(0,0,0,.3);
+        font-family:'Inter',sans-serif;
+      ">${isFirst ? '🚌' : isLast ? '🏁' : i+1}</div>`,
+      iconSize: [size, size], iconAnchor: [size/2, size/2]
+    });
+
+    const m = L.marker([stop.lat, stop.lng], {icon})
+      .addTo(map)
+      .bindPopup(`<b>${stop.name}</b><br><small style="color:#666">Linha ${lineId}: ${line.nome}</small>`)
+      .on('click', () => { selectedStop = stop; updateHero(); updateActiveStop(); });
+
+    markers.push(m);
+  });
+
+  map.fitBounds(routeLayer.getBounds(), {padding: [40, 40]});
+
+  // update pills active state
+  document.querySelectorAll('.line-pill').forEach(p => {
+    p.classList.toggle('active', p.dataset.line === lineId);
+  });
+
+  updateScheduleTimeline();
+  if (userLocation) findNearestStop();
+  updateHero();
+  toast(`Linha ${lineId} — ${line.nome}`);
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   HERO COUNTDOWN (real-time)
+═══════════════════════════════════════════════════════════════ */
+function startCountdown() {
+  if (countdownInterval) clearInterval(countdownInterval);
+  updateHero();
+  countdownInterval = setInterval(updateHero, 1000);
+}
+
+function updateHero() {
+  const dt = getDayType();
+  document.getElementById('heroDayBadge').textContent = dayLabel(dt);
+
+  if (!currentLine) return;
+
+  const line = busLines[currentLine];
+  const next = getNextBusForLine(currentLine);
+  const cd = document.getElementById('heroCountdown');
+  const nt = document.getElementById('heroNextTime');
+
+  document.getElementById('heroLineDot').style.background = line.cor;
+  document.getElementById('heroLineLabel').textContent = `Linha ${currentLine}`;
+
+  if (next) {
+    const totalSecs = next.diff * 60 - new Date().getSeconds();
+    const mins = Math.floor(totalSecs / 60);
+    const secs = totalSecs % 60;
+    const display = mins <= 0 && secs <= 90 ? `${Math.max(0,secs)}s` : fmtCountdown(mins, secs);
+    cd.textContent = display;
+    cd.classList.toggle('urgent', mins < 3);
+    nt.textContent = next.time;
+  } else {
+    cd.textContent = '–';
+    nt.textContent = 'Sem mais horários';
+    cd.classList.remove('urgent');
+  }
+
+  // stop & walk info
+  if (selectedStop) {
+    document.getElementById('heroStopName').textContent = selectedStop.name;
+    if (userLocation) {
+      const d = haversine(userLocation.lat, userLocation.lng, selectedStop.lat, selectedStop.lng);
+      document.getElementById('heroWalk').textContent = walkingTime(d);
+    }
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   ALL-LINES UPCOMING
+═══════════════════════════════════════════════════════════════ */
+function updateUpcomingAll() {
+  const list = document.getElementById('upcomingList');
+  list.innerHTML = '';
+
+  // gather all lines with their next bus, sorted by ETA
+  const upcoming = Object.keys(busLines)
+    .map(id => ({ id, next: getNextBusForLine(id), line: busLines[id] }))
+    .filter(x => x.next !== null)
+    .sort((a, b) => a.next.diff - b.next.diff);
+
+  if (!upcoming.length) {
+    list.innerHTML = '<li style="padding:1rem;text-align:center;color:var(--text-2);font-size:.85rem">Sem mais horários hoje para nenhuma linha</li>';
+    return;
+  }
+
+  upcoming.forEach(({id, next, line}) => {
+    const li = document.createElement('li');
+    li.className = 'upcoming-item' + (id === currentLine ? ' active-line' : '');
+    li.dataset.line = id;
+    const urgent = next.diff < 5;
+    li.innerHTML = `
+      <span class="upcoming-line-dot" style="background:${line.cor}"></span>
+      <span class="upcoming-line-name">
+        <span style="font-size:.73rem;color:var(--text-3);font-weight:700;">L${id}</span>
+        <span class="upcoming-line-sub" style="display:block">${line.nome}</span>
+      </span>
+      <span class="upcoming-eta ${urgent ? 'eta-urgent' : ''}">
+        <span class="eta-mins">${next.diff === 0 ? 'agora' : next.diff + ' min'}</span>
+        <span class="eta-time">${next.time}</span>
+      </span>`;
+    li.addEventListener('click', () => showLine(id));
+    list.appendChild(li);
+  });
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   SCHEDULE TIMELINE
+═══════════════════════════════════════════════════════════════ */
+function updateScheduleTimeline() {
+  const tl = document.getElementById('scheduleTimeline');
+  tl.innerHTML = '';
+
+  if (!currentLine) return;
+
+  document.getElementById('scheduleLineLabel').textContent = `Linha ${currentLine} — ${busLines[currentLine].nome}`;
+
+  const dt = getDayType();
+  const nm = nowMins();
+  const times = busLines[currentLine].horarios[dt];
+  let firstFutureEl = null;
+
+  times.forEach((t, idx) => {
+    const diff = timeToMins(t) - nm;
+    const isPast = diff < 0;
+    const isNext = !isPast && idx === times.findIndex(tt => timeToMins(tt) >= nm);
+
+    const div = document.createElement('div');
+    div.className = 'tl-item' + (isPast ? ' past' : '') + (isNext ? ' next' : '');
+    div.innerHTML = `
+      <span class="tl-dot"></span>
+      <span class="tl-time">${t}</span>
+      ${isNext ? `<span class="tl-remaining">${diff === 0 ? 'agora' : diff + ' min'}</span>` : ''}
+      ${!isPast && !isNext && diff < 120 ? `<span class="tl-remaining" style="opacity:.5">${diff} min</span>` : ''}
+    `;
+    tl.appendChild(div);
+    if (isNext && !firstFutureEl) firstFutureEl = div;
+  });
+
+  // Scroll to next departure
+  if (firstFutureEl) {
+    setTimeout(() => firstFutureEl.scrollIntoView({behavior: 'smooth', block: 'center'}), 100);
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   LINE PILLS NAV
+═══════════════════════════════════════════════════════════════ */
+function buildLinesNav() {
+  const nav = document.getElementById('linesNav');
+  // keep loc btn
+  const locBtn = document.getElementById('btnGetLocation');
+  nav.innerHTML = '';
+  nav.appendChild(locBtn);
+
+  Object.keys(busLines).forEach(id => {
+    const line = busLines[id];
+    const pill = document.createElement('button');
+    pill.className = 'line-pill';
+    pill.dataset.line = id;
+    pill.innerHTML = `<span class="dot" style="background:${line.cor}"></span> ${id}`;
+    pill.title = `Linha ${id}: ${line.nome}`;
+    pill.addEventListener('click', () => showLine(id));
+    nav.appendChild(pill);
+  });
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   GEOLOCATION
+═══════════════════════════════════════════════════════════════ */
+function getUserLocation() {
+  const btn = document.getElementById('btnGetLocation');
+  const statusText = document.getElementById('locationStatusText');
+
+  if (!navigator.geolocation) {
+    statusText.textContent = 'Geolocalização não suportada neste navegador';
+    return;
+  }
+
+  btn.classList.add('locating');
+  btn.innerHTML = '<span class="spinner"></span> Localizando…';
+  statusText.textContent = 'Detectando sua localização…';
+
+  navigator.geolocation.getCurrentPosition(
+    pos => {
+      userLocation = {lat: pos.coords.latitude, lng: pos.coords.longitude, accuracy: pos.coords.accuracy};
+      updateUserMarker();
+      reverseGeocode(userLocation.lat, userLocation.lng);
+      statusText.textContent = `Localização detectada (±${userLocation.accuracy.toFixed(0)}m)`;
+      document.getElementById('btn-confirm').disabled = false;
+      document.getElementById('btn-adjust').disabled = false;
+      btn.classList.remove('locating');
+      btn.innerHTML = '<i class="fas fa-location-arrow"></i> Minha localização';
+      toast('Localização encontrada!');
+      updateUpcomingAll();
+    },
+    err => {
+      const msgs = {1:'Permissão negada. Ative a localização no navegador.',2:'Sinal indisponível.',3:'Tempo esgotado.'};
+      statusText.textContent = msgs[err.code] || 'Não foi possível obter localização.';
+      btn.classList.remove('locating');
+      btn.innerHTML = '<i class="fas fa-location-arrow"></i> Minha localização';
+    },
+    {enableHighAccuracy: true, timeout: 15000, maximumAge: 180000}
+  );
+}
+
+function updateUserMarker() {
+  if (userMarker) map.removeLayer(userMarker);
+  userMarker = L.circleMarker([userLocation.lat, userLocation.lng], {
+    radius: 10, color: '#0077ff', fillColor: '#0077ff',
+    fillOpacity: .85, weight: 3,
+    className: isDragMode ? 'draggable-marker' : ''
+  }).addTo(map).bindPopup('<b>Você está aqui</b>');
+  map.setView([userLocation.lat, userLocation.lng], 15);
+  if (isDragMode) enableDraggable();
+}
+
+function enableDraggable() {
+  if (!userMarker) return;
+  userMarker.dragging.enable();
+  userMarker.on('dragend', e => {
+    const p = e.target.getLatLng();
+    userLocation = {lat: p.lat, lng: p.lng, accuracy: 5};
+    reverseGeocode(p.lat, p.lng);
+    if (currentLine) findNearestStop();
+  });
+}
+
+function toggleDragMode() {
+  if (!userLocation) { toast('Obtenha sua localização primeiro'); return; }
+  isDragMode = !isDragMode;
+  const btn = document.getElementById('btnToggleDrag');
+  if (isDragMode) {
+    btn.style.color = 'var(--green-600)';
+    btn.style.borderColor = 'var(--green-500)';
+    enableDraggable();
+    toast('Arraste o marcador azul para ajustar');
+  } else {
+    btn.style.color = '';
+    btn.style.borderColor = '';
+    userMarker.dragging.disable();
+    toast('Posição ajustada');
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   REVERSE GEOCODE & SMART LINE DETECTION
+═══════════════════════════════════════════════════════════════ */
+async function reverseGeocode(lat, lng) {
+  try {
+    const r = await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json&addressdetails=1&accept-language=pt-BR`);
+    const d = await r.json();
+    if (d && d.address) {
+      currentAddress = {
+        street: d.address.road || d.address.pedestrian || d.address.residential || '–',
+        neighborhood: d.address.suburb || d.address.neighbourhood || d.address.city_district || d.address.quarter || 'Centro',
+        postcode: d.address.postcode || '–',
+        city: d.address.city || d.address.town || 'Alfenas',
+        state: d.address.state || 'MG'
+      };
+      document.getElementById('addrStreet').innerHTML = `<strong>Rua:</strong> ${currentAddress.street}`;
+      document.getElementById('addrNeighborhood').innerHTML = `<strong>Bairro:</strong> ${currentAddress.neighborhood}`;
+      document.getElementById('addrCEP').innerHTML = `<strong>CEP:</strong> ${currentAddress.postcode}`;
+
+      // Auto-suggest best line
+      const nbLines = neighborhoodLines[currentAddress.neighborhood];
+      if (!currentLine && nbLines && nbLines.length > 0) {
+        showLine(nbLines[0]);
+      }
+    }
+  } catch(e) {
+    console.warn('Geocode error:', e);
+  }
+}
+
+async function searchByAddress() {
+  const input = document.getElementById('addressInput');
+  const btn = document.getElementById('btn-search');
+  const statusText = document.getElementById('locationStatusText');
+  const q = input.value.trim();
+  if (q.length < 3) { toast('Digite um endereço válido'); return; }
+
+  btn.innerHTML = '<span class="spinner"></span>';
+  btn.disabled = true;
+  statusText.textContent = 'Buscando endereço…';
+
+  try {
+    const r = await fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(q + ', Alfenas, MG')}&format=json&limit=1&addressdetails=1&accept-language=pt-BR`);
+    const d = await r.json();
+    if (d.length) {
+      userLocation = {lat: parseFloat(d[0].lat), lng: parseFloat(d[0].lon), accuracy: 50};
+      updateUserMarker();
+      reverseGeocode(userLocation.lat, userLocation.lng);
+      statusText.textContent = `Localização: ${q}`;
+      document.getElementById('btn-confirm').disabled = false;
+      document.getElementById('btn-adjust').disabled = false;
+      updateUpcomingAll();
+      toast('Endereço encontrado');
+    } else throw new Error('Não encontrado');
+  } catch(e) {
+    statusText.textContent = 'Endereço não encontrado. Tente outro termo.';
+    toast('Endereço não encontrado');
+  } finally {
+    btn.innerHTML = '<i class="fas fa-search"></i> Buscar';
+    btn.disabled = false;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   NEAREST STOP
+═══════════════════════════════════════════════════════════════ */
+function findNearestStop() {
+  if (!userLocation || !currentLine) return;
+  let minD = Infinity;
+  busLines[currentLine].paradas.forEach(s => {
+    const d = haversine(userLocation.lat, userLocation.lng, s.lat, s.lng);
+    if (d < minD) { minD = d; selectedStop = s; }
+  });
+  updateHero();
+  updateActiveStop();
+}
+
+function updateActiveStop() {
+  if (!selectedStop || !currentLine) return;
+  markers.forEach(m => {
+    const ll = m.getLatLng();
+    const i = busLines[currentLine].paradas.findIndex(s => s.lat === ll.lat && s.lng === ll.lng);
+    if (i === -1) return;
+    const stop = busLines[currentLine].paradas[i];
+    const isSelected = stop.lat === selectedStop.lat && stop.lng === selectedStop.lng;
+    const size = isSelected ? 34 : 22;
+    m.setIcon(L.divIcon({
+      className: '',
+      html: `<div style="
+        background:${busLines[currentLine].cor};color:white;
+        width:${size}px;height:${size}px;border-radius:50%;
+        display:flex;align-items:center;justify-content:center;
+        font-size:${isSelected ? 16 : 10}px;font-weight:800;
+        border:${isSelected ? 3 : 2}px solid white;
+        box-shadow:${isSelected ? `0 0 0 4px ${busLines[currentLine].cor}50,` : ''}0 2px 6px rgba(0,0,0,.3);
+        font-family:'Inter',sans-serif;
+      ">${isSelected ? '📍' : i+1}</div>`,
+      iconSize: [size, size], iconAnchor: [size/2, size/2]
+    }));
+  });
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   CONFIRM LOCATION
+═══════════════════════════════════════════════════════════════ */
+function confirmLocation() {
+  if (!selectedStop) { toast('Selecione uma parada'); return; }
+  document.getElementById('locationStatusText').textContent = `✓ Parada confirmada: ${selectedStop.name}`;
+  toast(`Parada confirmada: ${selectedStop.name}`);
+  updateActiveStop();
+}
+
+function enablePositionAdjustment() {
+  toggleDragMode();
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   GLOBAL SEARCH
+═══════════════════════════════════════════════════════════════ */
+function buildSearchIndex() {
+  const items = [];
+  // neighborhoods
+  Object.keys(neighborhoodLines).forEach(nb => {
+    items.push({type: 'bairro', label: nb, sub: `Linhas: ${neighborhoodLines[nb].join(', ')}`, lines: neighborhoodLines[nb]});
+  });
+  // lines
+  Object.keys(busLines).forEach(id => {
+    items.push({type: 'linha', label: `Linha ${id}: ${busLines[id].nome}`, sub: `${busLines[id].itinerario.slice(0,2).join(' → ')}`, lineId: id});
+  });
+  return items;
+}
+
+const searchIndex = buildSearchIndex();
+
+function handleGlobalSearch(query) {
+  const dd = document.getElementById('searchDropdown');
+  if (!query || query.length < 2) { dd.classList.remove('open'); return; }
+
+  const q = query.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+  const results = searchIndex.filter(item =>
+    item.label.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').includes(q)
+  ).slice(0, 8);
+
+  if (!results.length) { dd.classList.remove('open'); return; }
+
+  dd.innerHTML = '';
+  results.forEach(r => {
+    const div = document.createElement('div');
+    div.className = 'sd-item';
+    div.setAttribute('role', 'option');
+    div.innerHTML = `
+      <span class="sd-badge">${r.type === 'bairro' ? '📍' : '🚌'}</span>
+      <span><strong>${r.label}</strong><br><small style="color:var(--text-2)">${r.sub}</small></span>
+    `;
+    div.addEventListener('click', () => {
+      if (r.type === 'linha') showLine(r.lineId);
+      else if (r.lines && r.lines.length) showLine(r.lines[0]);
+      dd.classList.remove('open');
+      document.getElementById('globalSearch').value = r.label;
+    });
+    dd.appendChild(div);
+  });
+
+  dd.classList.add('open');
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   LIVE CLOCK
+═══════════════════════════════════════════════════════════════ */
+function tickClock() {
+  const now = new Date();
+  document.getElementById('liveClock').textContent =
+    now.toLocaleTimeString('pt-BR', {hour:'2-digit', minute:'2-digit', second:'2-digit'});
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   DARK MODE
+═══════════════════════════════════════════════════════════════ */
+function applyTheme() {
+  const dark = localStorage.getItem('busaiDark') === '1';
+  document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light');
+  document.getElementById('darkToggle').textContent = dark ? '☀️' : '🌙';
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   TOAST
+═══════════════════════════════════════════════════════════════ */
+let toastTimer;
+function toast(msg, icon = 'fas fa-check-circle') {
+  const el = document.getElementById('toast');
+  el.querySelector('i').className = icon;
+  document.getElementById('toastText').textContent = msg;
+  el.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.remove('show'), 2800);
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   INIT
+═══════════════════════════════════════════════════════════════ */
+document.addEventListener('DOMContentLoaded', () => {
+  // Map
+  initMap();
+  buildLinesNav();
+
+  // Theme
+  if (!localStorage.getItem('busaiDark')) {
+    localStorage.setItem('busaiDark', window.matchMedia('(prefers-color-scheme:dark)').matches ? '1' : '0');
+  }
+  applyTheme();
+  document.getElementById('darkToggle').addEventListener('click', () => {
+    localStorage.setItem('busaiDark', document.documentElement.getAttribute('data-theme') === 'dark' ? '0' : '1');
+    applyTheme();
+  });
+
+  // Clock
+  tickClock();
+  setInterval(tickClock, 1000);
+
+  // Countdown + schedule updates
+  setInterval(() => {
+    updateHero();
+    updateUpcomingAll();
+    if (currentLine) updateScheduleTimeline();
+  }, 30000);
+
+  startCountdown();
+  updateUpcomingAll();
+
+  // Global search
+  const gs = document.getElementById('globalSearch');
+  gs.addEventListener('input', () => handleGlobalSearch(gs.value.trim()));
+  gs.addEventListener('keydown', e => { if (e.key === 'Escape') { document.getElementById('searchDropdown').classList.remove('open'); gs.blur(); } });
+  document.getElementById('clearGlobalSearch').addEventListener('click', () => {
+    gs.value = ''; document.getElementById('searchDropdown').classList.remove('open'); gs.focus();
+  });
+  document.addEventListener('click', e => {
+    if (!e.target.closest('.search-wrap')) document.getElementById('searchDropdown').classList.remove('open');
+  });
+
+  toast('Bem-vindo ao BusAI — selecione uma linha ou ative sua localização!', 'fas fa-bus');
+});
+</script>
+<style>.ag-nav-back{position:fixed;top:12px;left:12px;z-index:9999;background:rgba(79,70,229,.9);color:#fff;border:none;border-radius:50px;padding:.4rem .9rem;font-size:.8rem;font-family:system-ui,sans-serif;font-weight:600;cursor:pointer;text-decoration:none;display:flex;align-items:center;gap:.35rem;box-shadow:0 2px 10px rgba(0,0,0,.25);backdrop-filter:blur(4px);transition:background .2s,transform .2s}.ag-nav-back:hover{background:rgba(55,48,163,.95);transform:translateY(-1px)}</style><a href="https://passosdomingues.github.io/webappshowcase/site/main.html" class="ag-nav-back" aria-label="Voltar ao índice">&#8592; Índice</a>
+</body>
+</html>

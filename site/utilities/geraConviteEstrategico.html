@@ -1,0 +1,950 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="A tool for creating event drafts by combining multidisciplinary themes."/>
+    <title>Invitation Strategic Generator</title>
+    <style>
+        :root {
+            --bg-color: #1a1a2e;
+            --text-color: #e0e0e0;
+            --primary-color: #00aaff;
+            --secondary-color: #16213e;
+            --accent-color: #e94560;
+            --border-radius: 12px;
+            --box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        [data-theme="light"] {
+            --bg-color: #f0f4f8;
+            --text-color: #333;
+            --primary-color: #0077cc;
+            --secondary-color: #ffffff;
+            --accent-color: #d93654;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 2rem;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            transition: background-color 0.3s, color 0.3s;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 800px;
+        }
+
+        h1, h2 {
+            color: var(--primary-color);
+            text-align: center;
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        h2 {
+            font-size: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .section {
+            background-color: var(--secondary-color);
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            margin-bottom: 2rem;
+            padding: 1.5rem;
+        }
+
+        .theme-selector-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+            margin-bottom: 1rem;
+        }
+
+        .theme-tag {
+            background-color: var(--primary-color);
+            color: #fff;
+            padding: 8px 15px;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: transform 0.2s, background-color 0.2s;
+            font-weight: 500;
+            font-size: 0.9rem;
+        }
+
+        .theme-tag:hover {
+            transform: translateY(-2px);
+        }
+
+        .theme-tag.selected {
+            background-color: var(--accent-color);
+            transform: scale(1.05);
+        }
+
+        .context-area {
+            margin-top: 1.5rem;
+        }
+
+        textarea {
+            width: calc(100% - 2rem);
+            min-height: 120px;
+            resize: vertical;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            border: 1px solid var(--primary-color);
+            border-radius: var(--border-radius);
+            padding: 1rem;
+            font-family: inherit;
+        }
+
+        button {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: var(--border-radius);
+            padding: 0.8rem 1.5rem;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: bold;
+            transition: background-color 0.3s, transform 0.2s;
+            display: block;
+            width: 100%;
+            margin-top: 1rem;
+        }
+
+        button:hover {
+            background-color: var(--accent-color);
+            transform: translateY(-3px);
+        }
+        
+        .whatsapp-btn {
+            background-color: #25D366;
+        }
+
+        .whatsapp-btn:hover {
+            background-color: #1DAE53;
+        }
+        
+        .output-container {
+            display: none;
+        }
+        
+        .editable-output {
+            width: calc(100% - 2rem);
+            min-height: 80px;
+            background-color: var(--secondary-color);
+            border: 1px dashed var(--primary-color);
+            padding: 1rem;
+            border-radius: var(--border-radius);
+            margin-top: 0.5rem;
+            font-size: 1rem;
+        }
+
+        .llm-simulation {
+            border: 1px dashed var(--accent-color);
+            padding: 1rem;
+            margin-top: 1rem;
+            border-radius: var(--border-radius);
+        }
+
+        .llm-simulation p {
+            margin: 0.5rem 0;
+            opacity: 0;
+            transform: translateY(10px);
+            animation: fadeIn 0.5s forwards;
+        }
+        
+        .llm-thinking::before {
+            content: '🧠 Thinking... ';
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+
+        @keyframes fadeIn {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .disclaimer {
+            font-size: 0.8rem;
+            background-color: rgba(255, 193, 7, 0.8);
+            color: #333;
+            padding: 1rem;
+            border-radius: var(--border-radius);
+            margin-top: 1rem;
+        }
+        
+        .disclaimer h3 {
+            margin-top: 0;
+            color: #d93654;
+        }
+        
+        .disclaimer a {
+            color: #0077cc;
+            font-weight: bold;
+        }
+
+        .theme-switcher {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+        }
+
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 60px;
+            height: 34px;
+        }
+
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 34px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "☀️";
+            height: 26px;
+            width: 26px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 26px;
+        }
+
+        input:checked + .slider {
+            background-color: var(--primary-color);
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(26px);
+            content: "🌙";
+        }
+        
+        /* --- Estilos do Modal de Confirmação --- */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.6);
+            justify-content: center;
+            align-items: center;
+            animation: fadeIn 0.3s;
+        }
+
+        .modal-content {
+            background-color: var(--secondary-color);
+            color: var(--text-color);
+            margin: auto;
+            padding: 2rem;
+            border-radius: var(--border-radius);
+            width: 90%;
+            max-width: 600px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.4);
+        }
+
+        .modal-content h3 {
+            color: var(--accent-color);
+            margin-top: 0;
+        }
+        .modal-content p, .modal-content ul {
+            font-size: 0.9rem;
+            line-height: 1.6;
+        }
+        .modal-content a {
+             color: var(--primary-color);
+             font-weight: bold;
+        }
+        
+        .modal-buttons {
+            display: flex;
+            justify-content: flex-end;
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+        
+        .modal-buttons button {
+            width: auto;
+        }
+
+        .modal-buttons .cancel-btn {
+            background-color: #6c757d;
+        }
+        .modal-buttons .cancel-btn:hover {
+            background-color: #5a6268;
+        }
+
+        /* Progress bar styles */
+        .progress-container {
+            width: 100%;
+            background-color: var(--bg-color);
+            border-radius: 5px;
+            margin: 1rem 0;
+            display: none;
+        }
+
+        .progress-bar {
+            height: 10px;
+            background-color: var(--primary-color);
+            border-radius: 5px;
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        .char-counter {
+            font-size: 0.8rem;
+            text-align: right;
+            color: var(--text-color);
+            opacity: 0.7;
+            margin-top: 0.5rem;
+        }
+    </style>
+</head>
+<body data-theme="dark">
+
+    <div class="theme-switcher">
+        <label class="switch">
+            <input type="checkbox" id="themeToggle" checked>
+            <span class="slider"></span>
+        </label>
+    </div>
+
+    <div class="container">
+        <h1>Invitation Strategic Generator</h1>
+        <p style="text-align:center; margin-bottom: 2rem;">A tool for creating event drafts by combining multidisciplinary themes.</p>
+
+        <div class="section">
+            <h2>1. Select 2 or more thematic areas</h2>
+            <div id="themeSelector" class="theme-selector-container"></div>
+        </div>
+
+        <div class="section">
+            <h2>2. Provide context for each area</h2>
+            <p>Paste a text (news, article, insight) for each selected theme below. For best results, use reliable sources.</p>
+            <div id="contextInputs"></div>
+        </div>
+
+        <div class="progress-container" id="progressContainer">
+            <div class="progress-bar" id="progressBar"></div>
+        </div>
+
+        <button id="generateBtn">Generate Title and Caption</button>
+
+        <div id="llmInterface" class="section output-container">
+            <h2>AI Simulation</h2>
+            <div id="llmSimulationLog" class="llm-simulation"></div>
+        </div>
+
+        <div id="results" class="section output-container">
+            <h2>Generated Results</h2>
+            
+            <h3>Suggested Event Title:</h3>
+            <div id="eventTitle" class="editable-output" contenteditable="true"></div>
+
+            <h3>Suggested Instagram Caption:</h3>
+            <div id="eventCaption" class="editable-output" contenteditable="true"></div>
+            
+            <button onclick="shareOnWhatsApp()" class="whatsapp-btn">Share Draft on WhatsApp</button>
+        </div>
+        
+        <div class="disclaimer">
+            <h3>Responsible Use and Privacy Notice (GDPR)</h3>
+            <p><strong>This tool is secure:</strong> It operates 100% in your browser and no data entered is sent to external servers.</p>
+             <p><strong>Your Responsibility:</strong> You are responsible for the content you share. Use the drafts consciously and ethically. Before sharing on WhatsApp, you will be asked to agree to our terms of responsible use.</p>
+        </div>
+
+    </div>
+    
+    <div id="whatsappDisclaimerModal" class="modal-overlay">
+        <div class="modal-content">
+            <h3>Responsible Use and Privacy Notice (GDPR)</h3>
+            <p><strong>Privacy First:</strong> This tool operates 100% in your browser. <strong>No data you enter is sent to external servers.</strong> Everything remains on your device.</p>
+            <p><strong>Your Responsibility:</strong> The generated content is a strategic draft. You are entirely responsible for any content you choose to share. Sharing via WhatsApp is voluntary and your explicit action. You can and should edit the content as needed.</p>
+            <p><strong>Reliable Sources:</strong> The quality of generation depends on the quality of context you provide. Prioritize high-credibility sources like the World Economic Forum. Check the links below for insights:</p>
+            <ul>
+                <li><a href="https://intelligence.weforum.org/topics/a1Gb0000000LrSOEA0/key-issues/a1Gb0000003cFYbEAM" target="_blank" rel="noopener noreferrer">Innovation - WEF</a></li>
+                <li><a href="https://intelligence.weforum.org/topics/a1Gb0000000LGqtEAG" target="_blank" rel="noopener noreferrer">Entrepreneurship - WEF</a></li>
+            </ul>
+            <p><strong>Combating Disinformation:</strong> It is unethical and may be illegal to use this tool to create or disseminate fake news. The responsibility for shared content is entirely yours. Respect copyright and avoid plagiarism.</p>
+            <p><strong>By clicking "I Agree", you confirm you have read and accept these terms.</strong></p>
+            <div class="modal-buttons">
+                <button id="cancelShareBtn" class="cancel-btn">Cancel</button>
+                <button id="agreeAndShareBtn">I Agree and Continue</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Performance optimization: Cache DOM elements
+        const DOM = {
+            themeSelector: document.getElementById('themeSelector'),
+            contextInputs: document.getElementById('contextInputs'),
+            generateBtn: document.getElementById('generateBtn'),
+            llmInterface: document.getElementById('llmInterface'),
+            llmSimulationLog: document.getElementById('llmSimulationLog'),
+            results: document.getElementById('results'),
+            eventTitle: document.getElementById('eventTitle'),
+            eventCaption: document.getElementById('eventCaption'),
+            progressContainer: document.getElementById('progressContainer'),
+            progressBar: document.getElementById('progressBar'),
+            whatsappModal: document.getElementById('whatsappDisclaimerModal'),
+            cancelShareBtn: document.getElementById('cancelShareBtn'),
+            agreeAndShareBtn: document.getElementById('agreeAndShareBtn'),
+            themeToggle: document.getElementById('themeToggle')
+        };
+
+        // Performance optimization: Memoization cache
+        const memoCache = new Map();
+
+        // English word lists
+        const WORD_LISTS = {
+            stopWords: new Set([
+                'the', 'and', 'a', 'an', 'in', 'on', 'at', 'for', 'to', 'of', 
+                'with', 'as', 'by', 'is', 'are', 'was', 'were', 'it', 'that', 'this',
+                'be', 'have', 'has', 'had', 'will', 'would', 'can', 'could', 'shall',
+                'should', 'may', 'might', 'must', 'i', 'you', 'he', 'she', 'we', 'they'
+            ]),
+            positiveWords: ['innovative', 'opportunity', 'growth', 'success', 'transformation', 
+                          'breakthrough', 'solution', 'advantage', 'potential', 'progress'],
+            negativeWords: ['challenge', 'problem', 'risk', 'threat', 'crisis',
+                          'issue', 'barrier', 'obstacle', 'difficulty', 'setback'],
+            urgentWords: ['urgent', 'now', 'immediately', 'crucial', 'essential',
+                        'critical', 'vital', 'imperative', 'pressing', 'time-sensitive'],
+            actionVerbs: ['transform', 'innovate', 'develop', 'create', 'implement',
+                         'accelerate', 'optimize', 'revolutionize', 'impact', 'generate',
+                         'launch', 'build', 'design', 'engineer', 'pioneer']
+        };
+
+        // Thematic areas data
+        const THEMATIC_AREAS = {
+            "Open Innovation": { url: "https://intelligence.weforum.org/topics/a1Gb0000000LrSOEA0/key-issues/a1Gb0000003cFYbEAM" },
+            "Entrepreneurship": { url: "https://intelligence.weforum.org/topics/a1Gb0000000LGqtEAG" },
+            "Agile Governance": { url: "https://intelligence.weforum.org/topics/a1Gb0000000pTDaEAM" },
+            "Education": { url: "https://intelligence.weforum.org/topics/a1Gb0000000LPFfEAO" },
+            "Cities and Urbanization": { url: "https://intelligence.weforum.org/topics/a1Gb0000000LiPhEAK" },
+            "Science": { url: "https://intelligence.weforum.org/topics/a1G0X000006DO7RUAW" },
+            "Fourth Industrial Revolution": { url: "https://intelligence.weforum.org/topics/a1Gb0000001RIhBEAW" },
+            "Internet Governance": { url: "https://intelligence.weforum.org/topics/a1Gb0000000pjsvEAA" },
+            "Justice and Law": { url: "https://intelligence.weforum.org/topics/a1Gb0000000LGrIEAW" },
+            "Sustainable Development": { url: "https://intelligence.weforum.org/topics/a1Gb0000000LHN7EAO" },
+            "Innovation Ecosystem": { url: "https://intelligence.weforum.org/topics/a1Gb0000000LrSOEA0/key-issues/a1Gb0000003cFYWEA2" },
+            "Taxes": { url: "https://intelligence.weforum.org/topics/a1G0X000006Nw4FUAS" },
+            "Blockchain": { url: "https://intelligence.weforum.org/topics/a1Gb00000038qmPEAQ" },
+            "Global Governance": { url: "https://intelligence.weforum.org/topics/a1Gb0000005LWrfEAG" },
+            "Internet of Things": { url: "https://intelligence.weforum.org/topics/a1Gb0000005LWrfEAG" },
+            "Mobility": { url: "https://intelligence.weforum.org/topics/a1Gb00000038poVEAQ" },
+            "Digital Communications": { url: "https://intelligence.weforum.org/topics/a1Gb0000000pTDlEAM" },
+            "Social Protection": { url: "https://intelligence.weforum.org/topics/a1Gb0000000LENcEAO" },
+            "Civic Participation": { url: "https://intelligence.weforum.org/topics/a1Gb0000000pTDZEA2" },
+            "Business Model Innovation": { url: "https://intelligence.weforum.org/topics/a1Gb0000000LrSOEA0/key-issues/a1Gb0000003cFYREA2" },
+            "Emerging-Market Multinationals": { url: "https://intelligence.weforum.org/topics/a1Gb0000000pTDJEA2" },
+            "Corporate Governance": { url: "https://intelligence.weforum.org/topics/a1G0X000005JLTqUAO" },
+            "Retail, Consumer Goods and Lifestyle": { url: "https://intelligence.weforum.org/topics/a1Gb0000000pTDhEAM" },
+            "Economic Progress": { url: "https://intelligence.weforum.org/topics/a1Gb0000001hXcwEAE" },
+            "Technology Innovation": { url: "https://intelligence.weforum.org/topics/a1Gb0000000LrSOEA0/key-issues/a1Gb0000003cFYMEA2" },
+            "Semiconductors": { url: "https://intelligence.weforum.org/topics/a1GTG0000009OuL2AU" },
+            "Biotechnology": { url: "https://intelligence.weforum.org/topics/a1Gb0000001j9vlEAA" },
+            "Advanced Materials": { url: "https://intelligence.weforum.org/topics/a1Gb0000001j9vgEAA" },
+            "Artificial Intelligence": { url: "https://intelligence.weforum.org/topics/a1Gb0000000pTDREA2" },
+            "3D Printing": { url: "https://intelligence.weforum.org/topics/a1Gb0000001k6I5EAI" },
+            "Virtual and Augmented Reality": { url: "https://intelligence.weforum.org/topics/a1Gb0000001k6I0EAI" }
+        };
+
+        const selectedThemes = new Set();
+
+        // Initialize theme selector
+        function initializeThemeSelector() {
+            DOM.themeSelector.innerHTML = '';
+            for (const theme in THEMATIC_AREAS) {
+                const tag = document.createElement('div');
+                tag.classList.add('theme-tag');
+                tag.textContent = theme;
+                tag.dataset.theme = theme;
+                tag.onclick = () => toggleTheme(theme);
+                DOM.themeSelector.appendChild(tag);
+            }
+        }
+
+        // Toggle theme selection
+        function toggleTheme(theme) {
+            const tag = document.querySelector(`.theme-tag[data-theme="${theme}"]`);
+            const themeId = theme.replace(/[^a-zA-Z0-9]/g, '-');
+
+            if (selectedThemes.has(theme)) {
+                selectedThemes.delete(theme);
+                tag.classList.remove('selected');
+                const inputToRemove = document.getElementById(`context-${themeId}`);
+                if (inputToRemove) DOM.contextInputs.removeChild(inputToRemove);
+            } else {
+                selectedThemes.add(theme);
+                tag.classList.add('selected');
+                
+                const contextDiv = document.createElement('div');
+                contextDiv.id = `context-${themeId}`;
+                contextDiv.classList.add('context-area');
+                
+                const label = document.createElement('h3');
+                label.innerHTML = `Context for <strong>${theme}</strong>: <a href="${THEMATIC_AREAS[theme].url}" target="_blank" rel="noopener noreferrer" title="Find reliable context at WEF">[suggested source]</a>`;
+                
+                const textarea = document.createElement('textarea');
+                textarea.placeholder = `Paste your text about ${theme} here...`;
+                textarea.addEventListener('input', debounce(updateCharCounter, 300));
+                
+                const counter = document.createElement('div');
+                counter.className = 'char-counter';
+                counter.id = `counter-${themeId}`;
+                counter.textContent = '0/5000 characters';
+                
+                contextDiv.appendChild(label);
+                contextDiv.appendChild(textarea);
+                contextDiv.appendChild(counter);
+                DOM.contextInputs.appendChild(contextDiv);
+            }
+        }
+
+        // Update character counter
+        function updateCharCounter(e) {
+            const textarea = e.target;
+            const themeId = textarea.parentElement.id.replace('context-', '');
+            const counter = document.getElementById(`counter-${themeId}`);
+            const length = textarea.value.length;
+            
+            counter.textContent = `${length}/5000 characters`;
+            
+            if (length > 5000) {
+                textarea.value = textarea.value.substring(0, 5000);
+                counter.textContent = '5000/5000 characters (max reached)';
+                counter.style.color = 'var(--accent-color)';
+            } else {
+                counter.style.color = '';
+            }
+        }
+
+        // Debounce function for performance
+        function debounce(func, wait) {
+            let timeout;
+            return function(...args) {
+                clearTimeout(timeout);
+                timeout = setTimeout(() => func.apply(this, args), wait);
+            };
+        }
+
+        // Content Generator Class (optimized for English)
+        class ContentGenerator {
+            constructor() {
+                this.progressSteps = 8; // Number of steps in generation process
+                this.currentStep = 0;
+            }
+
+            async generateContent() {
+                try {
+                    this.validateInputs();
+                    this.setupUI();
+                    
+                    // Show progress bar
+                    DOM.progressContainer.style.display = 'block';
+                    this.updateProgress(10);
+                    
+                    const contexts = this.collectContexts();
+                    const combinedText = Object.values(contexts).join(' ');
+                    this.updateProgress(20);
+                    
+                    const analysis = this.analyzeContext(combinedText);
+                    this.updateProgress(40);
+                    
+                    await this.simulateProcessing(analysis);
+                    this.updateProgress(60);
+                    
+                    const title = this.generateTitle(analysis.keywords, [...selectedThemes], analysis);
+                    this.updateProgress(80);
+                    
+                    const caption = this.generateCaption(title, analysis.keywords, [...selectedThemes], analysis);
+                    this.updateProgress(90);
+                    
+                    this.displayResults(title, caption);
+                    this.updateProgress(100);
+                    
+                } catch (error) {
+                    await this.addLog(`❌ Error: ${error.message}`);
+                    console.error('Content generation error:', error);
+                } finally {
+                    setTimeout(() => {
+                        DOM.progressContainer.style.display = 'none';
+                    }, 1000);
+                }
+            }
+
+            updateProgress(percent) {
+                DOM.progressBar.style.width = `${percent}%`;
+            }
+
+            validateInputs() {
+                if (selectedThemes.size < 2) {
+                    throw new Error('Please select at least two thematic areas.');
+                }
+            }
+
+            collectContexts() {
+                const contexts = {};
+                
+                for (const theme of selectedThemes) {
+                    const themeId = theme.replace(/[^a-zA-Z0-9]/g, '-');
+                    const textarea = document.querySelector(`#context-${themeId} textarea`);
+                    
+                    if (!textarea || textarea.value.trim() === '') {
+                        throw new Error(`Please provide context for: ${theme}`);
+                    }
+                    
+                    if (textarea.value.length > 5000) {
+                        throw new Error(`Context for ${theme} is too long (max 5000 characters)`);
+                    }
+                    
+                    contexts[theme] = textarea.value.trim();
+                }
+                
+                return contexts;
+            }
+
+            setupUI() {
+                DOM.llmInterface.style.display = 'block';
+                DOM.results.style.display = 'none';
+                DOM.llmSimulationLog.innerHTML = '';
+            }
+
+            async simulateProcessing(analysis) {
+                await this.addLog('Starting content generation process...');
+                await this.delay(300);
+                await this.addLog(`Analyzing contexts for: ${[...selectedThemes].join(', ')}.`);
+                await this.delay(400);
+                await this.addLog('Performing semantic analysis of content...');
+                await this.delay(500);
+                
+                await this.addLog(`Main keywords: ${analysis.keywords.join(', ')}.`);
+                await this.delay(400);
+                
+                if (analysis.entities.stats.length > 0) {
+                    await this.addLog('Statistical data detected: ' + 
+                        analysis.entities.stats.map(s => `${s.value}% ${s.subject}`).join(', '));
+                    await this.delay(500);
+                }
+                
+                await this.addLog('Synthesizing information for title creation...');
+                await this.delay(600);
+                await this.addLog('Building social media caption...');
+                await this.delay(500);
+                await this.addLog('Process completed successfully!');
+                await this.delay(300);
+                await this.addLog('Results are ready for review.');
+            }
+
+            async addLog(message, delay = 300) {
+                return new Promise(resolve => {
+                    setTimeout(() => {
+                        const p = document.createElement('p');
+                        p.className = 'llm-thinking';
+                        p.innerHTML = message;
+                        DOM.llmSimulationLog.appendChild(p);
+                        DOM.llmSimulationLog.scrollTop = DOM.llmSimulationLog.scrollHeight;
+                        resolve();
+                    }, delay);
+                });
+            }
+
+            delay(ms) {
+                return new Promise(resolve => setTimeout(resolve, ms));
+            }
+
+            analyzeContext(text) {
+                const cacheKey = `analysis-${text.length}-${text.substring(0, 20)}`;
+                if (memoCache.has(cacheKey)) return memoCache.get(cacheKey);
+                
+                const analysis = {
+                    entities: {
+                        organizations: this.extractOrganizations(text),
+                        people: this.extractPeople(text),
+                        locations: this.extractLocations(text),
+                        dates: this.extractDates(text),
+                        stats: this.extractStatistics(text)
+                    },
+                    tone: this.detectTone(text),
+                    actionVerbs: this.extractActionVerbs(text),
+                    keywords: this.extractKeywords(text),
+                    concepts: this.extractConcepts(text)
+                };
+                
+                memoCache.set(cacheKey, analysis);
+                return analysis;
+            }
+
+            extractKeywords(text) {
+                const cacheKey = `keywords-${text.length}-${text.substring(0, 20)}`;
+                if (memoCache.has(cacheKey)) return memoCache.get(cacheKey);
+                
+                const words = text.toLowerCase().match(/\b(\w+)\b/g) || [];
+                const wordFrequencies = {};
+                
+                words.forEach(word => {
+                    if (!WORD_LISTS.stopWords.has(word) && word.length > 3) {
+                        const stem = this.stemWord(word);
+                        wordFrequencies[stem] = (wordFrequencies[stem] || 0) + 1;
+                    }
+                });
+
+                const result = Object.keys(wordFrequencies)
+                    .sort((a, b) => wordFrequencies[b] - wordFrequencies[a])
+                    .slice(0, 10);
+                
+                memoCache.set(cacheKey, result);
+                return result;
+            }
+
+            stemWord(word) {
+                // Simple stemming for English
+                if (word.length > 6) {
+                    if (word.endsWith('ing')) return word.slice(0, -3);
+                    if (word.endsWith('ly')) return word.slice(0, -2);
+                    if (word.endsWith('s')) return word.slice(0, -1);
+                }
+                return word;
+            }
+
+            extractConcepts(text) {
+                const phrases = text.toLowerCase().match(/\b(\w+\s\w+(\s\w+)?)\b/g) || [];
+                const phraseFrequencies = {};
+
+                phrases.forEach(phrase => {
+                    if (!WORD_LISTS.stopWords.has(phrase.split(' ')[0])) {
+                        phraseFrequencies[phrase] = (phraseFrequencies[phrase] || 0) + 1;
+                    }
+                });
+
+                return Object.keys(phraseFrequencies)
+                    .sort((a, b) => phraseFrequencies[b] - phraseFrequencies[a])
+                    .slice(0, 5);
+            }
+
+            generateTitle(keywords, themes, analysis) {
+                const templates = this.getTitleTemplates(themes, keywords, analysis);
+                return templates[Math.floor(Math.random() * templates.length)];
+            }
+
+            getTitleTemplates(themes, keywords, analysis) {
+                const cacheKey = `templates-${themes.join('-')}-${keywords.join('-')}`;
+                if (memoCache.has(cacheKey)) return memoCache.get(cacheKey);
+                
+                const templates = [
+                    `Strategic Connections: ${themes[0]} and ${themes[1]} - The Future of ${keywords[0]}`,
+                    `How ${themes[0]} and ${themes[1]} Are Shaping ${keywords[0]}`,
+                    `${themes[0]} vs ${themes[1]}: The Debate About ${keywords.slice(0,2).join(' and ')}`,
+                    `The ${keywords[0]} Revolution: Perspectives from ${themes[0]} and ${themes[1]}`,
+                    `${keywords[0].toUpperCase()}: Where ${themes[0]} Meets ${themes[1]}`
+                ];
+
+                if (analysis.entities.stats.length > 0) {
+                    const stat = analysis.entities.stats[0];
+                    templates.push(
+                        `${stat.value}% of ${stat.subject}: The Impact of ${themes[0]} and ${themes[1]}`,
+                        `Why ${stat.value}% of ${stat.subject} Care About ${keywords[0]}`
+                    );
+                }
+
+                if (analysis.entities.people.length > 0) {
+                    templates.push(
+                        `What ${analysis.entities.people[0]} Can Teach Us About ${themes[0]} and ${themes[1]}`,
+                        `${analysis.entities.people[0]} and the Future of ${keywords[0]}`
+                    );
+                }
+
+                memoCache.set(cacheKey, templates);
+                return templates;
+            }
+
+            generateCaption(title, keywords, themes, analysis) {
+                let caption = `🚀 You're invited to a transformative discussion!\n\n`;
+                
+                if (analysis.entities.stats.length > 0) {
+                    const stat = analysis.entities.stats[0];
+                    caption += `📊 Data reveals that ${stat.value}% ${stat.subject}. How does this affect ${themes.slice(0,2).join(' and ')}?\n\n`;
+                }
+
+                caption += `Join us for "${title.replace('Strategic Connections: ','')}", an essential event for:\n\n`;
+                
+                const benefits = this.generateBenefits(keywords, themes);
+                caption += benefits.map(b => `✔ ${b}\n`).join('');
+                
+                caption += `\n${this.getCallToAction(analysis.tone)}\n\n`;
+                caption += `📅 [Event Date]\n⏰ [Time]\n📍 [Location or Link]\n\n`;
+                
+                const hashtags = this.generateHashtags(themes, keywords);
+                caption += `#Event #Workshop #Debate #FutureOfBusiness ${hashtags}`;
+                
+                return caption;
+            }
+
+            generateBenefits(keywords, themes) {
+                return [
+                    `Understand how ${keywords[0]} impacts ${keywords[1]}`,
+                    `Learn innovative strategies from ${themes[0]}`,
+                    `Discover opportunities in ${themes[1]}`,
+                    `Connect with experts in ${keywords.slice(0,2).join(' and ')}`
+                ];
+            }
+
+            getCallToAction(tone) {
+                const ctas = {
+                    positive: "Don't miss this opportunity to be part of the conversation!",
+                    negative: "Join us to find solutions to these pressing challenges!",
+                    urgent: "Act now - this discussion can't wait!",
+                    neutral: "We look forward to your participation in this important discussion."
+                };
+                
+                return ctas[tone] || ctas.neutral;
+            }
+
+            generateHashtags(themes, keywords) {
+                return themes.map(t => '#' + t.replace(/[^a-zA-Z0-9]/g, ''))
+                    .concat(keywords.map(k => '#' + k.replace(/[^a-zA-Z0-9]/g, '')))
+                    .join(' ');
+            }
+
+            displayResults(title, caption) {
+                DOM.eventTitle.textContent = title;
+                DOM.eventCaption.textContent = caption;
+                DOM.results.style.display = 'block';
+                window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+            }
+
+            // Entity extraction methods (simplified for demo)
+            extractOrganizations(text) {
+                return text.match(/([A-Z][a-z]+(?:\s[A-Z][a-z]+)*)/g) || [];
+            }
+
+            extractPeople(text) {
+                return text.match(/(?:Dr\.|Mr\.|Ms\.|Mrs\.)\s[A-Z][a-z]+/g) || [];
+            }
+
+            extractLocations(text) {
+                return text.match(/(?:in|at)\s([A-Z][a-z]+(?:\s[A-Z][a-z]+)*)/g) || [];
+            }
+
+            extractDates(text) {
+                return text.match(/(?:\d{1,2}\/\d{1,2}\/\d{2,4})|(?:\b(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[a-z]*\s\d{1,2},?\s\d{4})/g) || [];
+            }
+
+            extractStatistics(text) {
+                const matches = text.match(/(\d+)%\s(of|among)\s([a-z\s]+)/gi) || [];
+                return matches.map(match => {
+                    const parts = match.split(/\s+/);
+                    return {
+                        value: parts[0],
+                        subject: parts.slice(2).join(' ')
+                    };
+                });
+            }
+
+            detectTone(text) {
+                const lowerText = text.toLowerCase();
+                const positiveCount = WORD_LISTS.positiveWords.filter(w => lowerText.includes(w)).length;
+                const negativeCount = WORD_LISTS.negativeWords.filter(w => lowerText.includes(w)).length;
+                const urgentCount = WORD_LISTS.urgentWords.filter(w => lowerText.includes(w)).length;
+                
+                if (urgentCount > 2) return 'urgent';
+                if (positiveCount > negativeCount) return 'positive';
+                if (negativeCount > positiveCount) return 'negative';
+                return 'neutral';
+            }
+
+            extractActionVerbs(text) {
+                const lowerText = text.toLowerCase();
+                return WORD_LISTS.actionVerbs.filter(verb => lowerText.includes(verb));
+            }
+        }
+
+        // WhatsApp sharing function
+        async function shareOnWhatsApp() {
+            const title = DOM.eventTitle.textContent;
+            const caption = DOM.eventCaption.textContent;
+
+            if (!title || !caption) {
+                alert("Please generate content before sharing!");
+                return;
+            }
+
+            try {
+                await showConfirmationDialog();
+                
+                const fullMessage = `*Generated Event Draft*\n\n*Suggested Title:*\n${title}\n\n*Suggested Caption:*\n${caption}`;
+                const whatsappUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(fullMessage)}`;
+                window.open(whatsappUrl, '_blank');
+            } catch (error) {
+                console.log("Sharing canceled by user.");
+            }
+        }
+
+        // Show confirmation dialog
+        function showConfirmationDialog() {
+            return new Promise((resolve, reject) => {
+                DOM.whatsappModal.style.display = 'flex';
+
+                DOM.agreeAndShareBtn.onclick = () => {
+                    DOM.whatsappModal.style.display = 'none';
+                    resolve();
+                };
+
+                DOM.cancelShareBtn.onclick = () => {
+                    DOM.whatsappModal.style.display = 'none';
+                    reject(new Error('User canceled'));
+                };
+            });
+        }
+
+        // Theme switcher
+        DOM.themeToggle.addEventListener('change', () => {
+            document.body.setAttribute('data-theme', DOM.themeToggle.checked ? 'dark' : 'light');
+        });
+
+        // Initialize the app
+        document.addEventListener('DOMContentLoaded', () => {
+            initializeThemeSelector();
+            const contentGenerator = new ContentGenerator();
+            DOM.generateBtn.addEventListener('click', () => contentGenerator.generateContent());
+        });
+    </script>
+<style>.ag-nav-back{position:fixed;top:12px;left:12px;z-index:9999;background:rgba(79,70,229,.9);color:#fff;border:none;border-radius:50px;padding:.4rem .9rem;font-size:.8rem;font-family:system-ui,sans-serif;font-weight:600;cursor:pointer;text-decoration:none;display:flex;align-items:center;gap:.35rem;box-shadow:0 2px 10px rgba(0,0,0,.25);backdrop-filter:blur(4px);transition:background .2s,transform .2s}.ag-nav-back:hover{background:rgba(55,48,163,.95);transform:translateY(-1px)}</style><a href="https://passosdomingues.github.io/webappshowcase/site/main.html" class="ag-nav-back" aria-label="Voltar ao índice">&#8592; Índice</a>
+</body>
+</html>

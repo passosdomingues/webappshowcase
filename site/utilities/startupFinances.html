@@ -1,0 +1,2642 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Calculando cenários probabilísticos..."/>
+    <title>Análise Financeira Avançada - Monte Carlo</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-color: #2563eb;
+            --primary-dark: #1d4ed8;
+            --secondary-color: #f1f5f9;
+            --accent-color: #10b981;
+            --danger-color: #ef4444;
+            --warning-color: #f59e0b;
+            --text-primary: #1e293b;
+            --text-secondary: #64748b;
+            --border-color: #e2e8f0;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: var(--text-primary);
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            color: white;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: var(--shadow-lg);
+            transition: transform 0.2s;
+        }
+
+        .card:hover {
+            transform: translateY(-2px);
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid var(--secondary-color);
+        }
+
+        .card-header i {
+            font-size: 1.5rem;
+            color: var(--primary-color);
+            margin-right: 12px;
+        }
+
+        .card-header h3 {
+            font-size: 1.3rem;
+            font-weight: 600;
+        }
+
+        .business-segments {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 12px;
+            margin-bottom: 25px;
+        }
+
+        .segment-btn {
+            background: var(--secondary-color);
+            border: 2px solid transparent;
+            border-radius: 12px;
+            padding: 15px 10px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 0.85rem;
+        }
+
+        .segment-btn:hover {
+            background: var(--primary-color);
+            color: white;
+            transform: scale(1.05);
+        }
+
+        .segment-btn.active {
+            background: var(--primary-color);
+            color: white;
+            border-color: var(--primary-dark);
+        }
+
+        .segment-btn i {
+            display: block;
+            font-size: 1.5rem;
+            margin-bottom: 8px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+            position: relative;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+
+        .form-group input:focus, .form-group select:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+        .info-icon {
+            position: absolute;
+            right: 10px;
+            top: 38px;
+            color: var(--text-secondary);
+            cursor: help;
+        }
+
+        .tooltip {
+            position: absolute;
+            background: white;
+            border: 1px solid var(--border-color);
+            padding: 10px;
+            border-radius: 8px;
+            box-shadow: var(--shadow-lg);
+            z-index: 100;
+            width: 250px;
+            font-size: 0.9rem;
+            display: none;
+            right: 0;
+            top: 60px;
+        }
+
+        .info-icon:hover + .tooltip {
+            display: block;
+        }
+
+        .btn {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 14px 28px;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn:hover {
+            background: var(--primary-dark);
+            transform: translateY(-1px);
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .btn-full {
+            width: 100%;
+            justify-content: center;
+        }
+
+        .btn-secondary {
+            background: var(--secondary-color);
+            color: var(--text-primary);
+        }
+
+        .btn-secondary:hover {
+            background: #e2e8f0;
+        }
+
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .metric-card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            box-shadow: var(--shadow);
+            border-left: 4px solid var(--primary-color);
+        }
+
+        .metric-value {
+            font-size: 1.8rem;
+            font-weight: 600;
+            color: var(--primary-color);
+            margin-bottom: 5px;
+        }
+
+        .metric-label {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            margin-bottom: 10px;
+        }
+
+        .metric-change {
+            font-size: 0.8rem;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-weight: 500;
+        }
+
+        .metric-change.positive {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--accent-color);
+        }
+
+        .metric-change.negative {
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--danger-color);
+        }
+
+        .charts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .chart-container {
+            background: white;
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: var(--shadow-lg);
+            height: 400px;
+            position: relative;
+        }
+
+        .chart-title {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .monte-carlo-section {
+            background: white;
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: var(--shadow-lg);
+            margin-bottom: 30px;
+        }
+
+        .monte-carlo-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .stat-item {
+            text-align: center;
+            padding: 15px;
+            background: var(--secondary-color);
+            border-radius: 8px;
+        }
+
+        .stat-value {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+
+        .stat-label {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            margin-top: 5px;
+        }
+
+        .recommendations {
+            background: white;
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: var(--shadow-lg);
+        }
+
+        .recommendation-item {
+            display: flex;
+            align-items: flex-start;
+            padding: 15px;
+            margin-bottom: 15px;
+            background: var(--secondary-color);
+            border-radius: 8px;
+            border-left: 4px solid var(--accent-color);
+        }
+
+        .recommendation-item.warning {
+            border-left-color: var(--warning-color);
+        }
+
+        .recommendation-item.danger {
+            border-left-color: var(--danger-color);
+        }
+
+        .recommendation-item i {
+            font-size: 1.2rem;
+            color: var(--accent-color);
+            margin-right: 12px;
+            margin-top: 2px;
+        }
+
+        .recommendation-item.warning i {
+            color: var(--warning-color);
+        }
+
+        .recommendation-item.danger i {
+            color: var(--danger-color);
+        }
+
+        .recommendation-content h4 {
+            font-size: 1rem;
+            margin-bottom: 5px;
+            color: var(--text-primary);
+        }
+
+        .recommendation-content p {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            line-height: 1.4;
+        }
+
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .loading-content {
+            background: white;
+            padding: 40px;
+            border-radius: 16px;
+            text-align: center;
+        }
+
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid var(--secondary-color);
+            border-top: 4px solid var(--primary-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .alert {
+            padding: 15px 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .alert.success {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--accent-color);
+            border: 1px solid rgba(16, 185, 129, 0.2);
+        }
+
+        .alert.danger {
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--danger-color);
+            border: 1px solid rgba(239, 68, 68, 0.2);
+        }
+
+        .score-circle {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            font-weight: 600;
+            color: white;
+            margin: 0 auto 15px;
+            position: relative;
+        }
+
+        .score-excellent { background: linear-gradient(135deg, #10b981, #059669); }
+        .score-good { background: linear-gradient(135deg, #3b82f6, #2563eb); }
+        .score-average { background: linear-gradient(135deg, #f59e0b, #d97706); }
+        .score-poor { background: linear-gradient(135deg, #ef4444, #dc2626); }
+
+        /* Estilos para as abas */
+        .tabs-container {
+            background: white;
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: var(--shadow-lg);
+            margin-bottom: 30px;
+        }
+        
+        .tabs-header {
+            display: flex;
+            border-bottom: 2px solid var(--border-color);
+            margin-bottom: 20px;
+            overflow-x: auto;
+            gap: 10px;
+        }
+        
+        .tab-button {
+            background: none;
+            border: none;
+            padding: 12px 20px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: var(--text-secondary);
+            border-radius: 8px 8px 0 0;
+            transition: all 0.3s;
+            white-space: nowrap;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .tab-button:hover {
+            background: var(--secondary-color);
+            color: var(--text-primary);
+        }
+        
+        .tab-button.active {
+            background: var(--primary-color);
+            color: white;
+            border-bottom: 2px solid var(--primary-color);
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+        
+        .temporal-controls {
+            background: var(--secondary-color);
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+        }
+        
+        .time-slider-container {
+            margin: 20px 0;
+        }
+        
+        .time-slider {
+            width: 100%;
+            height: 8px;
+            border-radius: 4px;
+            background: #ddd;
+            outline: none;
+            opacity: 0.7;
+            transition: opacity 0.2s;
+        }
+        
+        .time-slider:hover {
+            opacity: 1;
+        }
+        
+        .time-slider::-webkit-slider-thumb {
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: var(--primary-color);
+            cursor: pointer;
+        }
+        
+        .slider-labels {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 10px;
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+        
+        #current-time-label {
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+        
+        .chart-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+        
+        #monte-carlo-results {
+            background: var(--secondary-color);
+            padding: 20px;
+            border-radius: 12px;
+            margin: 20px 0;
+        }
+        
+        .section-title {
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .dashboard-card {
+            background: white;
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: var(--shadow-lg);
+        }
+
+        .export-buttons {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            justify-content: flex-end;
+        }
+
+        .export-btn {
+            padding: 8px 16px;
+            font-size: 0.9rem;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .export-btn i {
+            font-size: 0.9rem;
+        }
+
+        .score-point {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background: var(--primary-color);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 2;
+        }
+
+        .score-axis {
+            position: absolute;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        .score-axis.runway {
+            top: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .score-axis.scalability {
+            bottom: 10px;
+            left: 10px;
+        }
+
+        .score-axis.prolabore {
+            bottom: 10px;
+            right: 10px;
+        }
+
+        @media (max-width: 768px) {
+            .main-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .charts-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .container {
+                padding: 15px;
+            }
+
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="loading-overlay" id="calculating-overlay">
+        <div class="loading-content">
+            <div class="spinner"></div>
+            <h3>Executando Análise Monte Carlo</h3>
+            <p id="loading-message">Calculando cenários probabilísticos...</p>
+        </div>
+    </div>
+
+    <div class="container">
+        <header class="header">
+            <h1><i class="fas fa-chart-line"></i> Análise Financeira Avançada</h1>
+            <p>Simulação Temporal Holística com Método Monte Carlo</p>
+        </header>
+
+        <div id="alert-container"></div>
+
+        <!-- Sistema de Abas -->
+        <div class="tabs-container">
+            <div class="tabs-header">
+                <button class="tab-button active" onclick="showTab('dashboard')">
+                    <i class="fas fa-tachometer-alt"></i> Dashboard
+                </button>
+                <button class="tab-button" onclick="showTab('segment')">
+                    <i class="fas fa-industry"></i> Segmentos
+                </button>
+                <button class="tab-button" onclick="showTab('market')">
+                    <i class="fas fa-chart-line"></i> Mercado
+                </button>
+                <button class="tab-button" onclick="showTab('revenue')">
+                    <i class="fas fa-dollar-sign"></i> Receitas
+                </button>
+                <button class="tab-button" onclick="showTab('costs')">
+                    <i class="fas fa-calculator"></i> Custos
+                </button>
+                <button class="tab-button" onclick="showTab('team')">
+                    <i class="fas fa-users"></i> Equipe
+                </button>
+                <button class="tab-button" onclick="showTab('investment')">
+                    <i class="fas fa-piggy-bank"></i> Investimento
+                </button>
+                <button class="tab-button" onclick="showTab('projections')">
+                    <i class="fas fa-crystal-ball"></i> Projeções
+                </button>
+            </div>
+
+            <!-- Aba Dashboard (Conteúdo Original) -->
+            <div id="dashboard" class="tab-content active">
+                <div class="export-buttons">
+                    <button class="btn btn-secondary export-btn" onclick="exportDashboardToPDF()">
+                        <i class="fas fa-file-pdf"></i> Exportar PDF
+                    </button>
+                    <button class="btn btn-secondary export-btn" onclick="exportDashboardToPNG()">
+                        <i class="fas fa-image"></i> Exportar PNG
+                    </button>
+                </div>
+
+                <div class="main-grid">
+                    <div class="card">
+                        <div class="card-header">
+                            <i class="fas fa-cog"></i>
+                            <h3>Configurações do Negócio</h3>
+                        </div>
+
+                        <h4 style="margin-bottom: 15px;">Segmento de Negócio</h4>
+                        <div class="business-segments" id="business-segments"></div>
+
+                        <button class="btn btn-full" id="calculate-btn" onclick="calculateMetrics()">
+                            <i class="fas fa-calculator"></i>
+                            Calcular Métricas Personalizadas
+                        </button>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <i class="fas fa-tachometer-alt"></i>
+                            <h3>Score</h3>
+                        </div>
+                        
+                        <div style="text-align: center; margin-top: 20px;">
+                            <div class="score-circle" id="holistic-score">
+                                --
+                            </div>
+                            <p id="score-description">Execute a análise para ver o score</p>
+                        </div>
+
+                        <div class="card-header">
+                            <i class="fas fa-vault"></i>
+                            <h3>Dashboard de Métricas</h3>
+                        </div>
+
+                        <div class="metrics-grid" id="metrics-grid">
+                            <!-- Métricas serão inseridas aqui via JavaScript -->
+                        </div>
+
+                        <div class="card-header">
+                            <i class="fas fa-dice"></i>
+                            <h3>Dashboard de Projeções Monte Carlo</h3>
+                        </div>
+
+                        <div class="monte-carlo-stats" id="monte-carlo-stats">
+                            <!-- Estatísticas Monte Carlo serão inseridas aqui -->
+                        </div>
+                        
+                        <div class="card-header">
+                            <i class="fas fa-lightbulb"></i>
+                            <h3>Recomendações Estratégicas</h3>
+                        </div>
+                        <div id="recommendations-content">
+                            <p style="text-align: center; color: var(--text-secondary);">
+                                Execute a análise para receber recomendações personalizadas
+                            </p>
+                        </div>
+                    </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Aba Segmento -->
+            <div id="segment" class="tab-content">
+                <div class="dashboard-card">
+                    <h2 class="section-title"><i class="fas fa-industry"></i> Análise de Segmentos</h2>
+                    
+                    <div class="form-group">
+                        <label>Selecione dois segmentos para comparação:</label>
+                        <div class="form-row">
+                            <select id="segment-compare-1" class="form-control">
+                                <option value="saas">SaaS</option>
+                                <option value="fintech">Fintech</option>
+                                <option value="ecommerce">E-commerce</option>
+                                <option value="marketplace">Marketplace</option>
+                                <option value="edtech">EdTech</option>
+                                <option value="healthtech">HealthTech</option>
+                            </select>
+                            <select id="segment-compare-2" class="form-control">
+                                <option value="fintech">Fintech</option>
+                                <option value="saas">SaaS</option>
+                                <option value="ecommerce">E-commerce</option>
+                                <option value="marketplace">Marketplace</option>
+                                <option value="edtech">EdTech</option>
+                                <option value="healthtech">HealthTech</option>
+                            </select>
+                        </div>
+                        <button class="btn btn-primary" onclick="compareSegments()">
+                            <i class="fas fa-balance-scale"></i> Comparar Segmentos
+                        </button>
+                    </div>
+                    
+                    <div class="chart-container">
+                        <div class="chart-title">Comparação de Segmentos</div>
+                        <canvas id="segments-radar-chart"></canvas>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Aba Mercado -->
+            <div id="market" class="tab-content">
+                <div class="dashboard-card">
+                    <h2 class="section-title"><i class="fas fa-chart-line"></i> Análise de Mercado</h2>
+                    <div class="form-group">
+                        <label for="market-size">Tamanho do Mercado (TAM) - R$:</label>
+                        <input type="number" id="market-size" class="form-control" placeholder="Ex: 1000000000">
+                    </div>
+                    <div class="form-group">
+                        <label for="addressable-market">Mercado Endereçável (SAM) - R$:</label>
+                        <input type="number" id="addressable-market" class="form-control" placeholder="Ex: 100000000">
+                    </div>
+                    <div class="form-group">
+                        <label for="target-market">Mercado Alvo (SOM) - R$:</label>
+                        <input type="number" id="target-market" class="form-control" placeholder="Ex: 10000000">
+                    </div>
+                    
+                    <button class="btn btn-primary" onclick="updateMarketAnalysis()">
+                        <i class="fas fa-chart-pie"></i> Analisar Mercado
+                    </button>
+                    
+                    <div class="chart-container">
+                        <div class="chart-title">Análise de Mercado (TAM/SAM/SOM)</div>
+                        <canvas id="market-size-chart"></canvas>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Aba Receitas -->
+            <div id="revenue" class="tab-content">
+                <div class="dashboard-card">
+                    <h2 class="section-title"><i class="fas fa-dollar-sign"></i> Modelo de Receitas</h2>
+
+                    <div class="form-group">
+                        <label for="unit-price">Preço Unitário (R$)</label>
+                        <input type="number" id="unit-price" min="0" step="0.01">
+                        <i class="fas fa-info-circle info-icon"></i>
+                        <div class="tooltip">Preço médio por unidade vendida ou por assinatura mensal. Este valor impacta diretamente na receita e no cálculo do LTV.</div>
+                    </div>
+
+                        <div class="form-group">
+                        <label for="monthly-sales">Vendas Mensais (unidades)</label>
+                        <input type="number" id="monthly-sales" min="0">
+                        <i class="fas fa-info-circle info-icon"></i>
+                        <div class="tooltip">Número de unidades vendidas ou assinaturas ativas por mês. Base para cálculo da receita mensal.</div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="growth-rate">Taxa de Crescimento Mensal (%)</label>
+                        <input type="number" id="growth-rate" min="0" max="100" step="0.1">
+                        <i class="fas fa-info-circle info-icon"></i>
+                        <div class="tooltip">Taxa de crescimento esperada nas vendas mês a mês. Valores típicos variam por segmento.</div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="churn-rate">Taxa de Churn Mensal (%)</label>
+                        <input type="number" id="churn-rate" min="0" max="100" step="0.1">
+                        <i class="fas fa-info-circle info-icon"></i>
+                        <div class="tooltip">Porcentagem de clientes que cancelam o serviço a cada mês. Impacta diretamente no LTV e na receita recorrente.</div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="pricing-model">Modelo de Precificação:</label>
+                        <select id="pricing-model" class="form-control" onchange="updateRevenueModel()">
+                            <option value="subscription">Assinatura Mensal</option>
+                            <option value="freemium">Freemium</option>
+                            <option value="one-time">Pagamento Único</option>
+                            <option value="usage-based">Baseado em Uso</option>
+                            <option value="tiered">Planos Escalonados</option>
+                            <option value="marketplace">Comissão Marketplace</option>
+                        </select>
+                    </div>
+                    
+                    <div class="chart-container">
+                        <div class="chart-title">Projeção de Receitas por Modelo</div>
+                        <canvas id="revenue-projection-chart"></canvas>
+                    </div>
+
+                    <div class="charts-grid">
+                    <div class="chart-container">
+                        <div class="chart-title">Distribuição de Receita vs Custos</div>
+                        <canvas id="revenue-chart"></canvas>
+                    </div>
+                    <div class="chart-container">
+                        <div class="chart-title">Distribuição de Custos</div>
+                        <canvas id="costs-chart"></canvas>
+                    </div>
+                    <div class="chart-container">
+                        <div class="chart-title">Relação LTV/CAC</div>
+                        <canvas id="ltv-cac-chart"></canvas>
+                    </div>
+                </div>
+                </div>
+            </div>
+            
+            <!-- Aba Custos -->
+            <div id="costs" class="tab-content">
+                <div class="dashboard-card">
+                    <h2 class="section-title"><i class="fas fa-calculator"></i> Estrutura de Custos</h2>
+
+                    <div class="form-group">
+                        <label for="marketing-spend">Gastos com Marketing (R$/mês)</label>
+                        <input type="number" id="marketing-spend" min="0">
+                        <i class="fas fa-info-circle info-icon"></i>
+                        <div class="tooltip">Investimento total em marketing por mês, incluindo digital, performance e branding.</div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="operational-costs">Custos Operacionais (R$/mês)</label>
+                        <input type="number" id="operational-costs" min="0">
+                        <i class="fas fa-info-circle info-icon"></i>
+                        <div class="tooltip">Despesas fixas operacionais como aluguel, serviços, softwares e infraestrutura.</div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="cogs-percentage">COGS - Custo do Produto (% da receita):</label>
+                        <input type="number" id="cogs-percentage" class="form-control" placeholder="Ex: 25" min="0" max="100" onchange="updateCostsAnalysis()">
+                    </div>
+                    <div class="form-group">
+                        <label for="tech-costs">Custos de Tecnologia (R$/mês):</label>
+                        <input type="number" id="tech-costs" class="form-control" placeholder="Ex: 2000" onchange="updateCostsAnalysis()">
+                    </div>
+                    
+                    <div class="chart-container">
+                        <div class="chart-title">Distribuição de Custos</div>
+                        <canvas id="costs-breakdown-chart"></canvas>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Aba Equipe -->
+            <div id="team" class="tab-content">
+                <div class="dashboard-card">
+                    <h2 class="section-title"><i class="fas fa-users"></i> Estrutura da Equipe</h2>
+                    <div class="form-group">
+                        <label for="team-size">Tamanho da Equipe:</label>
+                        <input type="number" id="team-size" class="form-control" placeholder="Ex: 5" onchange="updateTeamAnalysis()">
+                    </div>
+                    <div class="form-group">
+                        <label for="salaries-total">Folha de Pagamento (R$/mês)</label>
+                        <input type="number" id="salaries-total" min="0">
+                        <i class="fas fa-info-circle info-icon"></i>
+                        <div class="tooltip">Custo total com salários, pró-labore e benefícios da equipe.</div>
+                    </div>
+                    <div class="form-group">
+                        <label for="avg-salary">Salário Médio Mensal (R$):</label>
+                        <input type="number" id="avg-salary" class="form-control" placeholder="Ex: 8000" onchange="updateTeamAnalysis()">
+                    </div>
+                    <div class="form-group">
+                        <label for="hiring-rate">Taxa de Contratação Mensal (%):</label>
+                        <input type="number" id="hiring-rate" class="form-control" placeholder="Ex: 10" step="0.1" onchange="updateTeamAnalysis()">
+                    </div>
+                    
+                    <div class="chart-container">
+                        <div class="chart-title">Crescimento da Equipe</div>
+                        <canvas id="team-growth-chart"></canvas>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Aba Investimento -->
+            <div id="investment" class="tab-content">
+                <div class="dashboard-card">
+                    <h2 class="section-title"><i class="fas fa-piggy-bank"></i> Investimento e Capital</h2>
+
+                    <div class="form-group">
+                        <label for="initial-investment">Investimento Inicial (R$)</label>
+                        <input type="number" id="initial-investment" min="0">
+                        <i class="fas fa-info-circle info-icon"></i>
+                        <div class="tooltip">Capital inicial disponível para operação antes de gerar fluxo de caixa positivo.</div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="funding-rounds">Rodadas de Investimento Planejadas:</label>
+                        <input type="number" id="funding-rounds" class="form-control" placeholder="Ex: 2" onchange="updateInvestmentAnalysis()">
+                    </div>
+                    <div class="form-group">
+                        <label for="next-round-amount">Próxima Rodada (R$):</label>
+                        <input type="number" id="next-round-amount" class="form-control" placeholder="Ex: 1000000" onchange="updateInvestmentAnalysis()">
+                    </div>
+                    
+                    <div class="chart-container">
+                        <div class="chart-title">Timeline de Investimentos</div>
+                        <canvas id="investment-timeline-chart"></canvas>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Aba Projeções -->
+            <div id="projections" class="tab-content">
+                <div class="dashboard-card">
+                    <h2 class="section-title"><i class="fas fa-crystal-ball"></i> Projeções Futuras Integradas</h2>
+
+                    <div class="form-group">
+                        <label for="monte-carlo-iterations">Iterações Monte Carlo</label>
+                        <input type="number" id="monte-carlo-iterations" value="1000" min="100" max="10000">
+                        <i class="fas fa-info-circle info-icon"></i>
+                        <div class="tooltip">Número de simulações probabilísticas para calcular os cenários. Mais iterações = mais precisão, mas demora mais.</div>
+                    </div>
+                    
+                    <div class="temporal-controls">
+                        <h4><i class="fas fa-clock"></i> Simulação Temporal Holística</h4>
+                        <p>Arraste o slider para simular diferentes períodos e ver o impacto em tempo real:</p>
+                        
+                        <div class="time-slider-container">
+                            <input type="range" id="time-slider" class="time-slider" min="-12" max="60" value="0" 
+                                   oninput="updateTemporalProjection(this.value);">
+                            <div class="slider-labels">
+                                <span>-12 meses</span>
+                                <span id="current-time-label">Hoje</span>
+                                <span>+60 meses</span>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="monte-carlo-iterations-proj">Iterações Monte Carlo:</label>
+                            <select id="monte-carlo-iterations-proj" class="form-control">
+                                <option value="100">100 (Rápido)</option>
+                                <option value="1000" selected>1.000 (Padrão)</option>
+                                <option value="10000">10.000 (Preciso)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="monte-carlo-section">
+                        <div class="card-header">
+                            <i class="fas fa-dice"></i>
+                            <h3>Resultados da Simulação Monte Carlo</h3>
+                        </div>
+                        
+                        <div class="metrics-grid" id="projection-metrics">
+                            <!-- Métricas de projeção serão inseridas aqui -->
+                        </div>
+                    </div>
+                    
+                    <div class="chart-grid">
+                        <div class="chart-container">
+                            <div class="chart-title">Projeções de Crescimento</div>
+                            <canvas id="annual-projection-chart"></canvas>
+                        </div>
+                        <div class="chart-container">
+                            <div class="chart-title">Simulação Monte Carlo</div>
+                            <canvas id="monte-carlo-chart"></canvas>
+                        </div>
+                    </div>
+
+                    <div style="text-align: center; margin-top: 30px;">
+                        <h4>Radar Triangular de Priorização Estratégica</h4>
+                        <div style="position: relative; height: 300px; width: 300px; margin: 0 auto;">
+                            <canvas id="triangular-insights-radar"></canvas>
+                        </div>
+                        <p id="priority-description" style="margin-top: 15px; color: var(--text-secondary);">
+                            O gráfico mostra o equilíbrio atual entre as três dimensões estratégicas
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Configurações dos segmentos de negócio
+        const businessSegments = {
+            'saas': {
+                name: 'SaaS',
+                icon: 'fas fa-cloud',
+                description: 'Software como Serviço: Assinaturas de software B2B ou B2C, com foco em recorrência e escalabilidade.',
+                shortDesc: 'Assinaturas de software',
+                benchmarks: {
+                    margemBruta: { min: 70, max: 85, media: 78, nacional: 75 },
+                    ltvCac: { min: 3.0, max: 8.0, medio: 5.2, nacional: 4.5 },
+                    churnMensal: { min: 2.0, max: 7.0, medio: 4.5, nacional: 3.5 },
+                    crescimentoMensal: { min: 8.0, max: 25.0, medio: 15.0, nacional: 12.0 },
+                    cacMedio: { medio: 850, nacional: 900 },
+                    arpuMedio: { medio: 120, nacional: 110 },
+                    ebitdaMargem: { min: 15, max: 30, media: 22.5, nacional: 18 }
+                },
+                defaults: {
+                    unitPrice: 110,
+                    monthlySales: 120,
+                    growthRate: 12,
+                    churnRate: 3.5,
+                    marketingSpend: 9000,
+                    operationalCosts: 13000,
+                    salariesTotal: 25000,
+                    initialInvestment: 900000
+                },
+                marketSizing: {
+                    tam: 6910000000,
+                    sam: 3000000000,
+                    som: 300000000
+                }
+            },
+            'fintech': {
+                name: 'Fintech',
+                icon: 'fas fa-coins',
+                description: 'Tecnologia Financeira: Soluções digitais para serviços bancários, pagamentos, investimentos e crédito.',
+                shortDesc: 'Soluções financeiras digitais',
+                benchmarks: {
+                    margemBruta: { min: 55, max: 75, media: 65, nacional: 60 },
+                    ltvCac: { min: 2.5, max: 6.0, medio: 4.2, nacional: 4.0 },
+                    churnMensal: { min: 4.0, max: 12.0, medio: 8.0, nacional: 7.0 },
+                    crescimentoMensal: { min: 12.0, max: 30.0, medio: 20.0, nacional: 15.0 },
+                    cacMedio: { medio: 1200, nacional: 1300 },
+                    arpuMedio: { medio: 85, nacional: 80 },
+                    ebitdaMargem: { min: 10, max: 25, media: 17.5, nacional: 15 }
+                },
+                defaults: {
+                    unitPrice: 80,
+                    monthlySales: 600,
+                    growthRate: 15,
+                    churnRate: 7,
+                    marketingSpend: 15000,
+                    operationalCosts: 20000,
+                    salariesTotal: 40000,
+                    initialInvestment: 1800000
+                },
+                marketSizing: {
+                    tam: 4730000000,
+                    sam: 2000000000,
+                    som: 200000000
+                }
+            },
+            'ecommerce': {
+                name: 'E-commerce',
+                icon: 'fas fa-shopping-cart',
+                description: 'Comércio Eletrônico: Venda de produtos físicos diretamente ao consumidor final via plataformas online próprias.',
+                shortDesc: 'Venda de produtos online',
+                benchmarks: {
+                    margemBruta: { min: 25, max: 50, media: 35, nacional: 30 },
+                    ltvCac: { min: 2.0, max: 4.5, medio: 3.0, nacional: 2.8 },
+                    churnMensal: { min: 10.0, max: 25.0, medio: 18.0, nacional: 15.0 },
+                    crescimentoMensal: { min: 8.0, max: 20.0, medio: 12.0, nacional: 10.0 },
+                    cacMedio: { medio: 180, nacional: 200 },
+                    arpuMedio: { medio: 95, nacional: 100 },
+                    ebitdaMargem: { min: 5, max: 15, media: 10, nacional: 8 }
+                },
+                defaults: {
+                    unitPrice: 100,
+                    monthlySales: 250,
+                    growthRate: 10,
+                    churnRate: 15,
+                    marketingSpend: 18000,
+                    operationalCosts: 25000,
+                    salariesTotal: 20000,
+                    initialInvestment: 700000
+                },
+                marketSizing: {
+                    tam: 346000000000,
+                    sam: 150000000000,
+                    som: 15000000000
+                }
+            },
+            'marketplace': {
+                name: 'Marketplace',
+                icon: 'fas fa-store',
+                description: 'Plataforma de Negócios: Conecta compradores e vendedores, monetizando através de comissões, taxas ou publicidade.',
+                shortDesc: 'Conecta compradores e vendedores',
+                benchmarks: {
+                    margemBruta: { min: 65, max: 85, media: 75, nacional: 70 },
+                    ltvCac: { min: 4.0, max: 8.0, medio: 6.0, nacional: 5.0 },
+                    churnMensal: { min: 8.0, max: 18.0, medio: 12.0, nacional: 10.0 },
+                    crescimentoMensal: { min: 15.0, max: 35.0, medio: 25.0, nacional: 20.0 },
+                    cacMedio: { medio: 320, nacional: 350 },
+                    arpuMedio: { medio: 65, nacional: 60 },
+                    ebitdaMargem: { min: 15, max: 30, media: 22.5, nacional: 20 }
+                },
+                defaults: {
+                    unitPrice: 60,
+                    monthlySales: 900,
+                    growthRate: 20,
+                    churnRate: 10,
+                    marketingSpend: 22000,
+                    operationalCosts: 28000,
+                    salariesTotal: 45000,
+                    initialInvestment: 2800000
+                },
+                marketSizing: {
+                    tam: 346000000000,
+                    sam: 100000000000,
+                    som: 10000000000
+                }
+            },
+            'edtech': {
+                name: 'EdTech',
+                icon: 'fas fa-graduation-cap',
+                description: 'Tecnologia Educacional: Plataformas e soluções digitais para ensino e aprendizagem, em diversos níveis.',
+                shortDesc: 'Plataformas de ensino',
+                benchmarks: {
+                    margemBruta: { min: 60, max: 80, media: 70, nacional: 68 },
+                    ltvCac: { min: 5.0, max: 10.0, medio: 7.0, nacional: 6.0 },
+                    churnMensal: { min: 3.0, max: 8.0, medio: 5.5, nacional: 4.5 },
+                    crescimentoMensal: { min: 10.0, max: 25.0, medio: 16.0, nacional: 13.0 },
+                    cacMedio: { medio: 450, nacional: 500 },
+                    arpuMedio: { medio: 89, nacional: 100 },
+                    ebitdaMargem: { min: 10, max: 25, media: 17.5, nacional: 15 }
+                },
+                defaults: {
+                    unitPrice: 100,
+                    monthlySales: 180,
+                    growthRate: 13,
+                    churnRate: 4.5,
+                    marketingSpend: 7000,
+                    operationalCosts: 11000,
+                    salariesTotal: 28000,
+                    initialInvestment: 750000
+                },
+                marketSizing: {
+                    tam: 2200000000,
+                    sam: 1000000000,
+                    som: 100000000
+                }
+            },
+            'healthtech': {
+                name: 'HealthTech',
+                icon: 'fas fa-heartbeat',
+                description: 'Tecnologia em Saúde: Soluções digitais para otimizar serviços médicos, gestão hospitalar, telemedicina e bem-estar.',
+                shortDesc: 'Soluções digitais médicas',
+                benchmarks: {
+                    margemBruta: { min: 50, max: 70, media: 60, nacional: 55 },
+                    ltvCac: { min: 6.0, max: 12.0, medio: 8.5, nacional: 7.0 },
+                    churnMensal: { min: 2.0, max: 6.0, medio: 3.8, nacional: 3.0 },
+                    crescimentoMensal: { min: 6.0, max: 18.0, medio: 11.0, nacional: 9.0 },
+                    cacMedio: { medio: 980, nacional: 1100 },
+                    arpuMedio: { medio: 220, nacional: 250 },
+                    ebitdaMargem: { min: 10, max: 20, media: 15, nacional: 12 }
+                },
+                defaults: {
+                    unitPrice: 250,
+                    monthlySales: 90,
+                    growthRate: 9,
+                    churnRate: 3,
+                    marketingSpend: 12000,
+                    operationalCosts: 18000,
+                    salariesTotal: 40000,
+                    initialInvestment: 2000000
+                },
+                marketSizing: {
+                    tam: 504000000000,
+                    sam: 5000000000,
+                    som: 500000000
+                }
+            }
+        };
+
+        let currentSegment = 'saas';
+        let currentMetrics = {};
+        let charts = {};
+        let monteCarloSimulation = null;
+
+        // Inicialização
+        function initializeApp() {
+            renderBusinessSegments();
+            selectSegment('saas');
+            setupInputListeners();
+            initializeTabCharts('dashboard');
+            initTriangularRadarChart(); // Inicializa o gráfico radar
+        }
+
+        function renderBusinessSegments() {
+            const container = document.getElementById('business-segments');
+            container.innerHTML = '';
+            
+            Object.keys(businessSegments).forEach(key => {
+                const segment = businessSegments[key];
+                const btn = document.createElement('div');
+                btn.className = 'segment-btn';
+                btn.innerHTML = `
+                    <i class="${segment.icon}"></i>
+                    <div>${segment.name}</div>
+                `;
+                btn.onclick = () => selectSegment(key);
+                container.appendChild(btn);
+            });
+        }
+
+        function selectSegment(segmentKey) {
+            currentSegment = segmentKey;
+            
+            // Atualizar botões
+            document.querySelectorAll('.segment-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            // Carregar valores padrão
+            loadSegmentDefaults();
+            
+            // Calcular métricas automaticamente
+            calculateMetrics();
+        }
+
+        function loadSegmentDefaults() {
+            const segment = businessSegments[currentSegment];
+            const defaults = segment.defaults;
+            
+            document.getElementById('unit-price').value = defaults.unitPrice;
+            document.getElementById('monthly-sales').value = defaults.monthlySales;
+            document.getElementById('growth-rate').value = defaults.growthRate;
+            document.getElementById('churn-rate').value = defaults.churnRate;
+            document.getElementById('marketing-spend').value = defaults.marketingSpend;
+            document.getElementById('operational-costs').value = defaults.operationalCosts;
+            document.getElementById('salaries-total').value = defaults.salariesTotal;
+            document.getElementById('initial-investment').value = defaults.initialInvestment;
+            
+            // Preencher análise de mercado
+            document.getElementById('market-size').value = segment.marketSizing.tam;
+            document.getElementById('addressable-market').value = segment.marketSizing.sam;
+            document.getElementById('target-market').value = segment.marketSizing.som;
+        }
+
+        function setupInputListeners() {
+            const inputs = [
+                'unit-price', 'monthly-sales', 'growth-rate', 'churn-rate',
+                'marketing-spend', 'operational-costs', 'salaries-total', 'initial-investment'
+            ];
+            
+            inputs.forEach(id => {
+                const input = document.getElementById(id);
+                if (input) {
+                    input.addEventListener('input', debounce(calculateMetrics, 1000));
+                }
+            });
+        }
+
+        function debounce(func, wait) {
+            let timeout;
+            return function executedFunction(...args) {
+                const later = () => {
+                    clearTimeout(timeout);
+                    func(...args);
+                };
+                clearTimeout(timeout);
+                timeout = setTimeout(later, wait);
+            };
+        }
+
+        function getFormInputs() {
+            return {
+                unitPrice: parseFloat(document.getElementById('unit-price').value) || 0,
+                monthlySales: parseFloat(document.getElementById('monthly-sales').value) || 0,
+                growthRate: parseFloat(document.getElementById('growth-rate').value) || 0,
+                churnRate: parseFloat(document.getElementById('churn-rate').value) || 0,
+                marketingSpend: parseFloat(document.getElementById('marketing-spend').value) || 0,
+                operationalCosts: parseFloat(document.getElementById('operational-costs').value) || 0,
+                salariesTotal: parseFloat(document.getElementById('salaries-total').value) || 0,
+                initialInvestment: parseFloat(document.getElementById('initial-investment').value) || 0
+            };
+        }
+
+        function generateNormalRandom(mean = 0, stdDev = 1) {
+            let u = 0, v = 0;
+            while(u === 0) u = Math.random();
+            while(v === 0) v = Math.random();
+            return Math.sqrt(-2.0 * Math.log(u)) * Math.cos(2.0 * Math.PI * v) * stdDev + mean;
+        }
+
+        function calculateStatistics(data) {
+            if (!data || data.length === 0) return null;
+            
+            const sorted = [...data].sort((a, b) => a - b);
+            const n = sorted.length;
+            
+            const mean = data.reduce((a, b) => a + b, 0) / n;
+            const median = n % 2 === 0 ? 
+                (sorted[n/2 - 1] + sorted[n/2]) / 2 : 
+                sorted[Math.floor(n/2)];
+                
+            const min = Math.min(...data);
+            const max = Math.max(...data);
+            
+            const p25 = sorted[Math.floor(n * 0.25)];
+            const p75 = sorted[Math.floor(n * 0.75)];
+            const p90 = sorted[Math.floor(n * 0.90)];
+            
+            return { mean, median, min, max, p25, p75, p90 };
+        }
+
+        function calculateMainMetrics(inputs) {
+            const monthlyRevenue = inputs.unitPrice * inputs.monthlySales;
+            const segment = businessSegments[currentSegment];
+            const grossMargin = segment.benchmarks.margemBruta.media;
+            const grossProfit = monthlyRevenue * (grossMargin / 100);
+            
+            const totalMonthlyCosts = inputs.marketingSpend + inputs.operationalCosts + inputs.salariesTotal;
+            const netResult = grossProfit - totalMonthlyCosts;
+            const burnRate = Math.max(0, totalMonthlyCosts - grossProfit);
+            
+            let runwayMonths = 0;
+            if (burnRate > 0 && inputs.initialInvestment > 0) {
+                runwayMonths = Math.floor(inputs.initialInvestment / burnRate);
+            } else if (burnRate <= 0) {
+                runwayMonths = 999;
+            }
+            
+            const cac = inputs.monthlySales > 0 ? inputs.marketingSpend / inputs.monthlySales : 0;
+            const monthlyChurnRate = inputs.churnRate / 100;
+            const avgLifetimeMonths = monthlyChurnRate > 0 ? 1 / monthlyChurnRate : 24;
+            const ltv = inputs.unitPrice * avgLifetimeMonths * (grossMargin / 100);
+            const ltvCacRatio = cac > 0 ? ltv / cac : 0;
+            
+            // Score holístico
+            const revenueScore = Math.min(100, (inputs.growthRate * 2 + grossMargin) * 0.8);
+            const costScore = Math.min(100, (100 - (totalMonthlyCosts / Math.max(1, monthlyRevenue) * 100)) * 1.2);
+            const marketScore = Math.min(100, (ltvCacRatio > 3 ? 50 : ltvCacRatio * 15) + (100 - inputs.churnRate * 5));
+
+            // Normalização dos valores
+            const normalizedRevenue = Math.max(0, Math.min(100, revenueScore));
+            const normalizedCost = Math.max(0, Math.min(100, costScore));
+            const normalizedMarket = Math.max(0, Math.min(100, marketScore));
+            
+            const holisticScore = Math.round(Math.max(0, Math.min(100, 
+                (normalizedRevenue * 0.4 + normalizedCost * 0.3 + normalizedMarket * 0.3)
+            )));
+            
+            // Priorização estratégica (Runway, Escalabilidade, Pró-labore)
+            const runwayScore = Math.min(100, Math.max(0, runwayMonths === 999 ? 100 : runwayMonths * 5));
+            const scalabilityScore = Math.min(100, inputs.growthRate * 3 + (ltvCacRatio > 3 ? 30 : ltvCacRatio * 10));
+            const prolaboreScore = Math.min(100, Math.max(0, 100 - (inputs.salariesTotal / Math.max(1, monthlyRevenue) * 100)));
+            
+            return {
+                monthlyRevenue,
+                grossProfit,
+                grossMargin,
+                totalMonthlyCosts,
+                netResult,
+                burnRate,
+                runwayMonths,
+                cac,
+                ltv,
+                ltvCacRatio,
+                holisticScore,
+                runwayScore,
+                scalabilityScore,
+                prolaboreScore
+            };
+        }
+
+        async function runMonteCarloSimulation(inputs, iterations = 1000) {
+            const results = {
+                revenue: [],
+                costs: [],
+                runway: [],
+                ltv_cac: [],
+                projections: []
+            };
+            
+            // Gerar dados para projeção temporal
+            const projectionMonths = 60;
+            const baseProjection = generateProjectionData(inputs, projectionMonths);
+            
+            for (let i = 0; i < iterations; i++) {
+                const revenueVariation = Math.max(0.5, Math.min(1.5, generateNormalRandom(1.0, 0.15)));
+                const costVariation = Math.max(0.7, Math.min(1.3, generateNormalRandom(1.0, 0.10)));
+                const growthVariation = Math.max(0.5, Math.min(1.5, generateNormalRandom(1.0, 0.20)));
+                const churnVariation = Math.max(0.5, Math.min(1.5, generateNormalRandom(1.0, 0.15)));
+                
+                const simulatedInputs = {
+                    unitPrice: inputs.unitPrice * revenueVariation,
+                    monthlySales: inputs.monthlySales * revenueVariation,
+                    growthRate: Math.max(0, Math.min(100, inputs.growthRate * growthVariation)),
+                    churnRate: Math.max(0.5, Math.min(50, inputs.churnRate * churnVariation)),
+                    marketingSpend: inputs.marketingSpend * costVariation,
+                    operationalCosts: inputs.operationalCosts * costVariation,
+                    salariesTotal: inputs.salariesTotal * costVariation,
+                    initialInvestment: inputs.initialInvestment
+                };
+                
+                const metrics = calculateMainMetrics(simulatedInputs);
+                
+                if (metrics) {
+                    results.revenue.push(metrics.monthlyRevenue);
+                    results.costs.push(metrics.totalMonthlyCosts);
+                    results.runway.push(metrics.runwayMonths);
+                    results.ltv_cac.push(metrics.ltvCacRatio);
+                    
+                    // Adicionar projeção temporal
+                    const projection = generateProjectionData(simulatedInputs, projectionMonths);
+                    results.projections.push(projection);
+                }
+                
+                // Atualizar mensagem de progresso
+                if (i % 100 === 0) {
+                    document.getElementById('loading-message').textContent = 
+                        `Calculando cenários probabilísticos... ${Math.round((i / iterations) * 100)}%`;
+                    await new Promise(resolve => setTimeout(resolve, 0));
+                }
+            }
+            
+            // Calcular estatísticas para as projeções temporais
+            const projectionStats = [];
+            for (let month = 0; month < projectionMonths; month++) {
+                const monthData = results.projections.map(p => p[month].revenue);
+                projectionStats.push(calculateStatistics(monthData));
+            }
+            
+            return {
+                revenue: calculateStatistics(results.revenue),
+                costs: calculateStatistics(results.costs),
+                runway: calculateStatistics(results.runway),
+                ltv_cac: calculateStatistics(results.ltv_cac),
+                projections: projectionStats
+            };
+        }
+
+        async function calculateMetrics() {
+            const overlay = document.getElementById('calculating-overlay');
+            overlay.style.display = 'flex';
+            
+            const button = document.getElementById('calculate-btn');
+            const originalText = button.innerHTML;
+            button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Calculando...';
+            button.disabled = true;
+            
+            try {
+                const inputs = getFormInputs();
+                const iterations = parseInt(document.getElementById('monte-carlo-iterations').value) || 1000;
+                
+                // Calcular métricas principais
+                const mainMetrics = calculateMainMetrics(inputs);
+                
+                // Executar simulação Monte Carlo
+                const monteCarloResults = await runMonteCarloSimulation(inputs, iterations);
+                
+                currentMetrics = { ...mainMetrics, inputs, monteCarloResults };
+                monteCarloSimulation = monteCarloResults;
+                
+                // Atualizar interface
+                updateDashboardMetrics(currentMetrics);
+                updateMonteCarloResults(monteCarloResults);
+                updateCharts(currentMetrics);
+                generateRecommendations(currentMetrics);
+                
+                showAlert('Análise financeira concluída com sucesso!', 'success');
+                
+            } catch (error) {
+                console.error('Erro ao calcular métricas:', error);
+                showAlert('Erro ao executar análise. Verifique os dados inseridos.', 'danger');
+            } finally {
+                button.innerHTML = originalText;
+                button.disabled = false;
+                overlay.style.display = 'none';
+            }
+        }
+
+        function updateDashboardMetrics(metrics) {
+            const container = document.getElementById('metrics-grid');
+            
+            const metricsData = [
+                {
+                    label: 'Receita Mensal',
+                    value: `R$ ${metrics.monthlyRevenue.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`,
+                    change: 'Baseado em vendas atuais'
+                },
+                {
+                    label: 'Lucro Bruto',
+                    value: `R$ ${metrics.grossProfit.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`,
+                    change: `${metrics.grossMargin.toFixed(1)}% margem`
+                },
+                {
+                    label: 'Resultado Líquido',
+                    value: `R$ ${metrics.netResult.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`,
+                    change: metrics.netResult > 0 ? 'positive' : 'negative'
+                },
+                {
+                    label: 'Runway (meses)',
+                    value: metrics.runwayMonths === 999 ? '∞' : metrics.runwayMonths,
+                    change: metrics.runwayMonths > 12 ? 'positive' : 'negative'
+                },
+                {
+                    label: 'LTV/CAC',
+                    value: metrics.ltvCacRatio.toFixed(1),
+                    change: metrics.ltvCacRatio > 3 ? 'positive' : 'negative'
+                },
+                {
+                    label: 'CAC',
+                    value: `R$ ${metrics.cac.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`,
+                    change: 'Custo por cliente'
+                }
+            ];
+            
+            container.innerHTML = metricsData.map(metric => `
+                <div class="metric-card">
+                    <div class="metric-value">${metric.value}</div>
+                    <div class="metric-label">${metric.label}</div>
+                    <div class="metric-change ${metric.change}">${typeof metric.change === 'string' && metric.change !== 'positive' && metric.change !== 'negative' ? metric.change : ''}</div>
+                </div>
+            `).join('');
+            
+            // Atualizar score holístico
+            updateHolisticScore(metrics.holisticScore);
+        }
+
+        function updateHolisticScore(score) {
+            const scoreElement = document.getElementById('holistic-score');
+            const descElement = document.getElementById('score-description');
+            
+            scoreElement.textContent = score;
+            
+            let className = 'score-poor';
+            let description = 'Score baixo - necessita melhorias';
+            
+            if (score >= 80) {
+                className = 'score-excellent';
+                description = 'Excelente performance!';
+            } else if (score >= 65) {
+                className = 'score-good';
+                description = 'Boa performance';
+            } else if (score >= 45) {
+                className = 'score-average';
+                description = 'Performance média';
+            }
+            
+            scoreElement.className = `score-circle ${className}`;
+            descElement.textContent = description;
+        }
+
+        function initTriangularRadarChart() {
+            const ctx = document.getElementById('triangular-insights-radar');
+            if (!ctx) return;
+
+            // Destruir gráfico existente se houver
+            if (charts.triangularRadar) {
+                charts.triangularRadar.destroy();
+            }
+            
+            charts.triangularRadar = new Chart(ctx, {
+                type: 'radar',
+                data: {
+                    labels: ['Runway', 'Pró-labore', 'Escalabilidade'],
+                    datasets: [{
+                        label: 'Atual',
+                        data: [0, 0, 0],
+                        backgroundColor: 'rgba(30, 58, 138, 0.2)',
+                        borderColor: '#1e3a8a',
+                        borderWidth: 2,
+                        pointBackgroundColor: '#1e3a8a'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Runway, Pró-labore e Escalabilidade'
+                        }
+                    },
+                    scales: {
+                        r: {
+                            beginAtZero: true,
+                            max: 100,
+                            ticks: {
+                                stepSize: 20
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function updatePriorityTriangle(metrics) {
+            // Inicializa o gráfico se ainda não estiver pronto
+            if (!charts.triangularRadar) {
+                initTriangularRadarChart();
+            }
+
+            const description = document.getElementById('priority-description');
+            if (!description) return;
+
+            // Garante que os valores estejam no intervalo 0-100
+            const runwayScore = Math.min(100, Math.max(0, metrics.runwayScore));
+            const prolaboreScore = Math.min(100, Math.max(0, metrics.prolaboreScore));
+            const scalabilityScore = Math.min(100, Math.max(0, metrics.scalabilityScore));
+
+            // Atualiza o gráfico
+            charts.triangularRadar.data.datasets[0].data = [
+                runwayScore,
+                prolaboreScore,
+                scalabilityScore
+            ];
+            charts.triangularRadar.update();
+
+            // Identifica a maior pontuação e define a prioridade
+            let priorityMessage = '';
+            if (runwayScore >= prolaboreScore && runwayScore >= scalabilityScore) {
+                priorityMessage = 'Runway (fôlego financeiro) é sua prioridade máxima. Foque em reduzir custos ou aumentar receitas para estender seu tempo de operação.';
+            } else if (scalabilityScore >= runwayScore && scalabilityScore >= prolaboreScore) {
+                priorityMessage = 'Escalabilidade é sua prioridade máxima. Você tem um modelo escalável - invista em crescimento e aquisição de clientes.';
+            } else {
+                priorityMessage = 'Pró-labore é sua prioridade máxima. Considere ajustar a estrutura de custos para melhorar a remuneração dos sócios.';
+            }
+
+            description.textContent = priorityMessage;
+        }
+
+        function updateMonteCarloResults(results) {
+            const container = document.getElementById('monte-carlo-stats');
+            
+            if (!results.revenue) {
+                container.innerHTML = '<p>Dados insuficientes para simulação</p>';
+                return;
+            }
+            
+            const statsData = [
+                { label: 'Receita Média', value: `R$ ${results.revenue.mean.toLocaleString('pt-BR', {maximumFractionDigits: 0})}` },
+                { label: 'Receita P90', value: `R$ ${results.revenue.p90.toLocaleString('pt-BR', {maximumFractionDigits: 0})}` },
+                { label: 'LTV/CAC Médio', value: results.ltv_cac.mean.toFixed(1) },
+                { label: 'LTV/CAC P25', value: results.ltv_cac.p25.toFixed(1) },
+                { label: 'Runway Médio', value: `${results.runway.mean.toFixed(0)} meses` },
+                { label: 'Runway P25', value: `${results.runway.p25.toFixed(0)} meses` }
+            ];
+            
+            container.innerHTML = statsData.map(stat => `
+                <div class="stat-item">
+                    <div class="stat-value">${stat.value}</div>
+                    <div class="stat-label">${stat.label}</div>
+                </div>
+            `).join('');
+        }
+
+        function updateCharts(metrics) {
+            // Limpar apenas gráficos específicos, não o radar triangular
+            const chartIds = ['revenue', 'costs', 'ltvCac', 'projection'];
+            chartIds.forEach(id => {
+                if (charts[id] && typeof charts[id].destroy === 'function') {
+                    charts[id].destroy();
+                    delete charts[id];
+                }
+            });
+            charts = {};
+            
+            // Gráfico de receita vs custos
+            const revenueCtx = document.getElementById('revenue-chart').getContext('2d');
+            charts.revenue = new Chart(revenueCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Lucro Bruto', 'Custos Totais'],
+                    datasets: [{
+                        data: [metrics.grossProfit, metrics.totalMonthlyCosts],
+                        backgroundColor: ['#10b981', '#ef4444'],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        }
+                    }
+                }
+            });
+            
+            // Gráfico de distribuição de custos
+            const costsCtx = document.getElementById('costs-chart').getContext('2d');
+            charts.costs = new Chart(costsCtx, {
+                type: 'pie',
+                data: {
+                    labels: ['Marketing', 'Operacional', 'Salários'],
+                    datasets: [{
+                        data: [
+                            metrics.inputs.marketingSpend,
+                            metrics.inputs.operationalCosts,
+                            metrics.inputs.salariesTotal
+                        ],
+                        backgroundColor: ['#3b82f6', '#f59e0b', '#8b5cf6'],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        }
+                    }
+                }
+            });
+            
+            // Gráfico de LTV/CAC
+            const ltvCacCtx = document.getElementById('ltv-cac-chart').getContext('2d');
+            charts.ltvCac = new Chart(ltvCacCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['Seu Negócio', 'Média do Setor'],
+                    datasets: [{
+                        label: 'LTV/CAC',
+                        data: [
+                            metrics.ltvCacRatio,
+                            businessSegments[currentSegment].benchmarks.ltvCac.medio
+                        ],
+                        backgroundColor: ['#2563eb', '#64748b']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+            
+            // Atualiza o gráfico de projeção com eixos dinâmicos
+            updateProjectionCharts(60); // ou outro valor padrão desejado
+            
+            // ✅ Atualiza o radar triangular com base nos dados recebidos
+            updatePriorityTriangle({
+                runwayScore: metrics.runwayScore,
+                prolaboreScore: metrics.prolaboreScore,
+                scalabilityScore: metrics.scalabilityScore
+            });
+
+        }
+
+        function generateProjectionData(inputs, months) {
+            const data = [];
+            let currentRevenue = inputs.unitPrice * inputs.monthlySales;
+            const monthlyGrowth = inputs.growthRate / 100;
+            
+            for (let i = 0; i < months; i++) {
+                data.push({
+                    month: i + 1,
+                    revenue: currentRevenue
+                });
+                currentRevenue *= (1 + monthlyGrowth);
+            }
+            
+            return data;
+        }
+
+        function generateRecommendations(metrics) {
+            const container = document.getElementById('recommendations-content');
+            const recommendations = [];
+            
+            if (metrics.ltvCacRatio < 3) {
+                recommendations.push({
+                    icon: 'fas fa-exclamation-triangle',
+                    title: 'LTV/CAC Baixo',
+                    content: `Sua relação LTV/CAC (${metrics.ltvCacRatio.toFixed(1)}) está abaixo do ideal (3:1). Considere reduzir custos de aquisição ou aumentar o valor do cliente. A média do setor é ${businessSegments[currentSegment].benchmarks.ltvCac.medio.toFixed(1)}.`,
+                    type: 'danger'
+                });
+            }
+            
+            if (metrics.runwayMonths < 12 && metrics.runwayMonths !== 999) {
+                recommendations.push({
+                    icon: 'fas fa-clock',
+                    title: 'Runway Crítico',
+                    content: `Seu runway (${metrics.runwayMonths} meses) está abaixo de 12 meses. É recomendado buscar investimento ou reduzir custos operacionais para estender seu fôlego financeiro.`,
+                    type: 'warning'
+                });
+            }
+            
+            if (metrics.inputs.churnRate > businessSegments[currentSegment].benchmarks.churnMensal.medio) {
+                recommendations.push({
+                    icon: 'fas fa-users',
+                    title: 'Churn Elevado',
+                    content: `Sua taxa de churn (${metrics.inputs.churnRate}%) está acima da média do setor (${businessSegments[currentSegment].benchmarks.churnMensal.medio}%). Foque em retenção e satisfação do cliente para melhorar este indicador.`,
+                    type: 'warning'
+                });
+            }
+            
+            if (metrics.grossMargin < businessSegments[currentSegment].benchmarks.margemBruta.min) {
+                recommendations.push({
+                    icon: 'fas fa-chart-line',
+                    title: 'Margem Baixa',
+                    content: `Sua margem bruta (${metrics.grossMargin.toFixed(1)}%) está abaixo do esperado para o setor (min ${businessSegments[currentSegment].benchmarks.margemBruta.min}%). Revise precificação ou reduza custos diretos.`,
+                    type: 'warning'
+                });
+            }
+            
+            if (recommendations.length === 0) {
+                recommendations.push({
+                    icon: 'fas fa-thumbs-up',
+                    title: 'Métricas Saudáveis',
+                    content: 'Suas métricas estão dentro dos padrões saudáveis para o setor. Continue monitorando e otimizando para manter a performance.',
+                    type: 'success'
+                });
+            }
+            
+            container.innerHTML = recommendations.map(rec => `
+                <div class="recommendation-item ${rec.type}">
+                    <i class="${rec.icon}"></i>
+                    <div class="recommendation-content">
+                        <h4>${rec.title}</h4>
+                        <p>${rec.content}</p>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function showAlert(message, type) {
+            const container = document.getElementById('alert-container');
+            const alert = document.createElement('div');
+            alert.className = `alert ${type}`;
+            alert.style.display = 'flex';
+            alert.innerHTML = `
+                <i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-circle'}"></i>
+                ${message}
+            `;
+            
+            container.appendChild(alert);
+            
+            setTimeout(() => {
+                alert.style.display = 'none';
+                container.removeChild(alert);
+            }, 5000);
+        }
+
+        // Função para mostrar abas
+        function showTab(tabName) {
+            // Ocultar todas as abas
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Remover classe active de todos os botões
+            document.querySelectorAll('.tab-button').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            // Mostrar aba selecionada
+            document.getElementById(tabName).classList.add('active');
+            
+            // Ativar botão correspondente
+            event.target.classList.add('active');
+            
+            // Inicializar gráficos específicos da aba
+            setTimeout(() => {
+                initializeTabCharts(tabName);
+            }, 100);
+        }
+        
+        // Inicializar gráficos das abas
+        function initializeTabCharts(tabName) {
+            switch(tabName) {
+                case 'segment':
+                    if (!charts['segments-radar']) {
+                        initializeSegmentChart();
+                    }
+                    break;
+                case 'market':
+                    if (!charts['market-size']) {
+                        initializeMarketChart();
+                    }
+                    break;
+                case 'revenue':
+                    if (!charts['revenue-projection']) {
+                        initializeRevenueChart();
+                    }
+                    break;
+                case 'costs':
+                    if (!charts['costs-breakdown']) {
+                        initializeCostsChart();
+                    }
+                    break;
+                case 'team':
+                    if (!charts['team-growth']) {
+                        initializeTeamChart();
+                    }
+                    break;
+                case 'investment':
+                    if (!charts['investment-timeline']) {
+                        initializeInvestmentChart();
+                    }
+                    break;
+                case 'projections':
+                    if (!charts['annual-projection']) {
+                        initializeProjectionCharts();
+                        initTriangularRadarChart();
+                    }
+                    break;
+            }
+        }
+        
+        // Comparar segmentos
+        function compareSegments() {
+            const segment1 = document.getElementById('segment-compare-1').value;
+            const segment2 = document.getElementById('segment-compare-2').value;
+            
+            const data1 = businessSegments[segment1];
+            const data2 = businessSegments[segment2];
+            
+            const ctx = document.getElementById('segments-radar-chart').getContext('2d');
+            
+            if (charts['segments-radar']) {
+                charts['segments-radar'].destroy();
+            }
+            
+            charts['segments-radar'] = new Chart(ctx, {
+                type: 'radar',
+                data: {
+                    labels: ['Margem Bruta', 'LTV/CAC', 'Crescimento', 'Retenção'],
+                    datasets: [{
+                        label: data1.name,
+                        data: [
+                            data1.benchmarks.margemBruta.media,
+                            data1.benchmarks.ltvCac.medio * 10,
+                            data1.benchmarks.crescimentoMensal.medio,
+                            100 - data1.benchmarks.churnMensal.medio
+                        ],
+                        backgroundColor: 'rgba(37, 99, 235, 0.2)',
+                        borderColor: 'rgba(37, 99, 235, 1)',
+                        pointBackgroundColor: 'rgba(37, 99, 235, 1)'
+                    }, {
+                        label: data2.name,
+                        data: [
+                            data2.benchmarks.margemBruta.media,
+                            data2.benchmarks.ltvCac.medio * 10,
+                            data2.benchmarks.crescimentoMensal.medio,
+                            100 - data2.benchmarks.churnMensal.medio
+                        ],
+                        backgroundColor: 'rgba(239, 68, 68, 0.2)',
+                        borderColor: 'rgba(239, 68, 68, 1)',
+                        pointBackgroundColor: 'rgba(239, 68, 68, 1)'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        r: {
+                            beginAtZero: true,
+                            max: 100
+                        }
+                    }
+                }
+            });
+        }
+        
+        // Análise de mercado
+        function updateMarketAnalysis() {
+            const tam = parseFloat(document.getElementById('market-size').value) || 0;
+            const sam = parseFloat(document.getElementById('addressable-market').value) || 0;
+            const som = parseFloat(document.getElementById('target-market').value) || 0;
+            
+            const ctx = document.getElementById('market-size-chart').getContext('2d');
+            
+            if (charts['market-size']) {
+                charts['market-size'].destroy();
+            }
+            
+            charts['market-size'] = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['TAM', 'SAM', 'SOM'],
+                    datasets: [{
+                        data: [tam, sam, som],
+                        backgroundColor: ['#3b82f6', '#10b981', '#f59e0b'],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        }
+                    }
+                }
+            });
+        }
+        
+        // Projeção temporal
+        function updateTemporalProjection(months) {
+            const currentTimeLabel = document.getElementById('current-time-label');
+            if (months == 0) {
+                currentTimeLabel.textContent = 'Hoje';
+            } else if (months > 0) {
+                currentTimeLabel.textContent = `+${months} meses`;
+            } else {
+                currentTimeLabel.textContent = `${months} meses`;
+            }
+            
+            // Atualizar gráficos de projeção
+            updateProjectionCharts(parseInt(months));
+        }
+        
+        // Inicializar gráficos vazios
+        function initializeSegmentChart() {
+            const ctx = document.getElementById('segments-radar-chart').getContext('2d');
+            charts['segments-radar'] = new Chart(ctx, {
+                type: 'radar',
+                data: {
+                    labels: ['Margem Bruta', 'LTV/CAC', 'Crescimento', 'Retenção'],
+                    datasets: []
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false
+                }
+            });
+        }
+        
+        function initializeMarketChart() {
+            const ctx = document.getElementById('market-size-chart').getContext('2d');
+            const segment = businessSegments[currentSegment];
+            charts['market-size'] = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['TAM', 'SAM', 'SOM'],
+                    datasets: [{
+                        data: [
+                            segment.marketSizing.tam,
+                            segment.marketSizing.sam,
+                            segment.marketSizing.som
+                        ],
+                        backgroundColor: ['#3b82f6', '#10b981', '#f59e0b']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        }
+                    }
+                }
+            });
+        }
+        
+        function initializeRevenueChart() {
+            const ctx = document.getElementById('revenue-projection-chart').getContext('2d');
+            charts['revenue-projection'] = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: Array.from({length: 12}, (_, i) => `Mês ${i + 1}`),
+                    datasets: [{
+                        label: 'Receita Projetada',
+                        data: Array.from({length: 12}, (_, i) => {
+                            const inputs = getFormInputs();
+                            return inputs.unitPrice * inputs.monthlySales * Math.pow(1 + (inputs.growthRate / 100), i);
+                        }),
+                        borderColor: '#2563eb',
+                        backgroundColor: 'rgba(37, 99, 235, 0.1)',
+                        fill: true,
+                        tension: 0.3
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return 'R$ ' + value.toLocaleString('pt-BR');
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+        
+        function initializeCostsChart() {
+            const ctx = document.getElementById('costs-breakdown-chart').getContext('2d');
+            const inputs = getFormInputs();
+            charts['costs-breakdown'] = new Chart(ctx, {
+                type: 'pie',
+                data: {
+                    labels: ['Marketing', 'Operacional', 'Salários', 'Tecnologia', 'COGS'],
+                    datasets: [{
+                        data: [
+                            inputs.marketingSpend,
+                            inputs.operationalCosts,
+                            inputs.salariesTotal,
+                            inputs.operationalCosts * 0.3, // Estimativa para tecnologia
+                            inputs.unitPrice * inputs.monthlySales * 0.25 // Estimativa COGS 25%
+                        ],
+                        backgroundColor: ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        }
+                    }
+                }
+            });
+        }
+        
+        function initializeTeamChart() {
+            const ctx = document.getElementById('team-growth-chart').getContext('2d');
+            const teamSize = parseInt(document.getElementById('team-size').value) || 5;
+            const hiringRate = parseFloat(document.getElementById('hiring-rate').value) || 10;
+            
+            charts['team-growth'] = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: Array.from({length: 12}, (_, i) => `Mês ${i + 1}`),
+                    datasets: [{
+                        label: 'Tamanho da Equipe',
+                        data: Array.from({length: 12}, (_, i) => 
+                            Math.round(teamSize * Math.pow(1 + (hiringRate / 100), i))
+                        ),
+                        backgroundColor: '#10b981'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        }
+        
+        function initializeInvestmentChart() {
+            const ctx = document.getElementById('investment-timeline-chart').getContext('2d');
+            charts['investment-timeline'] = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: ['Pre-Seed', 'Seed', 'Series A', 'Series B'],
+                    datasets: [{
+                        label: 'Valor do Investimento',
+                        data: [500000, 2000000, 10000000, 25000000],
+                        borderColor: '#f59e0b',
+                        backgroundColor: 'rgba(245, 158, 11, 0.1)',
+                        fill: true,
+                        tension: 0.3
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return 'R$ ' + (value / 1000000).toLocaleString('pt-BR') + 'M';
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+        
+        function initializeProjectionCharts() {
+            // Gráfico de projeção anual
+            const ctx1 = document.getElementById('annual-projection-chart').getContext('2d');
+            const inputs = getFormInputs();
+            
+            // Gerar projeções baseadas no TAM, SAM, SOM
+            const tamProjection = generateProjectionData(inputs, 24).map((d, i) => 
+                d.revenue * (businessSegments[currentSegment].marketSizing.tam / inputs.unitPrice / inputs.monthlySales * 0.01)
+            );
+            const samProjection = generateProjectionData(inputs, 24).map((d, i) => 
+                d.revenue * (businessSegments[currentSegment].marketSizing.sam / inputs.unitPrice / inputs.monthlySales * 0.05)
+            );
+            const somProjection = generateProjectionData(inputs, 24);
+            
+            charts['annual-projection'] = new Chart(ctx1, {
+                type: 'line',
+                data: {
+                    labels: Array.from({length: 60}, (_, i) => `Mês ${i + 1}`),
+                    datasets: [{
+                        label: 'Projeção Otimista (TAM)',
+                        data: tamProjection,
+                        borderColor: '#10b981',
+                        backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                        fill: false,
+                        tension: 0.3
+                    }, {
+                        label: 'Projeção Realista (SAM)',
+                        data: samProjection,
+                        borderColor: '#3b82f6',
+                        backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                        fill: false,
+                        tension: 0.3
+                    }, {
+                        label: 'Projeção Pessimista (SOM)',
+                        data: somProjection.map(d => d.revenue),
+                        borderColor: '#ef4444',
+                        backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                        fill: false,
+                        tension: 0.3
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return 'R$ ' + value.toLocaleString('pt-BR');
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+            
+            // Gráfico Monte Carlo
+            const ctx2 = document.getElementById('monte-carlo-chart').getContext('2d');
+            charts['monte-carlo'] = new Chart(ctx2, {
+                type: 'scatter',
+                data: {
+                    datasets: [{
+                        label: 'Simulações Monte Carlo',
+                        data: Array.from({length: 100}, () => ({
+                            x: Math.random() * 24,
+                            y: Math.random() * 100000
+                        })),
+                        backgroundColor: 'rgba(37, 99, 235, 0.5)'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return 'R$ ' + value.toLocaleString('pt-BR');
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+        
+        function updateProjectionCharts(months = 60) {
+            if (!charts['annual-projection']) return;
+            
+            const inputs = getFormInputs();
+            const segment = businessSegments[currentSegment];
+            
+            // Gerar projeções baseadas no número de meses
+            const projectionData = generateProjectionData(inputs, months);
+            
+            const tamProjection = projectionData.map(d =>
+                d.revenue * (segment.marketSizing.tam / (inputs.unitPrice * inputs.monthlySales) * 0.01)
+            );
+            
+            const samProjection = projectionData.map(d =>
+                d.revenue * (segment.marketSizing.sam / (inputs.unitPrice * inputs.monthlySales) * 0.05)
+            );
+            
+            const somProjection = projectionData.map(d => d.revenue);
+
+            // Atualizar os datasets
+            charts['annual-projection'].data.datasets[0].data = tamProjection;
+            charts['annual-projection'].data.datasets[1].data = samProjection;
+            charts['annual-projection'].data.datasets[2].data = somProjection;
+
+            // Atualizar os rótulos do eixo X (mês 1 a mês N)
+            charts['annual-projection'].data.labels = Array.from({ length: months }, (_, i) => `M${i + 1}`);
+
+            // Ajustar eixo Y dinamicamente ao maior valor
+            const maxY = Math.max(...tamProjection, ...samProjection, ...somProjection);
+            charts['annual-projection'].options.scales.y = {
+                beginAtZero: true,
+                suggestedMax: Math.ceil(maxY * 1.1) // margem de 10%
+            };
+
+            charts['annual-projection'].update();
+
+            // Atualizar gráfico de Monte Carlo se existir
+            if (charts['monte-carlo'] && monteCarloSimulation?.projections) {
+                const monthIndex = Math.min(Math.max(months + 12, 0), 60); // Evita extrapolar limites
+                const monthData = monteCarloSimulation.projections[monthIndex];
+
+                const dataPoints = Array.from({ length: 100 }, () => {
+                    const value = generateNormalRandom(monthData.mean, (monthData.max - monthData.min) / 4);
+                    return { x: months, y: Math.max(0, value) };
+                });
+
+                charts['monte-carlo'].data.datasets[0].data = dataPoints;
+                charts['monte-carlo'].update();
+
+                updateProjectionMetrics(monthIndex);
+            }
+        }
+        
+        function updateProjectionMetrics(monthIndex) {
+            if (!monteCarloSimulation || !monteCarloSimulation.projections) return;
+            
+            const monthData = monteCarloSimulation.projections[monthIndex];
+            const container = document.getElementById('projection-metrics');
+            
+            const metricsData = [
+                {
+                    label: 'Receita Média',
+                    value: `R$ ${monthData.mean.toLocaleString('pt-BR', {maximumFractionDigits: 0})}`
+                },
+                {
+                    label: 'Receita Mínima',
+                    value: `R$ ${monthData.min.toLocaleString('pt-BR', {maximumFractionDigits: 0})}`
+                },
+                {
+                    label: 'Receita Máxima',
+                    value: `R$ ${monthData.max.toLocaleString('pt-BR', {maximumFractionDigits: 0})}`
+                },
+                {
+                    label: 'Prob. Positivo',
+                    value: `${Math.min(100, Math.max(0, Math.round((monthData.mean / monthData.max) * 100)))}%`
+                }
+            ];
+            
+            container.innerHTML = metricsData.map(metric => `
+                <div class="metric-card">
+                    <div class="metric-value">${metric.value}</div>
+                    <div class="metric-label">${metric.label}</div>
+                </div>
+            `).join('');
+        }
+        
+        // Funções de atualização das outras abas
+        function updateRevenueModel() {
+            const model = document.getElementById('pricing-model').value;
+            const ctx = document.getElementById('revenue-projection-chart').getContext('2d');
+            
+            if (!charts['revenue-projection']) return;
+            
+            // Atualizar dados com base no modelo selecionado
+            const inputs = getFormInputs();
+            let projectionData = [];
+            
+            switch(model) {
+                case 'subscription':
+                    projectionData = generateProjectionData(inputs, 12).map(d => d.revenue);
+                    break;
+                case 'freemium':
+                    projectionData = generateProjectionData(inputs, 12).map((d, i) => d.revenue * 0.7 * Math.pow(1.15, i));
+                    break;
+                case 'one-time':
+                    projectionData = generateProjectionData(inputs, 12).map((d, i) => d.revenue * 1.5 * (i === 0 ? 1 : 0.3));
+                    break;
+                case 'usage-based':
+                    projectionData = generateProjectionData(inputs, 12).map((d, i) => d.revenue * (0.8 + Math.random() * 0.4));
+                    break;
+                case 'tiered':
+                    projectionData = generateProjectionData(inputs, 12).map((d, i) => d.revenue * (1 + i * 0.05));
+                    break;
+                case 'marketplace':
+                    projectionData = generateProjectionData(inputs, 12).map((d, i) => d.revenue * 0.2 * Math.pow(1.25, i));
+                    break;
+            }
+            
+            charts['revenue-projection'].data.datasets[0].data = projectionData;
+            charts['revenue-projection'].update();
+        }
+        
+        function updateCostsAnalysis() {
+            const cogsPercentage = parseFloat(document.getElementById('cogs-percentage').value) || 25;
+            const techCosts = parseFloat(document.getElementById('tech-costs').value) || 2000;
+            const inputs = getFormInputs();
+            
+            if (!charts['costs-breakdown']) return;
+            
+            charts['costs-breakdown'].data.datasets[0].data = [
+                inputs.marketingSpend,
+                inputs.operationalCosts,
+                inputs.salariesTotal,
+                techCosts,
+                inputs.unitPrice * inputs.monthlySales * (cogsPercentage / 100)
+            ];
+            charts['costs-breakdown'].update();
+        }
+        
+        function updateTeamAnalysis() {
+            const teamSize = parseInt(document.getElementById('team-size').value) || 5;
+            const avgSalary = parseFloat(document.getElementById('avg-salary').value) || 8000;
+            const hiringRate = parseFloat(document.getElementById('hiring-rate').value) || 10;
+            
+            if (!charts['team-growth']) return;
+            
+            charts['team-growth'].data.datasets[0].data = Array.from({length: 12}, (_, i) => 
+                Math.round(teamSize * Math.pow(1 + (hiringRate / 100), i))
+            );
+            charts['team-growth'].update();
+            
+            // Atualizar folha de pagamento nos inputs
+            document.getElementById('salaries-total').value = teamSize * avgSalary;
+            calculateMetrics();
+        }
+        
+        function updateInvestmentAnalysis() {
+            const fundingRounds = parseInt(document.getElementById('funding-rounds').value) || 2;
+            const nextRoundAmount = parseFloat(document.getElementById('next-round-amount').value) || 1000000;
+            
+            if (!charts['investment-timeline']) return;
+            
+            // Gerar timeline de investimentos baseada nos inputs
+            const investmentData = [];
+            const labels = [];
+            
+            for (let i = 0; i < fundingRounds; i++) {
+                labels.push(`Round ${String.fromCharCode(65 + i)}`);
+                investmentData.push(nextRoundAmount * Math.pow(2.5, i));
+            }
+            
+            charts['investment-timeline'].data.labels = labels;
+            charts['investment-timeline'].data.datasets[0].data = investmentData;
+            charts['investment-timeline'].update();
+        }
+        
+        // Funções de exportação
+        async function exportDashboardToPDF() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            
+            // Adicionar título
+            doc.setFontSize(20);
+            doc.text('Relatório Financeiro - Análise Monte Carlo', 105, 20, { align: 'center' });
+            
+            // Adicionar data
+            doc.setFontSize(12);
+            doc.text(`Gerado em: ${new Date().toLocaleDateString('pt-BR')}`, 105, 30, { align: 'center' });
+            
+            // Adicionar segmento
+            doc.text(`Segmento: ${businessSegments[currentSegment].name}`, 105, 40, { align: 'center' });
+            
+            // Adicionar métricas
+            doc.setFontSize(14);
+            doc.text('Métricas Principais', 105, 50, { align: 'center' });
+            
+            const metrics = [
+                `Receita Mensal: R$ ${currentMetrics.monthlyRevenue.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`,
+                `Lucro Bruto: R$ ${currentMetrics.grossProfit.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2})} (${currentMetrics.grossMargin.toFixed(1)}%)`,
+                `Resultado Líquido: R$ ${currentMetrics.netResult.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`,
+                `Runway: ${currentMetrics.runwayMonths === 999 ? '∞' : currentMetrics.runwayMonths} meses`,
+                `LTV/CAC: ${currentMetrics.ltvCacRatio.toFixed(1)}`,
+                `CAC: R$ ${currentMetrics.cac.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`
+            ];
+            
+            doc.setFontSize(12);
+            metrics.forEach((metric, i) => {
+                doc.text(metric, 20, 60 + (i * 10));
+            });
+            
+            // Adicionar gráficos (simplificado)
+            doc.addPage();
+            doc.setFontSize(14);
+            doc.text('Gráficos e Visualizações', 105, 20, { align: 'center' });
+            
+            // Adicionar score
+            doc.setFontSize(12);
+            doc.text(`Score Holístico: ${currentMetrics.holisticScore}`, 20, 30);
+            
+            // Adicionar recomendações
+            doc.setFontSize(14);
+            doc.text('Recomendações Estratégicas', 105, 50, { align: 'center' });
+            
+            const recommendations = document.querySelectorAll('.recommendation-content');
+            recommendations.forEach((rec, i) => {
+                if (i > 0 && i % 3 === 0) doc.addPage();
+                doc.setFontSize(12);
+                doc.text(rec.querySelector('h4').textContent, 20, 60 + ((i % 3) * 40));
+                doc.text(rec.querySelector('p').textContent, 20, 65 + ((i % 3) * 40), { maxWidth: 170 });
+            });
+            
+            // Salvar PDF
+            doc.save(`relatorio-financeiro-${currentSegment}-${new Date().toISOString().slice(0,10)}.pdf`);
+        }
+        
+        async function exportDashboardToPNG() {
+            const dashboard = document.getElementById('dashboard');
+            
+            // Mostrar loading
+            const overlay = document.getElementById('calculating-overlay');
+            overlay.style.display = 'flex';
+            document.getElementById('loading-message').textContent = 'Preparando imagem para exportação...';
+            
+            try {
+                // Usar html2canvas para capturar o dashboard
+                const canvas = await html2canvas(dashboard, {
+                    scale: 2,
+                    logging: false,
+                    useCORS: true,
+                    allowTaint: true
+                });
+                
+                // Criar link para download
+                const link = document.createElement('a');
+                link.download = `dashboard-${currentSegment}-${new Date().toISOString().slice(0,10)}.png`;
+                link.href = canvas.toDataURL('image/png');
+                link.click();
+                
+            } catch (error) {
+                console.error('Erro ao exportar PNG:', error);
+                showAlert('Erro ao exportar imagem do dashboard', 'danger');
+            } finally {
+                overlay.style.display = 'none';
+            }
+        }
+        
+        // Inicializar aplicação quando DOM estiver pronto
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeApp();
+        });
+    </script>
+<style>.ag-nav-back{position:fixed;top:12px;left:12px;z-index:9999;background:rgba(79,70,229,.9);color:#fff;border:none;border-radius:50px;padding:.4rem .9rem;font-size:.8rem;font-family:system-ui,sans-serif;font-weight:600;cursor:pointer;text-decoration:none;display:flex;align-items:center;gap:.35rem;box-shadow:0 2px 10px rgba(0,0,0,.25);backdrop-filter:blur(4px);transition:background .2s,transform .2s}.ag-nav-back:hover{background:rgba(55,48,163,.95);transform:translateY(-1px)}</style><a href="https://passosdomingues.github.io/webappshowcase/site/main.html" class="ag-nav-back" aria-label="Voltar ao índice">&#8592; Índice</a>
+</body>
+</html>

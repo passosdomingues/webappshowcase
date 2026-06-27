@@ -1,0 +1,2372 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Detalhes Técnicos: Utilizamos localStorage do navegador para armazenar suas respostas. Esses dados são criptografados…"/>
+    <title>Guia IRPF 2025 - Seu Assistente Pessoal</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #4285f4;
+            --primary-light: #e8f0fe;
+            --secondary: #34a853;
+            --accent: #ea4335;
+            --warning: #fbbc04;
+            --light: #f8f9fa;
+            --dark: #202124;
+            --gray: #5f6368;
+            --gray-light: #dadce0;
+            --border-radius: 16px;
+            --shadow: 0 1px 3px rgba(60,64,67,0.3), 0 4px 8px 3px rgba(60,64,67,0.15);
+            --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            --font-size-base: 16px;
+        }
+
+        /* Tema Escuro */
+        [data-theme="dark"] {
+            --primary: #5c9bf5;
+            --primary-light: #1e3a5f;
+            --secondary: #4caf50;
+            --accent: #f44336;
+            --warning: #ffb300;
+            --light: #202124;
+            --dark: #f8f9fa;
+            --gray: #dadce0;
+            --gray-light: #5f6368;
+        }
+
+        /* Alto Contraste */
+        [data-contrast="high"] {
+            --primary: #0066cc;
+            --primary-light: #e6f0ff;
+            --secondary: #008000;
+            --accent: #cc0000;
+            --warning: #ffcc00;
+            --light: #ffffff;
+            --dark: #000000;
+            --gray: #333333;
+            --gray-light: #cccccc;
+        }
+
+        /* Tamanhos de Fonte */
+        [data-font-size="small"] {
+            --font-size-base: 14px;
+        }
+
+        [data-font-size="large"] {
+            --font-size-base: 18px;
+        }
+
+        [data-font-size="x-large"] {
+            --font-size-base: 20px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--light);
+            color: var(--dark);
+            line-height: 1.6;
+            overflow-x: hidden;
+            font-size: var(--font-size-base);
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        .app-container {
+            max-width: 480px;
+            margin: 0 auto;
+            background-color: var(--light);
+            min-height: 100vh;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Header */
+        .app-header {
+            background: linear-gradient(135deg, var(--primary) 0%, #5c9bf5 100%);
+            color: white;
+            padding: 20px 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 2px 10px rgba(66, 133, 244, 0.3);
+            position: relative;
+            z-index: 10;
+        }
+
+        .app-title {
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .header-controls {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .control-btn {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background-color: rgba(255,255,255,0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+            transition: var(--transition);
+            border: none;
+        }
+
+        .control-btn:hover {
+            background-color: rgba(255,255,255,0.3);
+            transform: scale(1.1);
+        }
+
+        /* Modal de Consentimento */
+        .consent-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0,0,0,0.7);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            padding: 20px;
+        }
+
+        .consent-content {
+            background-color: var(--light);
+            border-radius: var(--border-radius);
+            padding: 24px;
+            max-width: 500px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            color: var(--dark);
+        }
+
+        .consent-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .consent-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary) 0%, #5c9bf5 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 20px;
+            flex-shrink: 0;
+        }
+
+        .consent-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: var(--dark);
+        }
+
+        .consent-text {
+            margin-bottom: 20px;
+            color: var(--gray);
+        }
+
+        .consent-highlights {
+            background-color: var(--primary-light);
+            border-radius: var(--border-radius);
+            padding: 16px;
+            margin-bottom: 20px;
+        }
+
+        .consent-highlight {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            margin-bottom: 12px;
+        }
+
+        .consent-highlight:last-child {
+            margin-bottom: 0;
+        }
+
+        .highlight-icon {
+            color: var(--primary);
+            font-size: 16px;
+            margin-top: 2px;
+            flex-shrink: 0;
+        }
+
+        .highlight-text {
+            font-size: 14px;
+            color: var(--dark);
+        }
+
+        .consent-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .consent-btn {
+            padding: 14px;
+            border-radius: var(--border-radius);
+            font-weight: 500;
+            cursor: pointer;
+            transition: var(--transition);
+            border: none;
+            font-size: 16px;
+            text-align: center;
+        }
+
+        .consent-btn.primary {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        .consent-btn.secondary {
+            background-color: var(--light);
+            color: var(--gray);
+            border: 1px solid var(--gray-light);
+        }
+
+        .consent-btn.primary:hover {
+            background-color: #3367d6;
+        }
+
+        .consent-btn.secondary:hover {
+            background-color: var(--primary-light);
+        }
+
+        .technical-details {
+            margin-top: 20px;
+            padding: 16px;
+            background-color: var(--primary-light);
+            border-radius: var(--border-radius);
+            font-size: 12px;
+            color: var(--dark);
+        }
+
+        /* Character */
+        .character-container {
+            position: relative;
+            padding: 20px 16px;
+            background-color: var(--primary-light);
+            border-radius: 0 0 var(--border-radius) var(--border-radius);
+            margin-bottom: 20px;
+        }
+
+        .character {
+            display: flex;
+            align-items: flex-start;
+            gap: 16px;
+        }
+
+        .character-avatar {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary) 0%, #5c9bf5 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 28px;
+            flex-shrink: 0;
+            box-shadow: var(--shadow);
+        }
+
+        .character-message {
+            background-color: var(--light);
+            padding: 16px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            position: relative;
+            flex: 1;
+            color: var(--dark);
+        }
+
+        .character-message:after {
+            content: '';
+            position: absolute;
+            top: 20px;
+            left: -8px;
+            width: 0;
+            height: 0;
+            border-top: 8px solid transparent;
+            border-bottom: 8px solid transparent;
+            border-right: 8px solid var(--light);
+        }
+
+        .character-name {
+            font-weight: 600;
+            margin-bottom: 4px;
+            color: var(--primary);
+        }
+
+        /* Progress */
+        .progress-container {
+            padding: 0 16px;
+            margin-bottom: 20px;
+        }
+
+        .progress-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+
+        .progress-label {
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--gray);
+        }
+
+        .progress-percentage {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--primary);
+        }
+
+        .progress-bar {
+            height: 8px;
+            background-color: var(--gray-light);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary) 0%, #5c9bf5 100%);
+            border-radius: 4px;
+            width: 5%;
+            transition: width 0.5s ease;
+        }
+
+        /* Content Sections */
+        .content-section {
+            padding: 0 16px;
+            margin-bottom: 24px;
+            display: none;
+        }
+
+        .content-section.active {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .section-title {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            color: var(--dark);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .section-title i {
+            color: var(--primary);
+        }
+
+        /* Question Cards */
+        .question-card {
+            background-color: var(--light);
+            border-radius: var(--border-radius);
+            padding: 24px;
+            margin-bottom: 16px;
+            box-shadow: var(--shadow);
+            text-align: center;
+            color: var(--dark);
+            position: relative;
+        }
+
+        .question-header {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            margin-bottom: 16px;
+            position: relative;
+        }
+
+        .question-text {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 24px;
+            color: var(--dark);
+        }
+
+        .question-number {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background-color: var(--primary-light);
+            color: var(--primary);
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .tooltip-icon {
+            color: var(--primary);
+            cursor: help;
+            font-size: 16px;
+            position: relative;
+        }
+
+        .tooltip {
+            position: absolute;
+            background-color: var(--dark);
+            color: var(--light);
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 14px;
+            max-width: 280px;
+            z-index: 100;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            display: none;
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            margin-top: 10px;
+        }
+
+        .tooltip:after {
+            content: '';
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            border-width: 6px;
+            border-style: solid;
+            border-color: transparent transparent var(--dark) transparent;
+        }
+
+        .tooltip-icon:hover .tooltip {
+            display: block;
+        }
+
+        .options-container {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .option-btn {
+            padding: 16px;
+            border: 2px solid var(--gray-light);
+            border-radius: var(--border-radius);
+            background-color: var(--light);
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: var(--transition);
+            text-align: center;
+            color: var(--dark);
+        }
+
+        .option-btn:hover {
+            border-color: var(--primary);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(66, 133, 244, 0.1);
+        }
+
+        .option-btn.selected {
+            border-color: var(--primary);
+            background-color: var(--primary-light);
+            color: var(--primary);
+        }
+
+        /* Result Cards */
+        .result-card {
+            background-color: var(--light);
+            border-radius: var(--border-radius);
+            padding: 24px;
+            margin-bottom: 16px;
+            box-shadow: var(--shadow);
+            color: var(--dark);
+        }
+
+        .result-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--secondary) 0%, #4caf50 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 16px;
+            color: white;
+            font-size: 24px;
+        }
+
+        .result-title {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 12px;
+            text-align: center;
+            color: var(--dark);
+        }
+
+        .result-content {
+            color: var(--gray);
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .result-actions {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+        }
+
+        .action-btn {
+            padding: 12px 20px;
+            border-radius: 24px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: var(--transition);
+            border: none;
+            font-size: 14px;
+        }
+
+        .action-btn.primary {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        .action-btn.secondary {
+            background-color: var(--light);
+            color: var(--gray);
+            border: 1px solid var(--gray-light);
+        }
+
+        /* Checklist */
+        .checklist-container {
+            background-color: var(--light);
+            border-radius: var(--border-radius);
+            padding: 20px;
+            box-shadow: var(--shadow);
+            margin-bottom: 16px;
+            color: var(--dark);
+        }
+
+        .checklist-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 14px 0;
+            border-bottom: 1px solid var(--gray-light);
+        }
+
+        .checklist-item:last-child {
+            border-bottom: none;
+        }
+
+        .checklist-checkbox {
+            width: 20px;
+            height: 20px;
+            border: 2px solid var(--gray-light);
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: var(--transition);
+            flex-shrink: 0;
+        }
+
+        .checklist-checkbox.checked {
+            background-color: var(--primary);
+            border-color: var(--primary);
+            color: white;
+        }
+
+        .checklist-text {
+            flex: 1;
+            font-size: 14px;
+            color: var(--dark);
+        }
+
+        /* Navigation */
+        .navigation {
+            display: flex;
+            justify-content: space-between;
+            padding: 16px;
+            background-color: var(--light);
+            border-top: 1px solid var(--gray-light);
+            position: sticky;
+            bottom: 0;
+            z-index: 10;
+        }
+
+        .nav-btn {
+            padding: 12px 24px;
+            border-radius: 24px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            border: none;
+        }
+
+        .nav-btn.prev {
+            background-color: var(--light);
+            border: 1px solid var(--gray-light);
+            color: var(--gray);
+        }
+
+        .nav-btn.next {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        .nav-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* Menu de Acessibilidade */
+        .accessibility-menu {
+            position: fixed;
+            top: 80px;
+            right: 20px;
+            background-color: var(--light);
+            border-radius: var(--border-radius);
+            padding: 16px;
+            box-shadow: var(--shadow);
+            z-index: 100;
+            display: none;
+            width: 250px;
+            color: var(--dark);
+        }
+
+        .accessibility-title {
+            font-weight: 600;
+            margin-bottom: 12px;
+            font-size: 16px;
+            color: var(--dark);
+        }
+
+        .accessibility-option {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 12px;
+        }
+
+        .accessibility-label {
+            font-size: 14px;
+            color: var(--dark);
+        }
+
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 24px;
+        }
+
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: var(--gray-light);
+            transition: .4s;
+            border-radius: 24px;
+        }
+
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 16px;
+            width: 16px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+
+        input:checked + .toggle-slider {
+            background-color: var(--primary);
+        }
+
+        input:checked + .toggle-slider:before {
+            transform: translateX(26px);
+        }
+
+        .font-size-controls {
+            display: flex;
+            gap: 8px;
+        }
+
+        .font-size-btn {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background-color: var(--primary-light);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--primary);
+            font-size: 14px;
+            cursor: pointer;
+            border: none;
+            transition: var(--transition);
+        }
+
+        .font-size-btn.active {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        /* Source */
+        .source-info {
+            padding: 16px;
+            font-size: 12px;
+            color: var(--gray);
+            text-align: center;
+            border-top: 1px solid var(--gray-light);
+            margin-top: 20px;
+        }
+
+        /* Indicador de Segurança */
+        .security-indicator {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: var(--light);
+            border-radius: 50px;
+            padding: 10px 16px;
+            box-shadow: var(--shadow);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 12px;
+            color: var(--gray);
+            z-index: 100;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .security-indicator:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+
+        .security-icon {
+            color: var(--secondary);
+            font-size: 14px;
+        }
+
+        /* Conquistas */
+        .achievement-toast {
+            position: fixed;
+            bottom: 80px;
+            right: 20px;
+            background-color: var(--light);
+            border-radius: var(--border-radius);
+            padding: 16px;
+            box-shadow: var(--shadow);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            max-width: 300px;
+            z-index: 100;
+            animation: slideInRight 0.5s ease;
+            color: var(--dark);
+        }
+
+        @keyframes slideInRight {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        .achievement-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--warning) 0%, #fcc934 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 18px;
+            flex-shrink: 0;
+        }
+
+        .achievement-content {
+            flex: 1;
+        }
+
+        .achievement-title {
+            font-weight: 600;
+            font-size: 14px;
+            margin-bottom: 4px;
+            color: var(--dark);
+        }
+
+        .achievement-desc {
+            font-size: 12px;
+            color: var(--gray);
+        }
+
+        /* Painel de Exportação */
+        .export-panel {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: var(--light);
+            border-radius: var(--border-radius);
+            padding: 24px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            z-index: 1001;
+            max-width: 400px;
+            width: 90%;
+            color: var(--dark);
+        }
+
+        .export-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .export-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--dark);
+        }
+
+        .close-export {
+            background: none;
+            border: none;
+            font-size: 20px;
+            color: var(--gray);
+            cursor: pointer;
+        }
+
+        .export-options {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .export-option {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px;
+            border: 1px solid var(--gray-light);
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .export-option:hover {
+            border-color: var(--primary);
+            background-color: var(--primary-light);
+        }
+
+        .export-option.selected {
+            border-color: var(--primary);
+            background-color: var(--primary-light);
+        }
+
+        .export-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background-color: var(--primary-light);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--primary);
+            font-size: 16px;
+            flex-shrink: 0;
+        }
+
+        .export-option-text {
+            flex: 1;
+        }
+
+        .export-option-title {
+            font-weight: 500;
+            font-size: 14px;
+            color: var(--dark);
+        }
+
+        .export-option-desc {
+            font-size: 12px;
+            color: var(--gray);
+        }
+
+        .export-preview {
+            background-color: var(--primary-light);
+            border-radius: var(--border-radius);
+            padding: 16px;
+            margin-bottom: 20px;
+            max-height: 200px;
+            overflow-y: auto;
+            font-size: 12px;
+            font-family: monospace;
+            white-space: pre-wrap;
+            color: var(--dark);
+        }
+
+        .export-actions {
+            display: flex;
+            gap: 12px;
+        }
+
+        .export-action-btn {
+            padding: 12px 16px;
+            border-radius: 24px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: var(--transition);
+            border: none;
+            font-size: 14px;
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .export-action-btn.primary {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        .export-action-btn.secondary {
+            background-color: var(--light);
+            color: var(--gray);
+            border: 1px solid var(--gray-light);
+        }
+
+        /* Overlay */
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0,0,0,0.5);
+            z-index: 99;
+            display: none;
+        }
+
+        /* Responsive */
+        @media (max-width: 480px) {
+            .app-container {
+                box-shadow: none;
+            }
+            
+            .question-text {
+                font-size: 16px;
+            }
+            
+            .option-btn {
+                padding: 14px;
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Modal de Consentimento LGPD -->
+    <div id="consent-modal" class="consent-modal">
+        <div class="consent-content">
+            <div class="consent-header">
+                <div class="consent-icon">
+                    <i class="fas fa-shield-alt"></i>
+                </div>
+                <div class="consent-title">Privacidade e Segurança em Primeiro Lugar</div>
+            </div>
+            
+            <div class="consent-text">
+                Sua privacidade é nossa prioridade. Este guia interativo foi desenvolvido para funcionar completamente no seu navegador, garantindo que todas as suas informações pessoais e financeiras permaneçam sob seu controle total.
+            </div>
+            
+            <div class="consent-highlights">
+                <div class="consent-highlight">
+                    <div class="highlight-icon">
+                        <i class="fas fa-lock"></i>
+                    </div>
+                    <div class="highlight-text">
+                        <strong>Tudo fica no seu navegador</strong> - Seus dados são armazenados localmente e nunca são enviados para nossos servidores
+                    </div>
+                </div>
+                <div class="consent-highlight">
+                    <div class="highlight-icon">
+                        <i class="fas fa-user-check"></i>
+                    </div>
+                    <div class="highlight-text">
+                        <strong>Conformidade com a LGPD</strong> - Respeitamos a Lei Geral de Proteção de Dados (Lei nº 13.709/2018) em todos os aspectos
+                    </div>
+                </div>
+                <div class="consent-highlight">
+                    <div class="highlight-icon">
+                        <i class="fas fa-download"></i>
+                    </div>
+                    <div class="highlight-text">
+                        <strong>Controle total</strong> - Você pode exportar ou excluir seus dados a qualquer momento
+                    </div>
+                </div>
+            </div>
+            
+            <div class="technical-details">
+                <p><strong>Detalhes Técnicos:</strong> Utilizamos localStorage do navegador para armazenar suas respostas. Esses dados são criptografados e ficam apenas no seu dispositivo. Não utilizamos cookies de rastreamento e não coletamos informações pessoais identificáveis.</p>
+            </div>
+            
+            <div class="consent-actions">
+                <button id="accept-consent" class="consent-btn primary">
+                    <i class="fas fa-check-circle"></i> Concordo e quero continuar
+                </button>
+                <button id="decline-consent" class="consent-btn secondary">
+                    <i class="fas fa-times-circle"></i> Não concordo (o app não funcionará)
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="app-container" id="main-app" style="display: none;">
+        <!-- Header -->
+        <header class="app-header">
+            <div class="app-title">Guia IRPF 2025</div>
+            <div class="header-controls">
+                <button class="control-btn" id="accessibility-btn" title="Configurações de acessibilidade">
+                    <i class="fas fa-universal-access"></i>
+                </button>
+                <button class="control-btn" id="theme-btn" title="Alternar tema">
+                    <i class="fas fa-moon"></i>
+                </button>
+                <button class="control-btn" id="export-btn" title="Exportar dados">
+                    <i class="fas fa-download"></i>
+                </button>
+            </div>
+        </header>
+
+        <!-- Menu de Acessibilidade -->
+        <div id="accessibility-menu" class="accessibility-menu">
+            <div class="accessibility-title">Configurações de Acessibilidade</div>
+            
+            <div class="accessibility-option">
+                <span class="accessibility-label">Tema Escuro</span>
+                <label class="toggle-switch">
+                    <input type="checkbox" id="dark-theme-toggle">
+                    <span class="toggle-slider"></span>
+                </label>
+            </div>
+            
+            <div class="accessibility-option">
+                <span class="accessibility-label">Alto Contraste</span>
+                <label class="toggle-switch">
+                    <input type="checkbox" id="high-contrast-toggle">
+                    <span class="toggle-slider"></span>
+                </label>
+            </div>
+            
+            <div class="accessibility-option">
+                <span class="accessibility-label">Tamanho da Fonte</span>
+                <div class="font-size-controls">
+                    <button class="font-size-btn" data-size="small">A-</button>
+                    <button class="font-size-btn active" data-size="normal">A</button>
+                    <button class="font-size-btn" data-size="large">A+</button>
+                    <button class="font-size-btn" data-size="x-large">A++</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Character -->
+        <div class="character-container">
+            <div class="character">
+                <div class="character-avatar">
+                    <i class="fas fa-robot"></i>
+                </div>
+                <div class="character-message">
+                    <div class="character-name">IR Assist</div>
+                    <div class="character-text">Olá! Vou te ajudar a descobrir se precisa declarar IR e o que é importante para você. Vamos começar?</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Progress -->
+        <div class="progress-container">
+            <div class="progress-header">
+                <div class="progress-label">Seu Progresso</div>
+                <div class="progress-percentage">5%</div>
+            </div>
+            <div class="progress-bar">
+                <div class="progress-fill" style="width: 5%"></div>
+            </div>
+        </div>
+
+        <!-- Content Sections -->
+        <section id="section-intro" class="content-section active">
+            <div class="question-card">
+                <div class="question-number">1/20</div>
+                <div class="question-header">
+                    <div class="question-text">Qual é o seu nível de familiaridade com o Imposto de Renda?</div>
+                    <div class="tooltip-icon">
+                        <i class="fas fa-info-circle"></i>
+                        <div class="tooltip">Esta pergunta ajuda a personalizar o nível de detalhe das próximas explicações</div>
+                    </div>
+                </div>
+                <div class="options-container">
+                    <button class="option-btn" data-next="section-rendimentos-totais" data-value="beginner">Primeira vez declarando ou com pouca experiência</button>
+                    <button class="option-btn" data-next="section-rendimentos-totais" data-value="intermediate">Já declarei antes, mas ainda tenho dúvidas</button>
+                    <button class="option-btn" data-next="section-rendimentos-totais" data-value="expert">Declaro há anos e entendo bem as regras</button>
+                </div>
+            </div>
+        </section>
+
+        <section id="section-rendimentos-totais" class="content-section">
+            <div class="question-card">
+                <div class="question-number">2/20</div>
+                <div class="question-header">
+                    <div class="question-text">Em 2024, seus rendimentos totais (salários, aluguéis, etc.) foram superiores a R$ 33.888,00?</div>
+                    <div class="tooltip-icon">
+                        <i class="fas fa-info-circle"></i>
+                        <div class="tooltip">Inclui salários, aluguéis, pró-labore, pensões, aposentadorias e outros rendimentos tributáveis. Valor atualizado pela Receita Federal para 2025.</div>
+                    </div>
+                </div>
+                <div class="options-container">
+                    <button class="option-btn" data-next="section-rendimentos-isentos" data-value="yes">Sim</button>
+                    <button class="option-btn" data-next="section-rendimentos-isentos" data-value="no">Não</button>
+                </div>
+            </div>
+        </section>
+
+        <section id="section-rendimentos-isentos" class="content-section">
+            <div class="question-card">
+                <div class="question-number">3/20</div>
+                <div class="question-header">
+                    <div class="question-text">Teve rendimentos isentos (como lucros de ações até R$ 20.000/mês) ou tributados na fonte que, somados, passaram de R$ 200.000 em 2024?</div>
+                    <div class="tooltip-icon">
+                        <i class="fas fa-info-circle"></i>
+                        <div class="tooltip">Rendimentos isentos: lucros de ações até R$ 20.000/mês, indenizações trabalhistas, heranças, doações. Rendimentos tributados na fonte: aplicações financeiras com retenção, aluguéis com retenção, etc.</div>
+                    </div>
+                </div>
+                <div class="options-container">
+                    <button class="option-btn" data-next="section-bens" data-value="yes">Sim</button>
+                    <button class="option-btn" data-next="section-bens" data-value="no">Não</button>
+                </div>
+            </div>
+        </section>
+
+        <section id="section-bens" class="content-section">
+            <div class="question-card">
+                <div class="question-number">4/20</div>
+                <div class="question-header">
+                    <div class="question-text">A soma de todos os seus bens (imóveis, veículos, investimentos) em 31/12/2024 ultrapassou R$ 800.000?</div>
+                    <div class="tooltip-icon">
+                        <i class="fas fa-info-circle"></i>
+                        <div class="tooltip">Inclui imóveis (valor de mercado), veículos, aplicações financeiras, investimentos, saldos em contas bancárias, direitos e créditos. Não inclui bens de uso pessoal como roupas e eletrodomésticos.</div>
+                    </div>
+                </div>
+                <div class="options-container">
+                    <button class="option-btn" data-next="section-atividade-rural" data-value="yes">Sim</button>
+                    <button class="option-btn" data-next="section-atividade-rural" data-value="no">Não</button>
+                </div>
+            </div>
+        </section>
+
+        <section id="section-atividade-rural" class="content-section">
+            <div class="question-card">
+                <div class="question-number">5/20</div>
+                <div class="question-header">
+                    <div class="question-text">Exerce atividade rural com receita bruta anual superior a R$ 169.440,00?</div>
+                    <div class="tooltip-icon">
+                        <i class="fas fa-info-circle"></i>
+                        <div class="tooltip">Atividade rural: agricultura, pecuária, extrativismo vegetal, pesca, etc. Receita bruta: total das vendas sem dedução de custos. Valor atualizado para 2025.</div>
+                    </div>
+                </div>
+                <div class="options-container">
+                    <button class="option-btn" data-next="section-perfil" data-value="yes">Sim</button>
+                    <button class="option-btn" data-next="section-perfil" data-value="no">Não</button>
+                </div>
+            </div>
+        </section>
+
+        <section id="section-perfil" class="content-section">
+            <div class="question-card">
+                <div class="question-number">6/20</div>
+                <div class="question-header">
+                    <div class="question-text">Você é Microempreendedor Individual (MEI)?</div>
+                    <div class="tooltip-icon">
+                        <i class="fas fa-info-circle"></i>
+                        <div class="tooltip">MEI: Microempreendedor Individual, modalidade do Simples Nacional para pequenos negócios com faturamento anual de até R$ 81.000,00.</div>
+                    </div>
+                </div>
+                <div class="options-container">
+                    <button class="option-btn" data-next="section-mei" data-value="yes">Sim</button>
+                    <button class="option-btn" data-next="section-rendimentos-exterior" data-value="no">Não</button>
+                </div>
+            </div>
+        </section>
+
+        <section id="section-mei" class="content-section">
+            <div class="question-card">
+                <div class="question-number">7/20</div>
+                <div class="question-header">
+                    <div class="question-text">Qual sua atividade principal como MEI?</div>
+                    <div class="tooltip-icon">
+                        <i class="fas fa-info-circle"></i>
+                        <div class="tooltip">Serviços: consultorias, manutenção, beleza, etc. Comércio/Indústria: venda de produtos, fabricação, etc. O percentual isento varia conforme a atividade.</div>
+                    </div>
+                </div>
+                <div class="options-container">
+                    <button class="option-btn" data-next="section-rendimentos-exterior" data-value="services">Serviços</button>
+                    <button class="option-btn" data-next="section-rendimentos-exterior" data-value="commerce">Comércio/Indústria</button>
+                </div>
+            </div>
+        </section>
+
+        <section id="section-rendimentos-exterior" class="content-section">
+            <div class="question-card">
+                <div class="question-number">8/20</div>
+                <div class="question-header">
+                    <div class="question-text">Teve rendimentos ou possui bens no exterior em 2024?</div>
+                    <div class="tooltip-icon">
+                        <i class="fas fa-info-circle"></i>
+                        <div class="tooltip">Rendimentos no exterior: salários, investimentos, aluguéis, lucros, dividendos recebidos do exterior. Bens no exterior: imóveis, veículos, contas bancárias, investimentos.</div>
+                    </div>
+                </div>
+                <div class="options-container">
+                    <button class="option-btn" data-next="section-despesas-saude" data-value="yes">Sim</button>
+                    <button class="option-btn" data-next="section-despesas-saude" data-value="no">Não</button>
+                </div>
+            </div>
+        </section>
+
+        <section id="section-despesas-saude" class="content-section">
+            <div class="question-card">
+                <div class="question-number">9/20</div>
+                <div class="question-header">
+                    <div class="question-text">Teve despesas médicas ou odontológicas significativas em 2024?</div>
+                    <div class="tooltip-icon">
+                        <i class="fas fa-info-circle"></i>
+                        <div class="tooltip">Despesas médicas: consultas, exames, tratamentos, internações, medicamentos com receita. Odontológicas: tratamentos, próteses, ortodontia. Não inclui despesas estéticas.</div>
+                    </div>
+                </div>
+                <div class="options-container">
+                    <button class="option-btn" data-next="section-despesas-educacao" data-value="yes">Sim</button>
+                    <button class="option-btn" data-next="section-despesas-educacao" data-value="no">Não</button>
+                </div>
+            </div>
+        </section>
+
+        <section id="section-despesas-educacao" class="content-section">
+            <div class="question-card">
+                <div class="question-number">10/20</div>
+                <div class="question-header">
+                    <div class="question-text">Teve despesas com educação (mensalidades escolares, faculdade, cursos técnicos) em 2024?</div>
+                    <div class="tooltip-icon">
+                        <i class="fas fa-info-circle"></i>
+                        <div class="tooltip">Inclui mensalidades de ensino fundamental, médio, superior, técnico e tecnológico. Não inclui cursos livres, preparatórios ou material escolar.</div>
+                    </div>
+                </div>
+                <div class="options-container">
+                    <button class="option-btn" data-next="section-previdencia" data-value="yes">Sim</button>
+                    <button class="option-btn" data-next="section-previdencia" data-value="no">Não</button>
+                </div>
+            </div>
+        </section>
+
+        <section id="section-previdencia" class="content-section">
+            <div class="question-card">
+                <div class="question-number">11/20</div>
+                <div class="question-header">
+                    <div class="question-text">Fez contribuições para previdência privada (PGBL) em 2024?</div>
+                    <div class="tooltip-icon">
+                        <i class="fas fa-info-circle"></i>
+                        <div class="tooltip">PGBL: Plano Gerador de Benefício Livre. Permite dedução de até 12% dos rendimentos tributáveis. VGBL não permite dedução.</div>
+                    </div>
+                </div>
+                <div class="options-container">
+                    <button class="option-btn" data-next="section-dependentes" data-value="yes">Sim</button>
+                    <button class="option-btn" data-next="section-dependentes" data-value="no">Não</button>
+                </div>
+            </div>
+        </section>
+
+        <section id="section-dependentes" class="content-section">
+            <div class="question-card">
+                <div class="question-number">12/20</div>
+                <div class="question-header">
+                    <div class="question-text">Tem dependentes para declarar no IR?</div>
+                    <div class="tooltip-icon">
+                        <i class="fas fa-info-circle"></i>
+                        <div class="tooltip">Dependentes: filhos até 21 anos (ou até 24 se estudante), cônjuge/companheiro, pais, avós, bisavós, netos, irmãos (sob guarda judicial ou tutela).</div>
+                    </div>
+                </div>
+                <div class="options-container">
+                    <button class="option-btn" data-next="section-investimentos" data-value="yes">Sim</button>
+                    <button class="option-btn" data-next="section-investimentos" data-value="no">Não</button>
+                </div>
+            </div>
+        </section>
+
+        <section id="section-investimentos" class="content-section">
+            <div class="question-card">
+                <div class="question-number">13/20</div>
+                <div class="question-header">
+                    <div class="question-text">Teve ganhos com investimentos (ações, fundos, criptomoedas) em 2024?</div>
+                    <div class="tooltip-icon">
+                        <i class="fas fa-info-circle"></i>
+                        <div class="tooltip">Inclui lucros com ações (acima de R$ 20.000/mês), fundos de investimento, criptomoedas, dividendos, juros sobre capital próprio.</div>
+                    </div>
+                </div>
+                <div class="options-container">
+                    <button class="option-btn" data-next="section-operacoes-imoveis" data-value="yes">Sim</button>
+                    <button class="option-btn" data-next="section-operacoes-imoveis" data-value="no">Não</button>
+                </div>
+            </div>
+        </section>
+
+        <section id="section-operacoes-imoveis" class="content-section">
+            <div class="question-card">
+                <div class="question-number">14/20</div>
+                <div class="question-header">
+                    <div class="question-text">Vendeu ou comprou imóveis em 2024?</div>
+                    <div class="tooltip-icon">
+                        <i class="fas fa-info-circle"></i>
+                        <div class="tooltip">Venda de imóveis pode gerar ganho de capital tributável. Compra deve ser declarada como bem.</div>
+                    </div>
+                </div>
+                <div class="options-container">
+                    <button class="option-btn" data-next="section-desconto-simplificado" data-value="yes">Sim</button>
+                    <button class="option-btn" data-next="section-desconto-simplificado" data-value="no">Não</button>
+                </div>
+            </div>
+        </section>
+
+        <section id="section-desconto-simplificado" class="content-section">
+            <div class="question-card">
+                <div class="question-number">15/20</div>
+                <div class="question-header">
+                    <div class="question-text">Prefere usar o desconto simplificado ou declarar despesas detalhadas?</div>
+                    <div class="tooltip-icon">
+                        <i class="fas fa-info-circle"></i>
+                        <div class="tooltip">Desconto simplificado: 20% da renda tributável, limitado a R$ 16.754,34. Declaração detalhada: permite deduzir despesas médicas, educacionais, previdência privada.</div>
+                    </div>
+                </div>
+                <div class="options-container">
+                    <button class="option-btn" data-next="section-plataforma" data-value="simplified">Prefiro o desconto simplificado</button>
+                    <button class="option-btn" data-next="section-plataforma" data-value="detailed">Quero declarar despesas detalhadas</button>
+                </div>
+            </div>
+        </section>
+
+        <section id="section-plataforma" class="content-section">
+            <div class="question-card">
+                <div class="question-number">16/20</div>
+                <div class="question-header">
+                    <div class="question-text">Como prefere fazer sua declaração?</div>
+                    <div class="tooltip-icon">
+                        <i class="fas fa-info-circle"></i>
+                        <div class="tooltip">Meu Imposto de Renda: plataforma online, não precisa instalar, disponível desde 1º de abril. PGD IRPF: programa para computador, mais recursos avançados.</div>
+                    </div>
+                </div>
+                <div class="options-container">
+                    <button class="option-btn" data-next="section-restituicao" data-value="mobile">Pelo celular (Meu Imposto de Renda)</button>
+                    <button class="option-btn" data-next="section-restituicao" data-value="desktop">No computador (Programa PGD)</button>
+                </div>
+            </div>
+        </section>
+
+        <section id="section-restituicao" class="content-section">
+            <div class="question-card">
+                <div class="question-number">17/20</div>
+                <div class="question-header">
+                    <div class="question-text">Prefere receber restituição via Pix ou conta bancária?</div>
+                    <div class="tooltip-icon">
+                        <i class="fas fa-info-circle"></i>
+                        <div class="tooltip">Pix: processamento mais rápido, prioridade na restituição. Conta bancária: depósito tradicional.</div>
+                    </div>
+                </div>
+                <div class="options-container">
+                    <button class="option-btn" data-next="section-prazo" data-value="pix">Pix (mais rápido)</button>
+                    <button class="option-btn" data-next="section-prazo" data-value="bank">Conta bancária</button>
+                </div>
+            </div>
+        </section>
+
+        <section id="section-prazo" class="content-section">
+            <div class="question-card">
+                <div class="question-number">18/20</div>
+                <div class="question-header">
+                    <div class="question-text">Você costuma declarar próximo ao prazo final?</div>
+                    <div class="tooltip-icon">
+                        <i class="fas fa-info-circle"></i>
+                        <div class="tooltip">Prazo final: 30 de maio de 2025. Declarar com antecedência evita congestionamento do sistema e permite correção de eventuais erros.</div>
+                    </div>
+                </div>
+                <div class="options-container">
+                    <button class="option-btn" data-next="section-conhecimento" data-value="yes">Sim, costumo deixar para a última hora</button>
+                    <button class="option-btn" data-next="section-conhecimento" data-value="no">Não, prefiro declarar com antecedência</button>
+                </div>
+            </div>
+        </section>
+
+        <section id="section-conhecimento" class="content-section">
+            <div class="question-card">
+                <div class="question-number">19/20</div>
+                <div class="question-header">
+                    <div class="question-text">Você já conhecia as principais mudanças do IRPF 2025?</div>
+                    <div class="tooltip-icon">
+                        <i class="fas fa-info-circle"></i>
+                        <div class="tooltip">Principais mudanças: novos limites de obrigatoriedade, atualização da tabela progressiva, declaração pré-preenchida mais completa, regras para bens no exterior.</div>
+                    </div>
+                </div>
+                <div class="options-container">
+                    <button class="option-btn" data-next="section-final" data-value="yes">Sim, estou atualizado</button>
+                    <button class="option-btn" data-next="section-final" data-value="no">Não, descobri algumas novidades</button>
+                </div>
+            </div>
+        </section>
+
+        <section id="section-final" class="content-section">
+            <div class="question-card">
+                <div class="question-number">20/20</div>
+                <div class="question-header">
+                    <div class="question-text">Mesmo não sendo obrigado, você tem interesse em declarar IR para restituição ou outros benefícios?</div>
+                    <div class="tooltip-icon">
+                        <i class="fas fa-info-circle"></i>
+                        <div class="tooltip">Mesmo que você não seja obrigado a declarar, pode ser vantajoso fazer a declaração para receber restituição de imposto retido na fonte ou para comprovar renda.</div>
+                    </div>
+                </div>
+                <div class="options-container">
+                    <button class="option-btn" data-next="section-recomendacao" data-value="yes">Sim, quero declarar mesmo não sendo obrigado</button>
+                    <button class="option-btn" data-next="section-recomendacao" data-value="no">Não, só declaro se for obrigatório</button>
+                </div>
+            </div>
+        </section>
+
+        <section id="section-recomendacao" class="content-section">
+            <div class="result-card">
+                <div class="result-icon">
+                    <i class="fas fa-star"></i>
+                </div>
+                <div class="result-title">Parabéns! Análise Completa</div>
+                <div class="result-content">
+                    Com base nas suas respostas, criamos um perfil completo do seu cenário fiscal. Agora vamos às recomendações personalizadas!
+                </div>
+                
+                <div class="checklist-container">
+                    <div class="checklist-item">
+                        <div class="checklist-checkbox"><i class="fas fa-check"></i></div>
+                        <div class="checklist-text">Use a declaração pré-preenchida (disponível desde 1º de abril)</div>
+                    </div>
+                    <div class="checklist-item">
+                        <div class="checklist-checkbox"><i class="fas fa-check"></i></div>
+                        <div class="checklist-text">Opte pelo recebimento via Pix para prioridade na restituição</div>
+                    </div>
+                    <div class="checklist-item">
+                        <div class="checklist-checkbox"><i class="fas fa-check"></i></div>
+                        <div class="checklist-text">Revise todos os dados antes do envio</div>
+                    </div>
+                    <div class="checklist-item">
+                        <div class="checklist-checkbox"><i class="fas fa-check"></i></div>
+                        <div class="checklist-text">Guarde comprovantes por 5 anos</div>
+                    </div>
+                </div>
+                
+                <div class="result-actions">
+                    <button class="action-btn primary" id="finalize-btn">Ver meu resumo completo</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Navigation -->
+        <div class="navigation">
+            <button class="nav-btn prev" disabled>
+                <i class="fas fa-arrow-left"></i> Anterior
+            </button>
+            <button class="nav-btn next">
+                Próximo <i class="fas fa-arrow-right"></i>
+            </button>
+        </div>
+
+        <!-- Painel de Exportação -->
+        <div id="export-panel" class="export-panel">
+            <div class="export-header">
+                <div class="export-title">Exportar Meus Dados</div>
+                <button class="close-export">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            
+            <div class="export-options">
+                <div class="export-option" data-format="whatsapp">
+                    <div class="export-icon">
+                        <i class="fab fa-whatsapp"></i>
+                    </div>
+                    <div class="export-option-text">
+                        <div class="export-option-title">Compartilhar via WhatsApp</div>
+                        <div class="export-option-desc">Resumo formatado para enviar ao contador</div>
+                    </div>
+                </div>
+                <div class="export-option" data-format="json">
+                    <div class="export-icon">
+                        <i class="fas fa-file-code"></i>
+                    </div>
+                    <div class="export-option-text">
+                        <div class="export-option-title">Exportar Dados Completos (JSON)</div>
+                        <div class="export-option-desc">Todos os dados para backup ou análise</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="export-preview" id="export-preview">
+                {/* A pré-visualização será gerada aqui */}
+            </div>
+            
+            <div class="export-actions">
+                <button class="export-action-btn secondary" id="edit-export">
+                    <i class="fas fa-edit"></i> Editar
+                </button>
+                <button class="export-action-btn primary" id="confirm-export">
+                    <i class="fas fa-share"></i> Compartilhar
+                </button>
+            </div>
+        </div>
+
+        <!-- Indicador de Segurança -->
+        <div class="security-indicator" id="security-indicator">
+            <div class="security-icon">
+                <i class="fas fa-lock"></i>
+            </div>
+            <div class="security-text">Seus dados estão seguros</div>
+        </div>
+
+        <!-- Conquistas -->
+        <div class="achievement-toast" id="achievement-toast" style="display: none;">
+            <div class="achievement-icon">
+                <i class="fas fa-trophy"></i>
+            </div>
+            <div class="achievement-content">
+                <div class="achievement-title" id="achievement-title">Conquista Desbloqueada!</div>
+                <div class="achievement-desc" id="achievement-desc">Descrição da conquista</div>
+            </div>
+        </div>
+
+        <!-- Overlay -->
+        <div class="overlay"></div>
+    </div>
+
+    <script>
+        // Sistema de Consentimento e Gerenciamento de Dados
+        const DataManager = {
+            // Verificar consentimento
+            checkConsent: function() {
+                return localStorage.getItem('irpf2025-consent') === 'true';
+            },
+            
+            // Salvar consentimento
+            saveConsent: function(consented) {
+                localStorage.setItem('irpf2025-consent', consented.toString());
+                
+                if (consented) {
+                    // Inicializar dados do usuário
+                    this.initializeUserData();
+                    this.showAchievement('Privacidade Respeitada!', 'Seus dados estão protegidos e sob seu controle total.');
+                }
+            },
+            
+            // Inicializar dados do usuário
+            initializeUserData: function() {
+                if (!localStorage.getItem('irpf2025-userProfile')) {
+                    const initialData = {
+                        id: this.generateId(),
+                        createdAt: new Date().toISOString(),
+                        consentDate: new Date().toISOString(),
+                        progress: 0,
+                        responses: {},
+                        profile: {},
+                        achievements: []
+                    };
+                    this.saveUserData(initialData);
+                }
+            },
+            
+            // Gerar ID único
+            generateId: function() {
+                return 'usr_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+            },
+            
+            // Salvar dados do usuário
+            saveUserData: function(data) {
+                localStorage.setItem('irpf2025-userProfile', JSON.stringify(data));
+            },
+            
+            // Obter dados do usuário
+            getUserData: function() {
+                const data = localStorage.getItem('irpf2025-userProfile');
+                return data ? JSON.parse(data) : null;
+            },
+            
+            // Atualizar resposta do usuário
+            updateUserResponse: function(questionId, response, questionText) {
+                const userData = this.getUserData();
+                if (userData) {
+                    userData.responses[questionId] = {
+                        response,
+                        questionText,
+                        timestamp: new Date().toISOString()
+                    };
+                    
+                    // Atualizar perfil do usuário
+                    this.updateUserProfile(userData, questionId, response);
+                    
+                    this.saveUserData(userData);
+                }
+            },
+            
+            // Atualizar perfil do usuário
+            updateUserProfile: function(userData, questionId, response) {
+                // Mapear respostas para o perfil
+                const profileMap = {
+                    'section-intro': 'knowledgeLevel',
+                    'section-rendimentos-totais': 'rendimentosAcimaLimite',
+                    'section-rendimentos-isentos': 'rendimentosIsentosAcimaLimite',
+                    'section-bens': 'bensAcimaLimite',
+                    'section-atividade-rural': 'atividadeRuralAcimaLimite',
+                    'section-perfil': 'mei',
+                    'section-mei': 'tipoAtividadeMei',
+                    'section-rendimentos-exterior': 'rendimentosExterior',
+                    'section-despesas-saude': 'despesasSaude',
+                    'section-despesas-educacao': 'despesasEducacao',
+                    'section-previdencia': 'previdenciaPrivada',
+                    'section-dependentes': 'dependentes',
+                    'section-investimentos': 'investimentos',
+                    'section-operacoes-imoveis': 'operacoesImoveis',
+                    'section-desconto-simplificado': 'preferenciaDesconto',
+                    'section-plataforma': 'plataformaPreferida',
+                    'section-restituicao': 'preferenciaRestituicao',
+                    'section-prazo': 'habitoPrazo',
+                    'section-conhecimento': 'conhecimentoNovidades',
+                    'section-final': 'interesseDeclarar'
+                };
+                
+                if (profileMap[questionId]) {
+                    userData.profile[profileMap[questionId]] = response;
+                }
+            },
+            
+            // Exportar dados
+            exportData: function(format) {
+                const userData = this.getUserData();
+                if (!userData) return null;
+                
+                switch(format) {
+                    case 'whatsapp':
+                        return this.formatWhatsApp(userData);
+                    case 'json':
+                        return this.formatJSON(userData);
+                    default:
+                        return this.formatJSON(userData);
+                }
+            },
+            
+            // Formatar para WhatsApp
+            formatWhatsApp: function(userData) {
+                let message = "📊 *RELATÓRIO IRPF 2025* 📊\n\n";
+                message += "Perfil fiscal baseado nas minhas respostas:\n\n";
+                
+                // Adicionar informações básicas
+                message += "📅 Data da análise: " + new Date().toLocaleDateString('pt-BR') + "\n";
+                
+                // Adicionar perfil fiscal
+                message += "💡 *Meu Perfil Fiscal:*\n";
+                
+                if (userData.profile.knowledgeLevel) {
+                    const knowledgeMap = {
+                        'beginner': 'Iniciante',
+                        'intermediate': 'Intermediário',
+                        'expert': 'Avançado'
+                    };
+                    message += `• Nível de conhecimento: ${knowledgeMap[userData.profile.knowledgeLevel] || userData.profile.knowledgeLevel}\n`;
+                }
+                
+                if (userData.profile.rendimentosAcimaLimite) {
+                    message += `• Rendimentos acima do limite: ${userData.profile.rendimentosAcimaLimite === 'yes' ? 'Sim' : 'Não'}\n`;
+                }
+                
+                if (userData.profile.bensAcimaLimite) {
+                    message += `• Bens acima do limite: ${userData.profile.bensAcimaLimite === 'yes' ? 'Sim' : 'Não'}\n`;
+                }
+                
+                if (userData.profile.mei) {
+                    message += `• É MEI: ${userData.profile.mei === 'yes' ? 'Sim' : 'Não'}\n`;
+                }
+                
+                if (userData.profile.rendimentosExterior) {
+                    message += `• Rendimentos no exterior: ${userData.profile.rendimentosExterior === 'yes' ? 'Sim' : 'Não'}\n`;
+                }
+                
+                if (userData.profile.despesasSaude) {
+                    message += `• Despesas médicas: ${userData.profile.despesasSaude === 'yes' ? 'Sim' : 'Não'}\n`;
+                }
+                
+                if (userData.profile.despesasEducacao) {
+                    message += `• Despesas educacionais: ${userData.profile.despesasEducacao === 'yes' ? 'Sim' : 'Não'}\n`;
+                }
+                
+                if (userData.profile.dependentes) {
+                    message += `• Tem dependentes: ${userData.profile.dependentes === 'yes' ? 'Sim' : 'Não'}\n`;
+                }
+                
+                if (userData.profile.investimentos) {
+                    message += `• Tem investimentos: ${userData.profile.investimentos === 'yes' ? 'Sim' : 'Não'}\n`;
+                }
+                
+                message += "\n";
+                
+                // Adicionar recomendações
+                message += "🎯 *Recomendações Personalizadas:*\n";
+                
+                // Verificar obrigatoriedade
+                const obrigatorio = userData.profile.rendimentosAcimaLimite === 'yes' || 
+                                   userData.profile.rendimentosIsentosAcimaLimite === 'yes' || 
+                                   userData.profile.bensAcimaLimite === 'yes' || 
+                                   userData.profile.atividadeRuralAcimaLimite === 'yes';
+                
+                if (obrigatorio) {
+                    message += "• *Você precisa declarar IR em 2025!*\n";
+                } else {
+                    message += "• *Você não é obrigado a declarar IR em 2025*\n";
+                    
+                    // Verificar se tem interesse em declarar mesmo não sendo obrigado
+                    if (userData.profile.interesseDeclarar === 'yes') {
+                        message += "• Você tem interesse em declarar mesmo não sendo obrigado\n";
+                    }
+                }
+                
+                // Recomendações específicas
+                if (userData.profile.preferenciaDesconto === 'simplified') {
+                    message += "• Use o desconto simplificado (20% da renda tributável)\n";
+                } else {
+                    message += "• Declare despesas detalhadas para maximizar deduções\n";
+                }
+                
+                if (userData.profile.preferenciaRestituicao === 'pix') {
+                    message += "• Configure recebimento via Pix para prioridade na restituição\n";
+                }
+                
+                if (userData.profile.habitoPrazo === 'yes') {
+                    message += "• Declare com antecedência para evitar problemas\n";
+                }
+                
+                message += "\n";
+                
+                // Adicionar conquistas
+                if (userData.achievements && userData.achievements.length > 0) {
+                    message += "🏆 *Conquistas:* " + userData.achievements.join(', ') + "\n\n";
+                }
+                
+                message += "⚖️ Fonte: Receita Federal - IRPF 2025\n";
+                message += "🔒 Dados processados localmente conforme LGPD";
+                
+                return message;
+            },
+            
+            // Formatar JSON
+            formatJSON: function(userData) {
+                return JSON.stringify(userData, null, 2);
+            },
+            
+            // Mostrar conquista
+            showAchievement: function(title, description) {
+                const userData = this.getUserData();
+                if (userData) {
+                    if (!userData.achievements) userData.achievements = [];
+                    if (!userData.achievements.includes(title)) {
+                        userData.achievements.push(title);
+                        this.saveUserData(userData);
+                    }
+                }
+                
+                const toast = document.getElementById('achievement-toast');
+                const toastTitle = document.getElementById('achievement-title');
+                const toastDesc = document.getElementById('achievement-desc');
+                
+                toastTitle.textContent = title;
+                toastDesc.textContent = description;
+                toast.style.display = 'flex';
+                
+                setTimeout(() => {
+                    toast.style.display = 'none';
+                }, 5000);
+            },
+            
+            // Limpar todos os dados
+            clearAllData: function() {
+                localStorage.removeItem('irpf2025-consent');
+                localStorage.removeItem('irpf2025-userProfile');
+            }
+        };
+
+        // Sistema de Acessibilidade
+        const AccessibilityManager = {
+            // Inicializar configurações de acessibilidade
+            init: function() {
+                this.loadSettings();
+                this.bindEvents();
+            },
+            
+            // Carregar configurações salvas
+            loadSettings: function() {
+                // Tema
+                const theme = localStorage.getItem('irpf2025-theme') || 'light';
+                this.setTheme(theme);
+                document.getElementById('dark-theme-toggle').checked = theme === 'dark';
+                
+                // Contraste
+                const contrast = localStorage.getItem('irpf2025-contrast') || 'normal';
+                this.setContrast(contrast);
+                document.getElementById('high-contrast-toggle').checked = contrast === 'high';
+                
+                // Tamanho da fonte
+                const fontSize = localStorage.getItem('irpf2025-fontSize') || 'normal';
+                this.setFontSize(fontSize);
+                
+                // Ativar botão correspondente
+                document.querySelectorAll('.font-size-btn').forEach(btn => {
+                    if (btn.getAttribute('data-size') === fontSize) {
+                        btn.classList.add('active');
+                    } else {
+                        btn.classList.remove('active');
+                    }
+                });
+            },
+            
+            // Vincular eventos
+            bindEvents: function() {
+                // Toggle do tema
+                document.getElementById('dark-theme-toggle').addEventListener('change', (e) => {
+                    const theme = e.target.checked ? 'dark' : 'light';
+                    this.setTheme(theme);
+                    localStorage.setItem('irpf2025-theme', theme);
+                });
+                
+                // Toggle do contraste
+                document.getElementById('high-contrast-toggle').addEventListener('change', (e) => {
+                    const contrast = e.target.checked ? 'high' : 'normal';
+                    this.setContrast(contrast);
+                    localStorage.setItem('irpf2025-contrast', contrast);
+                });
+                
+                // Controles de tamanho da fonte
+                document.querySelectorAll('.font-size-btn').forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        const size = btn.getAttribute('data-size');
+                        this.setFontSize(size);
+                        localStorage.setItem('irpf2025-fontSize', size);
+                        
+                        // Atualizar estado dos botões
+                        document.querySelectorAll('.font-size-btn').forEach(b => {
+                            b.classList.remove('active');
+                        });
+                        btn.classList.add('active');
+                    });
+                });
+                
+                // Botão de tema no header
+                document.getElementById('theme-btn').addEventListener('click', () => {
+                    const currentTheme = document.documentElement.getAttribute('data-theme') || 'light';
+                    const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+                    this.setTheme(newTheme);
+                    localStorage.setItem('irpf2025-theme', newTheme);
+                    document.getElementById('dark-theme-toggle').checked = newTheme === 'dark';
+                });
+            },
+            
+            // Aplicar tema
+            setTheme: function(theme) {
+                if (theme === 'dark') {
+                    document.documentElement.setAttribute('data-theme', 'dark');
+                    document.getElementById('theme-btn').innerHTML = '<i class="fas fa-sun"></i>';
+                } else {
+                    document.documentElement.removeAttribute('data-theme');
+                    document.getElementById('theme-btn').innerHTML = '<i class="fas fa-moon"></i>';
+                }
+            },
+            
+            // Aplicar contraste
+            setContrast: function(contrast) {
+                if (contrast === 'high') {
+                    document.documentElement.setAttribute('data-contrast', 'high');
+                } else {
+                    document.documentElement.removeAttribute('data-contrast');
+                }
+            },
+            
+            // Aplicar tamanho da fonte
+            setFontSize: function(size) {
+                document.documentElement.setAttribute('data-font-size', size);
+            }
+        };
+
+        // Sistema de UI
+        const UIManager = {
+            // Inicializar UI
+            init: function() {
+                this.bindEvents();
+                AccessibilityManager.init();
+                
+                // Verificar consentimento
+                if (!DataManager.checkConsent()) {
+                    this.showConsentModal();
+                } else {
+                    this.showMainApp();
+                }
+            },
+            
+            // Vincular eventos
+            bindEvents: function() {
+                // Consentimento
+                document.getElementById('accept-consent').addEventListener('click', () => {
+                    DataManager.saveConsent(true);
+                    this.hideConsentModal();
+                    this.showMainApp();
+                });
+                
+                document.getElementById('decline-consent').addEventListener('click', () => {
+                    DataManager.saveConsent(false);
+                    this.hideConsentModal();
+                    this.showDeclineMessage();
+                });
+                
+                // Navegação
+                document.querySelector('.nav-btn.next').addEventListener('click', Controller.nextSection);
+                document.querySelector('.nav-btn.prev').addEventListener('click', Controller.prevSection);
+                
+                // Botões de opção
+                document.querySelectorAll('.option-btn').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        Controller.handleOptionClick(this);
+                    });
+                });
+                
+                // Finalizar
+                document.getElementById('finalize-btn').addEventListener('click', function() {
+                    DataManager.showAchievement(
+                        "Parabéns! Guia Concluído!",
+                        "Agora você sabe tudo que precisa para sua declaração do IR 2025. Boa sorte!"
+                    );
+                    UIManager.showExportPanel();
+                });
+                
+                // Acessibilidade
+                document.getElementById('accessibility-btn').addEventListener('click', () => {
+                    this.toggleAccessibilityMenu();
+                });
+                
+                // Exportação
+                document.getElementById('export-btn').addEventListener('click', () => {
+                    this.showExportPanel();
+                });
+                
+                document.querySelector('.close-export').addEventListener('click', () => {
+                    this.hideExportPanel();
+                });
+                
+                // Opções de exportação
+                document.querySelectorAll('.export-option').forEach(option => {
+                    option.addEventListener('click', function() {
+                        document.querySelectorAll('.export-option').forEach(opt => {
+                            opt.classList.remove('selected');
+                        });
+                        this.classList.add('selected');
+                        
+                        const format = this.getAttribute('data-format');
+                        UIManager.updateExportPreview(format);
+                    });
+                });
+                
+                // Ações de exportação
+                document.getElementById('confirm-export').addEventListener('click', () => {
+                    const selectedFormat = document.querySelector('.export-option.selected')?.getAttribute('data-format');
+                    if (selectedFormat) {
+                        UIManager.handleExport(selectedFormat);
+                    }
+                });
+                
+                document.getElementById('edit-export').addEventListener('click', () => {
+                    UIManager.enableExportEditing();
+                });
+                
+                // Fechar menus ao clicar fora
+                document.addEventListener('click', (e) => {
+                    if (!e.target.closest('#accessibility-menu') && !e.target.closest('#accessibility-btn')) {
+                        document.getElementById('accessibility-menu').style.display = 'none';
+                    }
+                });
+            },
+            
+            // Mostrar modal de consentimento
+            showConsentModal: function() {
+                document.getElementById('consent-modal').style.display = 'flex';
+            },
+            
+            // Ocultar modal de consentimento
+            hideConsentModal: function() {
+                document.getElementById('consent-modal').style.display = 'none';
+            },
+            
+            // Mostrar app principal
+            showMainApp: function() {
+                document.getElementById('main-app').style.display = 'block';
+                Controller.init();
+            },
+            
+            // Mostrar mensagem de recusa
+            showDeclineMessage: function() {
+                document.getElementById('main-app').innerHTML = `
+                    <div style="padding: 40px 20px; text-align: center;">
+                        <h2>Respeitamos sua decisão</h2>
+                        <p>Para utilizar o Guia IRPF 2025, é necessário concordar com os termos de privacidade.</p>
+                        <p>Se mudar de ideia, recarregue a página.</p>
+                    </div>
+                `;
+                document.getElementById('main-app').style.display = 'block';
+            },
+            
+            // Alternar menu de acessibilidade
+            toggleAccessibilityMenu: function() {
+                const menu = document.getElementById('accessibility-menu');
+                menu.style.display = menu.style.display === 'block' ? 'none' : 'block';
+            },
+            
+            // Mostrar painel de exportação
+            showExportPanel: function() {
+                document.getElementById('export-panel').style.display = 'block';
+                this.updateExportPreview('whatsapp');
+                
+                // Selecionar primeira opção por padrão
+                const firstOption = document.querySelector('.export-option');
+                if (firstOption) {
+                    firstOption.classList.add('selected');
+                }
+            },
+            
+            // Ocultar painel de exportação
+            hideExportPanel: function() {
+                document.getElementById('export-panel').style.display = 'none';
+            },
+            
+            // Atualizar pré-visualização de exportação
+            updateExportPreview: function(format) {
+                const preview = document.getElementById('export-preview');
+                const data = DataManager.exportData(format);
+                
+                if (format === 'whatsapp') {
+                    preview.textContent = data;
+                } else if (format === 'json') {
+                    preview.textContent = data;
+                }
+            },
+            
+            // Manipular exportação
+            handleExport: function(format) {
+                const data = DataManager.exportData(format);
+                
+                if (format === 'whatsapp') {
+                    const encodedMessage = encodeURIComponent(data);
+                    const whatsappUrl = `https://wa.me/?text=${encodedMessage}`;
+                    window.open(whatsappUrl, '_blank');
+                } else if (format === 'json') {
+                    this.downloadJSON(data, 'dados-irpf-2025.json');
+                }
+                
+                this.hideExportPanel();
+                DataManager.showAchievement(
+                    'Dados Exportados!', 
+                    'Seus dados foram preparados para compartilhamento seguro'
+                );
+            },
+            
+            // Download JSON
+            downloadJSON: function(data, filename) {
+                const blob = new Blob([data], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = filename;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+            },
+            
+            // Habilitar edição de exportação
+            enableExportEditing: function() {
+                const preview = document.getElementById('export-preview');
+                preview.contentEditable = true;
+                preview.focus();
+                
+                DataManager.showAchievement(
+                    'Editando Conteúdo', 
+                    'Personalize suas informações antes de compartilhar'
+                );
+            }
+        };
+
+        // Controller
+        const Model = {
+            currentSection: 'section-intro',
+            sections: [
+                'section-intro',
+                'section-rendimentos-totais',
+                'section-rendimentos-isentos',
+                'section-bens',
+                'section-atividade-rural',
+                'section-perfil',
+                'section-mei',
+                'section-rendimentos-exterior',
+                'section-despesas-saude',
+                'section-despesas-educacao',
+                'section-previdencia',
+                'section-dependentes',
+                'section-investimentos',
+                'section-operacoes-imoveis',
+                'section-desconto-simplificado',
+                'section-plataforma',
+                'section-restituicao',
+                'section-prazo',
+                'section-conhecimento',
+                'section-final',
+                'section-recomendacao'
+            ],
+            progress: 5,
+            history: [],
+            
+            updateProgress: function() {
+                const currentIndex = this.sections.indexOf(this.currentSection);
+                this.progress = Math.min(100, Math.round((currentIndex + 1) / this.sections.length * 100));
+                return this.progress;
+            }
+        };
+
+        const View = {
+            init: function() {
+                this.updateProgressBar();
+                this.setupEventListeners();
+                this.updateNavigation();
+            },
+            
+            updateProgressBar: function() {
+                const progressFill = document.querySelector('.progress-fill');
+                const progressPercentage = document.querySelector('.progress-percentage');
+                progressFill.style.width = `${Model.progress}%`;
+                progressPercentage.textContent = `${Model.progress}%`;
+            },
+            
+            showSection: function(sectionId) {
+                // Hide all sections
+                document.querySelectorAll('.content-section').forEach(section => {
+                    section.classList.remove('active');
+                });
+                
+                // Show current section
+                document.getElementById(sectionId).classList.add('active');
+                
+                // Update character message based on section
+                this.updateCharacterMessage(sectionId);
+                
+                // Update model
+                Model.currentSection = sectionId;
+                Model.updateProgress();
+                this.updateProgressBar();
+                this.updateNavigation();
+            },
+            
+            updateCharacterMessage: function(sectionId) {
+                const characterText = document.querySelector('.character-text');
+                const messages = {
+                    'section-intro': 'Vamos descobrir seu perfil fiscal. Responda com sinceridade para obter recomendações personalizadas!',
+                    'section-rendimentos-totais': 'Agora vou te perguntar sobre seus rendimentos totais em 2024.',
+                    'section-rendimentos-isentos': 'Vamos falar sobre rendimentos isentos ou tributados na fonte.',
+                    'section-bens': 'Agora sobre seus bens e investimentos.',
+                    'section-atividade-rural': 'Você exerce atividade rural?',
+                    'section-perfil': 'Vamos entender melhor seu perfil profissional.',
+                    'section-mei': 'Como MEI, você tem regras específicas.',
+                    'section-rendimentos-exterior': 'Rendimentos no exterior têm regras específicas.',
+                    'section-despesas-saude': 'Vamos falar sobre despesas médicas e odontológicas.',
+                    'section-despesas-educacao': 'Agora sobre despesas com educação.',
+                    'section-previdencia': 'Contribuições para previdência privada podem ser deduzidas.',
+                    'section-dependentes': 'Vamos falar sobre dependentes.',
+                    'section-investimentos': 'Agora sobre seus investimentos.',
+                    'section-operacoes-imoveis': 'Vendas ou compras de imóveis em 2024?',
+                    'section-desconto-simplificado': 'Prefere desconto simplificado ou declaração detalhada?',
+                    'section-plataforma': 'Como prefere fazer sua declaração?',
+                    'section-restituicao': 'Prefere receber restituição via Pix ou conta bancária?',
+                    'section-prazo': 'Costuma declarar próximo ao prazo final?',
+                    'section-conhecimento': 'Já conhecia as principais mudanças do IRPF 2025?',
+                    'section-final': 'Última pergunta! Mesmo não sendo obrigado, você tem interesse em declarar?',
+                    'section-recomendacao': 'Parabéns! Com base nas suas respostas, criei um perfil completo do seu cenário fiscal.'
+                };
+                
+                characterText.textContent = messages[sectionId] || 'Vamos continuar com sua declaração do IR!';
+            },
+            
+            updateNavigation: function() {
+                const prevBtn = document.querySelector('.nav-btn.prev');
+                const nextBtn = document.querySelector('.nav-btn.next');
+                
+                // Update previous button
+                if (Model.currentSection === 'section-intro') {
+                    prevBtn.disabled = true;
+                } else {
+                    prevBtn.disabled = false;
+                }
+                
+                // Update next button text for final section
+                if (Model.currentSection === 'section-recomendacao') {
+                    nextBtn.style.display = 'none';
+                } else {
+                    nextBtn.style.display = 'flex';
+                }
+            },
+            
+            setupEventListeners: function() {
+                // Option buttons
+                document.querySelectorAll('.option-btn').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        Controller.handleOptionClick(this);
+                    });
+                });
+                
+                // Navigation buttons
+                document.querySelector('.nav-btn.next').addEventListener('click', Controller.nextSection);
+                document.querySelector('.nav-btn.prev').addEventListener('click', Controller.prevSection);
+                
+                // Checklist items
+                document.querySelectorAll('.checklist-checkbox').forEach(checkbox => {
+                    checkbox.addEventListener('click', function() {
+                        this.classList.toggle('checked');
+                    });
+                });
+            }
+        };
+
+        const Controller = {
+            init: function() {
+                Model.currentSection = 'section-intro';
+                Model.history = ['section-intro'];
+                View.init();
+                View.showSection(Model.currentSection);
+            },
+            
+            handleOptionClick: function(optionBtn) {
+                const nextSection = optionBtn.getAttribute('data-next');
+                const response = optionBtn.getAttribute('data-value');
+                const questionText = optionBtn.closest('.question-card').querySelector('.question-text').textContent;
+                
+                // Save user response
+                DataManager.updateUserResponse(Model.currentSection, response, questionText);
+                
+                // Add to history
+                Model.history.push(Model.currentSection);
+                
+                // Show next section
+                View.showSection(nextSection);
+                
+                // Show achievement for completing first 5 questions
+                if (Model.currentSection === 'section-atividade-rural') {
+                    DataManager.showAchievement(
+                        "Primeiros Passos!",
+                        "Você completou as perguntas básicas de obrigatoriedade"
+                    );
+                }
+                
+                // Show achievement for completing 10 questions
+                if (Model.currentSection === 'section-dependentes') {
+                    DataManager.showAchievement(
+                        "Metade do Caminho!",
+                        "Você já respondeu 10 das 20 perguntas"
+                    );
+                }
+                
+                // Show achievement for completing all questions
+                if (Model.currentSection === 'section-recomendacao') {
+                    DataManager.showAchievement(
+                        "Perfil Completo!",
+                        "Você respondeu todas as 20 perguntas e temos um panorama completo"
+                    );
+                }
+            },
+            
+            nextSection: function() {
+                const currentIndex = Model.sections.indexOf(Model.currentSection);
+                if (currentIndex < Model.sections.length - 1) {
+                    Model.history.push(Model.currentSection);
+                    View.showSection(Model.sections[currentIndex + 1]);
+                }
+            },
+            
+            prevSection: function() {
+                if (Model.history.length > 1) {
+                    Model.history.pop(); // Remove current section
+                    const prevSection = Model.history[Model.history.length - 1];
+                    View.showSection(prevSection);
+                }
+            }
+        };
+
+        // Inicializar o aplicativo quando o DOM estiver pronto
+        document.addEventListener('DOMContentLoaded', function() {
+            UIManager.init();
+        });
+    </script>
+<style>.ag-nav-back{position:fixed;top:12px;left:12px;z-index:9999;background:rgba(79,70,229,.9);color:#fff;border:none;border-radius:50px;padding:.4rem .9rem;font-size:.8rem;font-family:system-ui,sans-serif;font-weight:600;cursor:pointer;text-decoration:none;display:flex;align-items:center;gap:.35rem;box-shadow:0 2px 10px rgba(0,0,0,.25);backdrop-filter:blur(4px);transition:background .2s,transform .2s}.ag-nav-back:hover{background:rgba(55,48,163,.95);transform:translateY(-1px)}</style><a href="https://passosdomingues.github.io/webappshowcase/site/main.html" class="ag-nav-back" aria-label="Voltar ao índice">&#8592; Índice</a>
+</body>
+</html>

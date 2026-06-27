@@ -1,0 +1,1507 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Assistente jurídico para cálculos penais e análise de provas"/>
+    <title>JurisCopilot - Assistente Jurídico</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --primary: #2c3e50;
+            --primary-light: #34495e;
+            --secondary: #3498db;
+            --secondary-dark: #2980b9;
+            --accent: #e74c3c;
+            --accent-dark: #c0392b;
+            --success: #2ecc71;
+            --warning: #f39c12;
+            --light: #ecf0f1;
+            --gray: #95a5a6;
+            --dark: #2c3e50;
+            --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s ease;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #f5f7fa;
+            color: var(--dark);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            padding: 20px;
+            margin: 0 auto;
+        }
+
+        header {
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            color: white;
+            padding: 20px 0;
+            text-align: center;
+            box-shadow: var(--shadow);
+            margin-bottom: 30px;
+        }
+
+        h1 {
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+        }
+
+        .logo i {
+            font-size: 2.5rem;
+        }
+
+        .subtitle {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .tab-container {
+            display: flex;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .tab-btn {
+            padding: 12px 25px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            color: var(--gray);
+            position: relative;
+            transition: var(--transition);
+        }
+
+        .tab-btn.active {
+            color: var(--primary);
+        }
+
+        .tab-btn.active::after {
+            content: '';
+            position: absolute;
+            bottom: -1px;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background-color: var(--primary);
+        }
+
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .card {
+            background-color: white;
+            border-radius: 10px;
+            padding: 25px;
+            margin-bottom: 25px;
+            box-shadow: var(--shadow);
+            transition: var(--transition);
+        }
+
+        .card:hover {
+            box-shadow: var(--shadow-lg);
+        }
+
+        .card-title {
+            font-size: 1.3rem;
+            color: var(--primary);
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .card-title i {
+            font-size: 1.3rem;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--primary);
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 1rem;
+            transition: var(--transition);
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--secondary);
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+        }
+
+        .select-control {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 1rem;
+            transition: var(--transition);
+            appearance: none;
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right 10px center;
+            background-size: 1em;
+        }
+
+        .select-control:focus {
+            outline: none;
+            border-color: var(--secondary);
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+        }
+
+        .btn {
+            padding: 12px 25px;
+            border-radius: 5px;
+            border: none;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            transition: var(--transition);
+        }
+
+        .btn-primary {
+            background-color: var(--secondary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--secondary-dark);
+            transform: translateY(-2px);
+        }
+
+        .btn-accent {
+            background-color: var(--accent);
+            color: white;
+        }
+
+        .btn-accent:hover {
+            background-color: var(--accent-dark);
+            transform: translateY(-2px);
+        }
+
+        .result-container {
+            margin-top: 30px;
+            padding: 20px;
+            border-radius: 8px;
+            background-color: #f8f9fa;
+            border-left: 5px solid var(--secondary);
+        }
+
+        .result-title {
+            font-size: 1.2rem;
+            color: var(--primary);
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .result-value {
+            font-size: 1.1rem;
+            line-height: 1.6;
+        }
+
+        .result-highlight {
+            font-weight: 700;
+            color: var(--accent);
+        }
+
+        .chart-container {
+            margin-top: 30px;
+            height: 300px;
+        }
+
+        .timeline {
+            position: relative;
+            max-width: 100%;
+            margin: 30px auto;
+        }
+
+        .timeline::after {
+            content: '';
+            position: absolute;
+            width: 2px;
+            background-color: var(--secondary);
+            top: 0;
+            bottom: 0;
+            left: 50%;
+            margin-left: -1px;
+        }
+
+        .timeline-item {
+            padding: 10px 40px;
+            position: relative;
+            width: 50%;
+            box-sizing: border-box;
+        }
+
+        .timeline-item::after {
+            content: '';
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background-color: white;
+            border: 4px solid var(--secondary);
+            border-radius: 50%;
+            top: 15px;
+            z-index: 1;
+        }
+
+        .left {
+            left: 0;
+        }
+
+        .right {
+            left: 50%;
+        }
+
+        .left::after {
+            right: -10px;
+        }
+
+        .right::after {
+            left: -10px;
+        }
+
+        .timeline-content {
+            padding: 20px;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: var(--shadow);
+        }
+
+        .timeline-date {
+            font-weight: 600;
+            color: var(--secondary);
+            margin-bottom: 5px;
+        }
+
+        .timeline-title {
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .evidence-item {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 15px;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            transition: var(--transition);
+        }
+
+        .evidence-item:hover {
+            background-color: #e9ecef;
+        }
+
+        .evidence-check {
+            margin-right: 15px;
+            margin-top: 3px;
+        }
+
+        .evidence-content {
+            flex-grow: 1;
+        }
+
+        .evidence-title {
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .evidence-desc {
+            font-size: 0.9rem;
+            color: var(--gray);
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            margin-top: 30px;
+            flex-wrap: wrap;
+        }
+
+        .tooltip {
+            position: relative;
+            display: inline-block;
+            cursor: help;
+        }
+
+        .tooltip .tooltiptext {
+            visibility: hidden;
+            width: 250px;
+            background-color: var(--primary);
+            color: white;
+            text-align: center;
+            border-radius: 6px;
+            padding: 10px;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%;
+            left: 50%;
+            transform: translateX(-50%);
+            opacity: 0;
+            transition: opacity 0.3s;
+            font-size: 0.9rem;
+            font-weight: normal;
+        }
+
+        .tooltip:hover .tooltiptext {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        .legal-reference {
+            margin-top: 15px;
+            padding: 15px;
+            background-color: #e8f4f8;
+            border-radius: 8px;
+            border-left: 4px solid var(--secondary);
+        }
+
+        .legal-reference-title {
+            font-weight: 600;
+            color: var(--primary);
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .legal-reference-content {
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+
+        @media (max-width: 768px) {
+            .timeline::after {
+                left: 31px;
+            }
+
+            .timeline-item {
+                width: 100%;
+                padding-left: 70px;
+                padding-right: 25px;
+            }
+
+            .timeline-item::after {
+                left: 21px;
+            }
+
+            .left::after, .right::after {
+                left: 21px;
+            }
+
+            .right {
+                left: 0;
+            }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.5s ease forwards;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-left: 8px;
+        }
+
+        .badge-primary {
+            background-color: #e3f2fd;
+            color: var(--secondary-dark);
+        }
+
+        .badge-accent {
+            background-color: #ffebee;
+            color: var(--accent-dark);
+        }
+
+        .badge-success {
+            background-color: #e8f5e9;
+            color: var(--success);
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <div class="logo">
+                <i class="fas fa-gavel"></i>
+                <div>
+                    <h1>JurisCopilot</h1>
+                    <p class="subtitle">Assistente jurídico para cálculos penais e análise de provas</p>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="tab-container">
+            <button class="tab-btn active" onclick="openTab('pena')">
+                <i class="fas fa-calculator"></i> Cálculo de Pena
+            </button>
+            <button class="tab-btn" onclick="openTab('arvore')">
+                <i class="fas fa-tree"></i> Fruto da Árvore Envenenada
+            </button>
+            <button class="tab-btn" onclick="openTab('historico')">
+                <i class="fas fa-history"></i> Histórico de Casos
+            </button>
+        </div>
+
+        <!-- Cálculo de Pena -->
+        <div class="tab-content active" id="pena">
+            <div class="card">
+                <h2 class="card-title"><i class="fas fa-calculator"></i> Cálculo de Pena Base</h2>
+                
+                <div class="form-group">
+                    <label for="crime">Tipo de Crime:</label>
+                    <select id="crime" class="select-control">
+                        <option value="">Selecione o tipo de crime</option>
+                        <option value="furto">Furto (Art. 155 CP)</option>
+                        <option value="roubo">Roubo (Art. 157 CP)</option>
+                        <option value="homicidio">Homicídio (Art. 121 CP)</option>
+                        <option value="estupro">Estupro (Art. 213 CP)</option>
+                        <option value="trafico">Tráfico de Drogas (Art. 33 Lei 11.343/06)</option>
+                        <option value="lavagem">Lavagem de Dinheiro (Art. 1º Lei 9.613/98)</option>
+                        <option value="corrupcao">Corrupção (Art. 317 CP)</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="pena-min">Pena Mínima (em meses):</label>
+                    <input type="number" id="pena-min" class="form-control" placeholder="Ex: 12">
+                </div>
+                
+                <div class="form-group">
+                    <label for="pena-max">Pena Máxima (em meses):</label>
+                    <input type="number" id="pena-max" class="form-control" placeholder="Ex: 48">
+                </div>
+                
+                <button class="btn btn-primary" onclick="calcularPenaBase()">
+                    <i class="fas fa-calculator"></i> Calcular Pena Base
+                </button>
+                
+                <div class="result-container" id="result-pena-base" style="display: none;">
+                    <h3 class="result-title"><i class="fas fa-gavel"></i> Resultado - Pena Base</h3>
+                    <div class="result-value" id="pena-base-result"></div>
+                </div>
+            </div>
+            
+            <div class="card">
+                <h2 class="card-title"><i class="fas fa-balance-scale"></i> Circunstâncias Judiciais</h2>
+                
+                <div class="form-group">
+                    <label for="culpabilidade">Culpabilidade:</label>
+                    <select id="culpabilidade" class="select-control">
+                        <option value="0">Neutra (não altera)</option>
+                        <option value="0.1666">Agravante (+1/6)</option>
+                        <option value="-0.1666">Atenuante (-1/6)</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="antecedentes">Antecedentes Criminais:</label>
+                    <select id="antecedentes" class="select-control">
+                        <option value="0">Neutro (não altera)</option>
+                        <option value="0.1666">Agravante (+1/6)</option>
+                        <option value="-0.1666">Atenuante (-1/6)</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="conduta-social">Conduta Social:</label>
+                    <select id="conduta-social" class="select-control">
+                        <option value="0">Neutra (não altera)</option>
+                        <option value="0.1666">Agravante (+1/6)</option>
+                        <option value="-0.1666">Atenuante (-1/6)</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="personalidade">Personalidade do Agente:</label>
+                    <select id="personalidade" class="select-control">
+                        <option value="0">Neutra (não altera)</option>
+                        <option value="0.1666">Agravante (+1/6)</option>
+                        <option value="-0.1666">Atenuante (-1/6)</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="motivos">Motivos do Crime:</label>
+                    <select id="motivos" class="select-control">
+                        <option value="0">Neutros (não altera)</option>
+                        <option value="0.1666">Agravantes (+1/6)</option>
+                        <option value="-0.1666">Atenuantes (-1/6)</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="circunstancias">Circunstâncias do Crime:</label>
+                    <select id="circunstancias" class="select-control">
+                        <option value="0">Neutras (não altera)</option>
+                        <option value="0.1666">Agravantes (+1/6)</option>
+                        <option value="-0.1666">Atenuantes (-1/6)</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="consequencias">Consequências do Crime:</label>
+                    <select id="consequencias" class="select-control">
+                        <option value="0">Neutras (não altera)</option>
+                        <option value="0.1666">Agravantes (+1/6)</option>
+                        <option value="-0.1666">Atenuantes (-1/6)</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="comportamento-vitima">Comportamento da Vítima:</label>
+                    <select id="comportamento-vitima" class="select-control">
+                        <option value="0">Neutro (não altera)</option>
+                        <option value="0.1666">Agravante (+1/6)</option>
+                        <option value="-0.1666">Atenuante (-1/6)</option>
+                    </select>
+                </div>
+                
+                <button class="btn btn-primary" onclick="calcularPenaFinal()">
+                    <i class="fas fa-calculator"></i> Calcular Pena Final
+                </button>
+                
+                <div class="result-container" id="result-pena-final" style="display: none;">
+                    <h3 class="result-title"><i class="fas fa-gavel"></i> Resultado - Pena Final</h3>
+                    <div class="result-value" id="pena-final-result"></div>
+                    
+                    <div class="chart-container">
+                        <canvas id="penaChart"></canvas>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card">
+                <h2 class="card-title"><i class="fas fa-clock"></i> Regime de Cumprimento</h2>
+                
+                <div class="form-group">
+                    <label for="pena-final">Pena Aplicada (em meses):</label>
+                    <input type="number" id="pena-final" class="form-control" placeholder="Informe a pena final em meses">
+                </div>
+                
+                <div class="form-group">
+                    <label for="reatincidencia">Reincidência:</label>
+                    <select id="reatincidencia" class="select-control">
+                        <option value="false">Não reincidente</option>
+                        <option value="true">Reincidente</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="violenta">Crime Violento ou Grave:</label>
+                    <select id="violenta" class="select-control">
+                        <option value="false">Não</option>
+                        <option value="true">Sim</option>
+                    </select>
+                </div>
+                
+                <button class="btn btn-primary" onclick="calcularRegime()">
+                    <i class="fas fa-calculator"></i> Calcular Regime
+                </button>
+                
+                <div class="result-container" id="result-regime" style="display: none;">
+                    <h3 class="result-title"><i class="fas fa-gavel"></i> Resultado - Regime de Cumprimento</h3>
+                    <div class="result-value" id="regime-result"></div>
+                    
+                    <div class="legal-reference">
+                        <div class="legal-reference-title">
+                            <i class="fas fa-book"></i> Referência Legal
+                        </div>
+                        <div class="legal-reference-content">
+                            Art. 33 do Código Penal - Os regimes de cumprimento da pena privativa de liberdade são:
+                            <ul style="margin-top: 8px; margin-left: 20px;">
+                                <li><strong>Fechado:</strong> pena superior a 8 anos (crimes comuns) ou 4 anos (reincidente ou crime hediondo/violento)</li>
+                                <li><strong>Semiaberto:</strong> pena superior a 4 anos e não superior a 8 anos (crimes comuns) ou 4 anos (não reincidente)</li>
+                                <li><strong>Aberto:</strong> pena igual ou inferior a 4 anos (crimes comuns)</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Fruto da Árvore Envenenada -->
+        <div class="tab-content" id="arvore">
+            <div class="card">
+                <h2 class="card-title"><i class="fas fa-tree"></i> Análise do Fruto da Árvore Envenenada</h2>
+                <p style="margin-bottom: 20px;">O princípio do fruto da árvore envenenada determina que as provas obtidas por meios ilícitos são inadmissíveis no processo, assim como quaisquer outras provas que delas derivem.</p>
+                
+                <div class="form-group">
+                    <label for="prova-ilicita">Houve prova obtida por meio ilícito?</label>
+                    <select id="prova-ilicita" class="select-control" onchange="toggleProvaIlicita()">
+                        <option value="false">Não</option>
+                        <option value="true">Sim</option>
+                    </select>
+                </div>
+                
+                <div id="prova-ilicita-details" style="display: none;">
+                    <div class="form-group">
+                        <label for="tipo-ilicitude">Tipo de Ilicitude:</label>
+                        <select id="tipo-ilicitude" class="select-control">
+                            <option value="">Selecione o tipo</option>
+                            <option value="violacao-domicilio">Violação de domicílio (Art. 5º, XI CF)</option>
+                            <option value="violacao-sigilo">Violação de sigilo (Art. 5º, XII CF)</option>
+                            <option value="tortura">Tortura ou coação (Art. 5º, III CF)</option>
+                            <option value="sem-mandado">Busca sem mandado (Art. 5º, XI CF)</option>
+                            <option value="outra">Outra forma de ilicitude</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="descricao-ilicitude">Descrição da Prova Ilícita:</label>
+                        <textarea id="descricao-ilicitude" class="form-control" rows="4" placeholder="Descreva como a prova foi obtida de forma ilícita"></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="provas-derivadas">Existem provas derivadas da prova ilícita?</label>
+                        <select id="provas-derivadas" class="select-control" onchange="toggleProvasDerivadas()">
+                            <option value="false">Não</option>
+                            <option value="true">Sim</option>
+                        </select>
+                    </div>
+                    
+                    <div id="provas-derivadas-details" style="display: none;">
+                        <div class="form-group">
+                            <label>Adicione as Provas Derivadas:</label>
+                            <div id="provas-derivadas-list"></div>
+                            <button type="button" class="btn btn-primary" style="margin-top: 10px;" onclick="addProvaDerivada()">
+                                <i class="fas fa-plus"></i> Adicionar Prova Derivada
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="nexo-causal">Há nexo causal entre a prova ilícita e as derivadas?</label>
+                        <select id="nexo-causal" class="select-control">
+                            <option value="">Selecione</option>
+                            <option value="direto">Nexo causal direto</option>
+                            <option value="indireto">Nexo causal indireto</option>
+                            <option value="duvidoso">Nexo causal duvidoso</option>
+                            <option value="inexistente">Nexo causal inexistente</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="atenuacao-excecao">Aplica-se alguma exceção ao princípio?</label>
+                        <select id="atenuacao-excecao" class="select-control">
+                            <option value="nao">Não se aplica exceção</option>
+                            <option value="descoberta-inevitavel">Descoberta inevitável</option>
+                            <option value="fonte-independente">Fonte independente</option>
+                            <option value="dilucao-prova">Diluição da prova</option>
+                        </select>
+                    </div>
+                    
+                    <button class="btn btn-accent" onclick="analisarArvoreEnvenenada()">
+                        <i class="fas fa-search"></i> Analisar Admissibilidade
+                    </button>
+                </div>
+                
+                <div class="result-container" id="result-arvore" style="display: none;">
+                    <h3 class="result-title"><i class="fas fa-gavel"></i> Resultado - Análise de Admissibilidade</h3>
+                    <div class="result-value" id="arvore-result"></div>
+                    
+                    <div class="legal-reference">
+                        <div class="legal-reference-title">
+                            <i class="fas fa-book"></i> Referência Legal
+                        </div>
+                        <div class="legal-reference-content">
+                            <p><strong>Constituição Federal, Art. 5º, LVI:</strong> "são inadmissíveis, no processo, as provas obtidas por meios ilícitos".</p>
+                            <p><strong>Súmula 145 do STJ:</strong> "É inadmissível a prova emprestada, quando ilegítima a sua origem, em decorrência da teoria dos frutos da árvore envenenada (fruit of the poisonous tree)."</p>
+                            <p><strong>Exceções ao princípio:</strong> Descoberta inevitável, fonte independente e diluição da prova podem tornar admissíveis provas derivadas de ilícitos em casos específicos.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card">
+                <h2 class="card-title"><i class="fas fa-project-diagram"></i> Diagrama de Relação de Provas</h2>
+                <p style="margin-bottom: 20px;">Visualize a relação entre a prova ilícita e as provas derivadas:</p>
+                
+                <div id="diagrama-provas" style="text-align: center; margin: 20px 0; min-height: 300px; display: flex; justify-content: center; align-items: center; background-color: #f8f9fa; border-radius: 8px; padding: 20px;">
+                    <p style="color: var(--gray);">Nenhuma prova ilícita identificada ainda. Preencha os dados acima para gerar o diagrama.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Histórico de Casos -->
+        <div class="tab-content" id="historico">
+            <div class="card">
+                <h2 class="card-title"><i class="fas fa-history"></i> Histórico de Casos Analisados</h2>
+                <p style="margin-bottom: 20px;">Visualize e gerencie os casos jurídicos que você já analisou:</p>
+                
+                <div class="form-group">
+                    <label for="filtro-casos">Filtrar por:</label>
+                    <select id="filtro-casos" class="select-control" onchange="filtrarCasos()">
+                        <option value="todos">Todos os casos</option>
+                        <option value="pena">Cálculos de pena</option>
+                        <option value="arvore">Análises de prova ilícita</option>
+                        <option value="recentes">Mais recentes</option>
+                    </select>
+                </div>
+                
+                <div id="lista-casos" style="margin-top: 20px;">
+                    <div style="text-align: center; padding: 30px; color: var(--gray);">
+                        <i class="fas fa-folder-open" style="font-size: 3rem; margin-bottom: 15px;"></i>
+                        <p>Nenhum caso encontrado. Realize análises para começar a construir seu histórico.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="action-buttons">
+            <button class="btn btn-primary" onclick="gerarRelatorio()">
+                <i class="fas fa-file-pdf"></i> Gerar Relatório
+            </button>
+            <button class="btn btn-accent" onclick="salvarCaso()">
+                <i class="fas fa-save"></i> Salvar Caso
+            </button>
+            <button class="btn btn-primary" onclick="limparFormulario()">
+                <i class="fas fa-trash-alt"></i> Limpar Formulário
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // Variáveis globais
+        let penaBase = 0;
+        let provasDerivadas = [];
+        let casosSalvos = JSON.parse(localStorage.getItem('casosJuridicos')) || [];
+        
+        // Sistema de abas
+        function openTab(tabId) {
+            // Hide all tab contents
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Remove active class from all tab buttons
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            // Show the selected tab content
+            document.getElementById(tabId).classList.add('active');
+            
+            // Add active class to clicked tab button
+            event.currentTarget.classList.add('active');
+            
+            // Atualizar diagrama se for a aba da árvore envenenada
+            if (tabId === 'arvore') {
+                atualizarDiagramaProvas();
+            }
+            
+            // Atualizar lista de casos se for a aba de histórico
+            if (tabId === 'historico') {
+                carregarCasos();
+            }
+        }
+        
+        // Cálculo de Pena Base
+        function calcularPenaBase() {
+            const crime = document.getElementById('crime').value;
+            const penaMin = parseFloat(document.getElementById('pena-min').value);
+            const penaMax = parseFloat(document.getElementById('pena-max').value);
+            
+            if (!crime || isNaN(penaMin) || isNaN(penaMax)) {
+                alert('Por favor, preencha todos os campos necessários para o cálculo da pena base.');
+                return;
+            }
+            
+            if (penaMin >= penaMax) {
+                alert('A pena mínima deve ser menor que a pena máxima.');
+                return;
+            }
+            
+            // Cálculo da pena base (média entre mínimo e máximo)
+            penaBase = (penaMin + penaMax) / 2;
+            
+            // Exibir resultado
+            const resultDiv = document.getElementById('result-pena-base');
+            const resultText = document.getElementById('pena-base-result');
+            
+            resultText.innerHTML = `
+                <p><strong>Tipo de Crime:</strong> ${document.getElementById('crime').options[document.getElementById('crime').selectedIndex].text}</p>
+                <p><strong>Pena Mínima:</strong> ${penaMin} meses (${converterMesesAnos(penaMin)})</p>
+                <p><strong>Pena Máxima:</strong> ${penaMax} meses (${converterMesesAnos(penaMax)})</p>
+                <p class="result-highlight"><strong>Pena Base Calculada:</strong> ${penaBase.toFixed(2)} meses (${converterMesesAnos(penaBase.toFixed(2))})</p>
+            `;
+            
+            resultDiv.style.display = 'block';
+            
+            // Scroll para o resultado
+            resultDiv.scrollIntoView({ behavior: 'smooth' });
+        }
+        
+        // Cálculo de Pena Final com circunstâncias
+        function calcularPenaFinal() {
+            if (penaBase <= 0) {
+                alert('Por favor, calcule primeiro a pena base.');
+                return;
+            }
+            
+            // Obter valores das circunstâncias
+            const circunstancias = {
+                culpabilidade: parseFloat(document.getElementById('culpabilidade').value),
+                antecedentes: parseFloat(document.getElementById('antecedentes').value),
+                condutaSocial: parseFloat(document.getElementById('conduta-social').value),
+                personalidade: parseFloat(document.getElementById('personalidade').value),
+                motivos: parseFloat(document.getElementById('motivos').value),
+                circunstancias: parseFloat(document.getElementById('circunstancias').value),
+                consequencias: parseFloat(document.getElementById('consequencias').value),
+                comportamentoVitima: parseFloat(document.getElementById('comportamento-vitima').value)
+            };
+            
+            // Calcular fator de ajuste total
+            let fatorAjuste = 0;
+            for (const key in circunstancias) {
+                fatorAjuste += circunstancias[key];
+            }
+            
+            // Aplicar à pena base
+            let penaFinal = penaBase * (1 + fatorAjuste);
+            
+            // Garantir que não seja menor que a mínima ou maior que a máxima
+            const penaMin = parseFloat(document.getElementById('pena-min').value);
+            const penaMax = parseFloat(document.getElementById('pena-max').value);
+            
+            if (penaFinal < penaMin) penaFinal = penaMin;
+            if (penaFinal > penaMax) penaFinal = penaMax;
+            
+            // Exibir resultado
+            const resultDiv = document.getElementById('result-pena-final');
+            const resultText = document.getElementById('pena-final-result');
+            
+            resultText.innerHTML = `
+                <p><strong>Pena Base:</strong> ${penaBase.toFixed(2)} meses (${converterMesesAnos(penaBase.toFixed(2))})</p>
+                <p><strong>Fator de Ajuste Total:</strong> ${(fatorAjuste * 100).toFixed(2)}% (${fatorAjuste > 0 ? 'Agravante' : fatorAjuste < 0 ? 'Atenuante' : 'Neutro'})</p>
+                <p class="result-highlight"><strong>Pena Final Calculada:</strong> ${penaFinal.toFixed(2)} meses (${converterMesesAnos(penaFinal.toFixed(2))})</p>
+            `;
+            
+            resultDiv.style.display = 'block';
+            
+            // Criar gráfico
+            criarGraficoPena(penaMin, penaMax, penaBase, penaFinal);
+            
+            // Scroll para o resultado
+            resultDiv.scrollIntoView({ behavior: 'smooth' });
+            
+            // Preencher campo de pena final para cálculo de regime
+            document.getElementById('pena-final').value = penaFinal.toFixed(2);
+        }
+        
+        // Cria gráfico de pena
+        function criarGraficoPena(min, max, base, final) {
+            const ctx = document.getElementById('penaChart').getContext('2d');
+            
+            if (window.penaChartInstance) {
+                window.penaChartInstance.destroy();
+            }
+            
+            window.penaChartInstance = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['Pena Mínima', 'Pena Base', 'Pena Final', 'Pena Máxima'],
+                    datasets: [{
+                        label: 'Meses de Pena',
+                        data: [min, base, final, max],
+                        backgroundColor: [
+                            'rgba(46, 204, 113, 0.7)',
+                            'rgba(52, 152, 219, 0.7)',
+                            'rgba(155, 89, 182, 0.7)',
+                            'rgba(231, 76, 60, 0.7)'
+                        ],
+                        borderColor: [
+                            'rgba(46, 204, 113, 1)',
+                            'rgba(52, 152, 219, 1)',
+                            'rgba(155, 89, 182, 1)',
+                            'rgba(231, 76, 60, 1)'
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Meses de Pena'
+                            }
+                        }
+                    },
+                    plugins: {
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return `${context.raw} meses (${converterMesesAnos(context.raw)})`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+        
+        // Cálculo de Regime de Cumprimento
+        function calcularRegime() {
+            const penaFinal = parseFloat(document.getElementById('pena-final').value);
+            const reincidente = document.getElementById('reatincidencia').value === 'true';
+            const violenta = document.getElementById('violenta').value === 'true';
+            
+            if (isNaN(penaFinal) || penaFinal <= 0) {
+                alert('Por favor, informe uma pena válida em meses.');
+                return;
+            }
+            
+            let regime = '';
+            let explicacao = '';
+            
+            // Converter meses em anos para análise
+            const anosPena = penaFinal / 12;
+            
+            if (reincidente || violenta) {
+                if (anosPena > 4) {
+                    regime = 'Fechado';
+                    explicacao = 'Reincidente ou crime violento/hediondo com pena superior a 4 anos';
+                } else if (anosPena > 2) {
+                    regime = 'Semiaberto';
+                    explicacao = 'Reincidente ou crime violento/hediondo com pena superior a 2 anos e não superior a 4 anos';
+                } else {
+                    regime = 'Aberto';
+                    explicacao = 'Reincidente ou crime violento/hediondo com pena igual ou inferior a 2 anos';
+                }
+            } else {
+                if (anosPena > 8) {
+                    regime = 'Fechado';
+                    explicacao = 'Pena superior a 8 anos para crimes comuns';
+                } else if (anosPena > 4) {
+                    regime = 'Semiaberto';
+                    explicacao = 'Pena superior a 4 anos e não superior a 8 anos para crimes comuns';
+                } else {
+                    regime = 'Aberto';
+                    explicacao = 'Pena igual ou inferior a 4 anos para crimes comuns';
+                }
+            }
+            
+            // Exibir resultado
+            const resultDiv = document.getElementById('result-regime');
+            const resultText = document.getElementById('regime-result');
+            
+            resultText.innerHTML = `
+                <p><strong>Pena Aplicada:</strong> ${penaFinal.toFixed(2)} meses (${converterMesesAnos(penaFinal.toFixed(2))})</p>
+                <p><strong>Reincidência:</strong> ${reincidente ? 'Sim' : 'Não'}</p>
+                <p><strong>Crime Violento/Hediondo:</strong> ${violenta ? 'Sim' : 'Não'}</p>
+                <p class="result-highlight"><strong>Regime Inicial Indicado:</strong> ${regime}</p>
+                <p><strong>Explicação:</strong> ${explicacao}</p>
+            `;
+            
+            resultDiv.style.display = 'block';
+            
+            // Scroll para o resultado
+            resultDiv.scrollIntoView({ behavior: 'smooth' });
+        }
+        
+        // Converter meses em anos e meses
+        function converterMesesAnos(meses) {
+            meses = parseFloat(meses);
+            const anos = Math.floor(meses / 12);
+            const mesesRestantes = Math.round(meses % 12);
+            
+            let resultado = '';
+            if (anos > 0) resultado += `${anos} ano${anos !== 1 ? 's' : ''}`;
+            if (anos > 0 && mesesRestantes > 0) resultado += ' e ';
+            if (mesesRestantes > 0) resultado += `${mesesRestantes} mês${mesesRestantes !== 1 ? 'es' : ''}`;
+            
+            return resultado || '0 meses';
+        }
+        
+        // Fruto da Árvore Envenenada - Toggle fields
+        function toggleProvaIlicita() {
+            const provaIlicita = document.getElementById('prova-ilicita').value === 'true';
+            document.getElementById('prova-ilicita-details').style.display = provaIlicita ? 'block' : 'none';
+            document.getElementById('result-arvore').style.display = 'none';
+        }
+        
+        function toggleProvasDerivadas() {
+            const provasDerivadas = document.getElementById('provas-derivadas').value === 'true';
+            document.getElementById('provas-derivadas-details').style.display = provasDerivadas ? 'block' : 'none';
+        }
+        
+        // Adicionar prova derivada
+        function addProvaDerivada() {
+            const provasList = document.getElementById('provas-derivadas-list');
+            const newIndex = provasDerivadas.length;
+            
+            const provaItem = document.createElement('div');
+            provaItem.className = 'evidence-item';
+            provaItem.id = `prova-derivada-${newIndex}`;
+            
+            provaItem.innerHTML = `
+                <div class="evidence-check">
+                    <input type="checkbox" id="prova-derivada-check-${newIndex}" checked>
+                </div>
+                <div class="evidence-content">
+                    <div class="form-group">
+                        <label for="prova-derivada-tipo-${newIndex}">Tipo de Prova Derivada:</label>
+                        <select id="prova-derivada-tipo-${newIndex}" class="select-control">
+                            <option value="material">Prova Material</option>
+                            <option value="testemunhal">Prova Testemunhal</option>
+                            <option value="documental">Prova Documental</option>
+                            <option value="tecnica">Prova Técnica</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="prova-derivada-desc-${newIndex}">Descrição:</label>
+                        <input type="text" id="prova-derivada-desc-${newIndex}" class="form-control" placeholder="Descreva a prova derivada">
+                    </div>
+                    <div class="form-group">
+                        <label for="prova-derivada-nexo-${newIndex}">Força do Nexo Causal:</label>
+                        <select id="prova-derivada-nexo-${newIndex}" class="select-control">
+                            <option value="forte">Forte</option>
+                            <option value="moderado">Moderado</option>
+                            <option value="fraco">Fraco</option>
+                        </select>
+                    </div>
+                </div>
+                <button type="button" class="btn btn-accent" onclick="removerProvaDerivada(${newIndex})" style="align-self: center;">
+                    <i class="fas fa-trash"></i>
+                </button>
+            `;
+            
+            provasList.appendChild(provaItem);
+            
+            // Adicionar ao array de provas derivadas
+            provasDerivadas.push({
+                id: newIndex,
+                tipo: 'material',
+                descricao: '',
+                nexo: 'forte'
+            });
+        }
+        
+        // Remover prova derivada
+        function removerProvaDerivada(index) {
+            const provaItem = document.getElementById(`prova-derivada-${index}`);
+            if (provaItem) {
+                provaItem.remove();
+                
+                // Remover do array de provas derivadas
+                provasDerivadas = provasDerivadas.filter(p => p.id !== index);
+                
+                // Atualizar IDs dos itens restantes
+                provasDerivadas.forEach((p, i) => {
+                    p.id = i;
+                    const item = document.getElementById(`prova-derivada-${p.id}`);
+                    if (item) {
+                        item.id = `prova-derivada-${i}`;
+                        item.querySelector('input[type="checkbox"]').id = `prova-derivada-check-${i}`;
+                        item.querySelector('select').id = `prova-derivada-tipo-${i}`;
+                        item.querySelector('input[type="text"]').id = `prova-derivada-desc-${i}`;
+                        item.querySelectorAll('select')[1].id = `prova-derivada-nexo-${i}`;
+                        item.querySelector('button').setAttribute('onclick', `removerProvaDerivada(${i})`);
+                    }
+                });
+            }
+            
+            atualizarDiagramaProvas();
+        }
+        
+        // Analisar admissibilidade pelo princípio da árvore envenenada
+        function analisarArvoreEnvenenada() {
+            const provaIlicita = document.getElementById('prova-ilicita').value === 'true';
+            
+            if (!provaIlicita) {
+                alert('Para análise, é necessário identificar pelo menos uma prova ilícita.');
+                return;
+            }
+            
+            const tipoIlicitude = document.getElementById('tipo-ilicitude').value;
+            const descricaoIlicitude = document.getElementById('descricao-ilicitude').value;
+            const nexoCausal = document.getElementById('nexo-causal').value;
+            const excecao = document.getElementById('atenuacao-excecao').value;
+            
+            if (!tipoIlicitude || !descricaoIlicitude || !nexoCausal) {
+                alert('Por favor, preencha todos os campos obrigatórios para a análise.');
+                return;
+            }
+            
+            // Coletar informações das provas derivadas
+            const provasDerivadasInfo = [];
+            provasDerivadas.forEach(p => {
+                const tipo = document.getElementById(`prova-derivada-tipo-${p.id}`).value;
+                const descricao = document.getElementById(`prova-derivada-desc-${p.id}`).value;
+                const nexo = document.getElementById(`prova-derivada-nexo-${p.id}`).value;
+                
+                provasDerivadasInfo.push({
+                    tipo,
+                    descricao,
+                    nexo
+                });
+            });
+            
+            // Realizar análise
+            let resultado = '';
+            let conclusao = '';
+            
+            resultado += `<p><strong>Prova Ilícita Identificada:</strong> ${document.getElementById('tipo-ilicitude').options[document.getElementById('tipo-ilicitude').selectedIndex].text}</p>`;
+            resultado += `<p><strong>Descrição:</strong> ${descricaoIlicitude}</p>`;
+            
+            if (provasDerivadasInfo.length > 0) {
+                resultado += `<p><strong>Provas Derivadas Encontradas:</strong> ${provasDerivadasInfo.length}</p>`;
+                resultado += `<p><strong>Nexo Causal:</strong> ${document.getElementById('nexo-causal').options[document.getElementById('nexo-causal').selectedIndex].text}</p>`;
+                
+                // Análise de admissibilidade
+                if (nexoCausal === 'direto' || nexoCausal === 'indireto') {
+                    if (excecao === 'nao') {
+                        conclusao = 'INADMISSÍVEIS - Todas as provas derivadas devem ser consideradas inadmissíveis, pois há nexo causal com a prova ilícita e não se aplica nenhuma exceção.';
+                    } else {
+                        conclusao = `POTENCIALMENTE ADMISSÍVEIS - As provas derivadas podem ser admitidas, pois se aplica a exceção de "${document.getElementById('atenuacao-excecao').options[document.getElementById('atenuacao-excecao').selectedIndex].text}". Necessária análise mais detalhada do caso concreto.`;
+                    }
+                } else if (nexoCausal === 'duvidoso') {
+                    conclusao = 'ANÁLISE CASUÍSTICA NECESSÁRIA - O nexo causal é duvidoso, sendo necessária análise detalhada da origem de cada prova derivada.';
+                } else {
+                    conclusao = 'ADMISSÍVEIS - Não há nexo causal entre a prova ilícita e as derivadas, portanto as provas derivadas podem ser admitidas.';
+                }
+            } else {
+                conclusao = 'INADMISSÍVEL - A prova identificada foi obtida por meio ilícito e deve ser considerada inadmissível.';
+            }
+            
+            // Exibir resultado
+            const resultDiv = document.getElementById('result-arvore');
+            const resultText = document.getElementById('arvore-result');
+            
+            resultText.innerHTML = resultado + `<p class="result-highlight"><strong>Conclusão:</strong> ${conclusao}</p>`;
+            
+            resultDiv.style.display = 'block';
+            
+            // Atualizar diagrama
+            atualizarDiagramaProvas();
+            
+            // Scroll para o resultado
+            resultDiv.scrollIntoView({ behavior: 'smooth' });
+        }
+        
+        // Atualizar diagrama de provas
+        function atualizarDiagramaProvas() {
+            const diagrama = document.getElementById('diagrama-provas');
+            
+            const provaIlicita = document.getElementById('prova-ilicita').value === 'true';
+            if (!provaIlicita) {
+                diagrama.innerHTML = '<p style="color: var(--gray);">Nenhuma prova ilícita identificada ainda. Preencha os dados acima para gerar o diagrama.</p>';
+                return;
+            }
+            
+            const tipoIlicitude = document.getElementById('tipo-ilicitude').value;
+            const provasDerivadasCount = provasDerivadas.length;
+            
+            let html = `
+                <div style="max-width: 100%; overflow: auto;">
+                    <div style="display: flex; flex-direction: column; align-items: center;">
+                        <div style="background-color: #e74c3c; color: white; padding: 15px; border-radius: 8px; width: 200px; text-align: center; box-shadow: var(--shadow);">
+                            <strong>Prova Ilícita</strong><br>
+                            ${document.getElementById('tipo-ilicitude').options[document.getElementById('tipo-ilicitude').selectedIndex].text}
+                        </div>
+            `;
+            
+            if (provasDerivadasCount > 0) {
+                html += `
+                    <div style="height: 30px; width: 2px; background-color: var(--secondary); margin: 10px 0;"></div>
+                    <div style="display: flex; gap: 20px; margin-bottom: 20px;">
+                `;
+                
+                for (let i = 0; i < provasDerivadasCount; i++) {
+                    const tipo = document.getElementById(`prova-derivada-tipo-${i}`)?.value || 'material';
+                    let cor = '';
+                    let texto = '';
+                    
+                    switch(tipo) {
+                        case 'material':
+                            cor = '#3498db';
+                            texto = 'Material';
+                            break;
+                        case 'testemunhal':
+                            cor = '#2ecc71';
+                            texto = 'Testemunhal';
+                            break;
+                        case 'documental':
+                            cor = '#9b59b6';
+                            texto = 'Documental';
+                            break;
+                        case 'tecnica':
+                            cor = '#f39c12';
+                            texto = 'Técnica';
+                            break;
+                    }
+                    
+                    html += `
+                        <div style="display: flex; flex-direction: column; align-items: center;">
+                            <div style="height: 30px; width: 2px; background-color: var(--secondary);"></div>
+                            <div style="background-color: ${cor}; color: white; padding: 10px; border-radius: 8px; width: 150px; text-align: center; box-shadow: var(--shadow); margin-top: 10px;">
+                                <strong>Prova ${texto}</strong>
+                            </div>
+                        </div>
+                    `;
+                }
+                
+                html += `</div>`;
+            }
+            
+            html += `</div></div>`;
+            
+            diagrama.innerHTML = html;
+        }
+        
+        // Salvar caso no histórico
+        function salvarCaso() {
+            const tipoAnalise = document.querySelector('.tab-btn.active').getAttribute('onclick').includes('pena') ? 'pena' : 'arvore';
+            const data = new Date().toLocaleString();
+            
+            let caso = {
+                id: Date.now(),
+                tipo: tipoAnalise,
+                data: data
+            };
+            
+            if (tipoAnalise === 'pena') {
+                if (penaBase <= 0) {
+                    alert('Por favor, realize primeiro o cálculo de pena para salvar o caso.');
+                    return;
+                }
+                
+                caso.detalhes = {
+                    crime: document.getElementById('crime').options[document.getElementById('crime').selectedIndex].text,
+                    penaMin: document.getElementById('pena-min').value,
+                    penaMax: document.getElementById('pena-max').value,
+                    penaBase: penaBase.toFixed(2),
+                    penaFinal: document.getElementById('pena-final').value || penaBase.toFixed(2),
+                    regime: document.getElementById('regime-result')?.textContent || 'Não calculado'
+                };
+            } else {
+                const provaIlicita = document.getElementById('prova-ilicita').value === 'true';
+                if (!provaIlicita) {
+                    alert('Por favor, preencha os dados da prova ilícita para salvar o caso.');
+                    return;
+                }
+                
+                caso.detalhes = {
+                    tipoIlicitude: document.getElementById('tipo-ilicitude').options[document.getElementById('tipo-ilicitude').selectedIndex].text,
+                    provasDerivadas: provasDerivadas.length,
+                    conclusao: document.getElementById('arvore-result')?.textContent || 'Análise não concluída'
+                };
+            }
+            
+            casosSalvos.unshift(caso);
+            localStorage.setItem('casosJuridicos', JSON.stringify(casosSalvos));
+            
+            alert('Caso salvo com sucesso no histórico!');
+            carregarCasos();
+        }
+        
+        // Carregar casos do histórico
+        function carregarCasos() {
+            const listaCasos = document.getElementById('lista-casos');
+            const filtro = document.getElementById('filtro-casos').value;
+            
+            let casosFiltrados = casosSalvos;
+            
+            if (filtro !== 'todos') {
+                casosFiltrados = casosSalvos.filter(caso => {
+                    if (filtro === 'pena') return caso.tipo === 'pena';
+                    if (filtro === 'arvore') return caso.tipo === 'arvore';
+                    if (filtro === 'recentes') return true; // Todos são mostrados, já estão ordenados
+                    return true;
+                });
+            }
+            
+            if (casosFiltrados.length === 0) {
+                listaCasos.innerHTML = `
+                    <div style="text-align: center; padding: 30px; color: var(--gray);">
+                        <i class="fas fa-folder-open" style="font-size: 3rem; margin-bottom: 15px;"></i>
+                        <p>Nenhum caso encontrado com os filtros selecionados.</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            listaCasos.innerHTML = '';
+            
+            casosFiltrados.forEach(caso => {
+                const casoItem = document.createElement('div');
+                casoItem.className = 'evidence-item';
+                
+                let conteudo = '';
+                
+                if (caso.tipo === 'pena') {
+                    conteudo = `
+                        <div class="evidence-check">
+                            <i class="fas fa-calculator" style="color: var(--secondary); font-size: 1.5rem;"></i>
+                        </div>
+                        <div class="evidence-content">
+                            <div class="evidence-title">
+                                Cálculo de Pena - ${caso.detalhes.crime}
+                                <span class="badge badge-primary">${caso.data}</span>
+                            </div>
+                            <div class="evidence-desc">
+                                <strong>Pena Base:</strong> ${caso.detalhes.penaBase} meses | 
+                                <strong>Pena Final:</strong> ${caso.detalhes.penaFinal} meses |
+                                <strong>Regime:</strong> ${caso.detalhes.regime.split('\n')[0]}
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    conteudo = `
+                        <div class="evidence-check">
+                            <i class="fas fa-tree" style="color: var(--accent); font-size: 1.5rem;"></i>
+                        </div>
+                        <div class="evidence-content">
+                            <div class="evidence-title">
+                                Análise de Prova Ilícita - ${caso.detalhes.tipoIlicitude}
+                                <span class="badge badge-primary">${caso.data}</span>
+                            </div>
+                            <div class="evidence-desc">
+                                <strong>Provas Derivadas:</strong> ${caso.detalhes.provasDerivadas} | 
+                                <strong>Conclusão:</strong> ${caso.detalhes.conclusao.split('\n')[0].substring(0, 50)}...
+                            </div>
+                        </div>
+                    `;
+                }
+                
+                casoItem.innerHTML = conteudo;
+                casoItem.onclick = () => carregarCasoDetalhes(caso.id);
+                listaCasos.appendChild(casoItem);
+            });
+        }
+        
+        // Filtrar casos
+        function filtrarCasos() {
+            carregarCasos();
+        }
+        
+        // Carregar detalhes de um caso específico
+        function carregarCasoDetalhes(id) {
+            const caso = casosSalvos.find(c => c.id === id);
+            if (!caso) return;
+            
+            // Implementar abertura de modal ou nova aba com detalhes completos
+            alert(`Detalhes do caso:\n\nData: ${caso.data}\nTipo: ${caso.tipo === 'pena' ? 'Cálculo de Pena' : 'Análise de Prova Ilícita'}\n\nMais detalhes seriam exibidos aqui.`);
+        }
+        
+        // Gerar relatório PDF
+        function gerarRelatorio() {
+            alert('Funcionalidade de gerar relatório PDF seria implementada aqui. Usaria bibliotecas como jsPDF ou html2canvas.');
+        }
+        
+        // Limpar formulário
+        function limparFormulario() {
+            if (confirm('Tem certeza que deseja limpar todos os dados do formulário atual?')) {
+                if (document.querySelector('.tab-btn.active').getAttribute('onclick').includes('pena')) {
+                    // Limpar cálculo de pena
+                    document.getElementById('crime').selectedIndex = 0;
+                    document.getElementById('pena-min').value = '';
+                    document.getElementById('pena-max').value = '';
+                    document.getElementById('culpabilidade').selectedIndex = 0;
+                    document.getElementById('antecedentes').selectedIndex = 0;
+                    document.getElementById('conduta-social').selectedIndex = 0;
+                    document.getElementById('personalidade').selectedIndex = 0;
+                    document.getElementById('motivos').selectedIndex = 0;
+                    document.getElementById('circunstancias').selectedIndex = 0;
+                    document.getElementById('consequencias').selectedIndex = 0;
+                    document.getElementById('comportamento-vitima').selectedIndex = 0;
+                    document.getElementById('pena-final').value = '';
+                    document.getElementById('reatincidencia').selectedIndex = 0;
+                    document.getElementById('violenta').selectedIndex = 0;
+                    
+                    penaBase = 0;
+                    document.getElementById('result-pena-base').style.display = 'none';
+                    document.getElementById('result-pena-final').style.display = 'none';
+                    document.getElementById('result-regime').style.display = 'none';
+                    
+                    if (window.penaChartInstance) {
+                        window.penaChartInstance.destroy();
+                    }
+                } else {
+                    // Limpar análise de prova ilícita
+                    document.getElementById('prova-ilicita').selectedIndex = 0;
+                    document.getElementById('prova-ilicita-details').style.display = 'none';
+                    document.getElementById('tipo-ilicitude').selectedIndex = 0;
+                    document.getElementById('descricao-ilicitude').value = '';
+                    document.getElementById('provas-derivadas').selectedIndex = 0;
+                    document.getElementById('provas-derivadas-details').style.display = 'none';
+                    document.getElementById('nexo-causal').selectedIndex = 0;
+                    document.getElementById('atenuacao-excecao').selectedIndex = 0;
+                    
+                    provasDerivadas = [];
+                    document.getElementById('provas-derivadas-list').innerHTML = '';
+                    document.getElementById('result-arvore').style.display = 'none';
+                    document.getElementById('diagrama-provas').innerHTML = '<p style="color: var(--gray);">Nenhuma prova ilícita identificada ainda. Preencha os dados acima para gerar o diagrama.</p>';
+                }
+            }
+        }
+        
+        // Inicialização
+        document.addEventListener('DOMContentLoaded', function() {
+            // Carregar casos salvos se existirem
+            if (casosSalvos.length > 0) {
+                carregarCasos();
+            }
+        });
+    </script>
+<style>.ag-nav-back{position:fixed;top:12px;left:12px;z-index:9999;background:rgba(79,70,229,.9);color:#fff;border:none;border-radius:50px;padding:.4rem .9rem;font-size:.8rem;font-family:system-ui,sans-serif;font-weight:600;cursor:pointer;text-decoration:none;display:flex;align-items:center;gap:.35rem;box-shadow:0 2px 10px rgba(0,0,0,.25);backdrop-filter:blur(4px);transition:background .2s,transform .2s}.ag-nav-back:hover{background:rgba(55,48,163,.95);transform:translateY(-1px)}</style><a href="https://passosdomingues.github.io/webappshowcase/site/main.html" class="ag-nav-back" aria-label="Voltar ao índice">&#8592; Índice</a>
+</body>
+</html>

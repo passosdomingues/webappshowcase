@@ -1,0 +1,3943 @@
+<!--
+ * --------------------------------------------------------------
+ * Author: Rafael Passos Domingues
+ * Last Update: 2025 June 18 (Wed)
+ * --------------------------------------------------------------
+-->
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Comece nos contando um pouco sobre sua startup. Essas informações nos ajudarão a criar uma análise personalizada e re…"/>
+    <title>InvestAI - Avaliação Completa para Startups</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <style>
+        :root {
+            --primary: #1e88e5;
+            --primary-dark: #1565c0;
+            --secondary: #78909c;
+            --secondary-dark: #546e7a;
+            --background: #ffffff;
+            --surface: #f5f5f5;
+            --text: #212121;
+            --text-secondary: #757575;
+            --border: #e0e0e0;
+            --success: #43a047;
+            --warning: #ff9800;
+            --error: #e53935;
+            --info: #00acc1;
+        }
+
+        [data-theme="dark"] {
+            --primary: #2196f3;
+            --primary-dark: #1976d2;
+            --secondary: #90a4ae;
+            --secondary-dark: #607d8b;
+            --background: #121212;
+            --surface: #1e1e1e;
+            --text: #e0e0e0;
+            --text-secondary: #9e9e9e;
+            --border: #424242;
+            --success: #4caf50;
+            --warning: #ffa726;
+            --error: #f44336;
+            --info: #26c6da;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        body {
+            background-color: var(--background);
+            color: var(--text);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 0;
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 30px;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .logo-icon {
+            font-size: 28px;
+        }
+
+        .theme-toggle {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            color: var(--text);
+            padding: 8px 12px;
+            border-radius: 20px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .theme-toggle i {
+            font-size: 18px;
+        }
+
+        .progress-container {
+            width: 100%;
+            background-color: var(--surface);
+            border-radius: 10px;
+            margin-bottom: 30px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .progress-bar {
+            height: 10px;
+            background-color: var(--primary);
+            width: 0%;
+            transition: width 0.4s ease;
+        }
+
+        .progress-text {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        .step {
+            display: none;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .step.active {
+            display: block;
+        }
+
+        .step-title {
+            font-size: 24px;
+            margin-bottom: 20px;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .step-title i {
+            font-size: 28px;
+        }
+
+        .step-description {
+            margin-bottom: 30px;
+            color: var(--text-secondary);
+            line-height: 1.7;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--text);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .form-label i {
+            font-size: 18px;
+            color: var(--primary);
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            background-color: var(--surface);
+            color: var(--text);
+            font-size: 16px;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 2px rgba(30, 136, 229, 0.2);
+        }
+
+        select.form-control {
+            appearance: none;
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right 10px center;
+            background-size: 16px;
+        }
+
+        .form-hint {
+            font-size: 13px;
+            color: var(--text-secondary);
+            margin-top: 5px;
+            font-style: italic;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn i {
+            font-size: 18px;
+        }
+
+        .btn-primary {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--primary-dark);
+        }
+
+        .btn-secondary {
+            background-color: var(--secondary);
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background-color: var(--secondary-dark);
+        }
+
+        .btn-outline {
+            background-color: transparent;
+            border: 1px solid var(--primary);
+            color: var(--primary);
+        }
+
+        .btn-outline:hover {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        .btn-success {
+            background-color: var(--success);
+            color: white;
+        }
+
+        .btn-success:hover {
+            background-color: #388e3c;
+        }
+
+        .navigation {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 40px;
+        }
+
+        .business-segments {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .segment-card {
+            padding: 15px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            background-color: var(--surface);
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .segment-card:hover {
+            border-color: var(--primary);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .segment-card.selected {
+            background-color: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        .segment-card.selected .segment-icon {
+            color: white;
+        }
+
+        .segment-icon {
+            font-size: 24px;
+            margin-bottom: 10px;
+            color: var(--primary);
+        }
+
+        .custom-segment {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .custom-segment-input {
+            flex: 1;
+        }
+
+        .rating-container {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 10px;
+        }
+
+        .rating-item {
+            text-align: center;
+            flex: 1;
+        }
+
+        .rating-scale {
+            display: flex;
+            justify-content: center;
+            margin-top: 5px;
+        }
+
+        .rating-point {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background-color: var(--surface);
+            border: 1px solid var(--border);
+            margin: 0 2px;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .rating-point:hover::after {
+            content: attr(data-tooltip);
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: var(--surface);
+            color: var(--text);
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-size: 12px;
+            white-space: nowrap;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            border: 1px solid var(--border);
+        }
+
+        .rating-point.active {
+            background-color: var(--primary);
+            border-color: var(--primary);
+        }
+
+        .rating-label {
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-top: 5px;
+        }
+
+        .results-container {
+            display: none;
+        }
+
+        .dashboard {
+            background-color: var(--surface);
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        }
+
+        .dashboard-title {
+            font-size: 20px;
+            margin-bottom: 20px;
+            color: var(--primary);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .dashboard-title i {
+            font-size: 24px;
+        }
+
+        .chart-container {
+            height: 300px;
+            margin-bottom: 20px;
+            position: relative;
+        }
+
+        .chart-placeholder {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: var(--background);
+            border-radius: 6px;
+            color: var(--text-secondary);
+        }
+
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .metric-card {
+            background-color: var(--background);
+            border-radius: 8px;
+            padding: 15px;
+            border: 1px solid var(--border);
+            transition: all 0.3s ease;
+        }
+
+        .metric-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .metric-title {
+            font-size: 14px;
+            color: var(--text-secondary);
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .metric-title i {
+            font-size: 18px;
+        }
+
+        .metric-value {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .metric-comparison {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        .positive {
+            color: var(--success);
+        }
+
+        .negative {
+            color: var(--error);
+        }
+
+        .neutral {
+            color: var(--warning);
+        }
+
+        .info {
+            color: var(--info);
+        }
+
+        .investor-recommendation {
+            background-color: var(--primary);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+        }
+
+        .investor-title {
+            font-size: 20px;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .investor-type {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 15px;
+        }
+
+        .investor-description {
+            margin-bottom: 15px;
+            line-height: 1.7;
+        }
+
+        .investor-criteria {
+            list-style-type: none;
+        }
+
+        .investor-criteria li {
+            margin-bottom: 8px;
+            position: relative;
+            padding-left: 20px;
+            line-height: 1.6;
+        }
+
+        .investor-criteria li:before {
+            content: "•";
+            position: absolute;
+            left: 0;
+            color: white;
+            font-size: 20px;
+        }
+
+        .business-canvas {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .canvas-item {
+            background-color: var(--surface);
+            border-radius: 8px;
+            padding: 15px;
+            border: 1px solid var(--border);
+            transition: all 0.3s ease;
+        }
+
+        .canvas-item:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .canvas-item-title {
+            font-weight: 700;
+            margin-bottom: 10px;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .canvas-item-content {
+            font-size: 14px;
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+
+        .canvas-item-content textarea {
+            width: 100%;
+            min-height: 100px;
+            padding: 10px;
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            background-color: var(--background);
+            color: var(--text);
+            font-family: inherit;
+            resize: vertical;
+        }
+
+        .export-options {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .tooltip {
+            position: relative;
+            display: inline-block;
+            cursor: pointer;
+        }
+
+        .tooltip .tooltiptext {
+            visibility: hidden;
+            width: 200px;
+            background-color: var(--surface);
+            color: var(--text);
+            text-align: center;
+            border-radius: 6px;
+            padding: 10px;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%;
+            left: 50%;
+            margin-left: -100px;
+            opacity: 0;
+            transition: opacity 0.3s;
+            border: 1px solid var(--border);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            font-size: 14px;
+            font-weight: normal;
+        }
+
+        .tooltip:hover .tooltiptext {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        .chart-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .chart-btn {
+            background: var(--background);
+            border: 1px solid var(--border);
+            color: var(--text);
+            padding: 5px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .chart-btn:hover {
+            background: var(--surface);
+        }
+
+        .timeline-container {
+            margin-top: 30px;
+        }
+
+        .timeline {
+            position: relative;
+            max-width: 100%;
+            margin: 0 auto;
+            padding: 20px 0;
+        }
+
+        .timeline::after {
+            content: '';
+            position: absolute;
+            width: 6px;
+            background-color: var(--primary);
+            top: 0;
+            bottom: 0;
+            left: 50%;
+            margin-left: -3px;
+            border-radius: 3px;
+        }
+
+        .timeline-item {
+            padding: 10px 40px;
+            position: relative;
+            width: 50%;
+            box-sizing: border-box;
+        }
+
+        .timeline-item::after {
+            content: '';
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background-color: white;
+            border: 4px solid var(--primary);
+            border-radius: 50%;
+            top: 15px;
+            z-index: 1;
+        }
+
+        .left {
+            left: 0;
+        }
+
+        .right {
+            left: 50%;
+        }
+
+        .left::after {
+            right: -10px;
+        }
+
+        .right::after {
+            left: -10px;
+        }
+
+        .timeline-content {
+            padding: 20px;
+            background-color: var(--surface);
+            border-radius: 6px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .timeline-date {
+            font-weight: bold;
+            color: var(--primary);
+            margin-bottom: 5px;
+        }
+
+        .timeline-title {
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .timeline-desc {
+            font-size: 14px;
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+
+        .classification-badge {
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-right: 5px;
+            margin-bottom: 5px;
+        }
+
+        .badge-blue {
+            background-color: #e3f2fd;
+            color: #1565c0;
+        }
+
+        .badge-green {
+            background-color: #e8f5e9;
+            color: #2e7d32;
+        }
+
+        .badge-orange {
+            background-color: #fff3e0;
+            color: #ef6c00;
+        }
+
+        .badge-purple {
+            background-color: #f3e5f5;
+            color: #7b1fa2;
+        }
+
+        .badge-red {
+            background-color: #ffebee;
+            color: #c62828;
+        }
+
+        .badge-teal {
+            background-color: #e0f7fa;
+            color: #00838f;
+        }
+
+        .classification-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .investment-levels {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+            gap: 10px;
+        }
+
+        .investment-level {
+            flex: 1;
+            text-align: center;
+            padding: 15px;
+            border-radius: 8px;
+            background-color: var(--surface);
+            border: 1px solid var(--border);
+        }
+
+        .investment-level.active {
+            background-color: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        .investment-level-title {
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .investment-level-range {
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        .investment-level.active .investment-level-range {
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .investment-need-chart {
+            margin-top: 20px;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Loading spinner */
+        .spinner {
+            display: none;
+            width: 40px;
+            height: 40px;
+            margin: 20px auto;
+            border: 4px solid rgba(0, 0, 0, 0.1);
+            border-radius: 50%;
+            border-top: 4px solid var(--primary);
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 100;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+
+        .modal-content {
+            background-color: var(--background);
+            margin: 10% auto;
+            padding: 20px;
+            border-radius: 10px;
+            max-width: 600px;
+            width: 90%;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .close-modal {
+            color: var(--text-secondary);
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .close-modal:hover {
+            color: var(--text);
+        }
+
+        .modal-title {
+            margin-bottom: 20px;
+            color: var(--primary);
+        }
+
+        .modal-options {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+
+        /* Pitch Deck Slide Styles */
+        .slide {
+            width: 100%;
+            min-height: 500px;
+            background-color: white;
+            margin-bottom: 20px;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            position: relative;
+        }
+
+        .slide-header {
+            background-color: var(--primary);
+            color: white;
+            padding: 15px 20px;
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .slide-content {
+            padding: 20px;
+            height: calc(100% - 80px);
+            overflow-y: auto;
+        }
+
+        .slide-title {
+            font-size: 28px;
+            margin-bottom: 20px;
+            color: var(--primary);
+            text-align: center;
+        }
+
+        .slide-subtitle {
+            font-size: 20px;
+            margin-bottom: 15px;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .slide-subtitle i {
+            font-size: 24px;
+        }
+
+        .slide-text {
+            margin-bottom: 15px;
+            line-height: 1.6;
+        }
+
+        .slide-list {
+            margin-left: 20px;
+            margin-bottom: 15px;
+        }
+
+        .slide-list li {
+            margin-bottom: 8px;
+            line-height: 1.6;
+        }
+
+        .slide-footer {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 10px 20px;
+            background-color: var(--surface);
+            font-size: 12px;
+            color: var(--text-secondary);
+            text-align: center;
+            border-top: 1px solid var(--border);
+        }
+
+        .pitch-deck-container {
+            display: none;
+        }
+
+        .canvas-editor {
+            display: none;
+            margin-top: 20px;
+        }
+
+        .canvas-editor-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .startup-profile {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 30px;
+            align-items: center;
+        }
+
+        .startup-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background-color: var(--primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 32px;
+            font-weight: bold;
+        }
+
+        .startup-info {
+            flex: 1;
+        }
+
+        .startup-name {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .startup-details {
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        .startup-details span {
+            margin-right: 15px;
+        }
+
+        .startup-details i {
+            margin-right: 5px;
+            color: var(--primary);
+        }
+
+        .investment-guide {
+            margin-bottom: 30px;
+        }
+
+        .investment-guide-title {
+            font-size: 18px;
+            margin-bottom: 15px;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .investment-guide-steps {
+            list-style-type: none;
+            counter-reset: step-counter;
+        }
+
+        .investment-guide-steps li {
+            margin-bottom: 15px;
+            padding-left: 30px;
+            position: relative;
+            line-height: 1.6;
+        }
+
+        .investment-guide-steps li:before {
+            counter-increment: step-counter;
+            content: counter(step-counter);
+            position: absolute;
+            left: 0;
+            top: 0;
+            background-color: var(--primary);
+            color: white;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .investment-comparison {
+            margin-top: 30px;
+        }
+
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+
+        .comparison-table th, .comparison-table td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .comparison-table th {
+            background-color: var(--surface);
+            color: var(--primary);
+            font-weight: 600;
+        }
+
+        .comparison-table tr:hover {
+            background-color: var(--surface);
+        }
+
+        .comparison-table .highlight {
+            background-color: rgba(30, 136, 229, 0.1);
+            font-weight: 600;
+        }
+
+        .storytelling-container {
+            margin-bottom: 30px;
+        }
+
+        .storytelling-title {
+            font-size: 18px;
+            margin-bottom: 15px;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .storytelling-content {
+            background-color: var(--surface);
+            padding: 20px;
+            border-radius: 8px;
+            line-height: 1.7;
+        }
+
+        .storytelling-content p {
+            margin-bottom: 15px;
+        }
+
+        @media (max-width: 768px) {
+            .business-segments {
+                grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            }
+            
+            .business-canvas {
+                grid-template-columns: 1fr;
+            }
+            
+            .metrics-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .export-options {
+                flex-direction: column;
+            }
+            
+            .timeline::after {
+                left: 31px;
+            }
+            
+            .timeline-item {
+                width: 100%;
+                padding-left: 70px;
+                padding-right: 25px;
+            }
+            
+            .timeline-item::after {
+                left: 21px;
+            }
+            
+            .left::after, .right::after {
+                left: 21px;
+            }
+            
+            .right {
+                left: 0;
+            }
+            
+            .slide {
+                min-height: 400px;
+            }
+            
+            .slide-title {
+                font-size: 24px;
+            }
+            
+            .slide-subtitle {
+                font-size: 18px;
+            }
+
+            .startup-profile {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .startup-details span {
+                display: block;
+                margin-right: 0;
+                margin-bottom: 5px;
+            }
+
+            .investment-levels {
+                flex-direction: column;
+            }
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">
+                <i class="fas fa-chart-line logo-icon"></i>
+                <span>InvestAI</span>
+            </div>
+            <button class="theme-toggle" id="themeToggle">
+                <i class="fas fa-moon"></i>
+                <span>Dark Mode</span>
+            </button>
+        </header>
+
+        <div class="progress-container">
+            <div class="progress-bar" id="progressBar"></div>
+            <div class="progress-text" id="progressText">1/6</div>
+        </div>
+
+        <!-- Step 1: Business Information -->
+        <div class="step active" id="step1">
+            <h2 class="step-title">
+                <i class="fas fa-building"></i>
+                Informações do Negócio
+            </h2>
+            <p class="step-description">Comece nos contando um pouco sobre sua startup. Essas informações nos ajudarão a criar uma análise personalizada e recomendações específicas para o seu negócio.</p>
+            
+            <div class="form-group">
+                <label for="startupName" class="form-label">
+                    <i class="fas fa-signature"></i>
+                    Nome da Startup
+                </label>
+                <input type="text" id="startupName" class="form-control" placeholder="Digite o nome da sua startup">
+            </div>
+            
+            <div class="form-group">
+                <label for="founderName" class="form-label">
+                    <i class="fas fa-user-tie"></i>
+                    Nome do Fundador/Responsável
+                </label>
+                <input type="text" id="founderName" class="form-control" placeholder="Seu nome completo">
+            </div>
+            
+            <div class="form-group">
+                <label for="companyType" class="form-label">
+                    <i class="fas fa-balance-scale"></i>
+                    Tipo de Empresa
+                </label>
+                <select id="companyType" class="form-control">
+                    <option value="">Selecione...</option>
+                    <option value="PF">Pessoa Física (PF)</option>
+                    <option value="PJ">Pessoa Jurídica (PJ)</option>
+                    <option value="MEI">Microempreendedor Individual (MEI)</option>
+                    <option value="ME">Microempresa (ME)</option>
+                    <option value="EPP">Empresa de Pequeno Porte (EPP)</option>
+                    <option value="LTDA">Sociedade Limitada (LTDA)</option>
+                    <option value="SA">Sociedade Anônima (SA)</option>
+                </select>
+                <div class="form-hint">Esta informação ajuda a determinar recomendações específicas para seu tipo de empresa.</div>
+            </div>
+            
+            <div class="form-group">
+                <label for="startupAge" class="form-label">
+                    <i class="fas fa-calendar-alt"></i>
+                    Tempo de Operação
+                </label>
+                <select id="startupAge" class="form-control">
+                    <option value="">Selecione...</option>
+                    <option value="idea">Ainda em ideia</option>
+                    <option value="0-6">0-6 meses</option>
+                    <option value="6-12">6-12 meses</option>
+                    <option value="1-2">1-2 anos</option>
+                    <option value="2-5">2-5 anos</option>
+                    <option value="5+">Mais de 5 anos</option>
+                </select>
+                <div class="form-hint">O estágio atual do seu negócio influencia diretamente o tipo de investidor recomendado.</div>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">
+                    <i class="fas fa-industry"></i>
+                    Segmento de Negócio
+                </label>
+                <p class="step-description">Selecione o segmento que melhor descreve sua startup ou cadastre um novo:</p>
+                
+                <div class="business-segments" id="businessSegments">
+                    <!-- Segments will be added by JS -->
+                </div>
+                
+                <div class="custom-segment">
+                    <input type="text" id="newSegment" class="form-control custom-segment-input" placeholder="Digite um novo segmento">
+                    <button class="btn btn-outline" id="addSegment">
+                        <i class="fas fa-plus"></i>
+                        Adicionar
+                    </button>
+                </div>
+                <div class="form-hint">Segmentos específicos recebem recomendações e comparações mais precisas.</div>
+            </div>
+            
+            <div class="navigation">
+                <button class="btn btn-secondary" disabled>
+                    <i class="fas fa-arrow-left"></i>
+                    Anterior
+                </button>
+                <button class="btn btn-primary" id="next1">
+                    Próximo
+                    <i class="fas fa-arrow-right"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Step 2: Market Assessment -->
+        <div class="step" id="step2">
+            <h2 class="step-title">
+                <i class="fas fa-chart-bar"></i>
+                Avaliação de Mercado
+            </h2>
+            <p class="step-description">Avalie sua startup em relação ao mercado atual. Considere o cenário competitivo e as oportunidades de crescimento ao responder.</p>
+            
+            <div class="form-group">
+                <label class="form-label">
+                    <i class="fas fa-ruler-combined"></i>
+                    Tamanho de Mercado
+                </label>
+                <div class="rating-container">
+                    <div class="rating-item">
+                        <div class="rating-scale" id="marketSize">
+                            <div class="rating-point" data-value="1" data-tooltip="Mercado muito pequeno (local)"></div>
+                            <div class="rating-point" data-value="2" data-tooltip="Mercado pequeno (regional)"></div>
+                            <div class="rating-point" data-value="3" data-tooltip="Mercado médio (nacional)"></div>
+                            <div class="rating-point" data-value="4" data-tooltip="Mercado grande (continental)"></div>
+                            <div class="rating-point" data-value="5" data-tooltip="Mercado global"></div>
+                        </div>
+                        <div class="rating-label">Pequeno → Grande</div>
+                    </div>
+                </div>
+                <div class="form-hint">Considere o alcance geográfico e o número de clientes potenciais.</div>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">
+                    <i class="fas fa-seedling"></i>
+                    Crescimento de Mercado
+                </label>
+                <div class="rating-container">
+                    <div class="rating-item">
+                        <div class="rating-scale" id="marketGrowth">
+                            <div class="rating-point" data-value="1" data-tooltip="Crescimento inferior a 5% ao ano"></div>
+                            <div class="rating-point" data-value="2" data-tooltip="Crescimento de 5-10% ao ano"></div>
+                            <div class="rating-point" data-value="3" data-tooltip="Crescimento de 10-20% ao ano"></div>
+                            <div class="rating-point" data-value="4" data-tooltip="Crescimento de 20-30% ao ano"></div>
+                            <div class="rating-point" data-value="5" data-tooltip="Crescimento acima de 30% ao ano"></div>
+                        </div>
+                        <div class="rating-label">Lento → Rápido</div>
+                    </div>
+                </div>
+                <div class="form-hint">Taxa de crescimento anual do mercado em que você atua.</div>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">
+                    <i class="fas fa-chess-board"></i>
+                    Concorrência
+                </label>
+                <div class="rating-container">
+                    <div class="rating-item">
+                        <div class="rating-scale" id="competition">
+                            <div class="rating-point" data-value="1" data-tooltip="Poucos ou nenhum concorrente direto"></div>
+                            <div class="rating-point" data-value="2" data-tooltip="Alguns concorrentes pequenos"></div>
+                            <div class="rating-point" data-value="3" data-tooltip="Concorrência moderada com players estabelecidos"></div>
+                            <div class="rating-point" data-value="4" data-tooltip="Mercado altamente competitivo"></div>
+                            <div class="rating-point" data-value="5" data-tooltip="Mercado saturado com grandes players"></div>
+                        </div>
+                        <div class="rating-label">Baixa → Alta</div>
+                    </div>
+                </div>
+                <div class="form-hint">Quantidade e força dos concorrentes no seu mercado.</div>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">
+                    <i class="fas fa-star"></i>
+                    Diferenciação
+                </label>
+                <div class="rating-container">
+                    <div class="rating-item">
+                        <div class="rating-scale" id="differentiation">
+                            <div class="rating-point" data-value="1" data-tooltip="Pouca ou nenhuma diferenciação"></div>
+                            <div class="rating-point" data-value="2" data-tooltip="Algumas características diferentes"></div>
+                            <div class="rating-point" data-value="3" data-tooltip="Produto/serviço claramente diferenciado"></div>
+                            <div class="rating-point" data-value="4" data-tooltip="Diferenciação significativa e valiosa"></div>
+                            <div class="rating-point" data-value="5" data-tooltip="Diferenciação única e difícil de replicar"></div>
+                        </div>
+                        <div class="rating-label">Pouca → Muita</div>
+                    </div>
+                </div>
+                <div class="form-hint">Quão único e difícil de copiar é seu produto/serviço?</div>
+            </div>
+            
+            <div class="navigation">
+                <button class="btn btn-secondary" id="prev2">
+                    <i class="fas fa-arrow-left"></i>
+                    Anterior
+                </button>
+                <button class="btn btn-primary" id="next2">
+                    Próximo
+                    <i class="fas fa-arrow-right"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Step 3: Technology Assessment -->
+        <div class="step" id="step3">
+            <h2 class="step-title">
+                <i class="fas fa-microchip"></i>
+                Avaliação Tecnológica
+            </h2>
+            <p class="step-description">Avalie os aspectos tecnológicos da sua startup. Isso nos ajudará a entender seu potencial de inovação e escalabilidade.</p>
+            
+            <div class="form-group">
+                <label class="form-label">
+                    <i class="fas fa-lightbulb"></i>
+                    Inovação Tecnológica
+                </label>
+                <div class="rating-container">
+                    <div class="rating-item">
+                        <div class="rating-scale" id="techInnovation">
+                            <div class="rating-point" data-value="1" data-tooltip="Melhoria incremental em produto existente"></div>
+                            <div class="rating-point" data-value="2" data-tooltip="Novo recurso para produto existente"></div>
+                            <div class="rating-point" data-value="3" data-tooltip="Novo produto usando tecnologia conhecida"></div>
+                            <div class="rating-point" data-value="4" data-tooltip="Avanço significativo em tecnologia existente"></div>
+                            <div class="rating-point" data-value="5" data-tooltip="Tecnologia completamente nova/disruptiva"></div>
+                        </div>
+                        <div class="rating-label">Incremental → Disruptiva</div>
+                    </div>
+                </div>
+                <div class="form-hint">Quão inovadora é sua solução em relação ao que já existe no mercado?</div>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">
+                    <i class="fas fa-flask"></i>
+                    Maturidade Tecnológica
+                </label>
+                <div class="rating-container">
+                    <div class="rating-item">
+                        <div class="rating-scale" id="techMaturity">
+                            <div class="rating-point" data-value="1" data-tooltip="Apenas conceito/ideia"></div>
+                            <div class="rating-point" data-value="2" data-tooltip="Protótipo não funcional"></div>
+                            <div class="rating-point" data-value="3" data-tooltip="MVP em desenvolvimento"></div>
+                            <div class="rating-point" data-value="4" data-tooltip="Produto funcional com usuários iniciais"></div>
+                            <div class="rating-point" data-value="5" data-tooltip="Tecnologia comprovada em escala"></div>
+                        </div>
+                        <div class="rating-label">Conceito → Comprovada</div>
+                    </div>
+                </div>
+                <div class="form-hint">Estágio de desenvolvimento da sua solução tecnológica.</div>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">
+                    <i class="fas fa-shield-alt"></i>
+                    Barreiras de Entrada
+                </label>
+                <div class="rating-container">
+                    <div class="rating-item">
+                        <div class="rating-scale" id="entryBarriers">
+                            <div class="rating-point" data-value="1" data-tooltip="Nenhuma barreira significativa"></div>
+                            <div class="rating-point" data-value="2" data-tooltip="Algumas barreiras operacionais"></div>
+                            <div class="rating-point" data-value="3" data-tooltip="Barreiras técnicas moderadas"></div>
+                            <div class="rating-point" data-value="4" data-tooltip="Barreiras técnicas e regulatórias significativas"></div>
+                            <div class="rating-point" data-value="5" data-tooltip="Barreiras técnicas, regulatórias e de capital muito altas"></div>
+                        </div>
+                        <div class="rating-label">Baixas → Altas</div>
+                    </div>
+                </div>
+                <div class="form-hint">Dificuldade para novos concorrentes entrarem no seu mercado.</div>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">
+                    <i class="fas fa-expand"></i>
+                    Escalabilidade
+                </label>
+                <div class="rating-container">
+                    <div class="rating-item">
+                        <div class="rating-scale" id="scalability">
+                            <div class="rating-point" data-value="1" data-tooltip="Crescimento limitado por recursos físicos"></div>
+                            <div class="rating-point" data-value="2" data-tooltip="Parcialmente escalável com investimento"></div>
+                            <div class="rating-point" data-value="3" data-tooltip="Escalável regionalmente com infraestrutura"></div>
+                            <div class="rating-point" data-value="4" data-tooltip="Altamente escalável nacionalmente"></div>
+                            <div class="rating-point" data-value="5" data-tooltip="Escalabilidade global sem restrições"></div>
+                        </div>
+                        <div class="rating-label">Limitada → Ilimitada</div>
+                    </div>
+                </div>
+                <div class="form-hint">Potencial de crescimento sem aumento proporcional de custos.</div>
+            </div>
+            
+            <div class="navigation">
+                <button class="btn btn-secondary" id="prev3">
+                    <i class="fas fa-arrow-left"></i>
+                    Anterior
+                </button>
+                <button class="btn btn-primary" id="next3">
+                    Próximo
+                    <i class="fas fa-arrow-right"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Step 4: Financial Assessment -->
+        <div class="step" id="step4">
+            <h2 class="step-title">
+                <i class="fas fa-money-bill-wave"></i>
+                Avaliação Financeira
+            </h2>
+            <p class="step-description">Informe os dados financeiros da sua startup. Essas informações são cruciais para determinar o estágio de investimento adequado.</p>
+            
+            <div class="form-group">
+                <label for="revenue" class="form-label">
+                    <i class="fas fa-cash-register"></i>
+                    Faturamento Anual (R$)
+                </label>
+                <input type="number" id="revenue" class="form-control" placeholder="Digite o faturamento anual">
+                <div class="form-hint">Faturamento bruto nos últimos 12 meses. Se pré-receita, deixe em branco ou zero.</div>
+            </div>
+            
+            <div class="form-group">
+                <label for="employees" class="form-label">
+                    <i class="fas fa-users"></i>
+                    Número de Funcionários
+                </label>
+                <input type="number" id="employees" class="form-control" placeholder="Digite o número de funcionários">
+                <div class="form-hint">Inclua sócios e colaboradores em tempo integral.</div>
+            </div>
+            
+            <div class="form-group">
+                <label for="investment" class="form-label">
+                    <i class="fas fa-hand-holding-usd"></i>
+                    Investimento Recebido (R$)
+                </label>
+                <input type="number" id="investment" class="form-control" placeholder="Digite o total de investimento recebido">
+                <div class="form-hint">Soma de todos os investimentos já captados.</div>
+            </div>
+            
+            <div class="form-group">
+                <label for="runway" class="form-label">
+                    <i class="fas fa-hourglass-half"></i>
+                    Runway (Meses)
+                </label>
+                <input type="number" id="runway" class="form-control" placeholder="Quantos meses de operação com o caixa atual?">
+                <div class="form-hint">Tempo até o dinheiro acabar mantendo o ritmo atual de gastos.</div>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">
+                    <i class="fas fa-piggy-bank"></i>
+                    Necessidade de Investimento
+                </label>
+                <div class="rating-container">
+                    <div class="rating-item">
+                        <div class="rating-scale" id="investmentNeed">
+                            <div class="rating-point" data-value="1" data-tooltip="Autossustentável, sem necessidade imediata"></div>
+                            <div class="rating-point" data-value="2" data-tooltip="Pequena rodada para melhorias"></div>
+                            <div class="rating-point" data-value="3" data-tooltip="Investimento moderado para crescimento"></div>
+                            <div class="rating-point" data-value="4" data-tooltip="Grande necessidade para escalar"></div>
+                            <div class="rating-point" data-value="5" data-tooltip="Depende crucialmente de investimento"></div>
+                        </div>
+                        <div class="rating-label">Baixa → Alta</div>
+                    </div>
+                </div>
+                <div class="form-hint">Quão essencial é o investimento para a sobrevivência e crescimento do negócio?</div>
+            </div>
+            
+            <div class="navigation">
+                <button class="btn btn-secondary" id="prev4">
+                    <i class="fas fa-arrow-left"></i>
+                    Anterior
+                </button>
+                <button class="btn btn-primary" id="next4">
+                    Próximo
+                    <i class="fas fa-arrow-right"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Step 5: Team Assessment -->
+        <div class="step" id="step5">
+            <h2 class="step-title">
+                <i class="fas fa-users-cog"></i>
+                Avaliação da Equipe
+            </h2>
+            <p class="step-description">Avalie os aspectos relacionados à equipe e gestão. Investidores consideram o time um dos fatores mais importantes para o sucesso.</p>
+            
+            <div class="form-group">
+                <label class="form-label">
+                    <i class="fas fa-user-graduate"></i>
+                    Experiência do Time
+                </label>
+                <div class="rating-container">
+                    <div class="rating-item">
+                        <div class="rating-scale" id="teamExperience">
+                            <div class="rating-point" data-value="1" data-tooltip="Time sem experiência relevante"></div>
+                            <div class="rating-point" data-value="2" data-tooltip="Alguma experiência em áreas relacionadas"></div>
+                            <div class="rating-point" data-value="3" data-tooltip="Experiência sólida no setor"></div>
+                            <div class="rating-point" data-value="4" data-tooltip="Time experiente com histórico de sucesso"></div>
+                            <div class="rating-point" data-value="5" data-tooltip="Executivos experientes com exit comprovado"></div>
+                        </div>
+                        <div class="rating-label">Iniciante → Experiente</div>
+                    </div>
+                </div>
+                <div class="form-hint">Experiência coletiva da equipe no setor e em startups.</div>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">
+                    <i class="fas fa-puzzle-piece"></i>
+                    Complementaridade do Time
+                </label>
+                <div class="rating-container">
+                    <div class="rating-item">
+                        <div class="rating-scale" id="teamComplementarity">
+                            <div class="rating-point" data-value="1" data-tooltip="Habilidades concentradas em uma área"></div>
+                            <div class="rating-point" data-value="2" data-tooltip="Algumas habilidades complementares"></div>
+                            <div class="rating-point" data-value="3" data-tooltip="Bom equilíbrio entre habilidades"></div>
+                            <div class="rating-point" data-value="4" data-tooltip="Time completo com poucas lacunas"></div>
+                            <div class="rating-point" data-value="5" data-tooltip="Time completo cobrindo todas as áreas essenciais"></div>
+                        </div>
+                        <div class="rating-label">Pouca → Muita</div>
+                    </div>
+                </div>
+                <div class="form-hint">Quão bem as habilidades da equipe se complementam para executar o negócio?</div>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">
+                    <i class="fas fa-tasks"></i>
+                    Capacidade de Execução
+                </label>
+                <div class="rating-container">
+                    <div class="rating-item">
+                        <div class="rating-scale" id="executionAbility">
+                            <div class="rating-point" data-value="1" data-tooltip="Dificuldade em cumprir prazos e metas"></div>
+                            <div class="rating-point" data-value="2" data-tooltip="Execução irregular com atrasos frequentes"></div>
+                            <div class="rating-point" data-value="3" data-tooltip="Boa execução na maioria das iniciativas"></div>
+                            <div class="rating-point" data-value="4" data-tooltip="Execução consistente e acima da média"></div>
+                            <div class="rating-point" data-value="5" data-tooltip="Excelência em execução com entregas antecipadas"></div>
+                        </div>
+                        <div class="rating-label">Baixa → Alta</div>
+                    </div>
+                </div>
+                <div class="form-hint">Histórico da equipe em entregar resultados conforme planejado.</div>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">
+                    <i class="fas fa-network-wired"></i>
+                    Rede de Contatos (Network)
+                </label>
+                <div class="rating-container">
+                    <div class="rating-item">
+                        <div class="rating-scale" id="network">
+                            <div class="rating-point" data-value="1" data-tooltip="Poucos contatos relevantes"></div>
+                            <div class="rating-point" data-value="2" data-tooltip="Alguns contatos no setor"></div>
+                            <div class="rating-point" data-value="3" data-tooltip="Boa rede de contatos profissionais"></div>
+                            <div class="rating-point" data-value="4" data-tooltip="Rede extensa com influenciadores"></div>
+                            <div class="rating-point" data-value="5" data-tooltip="Acesso a tomadores de decisão e investidores"></div>
+                        </div>
+                        <div class="rating-label">Pequena → Grande</div>
+                    </div>
+                </div>
+                <div class="form-hint">Relações da equipe que podem ajudar no crescimento do negócio.</div>
+            </div>
+            
+            <div class="navigation">
+                <button class="btn btn-secondary" id="prev5">
+                    <i class="fas fa-arrow-left"></i>
+                    Anterior
+                </button>
+                <button class="btn btn-primary" id="generateResults">
+                    <i class="fas fa-chart-pie"></i>
+                    Gerar Resultados
+                </button>
+            </div>
+        </div>
+
+        <!-- Results Section -->
+        <div class="results-container" id="resultsContainer">
+            <div class="startup-profile">
+                <div class="startup-avatar" id="startupAvatar">-</div>
+                <div class="startup-info">
+                    <div class="startup-name" id="startupNameDisplay">-</div>
+                    <div class="startup-details">
+                        <span><i class="fas fa-user-tie"></i> <span id="founderNameDisplay">-</span></span>
+                        <span><i class="fas fa-industry"></i> <span id="businessSegmentDisplay">-</span></span>
+                        <span><i class="fas fa-balance-scale"></i> <span id="companyTypeDisplay">-</span></span>
+                        <span><i class="fas fa-calendar-alt"></i> <span id="startupAgeDisplay">-</span></span>
+                    </div>
+                </div>
+            </div>
+
+            <h2 class="step-title">
+                <i class="fas fa-chart-line"></i>
+                Resultados e Recomendações
+            </h2>
+            <p class="step-description">Análise completa da sua startup com recomendações personalizadas para atrair investidores e escalar seu negócio.</p>
+            
+            <div class="classification-container">
+                <span class="classification-badge badge-blue" id="stageBadge">Estágio: -</span>
+                <span class="classification-badge badge-green" id="growthBadge">Crescimento: -</span>
+                <span class="classification-badge badge-orange" id="potentialBadge">Potencial: -</span>
+                <span class="classification-badge badge-purple" id="investorBadge">Investidor: -</span>
+                <span class="classification-badge badge-red" id="riskBadge">Risco: -</span>
+                <span class="classification-badge badge-teal" id="scalabilityBadge">Escalabilidade: -</span>
+            </div>
+            
+            <div class="dashboard">
+                <h3 class="dashboard-title">
+                    <i class="fas fa-radar"></i>
+                    Posicionamento da Startup nos 5 Eixos
+                </h3>
+                <div class="chart-container">
+                    <canvas id="radarChart"></canvas>
+                </div>
+                <div class="chart-actions">
+                    <button class="chart-btn" id="exportRadar">
+                        <i class="fas fa-download"></i>
+                        Exportar
+                    </button>
+                </div>
+            </div>
+            
+            <div class="dashboard">
+                <h3 class="dashboard-title">
+                    <i class="fas fa-money-bill-trend-up"></i>
+                    Comparativo de Faturamento
+                </h3>
+                <div class="chart-container">
+                    <canvas id="revenueChart"></canvas>
+                </div>
+                <div class="chart-actions">
+                    <button class="chart-btn" id="exportRevenue">
+                        <i class="fas fa-download"></i>
+                        Exportar
+                    </button>
+                </div>
+            </div>
+            
+            <div class="dashboard">
+                <h3 class="dashboard-title">
+                    <i class="fas fa-chess-queen"></i>
+                    Comparativo de Valuation
+                </h3>
+                <div class="chart-container">
+                    <canvas id="valuationChart"></canvas>
+                </div>
+                <div class="chart-actions">
+                    <button class="chart-btn" id="exportValuation">
+                        <i class="fas fa-download"></i>
+                        Exportar
+                    </button>
+                </div>
+            </div>
+            
+            <div class="dashboard">
+                <h3 class="dashboard-title">
+                    <i class="fas fa-briefcase"></i>
+                    Comparativo de Empregos Gerados
+                </h3>
+                <div class="chart-container">
+                    <canvas id="jobsChart"></canvas>
+                </div>
+                <div class="chart-actions">
+                    <button class="chart-btn" id="exportJobs">
+                        <i class="fas fa-download"></i>
+                        Exportar
+                    </button>
+                </div>
+            </div>
+            
+            <div class="dashboard">
+                <h3 class="dashboard-title">
+                    <i class="fas fa-project-diagram"></i>
+                    Previsão de Tração e Ponto de Equilíbrio
+                </h3>
+                <div class="chart-container">
+                    <canvas id="forecastChart"></canvas>
+                </div>
+                <div class="chart-actions">
+                    <button class="chart-btn" id="exportForecast">
+                        <i class="fas fa-download"></i>
+                        Exportar
+                    </button>
+                </div>
+            </div>
+
+            <div class="dashboard">
+                <h3 class="dashboard-title">
+                    <i class="fas fa-piggy-bank"></i>
+                    Nível de Investimento Recomendado
+                </h3>
+                <div class="investment-need-chart">
+                    <canvas id="investmentChart"></canvas>
+                </div>
+                <div class="chart-actions">
+                    <button class="chart-btn" id="exportInvestment">
+                        <i class="fas fa-download"></i>
+                        Exportar
+                    </button>
+                </div>
+            </div>
+            
+            <div class="metrics-grid">
+                <div class="metric-card">
+                    <div class="metric-title">
+                        <i class="fas fa-cash-register"></i>
+                        Faturamento Anual
+                    </div>
+                    <div class="metric-value" id="revenueValue">R$ 0</div>
+                    <div class="metric-comparison">
+                        Comparativo: <span id="revenueComparison">-</span>
+                    </div>
+                </div>
+                
+                <div class="metric-card">
+                    <div class="metric-title">
+                        <i class="fas fa-chess-queen"></i>
+                        Valuation Estimado
+                    </div>
+                    <div class="metric-value" id="valuationValue">R$ 0</div>
+                    <div class="metric-comparison">
+                        Comparativo: <span id="valuationComparison">-</span>
+                    </div>
+                </div>
+                
+                <div class="metric-card">
+                    <div class="metric-title">
+                        <i class="fas fa-users"></i>
+                        Empregos Gerados
+                    </div>
+                    <div class="metric-value" id="jobsValue">0</div>
+                    <div class="metric-comparison">
+                        Comparativo: <span id="jobsComparison">-</span>
+                    </div>
+                </div>
+                
+                <div class="metric-card">
+                    <div class="metric-title">
+                        <i class="fas fa-hourglass-half"></i>
+                        Runway
+                    </div>
+                    <div class="metric-value" id="runwayValue">0 meses</div>
+                    <div class="metric-comparison">
+                        Comparativo: <span id="runwayComparison">-</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="investment-comparison">
+                <h3 class="dashboard-title">
+                    <i class="fas fa-hand-holding-usd"></i>
+                    Comparativo de Investimento por Estágio
+                </h3>
+                <table class="comparison-table">
+                    <thead>
+                        <tr>
+                            <th>Estágio</th>
+                            <th>Ticket Médio (R$)</th>
+                            <th>Investidores Típicos</th>
+                            <th>Foco Principal</th>
+                        </tr>
+                    </thead>
+                    <tbody id="investmentComparisonBody">
+                        <!-- Will be filled by JS -->
+                    </tbody>
+                </table>
+            </div>
+            
+            <div class="investor-recommendation">
+                <h3 class="investor-title">
+                    <i class="fas fa-handshake"></i>
+                    Recomendação de Investidor
+                </h3>
+                <div class="investor-type" id="investorType">-</div>
+                <p class="investor-description" id="investorDescription">-</p>
+                <ul class="investor-criteria" id="investorCriteria">
+                    <!-- Criteria will be added by JS -->
+                </ul>
+            </div>
+
+            <div class="investment-guide">
+                <h3 class="investment-guide-title">
+                    <i class="fas fa-map-marked-alt"></i>
+                    Guia para Captação de Investimento
+                </h3>
+                <ul class="investment-guide-steps" id="investmentGuideSteps">
+                    <!-- Steps will be added by JS -->
+                </ul>
+            </div>
+
+            <div class="storytelling-container">
+                <h3 class="storytelling-title">
+                    <i class="fas fa-book-open"></i>
+                    Storytelling para Investidores
+                </h3>
+                <div class="storytelling-content" id="storytellingContent">
+                    <!-- Content will be added by JS -->
+                </div>
+            </div>
+            
+            <div class="dashboard">
+                <h3 class="dashboard-title">
+                    <i class="fas fa-project-diagram"></i>
+                    Business Canvas
+                    <button class="btn btn-outline btn-sm" id="editCanvas">
+                        <i class="fas fa-edit"></i>
+                        Editar Canvas
+                    </button>
+                </h3>
+                <div class="business-canvas" id="businessCanvas">
+                    <!-- Canvas items will be added by JS -->
+                </div>
+                <div class="canvas-editor" id="canvasEditor">
+                    <div class="canvas-editor-buttons">
+                        <button class="btn btn-success" id="saveCanvas">
+                            <i class="fas fa-check"></i>
+                            Salvar Alterações
+                        </button>
+                        <button class="btn btn-secondary" id="cancelCanvas">
+                            <i class="fas fa-times"></i>
+                            Cancelar
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="timeline-container">
+                <h3 class="dashboard-title">
+                    <i class="fas fa-road"></i>
+                    Linha do Tempo Estimada
+                </h3>
+                <div class="timeline" id="timeline">
+                    <!-- Timeline items will be added by JS -->
+                </div>
+            </div>
+            
+            <div class="export-options">
+                <button class="btn btn-primary" id="exportPitchDeck">
+                    <i class="fas fa-file-pdf"></i> Exportar Pitch Deck (PDF)
+                </button>
+                <button class="btn btn-primary" id="exportCanvas">
+                    <i class="fas fa-file-pdf"></i> Exportar Canvas (PDF)
+                </button>
+                <button class="btn btn-outline" id="exportCharts">
+                    <i class="fas fa-image"></i> Exportar Gráficos (PNG)
+                </button>
+                <button class="btn btn-outline" id="saveData">
+                    <i class="fas fa-save"></i> Salvar Dados
+                </button>
+                <button class="btn btn-outline" id="startNew">
+                    <i class="fas fa-redo"></i> Nova Análise
+                </button>
+            </div>
+            
+            <div class="spinner" id="exportSpinner"></div>
+        </div>
+
+        <!-- Hidden container for pitch deck slides -->
+        <div class="pitch-deck-container" id="pitchDeckContainer">
+            <div class="slide" id="coverSlide">
+                <div class="slide-header">Pitch Deck - Capa</div>
+                <div class="slide-content">
+                    <h1 class="slide-title" id="pitchDeckTitle">[Nome da Startup]</h1>
+                    <p class="slide-text" style="text-align: center; margin-top: 40px;">Pitch Deck de Investimento</p>
+                    <p class="slide-text" style="text-align: center;">Gerado em: <span id="pitchDeckDate"></span></p>
+                </div>
+                <div class="slide-footer">InvestAI - Plataforma de Avaliação para Startups</div>
+            </div>
+            
+            <div class="slide" id="problemSlide">
+                <div class="slide-header">Pitch Deck - O Problema</div>
+                <div class="slide-content">
+                    <h2 class="slide-subtitle">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        O Problema
+                    </h2>
+                    <p class="slide-text">Descreva o problema que sua startup está resolvendo:</p>
+                    <ul class="slide-list" id="problemList">
+                        <!-- Will be filled by JS -->
+                    </ul>
+                </div>
+                <div class="slide-footer">InvestAI - Plataforma de Avaliação para Startups</div>
+            </div>
+            
+            <div class="slide" id="solutionSlide">
+                <div class="slide-header">Pitch Deck - A Solução</div>
+                <div class="slide-content">
+                    <h2 class="slide-subtitle">
+                        <i class="fas fa-lightbulb"></i>
+                        A Solução
+                    </h2>
+                    <p class="slide-text">Descreva como sua startup resolve o problema:</p>
+                    <ul class="slide-list" id="solutionList">
+                        <!-- Will be filled by JS -->
+                    </ul>
+                </div>
+                <div class="slide-footer">InvestAI - Plataforma de Avaliação para Startups</div>
+            </div>
+            
+            <div class="slide" id="marketSlide">
+                <div class="slide-header">Pitch Deck - Mercado</div>
+                <div class="slide-content">
+                    <h2 class="slide-subtitle">
+                        <i class="fas fa-chart-pie"></i>
+                        Oportunidade de Mercado
+                    </h2>
+                    <p class="slide-text">Tamanho do mercado: <span id="marketSizeText"></span></p>
+                    <p class="slide-text">Crescimento do mercado: <span id="marketGrowthText"></span></p>
+                    <p class="slide-text">Diferenciação competitiva: <span id="differentiationText"></span></p>
+                    <p class="slide-text">Barreiras de entrada: <span id="entryBarriersText"></span></p>
+                </div>
+                <div class="slide-footer">InvestAI - Plataforma de Avaliação para Startups</div>
+            </div>
+            
+            <div class="slide" id="tractionSlide">
+                <div class="slide-header">Pitch Deck - Tração</div>
+                <div class="slide-content">
+                    <h2 class="slide-subtitle">
+                        <i class="fas fa-rocket"></i>
+                        Tração e Resultados
+                    </h2>
+                    <p class="slide-text">Faturamento anual: <span id="revenueText"></span></p>
+                    <p class="slide-text">Número de funcionários: <span id="employeesText"></span></p>
+                    <p class="slide-text">Runway atual: <span id="runwayText"></span></p>
+                    <p class="slide-text">Valuation estimado: <span id="valuationText"></span></p>
+                    <p class="slide-text">Investimento recebido: <span id="investmentText"></span></p>
+                </div>
+                <div class="slide-footer">InvestAI - Plataforma de Avaliação para Startups</div>
+            </div>
+            
+            <div class="slide" id="teamSlide">
+                <div class="slide-header">Pitch Deck - Equipe</div>
+                <div class="slide-content">
+                    <h2 class="slide-subtitle">
+                        <i class="fas fa-users"></i>
+                        Time
+                    </h2>
+                    <p class="slide-text">Experiência do time: <span id="teamExperienceText"></span></p>
+                    <p class="slide-text">Capacidade de execução: <span id="executionText"></span></p>
+                    <p class="slide-text">Rede de contatos: <span id="networkText"></span></p>
+                    <p class="slide-text">Complementaridade: <span id="complementarityText"></span></p>
+                </div>
+                <div class="slide-footer">InvestAI - Plataforma de Avaliação para Startups</div>
+            </div>
+            
+            <div class="slide" id="technologySlide">
+                <div class="slide-header">Pitch Deck - Tecnologia</div>
+                <div class="slide-content">
+                    <h2 class="slide-subtitle">
+                        <i class="fas fa-microchip"></i>
+                        Tecnologia e Inovação
+                    </h2>
+                    <p class="slide-text">Nível de inovação: <span id="innovationText"></span></p>
+                    <p class="slide-text">Maturidade tecnológica: <span id="maturityText"></span></p>
+                    <p class="slide-text">Escalabilidade: <span id="scalabilityText"></span></p>
+                </div>
+                <div class="slide-footer">InvestAI - Plataforma de Avaliação para Startups</div>
+            </div>
+            
+            <div class="slide" id="investmentSlide">
+                <div class="slide-header">Pitch Deck - Investimento</div>
+                <div class="slide-content">
+                    <h2 class="slide-subtitle">
+                        <i class="fas fa-hand-holding-usd"></i>
+                        Oportunidade de Investimento
+                    </h2>
+                    <p class="slide-text">Recomendação de investidor: <span id="investorTypeText"></span></p>
+                    <p class="slide-text">Estágio atual: <span id="stageText"></span></p>
+                    <p class="slide-text">Potencial de crescimento: <span id="potentialText"></span></p>
+                    <p class="slide-text">Nível de risco: <span id="riskText"></span></p>
+                    <p class="slide-text">Investimento necessário: <span id="neededInvestmentText"></span></p>
+                </div>
+                <div class="slide-footer">InvestAI - Plataforma de Avaliação para Startups</div>
+            </div>
+            
+            <div class="slide" id="roadmapSlide">
+                <div class="slide-header">Pitch Deck - Roadmap</div>
+                <div class="slide-content">
+                    <h2 class="slide-subtitle">
+                        <i class="fas fa-map-marked-alt"></i>
+                        Roadmap e Próximos Passos
+                    </h2>
+                    <ul class="slide-list" id="roadmapList">
+                        <!-- Will be filled by JS -->
+                    </ul>
+                </div>
+                <div class="slide-footer">InvestAI - Plataforma de Avaliação para Startups</div>
+            </div>
+
+            <div class="slide" id="financialsSlide">
+                <div class="slide-header">Pitch Deck - Projeções</div>
+                <div class="slide-content">
+                    <h2 class="slide-subtitle">
+                        <i class="fas fa-chart-line"></i>
+                        Projeções Financeiras
+                    </h2>
+                    <div style="height: 200px;">
+                        <canvas id="pitchForecastChart"></canvas>
+                    </div>
+                    <p class="slide-text" style="margin-top: 20px;">Ponto de equilíbrio estimado: <span id="breakEvenText"></span></p>
+                    <p class="slide-text">Retorno esperado para investidores: <span id="roiText"></span></p>
+                </div>
+                <div class="slide-footer">InvestAI - Plataforma de Avaliação para Startups</div>
+            </div>
+        </div>
+
+        <!-- Modal for PDF Export -->
+        <div class="modal" id="exportModal">
+            <div class="modal-content">
+                <span class="close-modal">&times;</span>
+                <h3 class="modal-title">Exportar Documentos</h3>
+                <p id="modalMessage">Selecione o que deseja exportar:</p>
+                <div class="modal-options" id="exportOptions">
+                    <button class="btn btn-primary" id="exportBoth">
+                        <i class="fas fa-file-pdf"></i> Pitch Deck + Canvas
+                    </button>
+                    <button class="btn btn-outline" id="exportPitchOnly">
+                        <i class="fas fa-file-pdf"></i> Apenas Pitch Deck
+                    </button>
+                    <button class="btn btn-outline" id="exportCanvasOnly">
+                        <i class="fas fa-file-pdf"></i> Apenas Canvas
+                    </button>
+                </div>
+                <div class="spinner" id="modalSpinner"></div>
+                <div id="exportSuccess" style="display: none;">
+                    <p>Documentos gerados com sucesso!</p>
+                    <button class="btn btn-primary" id="downloadPdf">Baixar PDF</button>
+                </div>
+            </div>
+        </div>
+
+        <script>
+            // Business segments data
+            const businessSegments = [
+                { name: "SaaS", icon: "cloud" },
+                { name: "Fintech", icon: "money-bill-wave" },
+                { name: "Edtech", icon: "graduation-cap" },
+                { name: "Healthtech", icon: "heartbeat" },
+                { name: "E-commerce", icon: "shopping-cart" },
+                { name: "Marketplace", icon: "store" },
+                { name: "Agrotech", icon: "tractor" },
+                { name: "CleanTech", icon: "leaf" },
+                { name: "Mobilidade", icon: "car" },
+                { name: "PropTech", icon: "building" },
+                { name: "FoodTech", icon: "utensils" },
+                { name: "HRTech", icon: "users" }
+            ];
+
+            // Company types data
+            const companyTypes = {
+                "PF": "Pessoa Física",
+                "PJ": "Pessoa Jurídica",
+                "MEI": "Microempreendedor Individual",
+                "ME": "Microempresa",
+                "EPP": "Empresa de Pequeno Porte",
+                "LTDA": "Sociedade Limitada",
+                "SA": "Sociedade Anônima"
+            };
+
+            // Investor types data
+            const investorTypes = [
+                {
+                    name: "Anjo",
+                    description: "Investidores individuais que aportam capital em estágios muito iniciais, geralmente em troca de participação acionária. Ideal para empresas do tipo MEI, ME e EPP que estão começando.",
+                    criteria: [
+                        "Startups em estágio de ideação ou MVP",
+                        "Faturamento abaixo de R$ 500K/ano",
+                        "Equipe pequena (1-5 pessoas)",
+                        "Potencial de alto crescimento",
+                        "Empresas com estrutura jurídica simples"
+                    ],
+                    minRevenue: 0,
+                    maxRevenue: 500000,
+                    minEmployees: 1,
+                    maxEmployees: 5,
+                    minValuation: 0,
+                    maxValuation: 5000000,
+                    stage: "Ideação/Validação",
+                    ticket: "R$ 50K - R$ 500K",
+                    roi: "5-10x em 5-7 anos"
+                },
+                {
+                    name: "Pré-Seed",
+                    description: "Capital inicial para validação de ideia e desenvolvimento do produto mínimo viável (MVP). Adequado para empresas do tipo EPP e LTDA que estão validando seu modelo.",
+                    criteria: [
+                        "MVP em desenvolvimento ou recém-lançado",
+                        "Faturamento abaixo de R$ 1M/ano",
+                        "Equipe pequena (2-10 pessoas)",
+                        "Prova de conceito inicial",
+                        "Empresas em processo de estruturação jurídica"
+                    ],
+                    minRevenue: 0,
+                    maxRevenue: 1000000,
+                    minEmployees: 2,
+                    maxEmployees: 10,
+                    minValuation: 1000000,
+                    maxValuation: 8000000,
+                    stage: "Validação",
+                    ticket: "R$ 500K - R$ 2M",
+                    roi: "5-8x em 5 anos"
+                },
+                {
+                    name: "Seed",
+                    description: "Investimento para startups que já validaram o modelo de negócios e buscam escala inicial. Recomendado para empresas LTDA e SA que já têm tração.",
+                    criteria: [
+                        "Produto no mercado com tração inicial",
+                        "Faturamento entre R$ 1M e R$ 3M/ano",
+                        "Equipe em formação (5-20 pessoas)",
+                        "Métricas de crescimento consistentes",
+                        "Empresas com estrutura jurídica formalizada"
+                    ],
+                    minRevenue: 1000000,
+                    maxRevenue: 3000000,
+                    minEmployees: 5,
+                    maxEmployees: 20,
+                    minValuation: 5000000,
+                    maxValuation: 15000000,
+                    stage: "Tração Inicial",
+                    ticket: "R$ 2M - R$ 5M",
+                    roi: "3-5x em 4-5 anos"
+                },
+                {
+                    name: "Série A",
+                    description: "Para startups que já têm produto no mercado, tração significativa e precisam escalar operações. Ideal para empresas LTDA e SA em crescimento acelerado.",
+                    criteria: [
+                        "Modelo de negócios validado",
+                        "Faturamento entre R$ 3M e R$ 10M/ano",
+                        "Equipe estruturada (15-50 pessoas)",
+                        "Crescimento mensal consistente",
+                        "Empresas com governança corporativa estabelecida"
+                    ],
+                    minRevenue: 3000000,
+                    maxRevenue: 10000000,
+                    minEmployees: 15,
+                    maxEmployees: 50,
+                    minValuation: 15000000,
+                    maxValuation: 50000000,
+                    stage: "Escala",
+                    ticket: "R$ 5M - R$ 15M",
+                    roi: "3-4x em 3-5 anos"
+                },
+                {
+                    name: "Série B+",
+                    description: "Para startups em fase de expansão acelerada, geralmente com operações em múltiplos mercados. Exclusivo para empresas SA ou LTDA de grande porte.",
+                    criteria: [
+                        "Operações escaláveis e repetíveis",
+                        "Faturamento acima de R$ 10M/ano",
+                        "Equipe grande (50+ pessoas)",
+                        "Presença em múltiplos mercados",
+                        "Estrutura jurídica complexa e compliance"
+                    ],
+                    minRevenue: 10000000,
+                    maxRevenue: 999999999,
+                    minEmployees: 50,
+                    maxEmployees: 999,
+                    minValuation: 50000000,
+                    maxValuation: 999999999,
+                    stage: "Expansão",
+                    ticket: "R$ 15M+",
+                    roi: "2-3x em 3-4 anos"
+                }
+            ];
+
+            // Business canvas templates
+            const canvasTemplates = {
+                "default": [
+                    { title: "Proposta de Valor", content: "Descreva a proposta única de valor da sua startup. O que torna seu produto/serviço diferente e desejável para os clientes?" },
+                    { title: "Segmentos de Clientes", content: "Quem são seus clientes principais e secundários? Quais são suas necessidades, comportamentos e características?" },
+                    { title: "Canais", content: "Como você alcança e entrega valor aos seus clientes? Quais são seus canais de distribuição, comunicação e vendas?" },
+                    { title: "Relacionamento com Clientes", content: "Que tipo de relacionamento você estabelece com cada segmento? Como você os atrai, retém e fideliza?" },
+                    { title: "Fontes de Receita", content: "Como sua startup gera receita? Quais são seus modelos de precificação e fluxos de receita?" },
+                    { title: "Recursos Principais", content: "Quais recursos são essenciais para seu modelo de negócios? Inclua físicos, intelectuais, humanos e financeiros." },
+                    { title: "Atividades Principais", content: "Quais atividades são fundamentais para entregar sua proposta? O que você precisa fazer melhor que os concorrentes?" },
+                    { title: "Parcerias Principais", content: "Quem são seus parceiros e fornecedores chave? Quais alianças estratégicas são importantes para seu negócio?" },
+                    { title: "Estrutura de Custos", content: "Quais são seus principais custos operacionais? Quais recursos/atividades são mais caros em seu modelo?" }
+                ],
+                "SaaS": [
+                    { title: "Proposta de Valor", content: "Software como serviço que resolve [problema específico] de forma eficiente, reduzindo custos e aumentando produtividade." },
+                    { title: "Segmentos de Clientes", content: "Empresas de [tamanho] no setor de [indústria] que enfrentam [problema específico] e buscam [benefício]." },
+                    { title: "Canais", content: "Vendas online, parcerias com integradores, marketing digital (SEO, conteúdo, performance), feiras do setor." },
+                    { title: "Relacionamento", content: "Autoatendimento com suporte premium para clientes enterprise. Comunidade de usuários e treinamentos online." },
+                    { title: "Fontes de Receita", content: "Assinaturas mensais/anuais (SaaS), serviços profissionais (implementação), marketplace de integrações." },
+                    { title: "Recursos Principais", content: "Plataforma em nuvem, equipe de desenvolvimento, propriedade intelectual, infraestrutura escalável." },
+                    { title: "Atividades Principais", content: "Desenvolvimento contínuo, aquisição de clientes, suporte, análise de dados de uso, melhoria contínua." },
+                    { title: "Parcerias", content: "Parceiros de implementação, marketplaces de cloud (AWS, Azure), integradores de software complementar." },
+                    { title: "Estrutura de Custos", content: "Infraestrutura cloud, equipe técnica, marketing de aquisição, suporte ao cliente, conformidade e segurança." }
+                ],
+                "Fintech": [
+                    { title: "Proposta de Valor", content: "Solução financeira [mais rápida/barata/transparente] que bancos tradicionais, democratizando acesso a [serviço específico]." },
+                    { title: "Segmentos de Clientes", content: "[Consumidores/PMEs] com [necessidade específica] que são [subatendidos/insatisfeitos] com soluções tradicionais." },
+                    { title: "Canais", content: "Aplicativo móvel, site, parcerias com outras plataformas, indicações, marketing digital e educação financeira." },
+                    { title: "Relacionamento", content: "Automatizado com suporte humano para questões complexas. Comunidade e conteúdo educativo para engajamento." },
+                    { title: "Fontes de Receita", content: "Taxas de transação, assinaturas, juros sobre empréstimos, receita de interchange, serviços premium." },
+                    { title: "Recursos Principais", content: "Tecnologia de pagamentos, licenças regulatórias, equipe especializada em compliance, infraestrutura segura." },
+                    { title: "Atividades Principais", content: "Conformidade regulatória, desenvolvimento de produto, gestão de risco, prevenção a fraudes, atendimento." },
+                    { title: "Parcerias", content: "Bancos parceiros, processadores de pagamento, reguladores, outras fintechs complementares." },
+                    { title: "Estrutura de Custos", content: "Conformidade regulatória, segurança cibernética, aquisição de clientes, infraestrutura tecnológica, risco." }
+                ],
+                "Edtech": [
+                    { title: "Proposta de Valor", content: "Educação [mais acessível/personalizada/eficaz] através de tecnologia, resolvendo [problema específico] no aprendizado." },
+                    { title: "Segmentos de Clientes", content: "[Estudantes/Profissionais/Escolas] que precisam de [habilidade/conhecimento] e valorizam [benefício específico]." },
+                    { title: "Canais", content: "Plataforma online, parcerias com instituições educacionais, redes sociais, indicações de usuários satisfeitos." },
+                    { title: "Relacionamento", content: "Comunidade online, mentoria, suporte personalizado, gamificação e reconhecimento de conquistas." },
+                    { title: "Fontes de Receita", content: "Assinaturas, cursos avulsos, licenciamento para escolas, certificados pagos, patrocínios corporativos." },
+                    { title: "Recursos Principais", content: "Conteúdo educacional, plataforma de aprendizagem, especialistas no assunto, tecnologia de adaptação." },
+                    { title: "Atividades Principais", content: "Desenvolvimento de conteúdo, engajamento de alunos, parcerias, análise de dados de aprendizado." },
+                    { title: "Parcerias", content: "Instituições educacionais, especialistas em conteúdo, empresas para capacitação, governos para projetos." },
+                    { title: "Estrutura de Custos", content: "Produção de conteúdo, desenvolvimento de plataforma, marketing, especialistas, infraestrutura de vídeo." }
+                ],
+                "E-commerce": [
+                    { title: "Proposta de Valor", content: "Experiência de compra [mais conveniente/barata/personalizada] para [categoria de produtos], com [diferencial específico]." },
+                    { title: "Segmentos de Clientes", content: "Consumidores interessados em [categoria] com [características demográficas] que valorizam [benefício]." },
+                    { title: "Canais", content: "Site próprio, marketplaces, redes sociais, email marketing, aplicativo móvel, comparação de preços." },
+                    { title: "Relacionamento", content: "Atendimento via chat, programas de fidelidade, conteúdo útil pós-venda, comunidades de usuários." },
+                    { title: "Fontes de Receita", content: "Venda de produtos, publicidade, assinaturas, serviços premium, revenda de dados anonimizados." },
+                    { title: "Recursos Principais", content: "Plataforma de e-commerce, estoque, logística, marca, dados de clientes, parcerias com fornecedores." },
+                    { title: "Atividades Principais", content: "Gestão de estoque, aquisição de clientes, experiência do usuário, logística, análise de dados." },
+                    { title: "Parcerias", content: "Fornecedores, serviços de logística, plataformas de pagamento, marketplaces, influenciadores digitais." },
+                    { title: "Estrutura de Custos", content: "Aquisição de produtos, marketing digital, operações logísticas, tecnologia, atendimento ao cliente." }
+                ]
+            };
+
+            // Problem and solution templates by segment
+            const problemSolutionTemplates = {
+                "default": {
+                    problems: [
+                        "Descreva o problema principal que sua startup resolve",
+                        "Quais são as dores específicas dos seus clientes?",
+                        "Como esse problema é resolvido atualmente?",
+                        "Por que as soluções atuais são inadequadas?",
+                        "Qual o impacto econômico/social desse problema?"
+                    ],
+                    solutions: [
+                        "Como sua solução aborda o problema?",
+                        "Quais são os benefícios principais para os clientes?",
+                        "O que torna sua solução única?",
+                        "Como você valida que sua solução funciona?",
+                        "Qual a prova social/tração já obtida?"
+                    ]
+                },
+                "SaaS": {
+                    problems: [
+                        "Ineficiência nos processos atuais que custam tempo e dinheiro",
+                        "Altos custos com soluções existentes que não atendem completamente",
+                        "Falta de integração entre sistemas usados pela empresa",
+                        "Experiência do usuário complicada que reduz a produtividade",
+                        "Soluções locais que não acompanham o crescimento da empresa"
+                    ],
+                    solutions: [
+                        "Software intuitivo e fácil de usar que resolve o problema específico",
+                        "Redução de custos com solução em nuvem sem necessidade de infraestrutura",
+                        "Integração com outros sistemas via API para um fluxo de trabalho contínuo",
+                        "Atualizações contínuas e suporte dedicado para máxima eficiência",
+                        "Escalabilidade para acompanhar o crescimento do cliente"
+                    ]
+                },
+                "Fintech": {
+                    problems: [
+                        "Altas taxas e custos financeiros que tornam serviços inacessíveis",
+                        "Processos burocráticos e lentos nos serviços tradicionais",
+                        "Falta de transparência nas operações financeiras",
+                        "Acesso limitado a serviços financeiros para parte da população",
+                        "Experiência do usuário ruim em plataformas existentes"
+                    ],
+                    solutions: [
+                        "Taxas reduzidas e estrutura de custos eficiente que beneficia o cliente",
+                        "Processos digitais rápidos e sem papelada com aprovação em minutos",
+                        "Transparência total em todas as operações e taxas envolvidas",
+                        "Democratização do acesso a serviços financeiros básicos e avançados",
+                        "Experiência do usuário focada em simplicidade e educação financeira"
+                    ]
+                },
+                "Edtech": {
+                    problems: [
+                        "Acesso limitado a educação de qualidade por fatores geográficos/econômicos",
+                        "Métodos de ensino ultrapassados que não engajam os alunos",
+                        "Dificuldade em personalizar o aprendizado para necessidades individuais",
+                        "Altos custos com educação tradicional e materiais didáticos",
+                        "Falta de acompanhamento do progresso real do aprendizado"
+                    ],
+                    solutions: [
+                        "Conteúdo acessível de qualquer lugar, reduzindo barreiras geográficas",
+                        "Métodos de ensino baseados em dados e melhores práticas pedagógicas",
+                        "Aprendizado personalizado por IA que se adapta ao ritmo do aluno",
+                        "Custos reduzidos em comparação com educação tradicional",
+                        "Relatórios detalhados de progresso para alunos e educadores"
+                    ]
+                },
+                "E-commerce": {
+                    problems: [
+                        "Experiência de compra insatisfatória em lojas físicas e online",
+                        "Opções limitadas de produtos em lojas físicas locais",
+                        "Altos custos com lojas físicas que refletem no preço final",
+                        "Dificuldade em encontrar produtos específicos com informações confiáveis",
+                        "Processos de devolução e troca complicados e demorados"
+                    ],
+                    solutions: [
+                        "Experiência de compra simplificada e intuitiva em qualquer dispositivo",
+                        "Catálogo amplo e diversificado com opções para todos os perfis",
+                        "Redução de custos com operação digital que beneficia o preço final",
+                        "Sistema de busca e recomendação inteligente baseado em preferências",
+                        "Política de devolução simplificada e atendimento ao cliente ágil"
+                    ]
+                }
+            };
+
+            // Regional comparison data
+            const comparisonData = {
+                "Minas Gerais": {
+                    revenue: { min: 500000, max: 1500000 },
+                    valuation: { min: 5000000, max: 10000000 },
+                    employees: { min: 5, max: 15 },
+                    runway: { min: 6, max: 9 },
+                    investment: { min: 50000, max: 500000 }
+                },
+                "Brasil": {
+                    revenue: { min: 1000000, max: 3000000 },
+                    valuation: { min: 8000000, max: 15000000 },
+                    employees: { min: 10, max: 30 },
+                    runway: { min: 6, max: 12 },
+                    investment: { min: 500000, max: 2000000 }
+                },
+                "América Latina": {
+                    revenue: { min: 2500000, max: 10000000 },
+                    valuation: { min: 25000000, max: 50000000 },
+                    employees: { min: 10, max: 40 },
+                    runway: { min: 9, max: 12 },
+                    investment: { min: 2000000, max: 5000000 }
+                },
+                "EUA / Canadá": {
+                    revenue: { min: 10000000, max: 25000000 },
+                    valuation: { min: 50000000, max: 125000000 },
+                    employees: { min: 20, max: 60 },
+                    runway: { min: 6, max: 9 },
+                    investment: { min: 5000000, max: 15000000 }
+                },
+                "China / Índia": {
+                    revenue: { min: 5000000, max: 20000000 },
+                    valuation: { min: 40000000, max: 100000000 },
+                    employees: { min: 20, max: 50 },
+                    runway: { min: 9, max: 12 },
+                    investment: { min: 3000000, max: 10000000 }
+                },
+                "Qatar / Singapura": {
+                    revenue: { min: 10000000, max: 30000000 },
+                    valuation: { min: 50000000, max: 150000000 },
+                    employees: { min: 30, max: 70 },
+                    runway: { min: 6, max: 9 },
+                    investment: { min: 8000000, max: 20000000 }
+                }
+            };
+
+            // Startup classifications
+            const startupClassifications = {
+                stage: {
+                    "Ideação": { min: 0, max: 1, badge: "badge-blue", description: "Apenas ideia, sem produto ou receita" },
+                    "Validação": { min: 1, max: 2.5, badge: "badge-blue", description: "MVP em desenvolvimento ou teste" },
+                    "Tração": { min: 2.5, max: 3.5, badge: "badge-green", description: "Primeiros clientes e receita inicial" },
+                    "Escala": { min: 3.5, max: 4.5, badge: "badge-orange", description: "Crescimento acelerado e expansão" },
+                    "Expansão": { min: 4.5, max: 5, badge: "badge-purple", description: "Operações consolidadas em múltiplos mercados" }
+                },
+                growth: {
+                    "Lento": { min: 0, max: 1.5, badge: "badge-red", description: "Crescimento abaixo de 10% ao ano" },
+                    "Moderado": { min: 1.5, max: 3, badge: "badge-orange", description: "Crescimento entre 10-20% ao ano" },
+                    "Rápido": { min: 3, max: 4, badge: "badge-green", description: "Crescimento entre 20-30% ao ano" },
+                    "Hiper": { min: 4, max: 5, badge: "badge-purple", description: "Crescimento acima de 30% ao ano" }
+                },
+                potential: {
+                    "Baixo": { min: 0, max: 2, badge: "badge-red", description: "Potencial limitado de crescimento" },
+                    "Médio": { min: 2, max: 3.5, badge: "badge-orange", description: "Potencial de crescimento moderado" },
+                    "Alto": { min: 3.5, max: 4.5, badge: "badge-green", description: "Alto potencial de crescimento" },
+                    "Unicórnio": { min: 4.5, max: 5, badge: "badge-purple", description: "Potencial para valuation acima de US$1B" }
+                },
+                risk: {
+                    "Alto": { min: 0, max: 2, badge: "badge-red", description: "Risco elevado de falência" },
+                    "Moderado": { min: 2, max: 3.5, badge: "badge-orange", description: "Risco moderado com desafios gerenciáveis" },
+                    "Baixo": { min: 3.5, max: 5, badge: "badge-green", description: "Risco baixo com modelo consolidado" }
+                },
+                scalability: {
+                    "Limitada": { min: 0, max: 2, badge: "badge-red", description: "Escalabilidade limitada por fatores físicos" },
+                    "Moderada": { min: 2, max: 3.5, badge: "badge-orange", description: "Escalável com investimento em infraestrutura" },
+                    "Alta": { min: 3.5, max: 4.5, badge: "badge-green", description: "Altamente escalável com custos marginais baixos" },
+                    "Ilimitada": { min: 4.5, max: 5, badge: "badge-purple", description: "Escalabilidade global sem restrições" }
+                }
+            };
+
+            // Investment levels
+            const investmentLevels = [
+                { level: "Anjo", min: 0, max: 500000, description: "Capital semente para validação inicial" },
+                { level: "Pré-Seed", min: 500000, max: 2000000, description: "Desenvolvimento de MVP e primeiras contratações" },
+                { level: "Seed", min: 2000000, max: 5000000, description: "Tração inicial e aperfeiçoamento do produto" },
+                { level: "Série A", min: 5000000, max: 15000000, description: "Escala de operações e crescimento acelerado" },
+                { level: "Série B+", min: 15000000, max: 999999999, description: "Expansão para novos mercados e aquisições" }
+            ];
+
+            // Timeline templates
+            const timelineTemplates = {
+                "idea": [
+                    { date: "0-3 meses", title: "Validação da Ideia", description: "Valide sua ideia com clientes potenciais através de entrevistas e pesquisas de mercado." },
+                    { date: "3-6 meses", title: "Desenvolvimento do MVP", description: "Desenvolva um produto mínimo viável (MVP) para testar suas hipóteses no mercado." },
+                    { date: "6-12 meses", title: "Teste de Mercado", description: "Coloque seu MVP nas mãos de usuários reais e colete feedback para iterações." },
+                    { date: "12-18 meses", title: "Primeira Rodada", description: "Capture investimento inicial (Anjo/Pré-Seed) para desenvolver o produto completo." }
+                ],
+                "0-6": [
+                    { date: "0-6 meses", title: "Desenvolvimento do MVP", description: "Finalize o desenvolvimento do MVP e inicie os primeiros testes com usuários." },
+                    { date: "6-12 meses", title: "Validação do Produto", description: "Valide o produto com clientes iniciais e ajuste conforme o feedback recebido." },
+                    { date: "12-18 meses", title: "Tração Inicial", description: "Obtenha seus primeiros clientes pagantes e demonstre potencial de crescimento." },
+                    { date: "18-24 meses", title: "Rodada Seed", description: "Capture investimento Seed para escalar operações e expandir a equipe." }
+                ],
+                "6-12": [
+                    { date: "0-6 meses", title: "Tração Inicial", description: "Foque em adquirir os primeiros clientes e validar o modelo de negócios." },
+                    { date: "6-12 meses", title: "Otimização", description: "Otimize processos, produto e aquisição com base nos dados coletados." },
+                    { date: "12-18 meses", title: "Crescimento", description: "Expanda para novos segmentos ou geografias com o produto validado." },
+                    { date: "18-24 meses", title: "Rodada Série A", description: "Capture investimento para escalar operações e crescer agressivamente." }
+                ],
+                "1-2": [
+                    { date: "0-6 meses", title: "Escala Inicial", description: "Aumente a base de clientes e receita com processos otimizados." },
+                    { date: "6-12 meses", title: "Expansão", description: "Expanda para novos mercados ou adicione linhas de produtos complementares." },
+                    { date: "12-18 meses", title: "Consolidação", description: "Consolide posição no mercado e melhore margens através de eficiências." },
+                    { date: "18-24 meses", title: "Rodada Série B", description: "Capture investimento para expansão acelerada e aquisições estratégicas." }
+                ],
+                "2-5": [
+                    { date: "0-6 meses", title: "Otimização", description: "Otimize operações e melhore eficiências para aumentar margens." },
+                    { date: "6-12 meses", title: "Expansão", description: "Expanda para novos mercados geográficos ou verticais não explorados." },
+                    { date: "12-18 meses", title: "Aquisições", description: "Considere aquisições estratégicas para acelerar crescimento." },
+                    { date: "18-24 meses", title: "Pré-IPO", description: "Prepare-se para IPO ou aquisição por um player maior." }
+                ],
+                "5+": [
+                    { date: "0-6 meses", title: "Diversificação", description: "Diversifique receitas e reduza dependência de um único produto/mercado." },
+                    { date: "6-12 meses", title: "Inovação", description: "Inove em produtos e modelos de negócios para manter vantagem competitiva." },
+                    { date: "12-18 meses", title: "Internacionalização", description: "Expanda para mercados internacionais com adaptações locais." },
+                    { date: "18-24 meses", title: "Saída", description: "Prepare saída via IPO, aquisição ou distribuição de dividendos." }
+                ]
+            };
+
+            // DOM elements
+            const themeToggle = document.getElementById('themeToggle');
+            const progressBar = document.getElementById('progressBar');
+            const progressText = document.getElementById('progressText');
+            const steps = document.querySelectorAll('.step');
+            const nextButtons = [
+                document.getElementById('next1'),
+                document.getElementById('next2'),
+                document.getElementById('next3'),
+                document.getElementById('next4')
+            ];
+            const prevButtons = [
+                document.getElementById('prev2'),
+                document.getElementById('prev3'),
+                document.getElementById('prev4'),
+                document.getElementById('prev5')
+            ];
+            const generateResultsBtn = document.getElementById('generateResults');
+            const resultsContainer = document.getElementById('resultsContainer');
+            const exportPitchDeckBtn = document.getElementById('exportPitchDeck');
+            const exportCanvasBtn = document.getElementById('exportCanvas');
+            const exportChartsBtn = document.getElementById('exportCharts');
+            const saveDataBtn = document.getElementById('saveData');
+            const startNewBtn = document.getElementById('startNew');
+            const exportModal = document.getElementById('exportModal');
+            const closeModal = document.querySelector('.close-modal');
+            const modalSpinner = document.getElementById('modalSpinner');
+            const exportSuccess = document.getElementById('exportSuccess');
+            const downloadPdfBtn = document.getElementById('downloadPdf');
+            const exportSpinner = document.getElementById('exportSpinner');
+            const modalMessage = document.getElementById('modalMessage');
+            const exportOptions = document.getElementById('exportOptions');
+            const exportBothBtn = document.getElementById('exportBoth');
+            const exportPitchOnlyBtn = document.getElementById('exportPitchOnly');
+            const exportCanvasOnlyBtn = document.getElementById('exportCanvasOnly');
+            const pitchDeckContainer = document.getElementById('pitchDeckContainer');
+            const editCanvasBtn = document.getElementById('editCanvas');
+            const saveCanvasBtn = document.getElementById('saveCanvas');
+            const cancelCanvasBtn = document.getElementById('cancelCanvas');
+            const canvasEditor = document.getElementById('canvasEditor');
+            const exportRadarBtn = document.getElementById('exportRadar');
+            const exportRevenueBtn = document.getElementById('exportRevenue');
+            const exportValuationBtn = document.getElementById('exportValuation');
+            const exportJobsBtn = document.getElementById('exportJobs');
+            const exportForecastBtn = document.getElementById('exportForecast');
+            const exportInvestmentBtn = document.getElementById('exportInvestment');
+            const businessSegmentsContainer = document.getElementById('businessSegments');
+            const addSegmentBtn = document.getElementById('addSegment');
+            const newSegmentInput = document.getElementById('newSegment');
+
+            // Form inputs
+            const startupNameInput = document.getElementById('startupName');
+            const founderNameInput = document.getElementById('founderName');
+            const companyTypeInput = document.getElementById('companyType');
+            const startupAgeInput = document.getElementById('startupAge');
+
+            // Results display elements
+            const startupAvatar = document.getElementById('startupAvatar');
+            const startupNameDisplay = document.getElementById('startupNameDisplay');
+            const founderNameDisplay = document.getElementById('founderNameDisplay');
+            const businessSegmentDisplay = document.getElementById('businessSegmentDisplay');
+            const companyTypeDisplay = document.getElementById('companyTypeDisplay');
+            const startupAgeDisplay = document.getElementById('startupAgeDisplay');
+            const stageBadge = document.getElementById('stageBadge');
+            const growthBadge = document.getElementById('growthBadge');
+            const potentialBadge = document.getElementById('potentialBadge');
+            const investorBadge = document.getElementById('investorBadge');
+            const riskBadge = document.getElementById('riskBadge');
+            const scalabilityBadge = document.getElementById('scalabilityBadge');
+            const revenueValue = document.getElementById('revenueValue');
+            const valuationValue = document.getElementById('valuationValue');
+            const jobsValue = document.getElementById('jobsValue');
+            const runwayValue = document.getElementById('runwayValue');
+            const revenueComparison = document.getElementById('revenueComparison');
+            const valuationComparison = document.getElementById('valuationComparison');
+            const jobsComparison = document.getElementById('jobsComparison');
+            const runwayComparison = document.getElementById('runwayComparison');
+            const investmentComparisonBody = document.getElementById('investmentComparisonBody');
+            const investorType = document.getElementById('investorType');
+            const investorDescription = document.getElementById('investorDescription');
+            const investorCriteria = document.getElementById('investorCriteria');
+            const investmentGuideSteps = document.getElementById('investmentGuideSteps');
+            const storytellingContent = document.getElementById('storytellingContent');
+            const businessCanvas = document.getElementById('businessCanvas');
+            const timeline = document.getElementById('timeline');
+
+            // Pitch deck elements
+            const pitchDeckTitle = document.getElementById('pitchDeckTitle');
+            const pitchDeckDate = document.getElementById('pitchDeckDate');
+            const problemList = document.getElementById('problemList');
+            const solutionList = document.getElementById('solutionList');
+            const marketSizeText = document.getElementById('marketSizeText');
+            const marketGrowthText = document.getElementById('marketGrowthText');
+            const differentiationText = document.getElementById('differentiationText');
+            const entryBarriersText = document.getElementById('entryBarriersText');
+            const revenueText = document.getElementById('revenueText');
+            const employeesText = document.getElementById('employeesText');
+            const runwayText = document.getElementById('runwayText');
+            const valuationText = document.getElementById('valuationText');
+            const investmentText = document.getElementById('investmentText');
+            const teamExperienceText = document.getElementById('teamExperienceText');
+            const executionText = document.getElementById('executionText');
+            const networkText = document.getElementById('networkText');
+            const complementarityText = document.getElementById('complementarityText');
+            const innovationText = document.getElementById('innovationText');
+            const maturityText = document.getElementById('maturityText');
+            const scalabilityText = document.getElementById('scalabilityText');
+            const investorTypeText = document.getElementById('investorTypeText');
+            const stageText = document.getElementById('stageText');
+            const potentialText = document.getElementById('potentialText');
+            const riskText = document.getElementById('riskText');
+            const neededInvestmentText = document.getElementById('neededInvestmentText');
+            const roadmapList = document.getElementById('roadmapList');
+            const breakEvenText = document.getElementById('breakEvenText');
+            const roiText = document.getElementById('roiText');
+
+            // App state
+            let currentStep = 1;
+            let selectedSegment = null;
+            let ratings = {
+                marketSize: 0,
+                marketGrowth: 0,
+                competition: 0,
+                differentiation: 0,
+                techInnovation: 0,
+                techMaturity: 0,
+                entryBarriers: 0,
+                scalability: 0,
+                teamExperience: 0,
+                teamComplementarity: 0,
+                executionAbility: 0,
+                network: 0,
+                investmentNeed: 0
+            };
+            let financials = {
+                revenue: 0,
+                employees: 0,
+                investment: 0,
+                runway: 0
+            };
+
+            // Initialize the app
+            function init() {
+                // Set up theme toggle
+                themeToggle.addEventListener('click', toggleTheme);
+                
+                // Set up business segments
+                renderBusinessSegments();
+                
+                // Set up rating scales
+                setupRatingScales();
+                
+                // Set up navigation
+                setupNavigation();
+                
+                // Set up form inputs
+                setupFormInputs();
+                
+                // Set up export buttons
+                setupExportButtons();
+                
+                // Set up canvas editor
+                setupCanvasEditor();
+            }
+
+            // Toggle dark/light theme
+            function toggleTheme() {
+                const isDark = document.body.getAttribute('data-theme') === 'dark';
+                if (isDark) {
+                    document.body.removeAttribute('data-theme');
+                    themeToggle.innerHTML = '<i class="fas fa-moon"></i><span></span>';
+                } else {
+                    document.body.setAttribute('data-theme', 'dark');
+                    themeToggle.innerHTML = '<i class="fas fa-sun"></i><span></span>';
+                }
+            }
+
+            // Render business segments
+            function renderBusinessSegments() {
+                businessSegmentsContainer.innerHTML = '';
+                
+                businessSegments.forEach(segment => {
+                    const segmentCard = document.createElement('div');
+                    segmentCard.className = 'segment-card';
+                    segmentCard.innerHTML = `
+                        <div class="segment-icon">
+                            <i class="fas fa-${segment.icon}"></i>
+                        </div>
+                        <div>${segment.name}</div>
+                    `;
+                    
+                    segmentCard.addEventListener('click', () => {
+                        document.querySelectorAll('.segment-card').forEach(card => {
+                            card.classList.remove('selected');
+                        });
+                        segmentCard.classList.add('selected');
+                        selectedSegment = segment.name;
+                        newSegmentInput.value = '';
+                    });
+                    
+                    businessSegmentsContainer.appendChild(segmentCard);
+                });
+            }
+
+            // Add custom segment
+            function addCustomSegment() {
+                const segmentName = newSegmentInput.value.trim();
+                if (segmentName) {
+                    // Clear any selected segment
+                    document.querySelectorAll('.segment-card').forEach(card => {
+                        card.classList.remove('selected');
+                    });
+                    
+                    selectedSegment = segmentName;
+                    newSegmentInput.value = '';
+                }
+            }
+
+            // Set up rating scales
+            function setupRatingScales() {
+                // Get all rating scales
+                const ratingScales = document.querySelectorAll('.rating-scale');
+                
+                ratingScales.forEach(scale => {
+                    const points = scale.querySelectorAll('.rating-point');
+                    const scaleId = scale.id;
+                    
+                    points.forEach(point => {
+                        point.addEventListener('click', () => {
+                            // Remove active class from all points in this scale
+                            points.forEach(p => p.classList.remove('active'));
+                            
+                            // Add active class to clicked point
+                            point.classList.add('active');
+                            
+                            // Update rating value
+                            ratings[scaleId] = parseInt(point.getAttribute('data-value'));
+                        });
+                    });
+                });
+            }
+
+            // Set up navigation
+            function setupNavigation() {
+                // Next buttons
+                nextButtons.forEach((button, index) => {
+                    button.addEventListener('click', () => {
+                        if (validateStep(index + 1)) {
+                            goToStep(index + 2);
+                        }
+                    });
+                });
+                
+                // Previous buttons
+                prevButtons.forEach((button, index) => {
+                    button.addEventListener('click', () => {
+                        goToStep(index + 1);
+                    });
+                });
+                
+                // Generate results button
+                generateResultsBtn.addEventListener('click', () => {
+                    if (validateStep(5)) {
+                        generateResults();
+                    }
+                });
+                
+                // Start new analysis button
+                startNewBtn.addEventListener('click', () => {
+                    if (confirm('Tem certeza que deseja iniciar uma nova análise? Todos os dados atuais serão perdidos.')) {
+                        resetForm();
+                        goToStep(1);
+                    }
+                });
+            }
+
+            // Validate current step
+            function validateStep(step) {
+                switch (step) {
+                    case 1:
+                        if (!startupNameInput.value.trim()) {
+                            alert('Por favor, informe o nome da startup');
+                            return false;
+                        }
+                        if (!founderNameInput.value.trim()) {
+                            alert('Por favor, informe o nome do fundador');
+                            return false;
+                        }
+                        if (!companyTypeInput.value) {
+                            alert('Por favor, selecione o tipo de empresa');
+                            return false;
+                        }
+                        if (!startupAgeInput.value) {
+                            alert('Por favor, selecione o tempo de operação');
+                            return false;
+                        }
+                        if (!selectedSegment) {
+                            alert('Por favor, selecione ou adicione um segmento de negócio');
+                            return false;
+                        }
+                        return true;
+                        
+                    case 2:
+                        if (ratings.marketSize === 0 || ratings.marketGrowth === 0 || 
+                            ratings.competition === 0 || ratings.differentiation === 0) {
+                            alert('Por favor, avalie todos os critérios de mercado');
+                            return false;
+                        }
+                        return true;
+                        
+                    case 3:
+                        if (ratings.techInnovation === 0 || ratings.techMaturity === 0 || 
+                            ratings.entryBarriers === 0 || ratings.scalability === 0) {
+                            alert('Por favor, avalie todos os critérios tecnológicos');
+                            return false;
+                        }
+                        return true;
+                        
+                    case 4:
+                        // Financials are optional, but we should at least check if they're numbers
+                        financials.revenue = parseInt(document.getElementById('revenue').value) || 0;
+                        financials.employees = parseInt(document.getElementById('employees').value) || 0;
+                        financials.investment = parseInt(document.getElementById('investment').value) || 0;
+                        financials.runway = parseInt(document.getElementById('runway').value) || 0;
+                        
+                        if (ratings.investmentNeed === 0) {
+                            alert('Por favor, avalie a necessidade de investimento');
+                            return false;
+                        }
+                        return true;
+                        
+                    case 5:
+                        if (ratings.teamExperience === 0 || ratings.teamComplementarity === 0 || 
+                            ratings.executionAbility === 0 || ratings.network === 0) {
+                            alert('Por favor, avalie todos os critérios da equipe');
+                            return false;
+                        }
+                        return true;
+                        
+                    default:
+                        return true;
+                }
+            }
+
+            // Go to specific step
+            function goToStep(step) {
+                // Hide all steps
+                steps.forEach(s => s.classList.remove('active'));
+                
+                // Show current step
+                document.getElementById(`step${step}`).classList.add('active');
+                
+                // Update progress bar
+                const progressPercentage = ((step - 1) / (steps.length - 1)) * 100;
+                progressBar.style.width = `${progressPercentage}%`;
+                progressText.textContent = `${step}/${steps.length - 1}`;
+                
+                // Update current step
+                currentStep = step;
+            }
+
+            // Set up form inputs
+            function setupFormInputs() {
+                // Add segment button
+                addSegmentBtn.addEventListener('click', addCustomSegment);
+                newSegmentInput.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') {
+                        addCustomSegment();
+                    }
+                });
+            }
+
+            // Set up export buttons
+            function setupExportButtons() {
+                // Export pitch deck button
+                exportPitchDeckBtn.addEventListener('click', () => {
+                    exportModal.style.display = 'block';
+                    modalMessage.textContent = 'Selecione o que deseja exportar:';
+                    exportOptions.style.display = 'flex';
+                    exportSuccess.style.display = 'none';
+                });
+                
+                // Export canvas button
+                exportCanvasBtn.addEventListener('click', () => {
+                    exportModal.style.display = 'block';
+                    modalMessage.textContent = 'Selecione o que deseja exportar:';
+                    exportOptions.style.display = 'flex';
+                    exportSuccess.style.display = 'none';
+                });
+                
+                // Export charts button
+                exportChartsBtn.addEventListener('click', exportCharts);
+                
+                // Save data button
+                saveDataBtn.addEventListener('click', saveData);
+                
+                // Close modal
+                closeModal.addEventListener('click', () => {
+                    exportModal.style.display = 'none';
+                });
+                
+                // Modal export options
+                exportBothBtn.addEventListener('click', () => {
+                    prepareExport(true, true);
+                });
+                
+                exportPitchOnlyBtn.addEventListener('click', () => {
+                    prepareExport(true, false);
+                });
+                
+                exportCanvasOnlyBtn.addEventListener('click', () => {
+                    prepareExport(false, true);
+                });
+                
+                // Download PDF button
+                downloadPdfBtn.addEventListener('click', downloadPdf);
+                
+                // Individual chart export buttons
+                exportRadarBtn.addEventListener('click', () => exportChart('radarChart', 'radar-chart.png'));
+                exportRevenueBtn.addEventListener('click', () => exportChart('revenueChart', 'revenue-chart.png'));
+                exportValuationBtn.addEventListener('click', () => exportChart('valuationChart', 'valuation-chart.png'));
+                exportJobsBtn.addEventListener('click', () => exportChart('jobsChart', 'jobs-chart.png'));
+                exportForecastBtn.addEventListener('click', () => exportChart('forecastChart', 'forecast-chart.png'));
+                exportInvestmentBtn.addEventListener('click', () => exportChart('investmentChart', 'investment-chart.png'));
+            }
+
+            // Set up canvas editor
+            function setupCanvasEditor() {
+                editCanvasBtn.addEventListener('click', () => {
+                    businessCanvas.querySelectorAll('.canvas-item-content').forEach(item => {
+                        const text = item.textContent.trim();
+                        item.innerHTML = `<textarea class="form-control">${text}</textarea>`;
+                    });
+                    canvasEditor.style.display = 'block';
+                });
+                
+                saveCanvasBtn.addEventListener('click', () => {
+                    businessCanvas.querySelectorAll('textarea').forEach(textarea => {
+                        const content = textarea.value.trim();
+                        textarea.parentElement.innerHTML = content || textarea.placeholder;
+                    });
+                    canvasEditor.style.display = 'none';
+                });
+                
+                cancelCanvasBtn.addEventListener('click', () => {
+                    businessCanvas.querySelectorAll('textarea').forEach(textarea => {
+                        textarea.parentElement.innerHTML = textarea.value.trim() || textarea.placeholder;
+                    });
+                    canvasEditor.style.display = 'none';
+                });
+            }
+
+            // Generate results
+            function generateResults() {
+                // Show loading spinner
+                resultsContainer.style.display = 'none';
+                document.querySelector('.spinner').style.display = 'block';
+                
+                // Simulate processing delay
+                setTimeout(() => {
+                    // Update profile information
+                    updateProfileInfo();
+                    
+                    // Calculate scores and classifications
+                    calculateScores();
+                    
+                    // Generate charts
+                    generateCharts();
+                    
+                    // Generate investor recommendation
+                    generateInvestorRecommendation();
+                    
+                    // Generate investment guide
+                    generateInvestmentGuide();
+                    
+                    // Generate storytelling
+                    generateStorytelling();
+                    
+                    // Generate business canvas
+                    generateBusinessCanvas();
+                    
+                    // Generate timeline
+                    generateTimeline();
+                    
+                    // Prepare pitch deck
+                    preparePitchDeck();
+                    
+                    // Hide spinner and show results
+                    document.querySelector('.spinner').style.display = 'none';
+                    resultsContainer.style.display = 'block';
+                    
+                    // Go to results (step 6)
+                    goToStep(6);
+                }, 1500);
+            }
+
+            // Update profile information
+            function updateProfileInfo() {
+                const startupName = startupNameInput.value.trim();
+                const founderName = founderNameInput.value.trim();
+                const companyType = companyTypes[companyTypeInput.value] || companyTypeInput.value;
+                const startupAge = startupAgeInput.options[startupAgeInput.selectedIndex].text;
+                
+                // Set display values
+                startupNameDisplay.textContent = startupName;
+                founderNameDisplay.textContent = founderName;
+                businessSegmentDisplay.textContent = selectedSegment;
+                companyTypeDisplay.textContent = companyType;
+                startupAgeDisplay.textContent = startupAge;
+                
+                // Set avatar with first letter of startup name
+                startupAvatar.textContent = startupName.charAt(0).toUpperCase();
+                
+                // Set pitch deck title and date
+                pitchDeckTitle.textContent = startupName;
+                pitchDeckDate.textContent = new Date().toLocaleDateString('pt-BR');
+            }
+
+            // Calculate scores and classifications
+            function calculateScores() {
+                // Calculate average scores for each category
+                const marketScore = (ratings.marketSize + ratings.marketGrowth + ratings.competition + ratings.differentiation) / 4;
+                const techScore = (ratings.techInnovation + ratings.techMaturity + ratings.entryBarriers + ratings.scalability) / 4;
+                const teamScore = (ratings.teamExperience + ratings.teamComplementarity + ratings.executionAbility + ratings.network) / 4;
+                const financialScore = financials.revenue > 0 ? 
+                    (financials.revenue / 1000000 + financials.employees / 10 + financials.runway / 6) / 3 : 
+                    (financials.employees / 5 + financials.runway / 3) / 2;
+                
+                // Calculate overall scores
+                const stageScore = calculateStageScore();
+                const growthScore = ratings.marketGrowth;
+                const potentialScore = (marketScore + techScore + teamScore) / 3;
+                const riskScore = 5 - (financialScore + teamScore) / 2;
+                const scalabilityScore = ratings.scalability;
+                
+                // Set classification badges
+                setClassificationBadge(stageBadge, 'stage', stageScore);
+                setClassificationBadge(growthBadge, 'growth', growthScore);
+                setClassificationBadge(potentialBadge, 'potential', potentialScore);
+                setClassificationBadge(riskBadge, 'risk', riskScore);
+                setClassificationBadge(scalabilityBadge, 'scalability', scalabilityScore);
+                
+                // Set financial metrics
+                revenueValue.textContent = `R$ ${financials.revenue.toLocaleString('pt-BR')}`;
+                valuationValue.textContent = `R$ ${calculateValuation().toLocaleString('pt-BR')}`;
+                jobsValue.textContent = financials.employees;
+                runwayValue.textContent = `${financials.runway} meses`;
+                
+                // Set comparisons
+                setComparisons();
+            }
+
+            // Calculate stage score based on startup age and metrics
+            function calculateStageScore() {
+                const age = startupAgeInput.value;
+                const hasRevenue = financials.revenue > 0;
+                const hasEmployees = financials.employees > 0;
+                
+                switch (age) {
+                    case 'idea': return 1;
+                    case '0-6': return hasRevenue ? 2.5 : 1.5;
+                    case '6-12': return hasRevenue ? 3 : 2;
+                    case '1-2': return hasRevenue ? 3.5 : 2.5;
+                    case '2-5': return hasRevenue ? 4 : 3.5;
+                    case '5+': return 4.5;
+                    default: return 2;
+                }
+            }
+
+            // Calculate valuation based on financials and scores
+            function calculateValuation() {
+                const baseValuation = financials.revenue > 0 ? 
+                    financials.revenue * (5 + ratings.marketGrowth) : 
+                    1000000 + (financials.investment * 2);
+                
+                // Adjust based on other factors
+                const growthFactor = 1 + (ratings.marketGrowth - 1) * 0.2;
+                const techFactor = 1 + (ratings.techInnovation - 1) * 0.15;
+                const teamFactor = 1 + (ratings.teamExperience - 1) * 0.1;
+                
+                return Math.round(baseValuation * growthFactor * techFactor * teamFactor);
+            }
+
+            // Set classification badge
+            function setClassificationBadge(badgeElement, type, score) {
+                const classification = startupClassifications[type];
+                let selectedCategory = null;
+                
+                for (const [category, range] of Object.entries(classification)) {
+                    if (score >= range.min && score <= range.max) {
+                        selectedCategory = category;
+                        badgeElement.className = `classification-badge ${range.badge}`;
+                        break;
+                    }
+                }
+                
+                if (selectedCategory) {
+                    badgeElement.textContent = `${type === 'stage' ? 'Estágio' : 
+                                            type === 'growth' ? 'Crescimento' : 
+                                            type === 'potential' ? 'Potencial' : 
+                                            type === 'risk' ? 'Risco' : 
+                                            'Escalabilidade'}: ${selectedCategory}`;
+                }
+            }
+
+            // Set comparisons with regional data
+            function setComparisons() {
+                const valuation = calculateValuation();
+                const comparisons = [];
+                
+                for (const [region, data] of Object.entries(comparisonData)) {
+                    const revenueDiff = financials.revenue - ((data.revenue.min + data.revenue.max) / 2);
+                    const valuationDiff = valuation - ((data.valuation.min + data.valuation.max) / 2);
+                    const employeesDiff = financials.employees - ((data.employees.min + data.employees.max) / 2);
+                    const runwayDiff = financials.runway - ((data.runway.min + data.runway.max) / 2);
+                    
+                    const score = Math.abs(revenueDiff) + Math.abs(valuationDiff) + 
+                                Math.abs(employeesDiff) + Math.abs(runwayDiff);
+                    
+                    comparisons.push({ region, score });
+                }
+                
+                // Sort by closest match
+                comparisons.sort((a, b) => a.score - b.score);
+                const closestRegion = comparisons[0].region;
+                const regionData = comparisonData[closestRegion];
+                
+                // Set comparison texts
+                revenueComparison.textContent = formatComparison(
+                    financials.revenue, 
+                    (regionData.revenue.min + regionData.revenue.max) / 2, 
+                    closestRegion
+                );
+                
+                valuationComparison.textContent = formatComparison(
+                    calculateValuation(), 
+                    (regionData.valuation.min + regionData.valuation.max) / 2, 
+                    closestRegion
+                );
+                
+                jobsComparison.textContent = formatComparison(
+                    financials.employees, 
+                    (regionData.employees.min + regionData.employees.max) / 2, 
+                    closestRegion
+                );
+                
+                runwayComparison.textContent = formatComparison(
+                    financials.runway, 
+                    (regionData.runway.min + regionData.runway.max) / 2, 
+                    closestRegion,
+                    true
+                );
+            }
+
+            // Format comparison text
+            function formatComparison(value, average, region, isRunway = false) {
+                const diff = value - average;
+                const absDiff = Math.abs(diff);
+                const percentage = Math.round((absDiff / average) * 100);
+                
+                if (diff === 0) {
+                    return `igual à média de ${region}`;
+                } else if (diff > 0) {
+                    return `${isRunway ? 'maior' : 'acima'} ${percentage}% que a média de ${region}`;
+                } else {
+                    return `${isRunway ? 'menor' : 'abaixo'} ${percentage}% que a média de ${region}`;
+                }
+            }
+
+            // Generate charts
+            function generateCharts() {
+                // Radar chart
+                const radarCtx = document.getElementById('radarChart').getContext('2d');
+                new Chart(radarCtx, {
+                    type: 'radar',
+                    data: {
+                        labels: ['Mercado', 'Tecnologia', 'Equipe', 'Financeiro', 'Escalabilidade'],
+                        datasets: [{
+                            label: 'Pontuação',
+                            data: [
+                                (ratings.marketSize + ratings.marketGrowth + ratings.competition + ratings.differentiation) / 4,
+                                (ratings.techInnovation + ratings.techMaturity + ratings.entryBarriers + ratings.scalability) / 4,
+                                (ratings.teamExperience + ratings.teamComplementarity + ratings.executionAbility + ratings.network) / 4,
+                                financials.revenue > 0 ? Math.min(5, financials.revenue / 2000000) : 1,
+                                ratings.scalability
+                            ],
+                            backgroundColor: 'rgba(30, 136, 229, 0.2)',
+                            borderColor: 'rgba(30, 136, 229, 1)',
+                            borderWidth: 2,
+                            pointBackgroundColor: 'rgba(30, 136, 229, 1)'
+                        }]
+                    },
+                    options: {
+                        scales: {
+                            r: {
+                                angleLines: {
+                                    display: true
+                                },
+                                suggestedMin: 0,
+                                suggestedMax: 5
+                            }
+                        }
+                    }
+                });
+                
+                // Revenue chart
+                const revenueCtx = document.getElementById('revenueChart').getContext('2d');
+                new Chart(revenueCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: ['Sua Startup', 'Média Regional', 'Média Nacional', 'Média Global'],
+                        datasets: [{
+                            label: 'Faturamento Anual (R$)',
+                            data: [
+                                financials.revenue,
+                                1500000,
+                                3000000,
+                                10000000
+                            ],
+                            backgroundColor: [
+                                'rgba(30, 136, 229, 0.7)',
+                                'rgba(158, 158, 158, 0.7)',
+                                'rgba(158, 158, 158, 0.7)',
+                                'rgba(158, 158, 158, 0.7)'
+                            ]
+                        }]
+                    },
+                    options: {
+                        scales: {
+                            y: {
+                                beginAtZero: true
+                            }
+                        }
+                    }
+                });
+                
+                // Valuation chart
+                const valuationCtx = document.getElementById('valuationChart').getContext('2d');
+                new Chart(valuationCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: ['Sua Startup', 'Média Regional', 'Média Nacional', 'Média Global'],
+                        datasets: [{
+                            label: 'Valuation Estimado (R$)',
+                            data: [
+                                calculateValuation(),
+                                10000000,
+                                15000000,
+                                50000000
+                            ],
+                            backgroundColor: [
+                                'rgba(76, 175, 80, 0.7)',
+                                'rgba(158, 158, 158, 0.7)',
+                                'rgba(158, 158, 158, 0.7)',
+                                'rgba(158, 158, 158, 0.7)'
+                            ]
+                        }]
+                    },
+                    options: {
+                        scales: {
+                            y: {
+                                beginAtZero: true
+                            }
+                        }
+                    }
+                });
+                
+                // Jobs chart
+                const jobsCtx = document.getElementById('jobsChart').getContext('2d');
+                new Chart(jobsCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: ['Sua Startup', 'Média Regional', 'Média Nacional', 'Média Global'],
+                        datasets: [{
+                            label: 'Empregos Gerados',
+                            data: [
+                                financials.employees,
+                                10,
+                                20,
+                                40
+                            ],
+                            backgroundColor: [
+                                'rgba(255, 152, 0, 0.7)',
+                                'rgba(158, 158, 158, 0.7)',
+                                'rgba(158, 158, 158, 0.7)',
+                                'rgba(158, 158, 158, 0.7)'
+                            ]
+                        }]
+                    },
+                    options: {
+                        scales: {
+                            y: {
+                                beginAtZero: true
+                            }
+                        }
+                    }
+                });
+                
+                // Forecast chart
+                const forecastCtx = document.getElementById('forecastChart').getContext('2d');
+                new Chart(forecastCtx, {
+                    type: 'line',
+                    data: {
+                        labels: ['Ano 1', 'Ano 2', 'Ano 3', 'Ano 4', 'Ano 5'],
+                        datasets: [
+                            {
+                                label: 'Faturamento (R$)',
+                                data: [
+                                    financials.revenue,
+                                    financials.revenue * (1 + ratings.marketGrowth * 0.2),
+                                    financials.revenue * Math.pow(1 + ratings.marketGrowth * 0.2, 2),
+                                    financials.revenue * Math.pow(1 + ratings.marketGrowth * 0.2, 3),
+                                    financials.revenue * Math.pow(1 + ratings.marketGrowth * 0.2, 4)
+                                ],
+                                borderColor: 'rgba(30, 136, 229, 1)',
+                                backgroundColor: 'rgba(30, 136, 229, 0.1)',
+                                borderWidth: 2,
+                                fill: true
+                            },
+                            {
+                                label: 'Ponto de Equilíbrio',
+                                data: [
+                                    financials.revenue * 1.5,
+                                    financials.revenue * 1.2,
+                                    financials.revenue * 0.9,
+                                    financials.revenue * 0.6,
+                                    financials.revenue * 0.3
+                                ],
+                                borderColor: 'rgba(244, 67, 54, 1)',
+                                backgroundColor: 'rgba(244, 67, 54, 0.1)',
+                                borderWidth: 2,
+                                borderDash: [5, 5],
+                                fill: false
+                            }
+                        ]
+                    },
+                    options: {
+                        scales: {
+                            y: {
+                                beginAtZero: true
+                            }
+                        }
+                    }
+                });
+                
+                // Investment need chart
+                const investmentCtx = document.getElementById('investmentChart').getContext('2d');
+                new Chart(investmentCtx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['Anjo', 'Pré-Seed', 'Seed', 'Série A', 'Série B+'],
+                        datasets: [{
+                            data: [500000, 2000000, 5000000, 15000000, 30000000],
+                            backgroundColor: [
+                                'rgba(30, 136, 229, 0.7)',
+                                'rgba(76, 175, 80, 0.7)',
+                                'rgba(255, 152, 0, 0.7)',
+                                'rgba(156, 39, 176, 0.7)',
+                                'rgba(244, 67, 54, 0.7)'
+                            ],
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        cutout: '70%',
+                        plugins: {
+                            legend: {
+                                position: 'right'
+                            }
+                        }
+                    }
+                });
+            }
+
+            // Generate investor recommendation
+            function generateInvestorRecommendation() {
+                const valuation = calculateValuation();
+                let recommendedInvestor = null;
+                
+                // Find the best matching investor type
+                for (const investor of investorTypes) {
+                    if ((financials.revenue >= investor.minRevenue && financials.revenue <= investor.maxRevenue) ||
+                        (financials.employees >= investor.minEmployees && financials.employees <= investor.maxEmployees) ||
+                        (valuation >= investor.minValuation && valuation <= investor.maxValuation)) {
+                        recommendedInvestor = investor;
+                        break;
+                    }
+                }
+                
+                // If no match found, use the first one as default
+                if (!recommendedInvestor) {
+                    recommendedInvestor = investorTypes[0];
+                }
+                
+                // Update investor recommendation
+                investorType.textContent = recommendedInvestor.name;
+                investorDescription.textContent = recommendedInvestor.description;
+                
+                // Clear previous criteria
+                investorCriteria.innerHTML = '';
+                
+                // Add new criteria
+                recommendedInvestor.criteria.forEach(criterion => {
+                    const li = document.createElement('li');
+                    li.textContent = criterion;
+                    investorCriteria.appendChild(li);
+                });
+                
+                // Update investor badge
+                investorBadge.className = `classification-badge ${recommendedInvestor.name === 'Anjo' ? 'badge-blue' : 
+                                        recommendedInvestor.name === 'Pré-Seed' ? 'badge-green' : 
+                                        recommendedInvestor.name === 'Seed' ? 'badge-orange' : 
+                                        recommendedInvestor.name === 'Série A' ? 'badge-purple' : 'badge-red'}`;
+                investorBadge.textContent = `Investidor: ${recommendedInvestor.name}`;
+                
+                // Update investment comparison table
+                updateInvestmentComparison(recommendedInvestor);
+            }
+
+            // Update investment comparison table
+            function updateInvestmentComparison(recommendedInvestor) {
+                // Clear previous content
+                investmentComparisonBody.innerHTML = '';
+                
+                // Add rows for each investor type
+                investorTypes.forEach(investor => {
+                    const row = document.createElement('tr');
+                    
+                    // Highlight the recommended investor
+                    if (investor.name === recommendedInvestor.name) {
+                        row.classList.add('highlight');
+                    }
+                    
+                    row.innerHTML = `
+                        <td>${investor.name}</td>
+                        <td>${investor.ticket}</td>
+                        <td>${investor.stage}</td>
+                        <td>${investor.roi}</td>
+                    `;
+                    
+                    investmentComparisonBody.appendChild(row);
+                });
+            }
+
+            // Generate investment guide
+            function generateInvestmentGuide() {
+                // Clear previous steps
+                investmentGuideSteps.innerHTML = '';
+                
+                // Add steps based on startup stage and investor type
+                const steps = [
+                    "Prepare seu pitch deck com os dados desta análise",
+                    "Documente seu modelo de negócios e projeções financeiras",
+                    "Estruture juridicamente sua empresa (se ainda não feito)",
+                    "Identifique investidores que atuam no seu estágio e segmento",
+                    "Participe de eventos e programas de aceleração para networking",
+                    "Faça warm introductions através de sua rede de contatos",
+                    "Negocie termos justos que alinhem interesses de todas as partes",
+                    "Mantenha transparência e comunicação constante com investidores"
+                ];
+                
+                // Add steps to the list
+                steps.forEach((step, index) => {
+                    const li = document.createElement('li');
+                    li.textContent = step;
+                    investmentGuideSteps.appendChild(li);
+                });
+            }
+
+            // Generate storytelling
+            function generateStorytelling() {
+                // Get problem/solution template based on segment or use default
+                const template = problemSolutionTemplates[selectedSegment] || problemSolutionTemplates.default;
+                
+                // Generate storytelling content
+                const content = `
+                    <p>Em um mercado onde ${template.problems[0]}, ${startupNameInput.value.trim()} surge para ${template.solutions[0]}.</p>
+                    
+                    <p>Enquanto soluções tradicionais ${template.problems[2]}, nossa abordagem ${template.solutions[2]}, 
+                    proporcionando ${template.solutions[3]}.</p>
+                    
+                    <p>Com um time ${getTeamDescription()}, estamos ${getGrowthDescription()} para capturar uma fatia significativa 
+                    de um mercado que ${getMarketDescription()}.</p>
+                    
+                    <p>O investimento será utilizado para ${getInvestmentUseDescription()}, alavancando nosso ${getCompetitiveAdvantage()} 
+                    para alcançar ${getGrowthTargets()} nos próximos anos.</p>
+                `;
+                
+                // Update storytelling content
+                storytellingContent.innerHTML = content;
+            }
+
+            // Helper functions for storytelling generation
+            function getTeamDescription() {
+                const experience = ratings.teamExperience >= 4 ? "altamente experiente" : 
+                                ratings.teamExperience >= 2.5 ? "com experiência relevante" : "em formação";
+                const complementarity = ratings.teamComplementarity >= 4 ? "habilidades complementares" : 
+                                    "habilidades diversas";
+                return `${experience} e ${complementarity}`;
+            }
+
+            function getGrowthDescription() {
+                const growth = ratings.marketGrowth >= 4 ? "posicionados para crescimento explosivo" : 
+                            ratings.marketGrowth >= 2.5 ? "bem posicionados para crescimento acelerado" : 
+                            "crescendo de forma consistente";
+                return growth;
+            }
+
+            function getMarketDescription() {
+                const size = ratings.marketSize >= 4 ? "um mercado global" : 
+                            ratings.marketSize >= 2.5 ? "um mercado nacional significativo" : 
+                            "um mercado regional promissor";
+                const growth = ratings.marketGrowth >= 4 ? "crescendo rapidamente" : 
+                            ratings.marketGrowth >= 2.5 ? "em crescimento consistente" : 
+                            "com crescimento estável";
+                return `${size} ${growth}`;
+            }
+
+            function getInvestmentUseDescription() {
+                const need = ratings.investmentNeed >= 4 ? "acelerar nossa expansão e dominar o mercado" : 
+                            ratings.investmentNeed >= 2.5 ? "expandir nossas operações e aumentar nossa base de clientes" : 
+                            "aperfeiçoar nosso produto e processos";
+                return need;
+            }
+
+            function getCompetitiveAdvantage() {
+                const diff = ratings.differentiation >= 4 ? "diferencial único" : 
+                            ratings.differentiation >= 2.5 ? "vantagem competitiva clara" : 
+                            "proposta de valor distinta";
+                return diff;
+            }
+
+            function getGrowthTargets() {
+                const targets = ratings.marketGrowth >= 4 ? "crescimento superior a 30% ao ano" : 
+                                ratings.marketGrowth >= 2.5 ? "crescimento de 20-30% ao ano" : 
+                                "crescimento consistente de 10-20% ao ano";
+                return targets;
+            }
+
+            // Generate business canvas
+            function generateBusinessCanvas() {
+                // Clear previous canvas
+                businessCanvas.innerHTML = '';
+                
+                // Get template based on segment or use default
+                const template = canvasTemplates[selectedSegment] || canvasTemplates.default;
+                
+                // Add canvas items
+                template.forEach(item => {
+                    const canvasItem = document.createElement('div');
+                    canvasItem.className = 'canvas-item';
+                    canvasItem.innerHTML = `
+                        <div class="canvas-item-title">
+                            <i class="fas fa-${getCanvasIcon(item.title)}"></i>
+                            ${item.title}
+                        </div>
+                        <div class="canvas-item-content">${item.content}</div>
+                    `;
+                    businessCanvas.appendChild(canvasItem);
+                });
+            }
+
+            // Get icon for canvas item based on title
+            function getCanvasIcon(title) {
+                if (title.includes('Proposta')) return 'lightbulb';
+                if (title.includes('Segmentos')) return 'users';
+                if (title.includes('Canais')) return 'route';
+                if (title.includes('Relacionamento')) return 'handshake';
+                if (title.includes('Receita')) return 'money-bill-wave';
+                if (title.includes('Recursos')) return 'box-open';
+                if (title.includes('Atividades')) return 'tasks';
+                if (title.includes('Parcerias')) return 'link';
+                if (title.includes('Custos')) return 'calculator';
+                return 'sticky-note';
+            }
+
+            // Generate timeline
+            function generateTimeline() {
+                // Clear previous timeline
+                timeline.innerHTML = '';
+                
+                // Get template based on startup age
+                const age = startupAgeInput.value;
+                const template = timelineTemplates[age] || timelineTemplates['idea'];
+                
+                // Add timeline items
+                template.forEach((item, index) => {
+                    const timelineItem = document.createElement('div');
+                    timelineItem.className = `timeline-item ${index % 2 === 0 ? 'left' : 'right'}`;
+                    timelineItem.innerHTML = `
+                        <div class="timeline-content">
+                            <div class="timeline-date">${item.date}</div>
+                            <div class="timeline-title">${item.title}</div>
+                            <div class="timeline-desc">${item.description}</div>
+                        </div>
+                    `;
+                    timeline.appendChild(timelineItem);
+                });
+            }
+
+            // Prepare pitch deck
+            function preparePitchDeck() {
+                // Problem slide
+                problemList.innerHTML = '';
+                const problemTemplate = problemSolutionTemplates[selectedSegment] || problemSolutionTemplates.default;
+                problemTemplate.problems.forEach(problem => {
+                    const li = document.createElement('li');
+                    li.textContent = problem;
+                    problemList.appendChild(li);
+                });
+                
+                // Solution slide
+                solutionList.innerHTML = '';
+                const solutionTemplate = problemSolutionTemplates[selectedSegment] || problemSolutionTemplates.default;
+                solutionTemplate.solutions.forEach(solution => {
+                    const li = document.createElement('li');
+                    li.textContent = solution;
+                    solutionList.appendChild(li);
+                });
+                
+                // Market slide
+                marketSizeText.textContent = getRatingDescription(ratings.marketSize, [
+                    "muito pequeno (local)",
+                    "pequeno (regional)",
+                    "médio (nacional)",
+                    "grande (continental)",
+                    "global"
+                ]);
+                
+                marketGrowthText.textContent = getRatingDescription(ratings.marketGrowth, [
+                    "inferior a 5% ao ano",
+                    "5-10% ao ano",
+                    "10-20% ao ano",
+                    "20-30% ao ano",
+                    "acima de 30% ao ano"
+                ]);
+                
+                differentiationText.textContent = getRatingDescription(ratings.differentiation, [
+                    "pouca ou nenhuma diferenciação",
+                    "algumas características diferentes",
+                    "produto/serviço claramente diferenciado",
+                    "diferenciação significativa e valiosa",
+                    "diferenciação única e difícil de replicar"
+                ]);
+                
+                entryBarriersText.textContent = getRatingDescription(ratings.entryBarriers, [
+                    "nenhuma barreira significativa",
+                    "algumas barreiras operacionais",
+                    "barreiras técnicas moderadas",
+                    "barreiras técnicas e regulatórias significativas",
+                    "barreiras técnicas, regulatórias e de capital muito altas"
+                ]);
+                
+                // Traction slide
+                revenueText.textContent = financials.revenue > 0 ? 
+                    `R$ ${financials.revenue.toLocaleString('pt-BR')}` : "Pré-receita";
+                employeesText.textContent = financials.employees;
+                runwayText.textContent = `${financials.runway} meses`;
+                valuationText.textContent = `R$ ${calculateValuation().toLocaleString('pt-BR')}`;
+                investmentText.textContent = financials.investment > 0 ? 
+                    `R$ ${financials.investment.toLocaleString('pt-BR')}` : "Nenhum investimento captado";
+                
+                // Team slide
+                teamExperienceText.textContent = getRatingDescription(ratings.teamExperience, [
+                    "time sem experiência relevante",
+                    "alguma experiência em áreas relacionadas",
+                    "experiência sólida no setor",
+                    "time experiente com histórico de sucesso",
+                    "executivos experientes com exit comprovado"
+                ]);
+                
+                executionText.textContent = getRatingDescription(ratings.executionAbility, [
+                    "dificuldade em cumprir prazos e metas",
+                    "execução irregular com atrasos frequentes",
+                    "boa execução na maioria das iniciativas",
+                    "execução consistente e acima da média",
+                    "excelência em execução com entregas antecipadas"
+                ]);
+                
+                networkText.textContent = getRatingDescription(ratings.network, [
+                    "poucos contatos relevantes",
+                    "alguns contatos no setor",
+                    "boa rede de contatos profissionais",
+                    "rede extensa com influenciadores",
+                    "acesso a tomadores de decisão e investidores"
+                ]);
+                
+                complementarityText.textContent = getRatingDescription(ratings.teamComplementarity, [
+                    "habilidades concentradas em uma área",
+                    "algumas habilidades complementares",
+                    "bom equilíbrio entre habilidades",
+                    "time completo com poucas lacunas",
+                    "time completo cobrindo todas as áreas essenciais"
+                ]);
+                
+                // Technology slide
+                innovationText.textContent = getRatingDescription(ratings.techInnovation, [
+                    "melhoria incremental em produto existente",
+                    "novo recurso para produto existente",
+                    "novo produto usando tecnologia conhecida",
+                    "avanço significativo em tecnologia existente",
+                    "tecnologia completamente nova/disruptiva"
+                ]);
+                
+                maturityText.textContent = getRatingDescription(ratings.techMaturity, [
+                    "apenas conceito/ideia",
+                    "protótipo não funcional",
+                    "MVP em desenvolvimento",
+                    "produto funcional com usuários iniciais",
+                    "tecnologia comprovada em escala"
+                ]);
+                
+                scalabilityText.textContent = getRatingDescription(ratings.scalability, [
+                    "crescimento limitado por recursos físicos",
+                    "parcialmente escalável com investimento",
+                    "escalável regionalmente com infraestrutura",
+                    "altamente escalável nacionalmente",
+                    "escalabilidade global sem restrições"
+                ]);
+                
+                // Investment slide
+                investorTypeText.textContent = investorType.textContent;
+                stageText.textContent = stageBadge.textContent.replace('Estágio: ', '');
+                potentialText.textContent = potentialBadge.textContent.replace('Potencial: ', '');
+                riskText.textContent = riskBadge.textContent.replace('Risco: ', '');
+                neededInvestmentText.textContent = getInvestmentNeededText();
+                
+                // Roadmap slide
+                roadmapList.innerHTML = '';
+                const age = startupAgeInput.value;
+                const roadmapTemplate = timelineTemplates[age] || timelineTemplates['idea'];
+                roadmapTemplate.forEach(item => {
+                    const li = document.createElement('li');
+                    li.textContent = `${item.title}: ${item.description}`;
+                    roadmapList.appendChild(li);
+                });
+                
+                // Financials slide
+                const forecastCtx = document.getElementById('pitchForecastChart').getContext('2d');
+                new Chart(forecastCtx, {
+                    type: 'line',
+                    data: {
+                        labels: ['Ano 1', 'Ano 2', 'Ano 3', 'Ano 4', 'Ano 5'],
+                        datasets: [
+                            {
+                                label: 'Faturamento (R$)',
+                                data: [
+                                    financials.revenue,
+                                    financials.revenue * (1 + ratings.marketGrowth * 0.2),
+                                    financials.revenue * Math.pow(1 + ratings.marketGrowth * 0.2, 2),
+                                    financials.revenue * Math.pow(1 + ratings.marketGrowth * 0.2, 3),
+                                    financials.revenue * Math.pow(1 + ratings.marketGrowth * 0.2, 4)
+                                ],
+                                borderColor: 'rgba(30, 136, 229, 1)',
+                                backgroundColor: 'rgba(30, 136, 229, 0.1)',
+                                borderWidth: 2,
+                                fill: true
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            y: {
+                                beginAtZero: true
+                            }
+                        }
+                    }
+                });
+                
+                breakEvenText.textContent = financials.revenue > 0 ? 
+                    `Ano ${Math.max(1, Math.min(5, Math.ceil(3 / ratings.marketGrowth)))}` : "Ano 2-3";
+                roiText.textContent = getRoiText();
+            }
+
+            // Helper function to get rating description
+            function getRatingDescription(rating, descriptions) {
+                const index = Math.min(Math.floor(rating) - 1, descriptions.length - 1);
+                return descriptions[index] || descriptions[0];
+            }
+
+            // Helper function to get investment needed text
+            function getInvestmentNeededText() {
+                const need = ratings.investmentNeed;
+                if (need >= 4) {
+                    return "Grande necessidade para escalar operações e dominar mercado";
+                } else if (need >= 2.5) {
+                    return "Necessidade moderada para crescimento e aperfeiçoamento";
+                } else {
+                    return "Pequena rodada para melhorias e ajustes finos";
+                }
+            }
+
+            // Helper function to get ROI text
+            function getRoiText() {
+                const potential = ratings.marketGrowth * ratings.scalability * ratings.teamExperience / 10;
+                if (potential >= 4) {
+                    return "5-10x em 5-7 anos (alto potencial)";
+                } else if (potential >= 2.5) {
+                    return "3-5x em 5-7 anos (potencial moderado)";
+                } else {
+                    return "2-3x em 5-7 anos (potencial conservador)";
+                }
+            }
+
+            // Prepare export (both pitch deck and canvas)
+            function prepareExport(exportPitch, exportCanvas) {
+                // Show spinner
+                exportOptions.style.display = 'none';
+                modalSpinner.style.display = 'block';
+                
+                // Simulate PDF generation
+                setTimeout(() => {
+                    // Hide spinner and show success
+                    modalSpinner.style.display = 'none';
+                    exportSuccess.style.display = 'block';
+                    modalMessage.textContent = exportPitch && exportCanvas ? 
+                        'Pitch Deck e Business Canvas gerados com sucesso!' :
+                        exportPitch ? 'Pitch Deck gerado com sucesso!' : 'Business Canvas gerado com sucesso!';
+                }, 2000);
+            }
+
+            // Download PDF
+            function downloadPdf() {
+                // In a real implementation, this would download the generated PDF
+                alert('PDF baixado com sucesso!');
+                exportModal.style.display = 'none';
+            }
+
+            // Export charts as PNG
+            function exportCharts() {
+                // Show spinner
+                exportSpinner.style.display = 'block';
+                
+                // Simulate chart export
+                setTimeout(() => {
+                    exportSpinner.style.display = 'none';
+                    alert('Gráficos exportados como imagens PNG!');
+                }, 1500);
+            }
+
+            // Export single chart
+            function exportChart(chartId, fileName) {
+                const canvas = document.getElementById(chartId);
+                const link = document.createElement('a');
+                link.download = fileName;
+                link.href = canvas.toDataURL('image/png');
+                link.click();
+            }
+
+            // Save data
+            function saveData() {
+                const data = {
+                    startupName: startupNameInput.value,
+                    founderName: founderNameInput.value,
+                    companyType: companyTypeInput.value,
+                    startupAge: startupAgeInput.value,
+                    businessSegment: selectedSegment,
+                    ratings: ratings,
+                    financials: financials
+                };
+                
+                const dataStr = JSON.stringify(data, null, 2);
+                const blob = new Blob([dataStr], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = `investai-${startupNameInput.value.trim() || 'startup'}-data.json`;
+                link.click();
+                
+                setTimeout(() => {
+                    URL.revokeObjectURL(url);
+                }, 100);
+            }
+
+            // Reset form
+            function resetForm() {
+                // Reset form inputs
+                startupNameInput.value = '';
+                founderNameInput.value = '';
+                companyTypeInput.value = '';
+                startupAgeInput.value = '';
+                document.getElementById('revenue').value = '';
+                document.getElementById('employees').value = '';
+                document.getElementById('investment').value = '';
+                document.getElementById('runway').value = '';
+                
+                // Reset selected segment
+                selectedSegment = null;
+                document.querySelectorAll('.segment-card').forEach(card => {
+                    card.classList.remove('selected');
+                });
+                newSegmentInput.value = '';
+                
+                // Reset ratings
+                ratings = {
+                    marketSize: 0,
+                    marketGrowth: 0,
+                    competition: 0,
+                    differentiation: 0,
+                    techInnovation: 0,
+                    techMaturity: 0,
+                    entryBarriers: 0,
+                    scalability: 0,
+                    teamExperience: 0,
+                    teamComplementarity: 0,
+                    executionAbility: 0,
+                    network: 0,
+                    investmentNeed: 0
+                };
+                
+                // Reset rating points
+                document.querySelectorAll('.rating-point').forEach(point => {
+                    point.classList.remove('active');
+                });
+                
+                // Hide results
+                resultsContainer.style.display = 'none';
+            }
+
+        // Initialize the app when DOM is loaded    
+        document.addEventListener('DOMContentLoaded', init);
+
+        </script>
+    <style>.ag-nav-back{position:fixed;top:12px;left:12px;z-index:9999;background:rgba(79,70,229,.9);color:#fff;border:none;border-radius:50px;padding:.4rem .9rem;font-size:.8rem;font-family:system-ui,sans-serif;font-weight:600;cursor:pointer;text-decoration:none;display:flex;align-items:center;gap:.35rem;box-shadow:0 2px 10px rgba(0,0,0,.25);backdrop-filter:blur(4px);transition:background .2s,transform .2s}.ag-nav-back:hover{background:rgba(55,48,163,.95);transform:translateY(-1px)}</style><a href="https://passosdomingues.github.io/webappshowcase/site/main.html" class="ag-nav-back" aria-label="Voltar ao índice">&#8592; Índice</a>
+</body>
+</html>
