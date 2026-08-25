@@ -3,28 +3,26 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Radar PI — Mapeamento de Docentes e Propriedade Intelectual · UNIFAL-MG</title>
-<meta name="category" content="Propriedade Intelectual">
-<meta name="description" content="Ferramenta de busca e prospecção tecnológica sobre docentes, laboratórios, patentes, softwares e marcas da UNIFAL-MG, para apoio à Agência I9 e à NidusTec.">
+<title>Radar UNIFAL-MG — Mapeamento de Docentes</title>
+<meta name="category" content="Docentes">
+<meta name="description" content="Ferramenta de consulta e mapeamento do corpo docente, unidades, campus e linhas de pesquisa da UNIFAL-MG.">
 <link rel="icon" href="data:,">
 <link rel="stylesheet" href="style.css">
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 </head>
 <body>
 
 <header class="topbar">
   <div class="topbar-inner">
     <div class="brand">
-      <div class="brand-icon" aria-hidden="true">📡</div>
+      <div class="brand-icon" aria-hidden="true">🎓</div>
       <div>
-        <h1 class="brand-title">Radar PI · UNIFAL-MG</h1>
-        <p class="brand-sub">Agência I9 &middot; NidusTec — Mapeamento de docentes e propriedade intelectual</p>
+        <h1 class="brand-title">Radar UNIFAL-MG</h1>
+        <p class="brand-sub">Mapeamento do Corpo Docente e Unidades Acadêmicas · UNIFAL-MG</p>
       </div>
     </div>
     <div class="topbar-actions">
       <nav class="topnav">
         <a href="https://www.unifal-mg.edu.br/portal/" target="_blank" rel="noopener">Portal UNIFAL</a>
-        <a href="https://www.unifal-mg.edu.br/i9unifal/" target="_blank" rel="noopener">Agência I9</a>
         <a href="https://www.unifal-mg.edu.br/graduacao/cursos/" target="_blank" rel="noopener">Cursos</a>
       </nav>
       <button class="theme-toggle" id="themeToggle" title="Alternar tema claro/escuro" aria-label="Alternar modo escuro">🌙</button>
@@ -35,8 +33,8 @@
 <section class="kpi-banner">
   <div class="kpi-inner">
     <div class="kpi-header">
-      <h1>Mapeamento de Inovação & Propriedade Intelectual</h1>
-      <p>Plataforma de prospecção tecnológica, cruzando o corpo docente com patentes, marcas, programas de computador e laboratórios da UNIFAL-MG.</p>
+      <h1>Mapeamento do Corpo Docente & Pesquisa</h1>
+      <p>Diretório de consulta pública sobre os docentes, campi, unidades acadêmicas e disciplinas da Universidade Federal de Alfenas (UNIFAL-MG).</p>
     </div>
     <div class="kpi-cards">
       <div class="kpi-card">
@@ -47,31 +45,17 @@
         </div>
       </div>
       <div class="kpi-card">
-        <div class="kpi-icon">💡</div>
+        <div class="kpi-icon">📍</div>
         <div>
-          <div class="kpi-value" id="kpi-patentes">54</div>
-          <div class="kpi-label">Patentes Registradas</div>
+          <div class="kpi-value" id="kpi-campi">3</div>
+          <div class="kpi-label">Campi Universitários</div>
         </div>
       </div>
       <div class="kpi-card">
-        <div class="kpi-icon">💻</div>
+        <div class="kpi-icon">🏛️</div>
         <div>
-          <div class="kpi-value" id="kpi-softwares">20</div>
-          <div class="kpi-label">Softwares Registrados</div>
-        </div>
-      </div>
-      <div class="kpi-card">
-        <div class="kpi-icon">🏷️</div>
-        <div>
-          <div class="kpi-value" id="kpi-marcas">14</div>
-          <div class="kpi-label">Marcas INPI</div>
-        </div>
-      </div>
-      <div class="kpi-card">
-        <div class="kpi-icon">🔬</div>
-        <div>
-          <div class="kpi-value" id="kpi-labs">12</div>
-          <div class="kpi-label">Laboratórios</div>
+          <div class="kpi-value" id="kpi-unidades">14</div>
+          <div class="kpi-label">Unidades Acadêmicas</div>
         </div>
       </div>
     </div>
@@ -82,9 +66,7 @@
 
   <div class="tabs" role="tablist">
     <button class="tab active" data-tab="docentes" role="tab" aria-selected="true">🔍 Docentes</button>
-    <button class="tab" data-tab="portfolio" role="tab" aria-selected="false">📁 Portfólio de PI</button>
-    <button class="tab" data-tab="analytics" role="tab" aria-selected="false">📊 Analytics & Gráficos</button>
-    <button class="tab" data-tab="sobre" role="tab" aria-selected="false">ℹ️ Sobre os dados</button>
+    <button class="tab" data-tab="sobre" role="tab" aria-selected="false">ℹ️ Sobre</button>
   </div>
 
   <!-- ==================== DOCENTES ==================== -->
@@ -96,20 +78,12 @@
         <input id="q" type="text" placeholder="Buscar por nome, curso, disciplina, unidade ou campus…" autocomplete="off">
         <span class="kbd-shortcut">Ctrl+K</span>
       </div>
-      <button id="semantic-toggle" class="btn-outline" type="button" aria-pressed="false">
-        ⚡ Busca semântica: desligada
-      </button>
     </div>
-    <p id="semantic-status" class="hint" hidden></p>
 
     <div class="filters">
       <select id="f-campus"><option value="">Campus — todos</option></select>
-      <select id="f-unidade"><option value="">Unidade — todas</option></select>
+      <select id="f-unidade"><option value="">Unidade / Departamento — todas</option></select>
       <select id="f-titulacao"><option value="">Titulação — todas</option></select>
-      <label class="checkbox">
-        <input type="checkbox" id="f-patente">
-        Somente com PI sinalizada
-      </label>
       <div class="actions-bar">
         <button id="export-csv" class="btn-outline" type="button" title="Exportar visão atual para CSV">📥 CSV</button>
         <button id="export-json" class="btn-outline" type="button" title="Exportar visão atual para JSON">📄 JSON</button>
@@ -127,150 +101,18 @@
     <p id="empty" class="empty" hidden>Nenhum docente encontrado com esses critérios.</p>
   </section>
 
-  <!-- ==================== PORTFÓLIO ==================== -->
-  <section id="panel-portfolio" class="panel">
-
-    <div class="block">
-      <h2>🏛️ Marcos institucionais</h2>
-      <div id="marcos" class="marcos"></div>
-    </div>
-
-    <div class="block">
-      <h2>🔬 Laboratórios</h2>
-      <div id="laboratorios" class="cards"></div>
-    </div>
-
-    <div class="block">
-      <h2>⭐ Patentes em destaque</h2>
-      <div id="patentes-destaque" class="cards"></div>
-    </div>
-
-    <div class="block">
-      <h2>💡 Portfólio completo de patentes <span class="count-badge" id="count-patentes"></span></h2>
-      <div class="table-header-tools">
-        <input id="q-patentes" class="subsearch" type="text" placeholder="Filtrar patentes por título, campo, TRL ou INPI…">
-        <button id="export-patentes-csv" class="btn-outline" type="button">📥 Exportar Patentes CSV</button>
-      </div>
-      <div class="datatable-wrap">
-        <table class="datatable" id="tabela-patentes">
-          <thead>
-            <tr>
-              <th data-sort="numero">Número INPI <span class="sort-icon">↕</span></th>
-              <th data-sort="titulo">Título <span class="sort-icon">↕</span></th>
-              <th data-sort="trl">TRL <span class="sort-icon">↕</span></th>
-              <th data-sort="parceria">Parceria <span class="sort-icon">↕</span></th>
-              <th data-sort="campo">Campo de aplicação <span class="sort-icon">↕</span></th>
-            </tr>
-          </thead>
-          <tbody></tbody>
-        </table>
-      </div>
-    </div>
-
-    <div class="block">
-      <h2>💻 Programas de computador registrados <span class="count-badge" id="count-softwares"></span></h2>
-      <div class="datatable-wrap">
-        <table class="datatable" id="tabela-softwares">
-          <thead>
-            <tr>
-              <th data-sort="numero">Registro <span class="sort-icon">↕</span></th>
-              <th data-sort="nome">Nome <span class="sort-icon">↕</span></th>
-              <th data-sort="area">Área <span class="sort-icon">↕</span></th>
-              <th data-sort="diferencial">Diferencial <span class="sort-icon">↕</span></th>
-              <th data-sort="maturidade">Maturidade <span class="sort-icon">↕</span></th>
-            </tr>
-          </thead>
-          <tbody></tbody>
-        </table>
-      </div>
-    </div>
-
-    <div class="block">
-      <h2>🏷️ Marcas registradas <span class="count-badge" id="count-marcas"></span></h2>
-      <div class="datatable-wrap">
-        <table class="datatable" id="tabela-marcas">
-          <thead>
-            <tr>
-              <th data-sort="registro">Registro INPI <span class="sort-icon">↕</span></th>
-              <th data-sort="nome">Marca <span class="sort-icon">↕</span></th>
-              <th data-sort="apresentacao">Apresentação <span class="sort-icon">↕</span></th>
-              <th data-sort="deposito">Depósito <span class="sort-icon">↕</span></th>
-              <th data-sort="concessao">Concessão <span class="sort-icon">↕</span></th>
-            </tr>
-          </thead>
-          <tbody></tbody>
-        </table>
-      </div>
-    </div>
-
-  </section>
-
-  <!-- ==================== ANALYTICS ==================== -->
-  <section id="panel-analytics" class="panel">
-    <div class="block">
-      <h2>📊 Visualização Analítica & Métricas de PI</h2>
-      <div class="analytics-grid">
-        <div class="chart-card">
-          <h3>🔬 Distribuição de TRL das Patentes</h3>
-          <div class="chart-container">
-            <canvas id="chartTRL"></canvas>
-          </div>
-        </div>
-        <div class="chart-card">
-          <h3>💻 Maturidade dos Softwares Registrados</h3>
-          <div class="chart-container">
-            <canvas id="chartSoftwares"></canvas>
-          </div>
-        </div>
-        <div class="chart-card">
-          <h3>🏫 Corpo Docente por Campus</h3>
-          <div class="chart-container">
-            <canvas id="chartCampus"></canvas>
-          </div>
-        </div>
-        <div class="chart-card">
-          <h3>📦 Distribuição do Portfólio de PI</h3>
-          <div class="chart-container">
-            <canvas id="chartPIPortfolio"></canvas>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
   <!-- ==================== SOBRE ==================== -->
   <section id="panel-sobre" class="panel">
     <div class="block prose">
-      <h2>Sobre esta ferramenta</h2>
-      <p>Este sistema reorganiza e corrige os dados públicos originalmente publicados em
-      <em>Busca de Docentes Unifal</em>, cruzando-os com o mapeamento institucional de propriedade
-      intelectual da Agência I9/NidusTec (patentes, softwares, marcas e laboratórios). O objetivo é
-      apoiar a prospecção tecnológica e o mapeamento de PI conduzidos pela equipe do Núcleo de
-      Inovação Tecnológica.</p>
-
-      <h3>O que foi corrigido em relação à base original</h3>
+      <h2>Sobre o Diretório</h2>
+      <p>Esta ferramenta oferece uma interface de consulta rápida e unificada sobre os docentes vinculados aos cursos e unidades da Universidade Federal de Alfenas (UNIFAL-MG).</p>
+      
+      <h3>Funcionalidades</h3>
       <ul>
-        <li>Consolidação de 982 registros de vínculo (docente × disciplina) em 534 perfis únicos de docente.</li>
-        <li>Correção de nomes deslocados por erro de formatação na fonte original (ex.: um título de disciplina que havia substituído o nome de um docente).</li>
-        <li>Correção de e-mails trocados entre dois registros adjacentes por erro de cópia na fonte original.</li>
-        <li>Padronização de rótulos inconsistentes (variações como "Discipinas" e "Email" sem hífen).</li>
-        <li>Remoção de elementos decorativos (ícones e emojis) e simplificação visual.</li>
-      </ul>
-
-      <h3>Busca semântica</h3>
-      <p>Ao ativar a busca semântica, um modelo compacto de embeddings multilíngue é carregado
-      diretamente no navegador (via WebAssembly, sem servidor e sem chave de API) e usado para
-      calcular similaridade de significado entre a consulta e os campos de cada docente
-      (curso, disciplinas, unidade). É útil para perguntas como "quem trabalha com sensores" ou
-      "pesquisa em nanotecnologia", que não dependem de correspondência exata de palavras.
-      O carregamento do modelo ocorre apenas quando a opção é ativada e pode levar alguns segundos
-      na primeira vez.</p>
-
-      <h3>Limitações conhecidas</h3>
-      <ul>
-        <li>A base cobre os docentes vinculados aos cursos listados na fonte original — não é um diretório completo de todo o corpo docente da UNIFAL-MG.</li>
-        <li>Oito docentes não possuíam e-mail informado na fonte original; o campo foi deixado em branco em vez de inferido, para evitar dados incorretos.</li>
-        <li>O portfólio de PI (patentes, softwares, marcas) reflete o mapeamento documental fornecido, não uma consulta em tempo real ao INPI ou à Vitrine Tecnológica.</li>
+        <li>Busca instantânea por nome do docente, campus, unidade/departamento, cursos e disciplinas ministradas.</li>
+        <li>Filtros combinados por Campus, Unidade Acadêmica e Titulação.</li>
+        <li>Exportação direta dos relatórios filtrados nos formatos CSV e JSON.</li>
+        <li>Acesso direto ao e-mail institucional e ao Currículo Lattes.</li>
       </ul>
     </div>
   </section>
@@ -286,7 +128,7 @@
 </div>
 
 <footer class="footer">
-  <p>Radar PI · UNIFAL-MG — ferramenta de apoio interno à prospecção tecnológica e mapeamento de propriedade intelectual.</p>
+  <p>Radar UNIFAL-MG — Diretório de consulta do corpo docente e unidades acadêmicas da UNIFAL-MG.</p>
 </footer>
 
 <script src="app.js"></script>
