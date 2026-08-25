@@ -1,47 +1,103 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-BR" data-theme="light">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Radar PI — Mapeamento de Docentes e Propriedade Intelectual · UNIFAL-MG</title>
+<meta name="category" content="Propriedade Intelectual">
 <meta name="description" content="Ferramenta de busca e prospecção tecnológica sobre docentes, laboratórios, patentes, softwares e marcas da UNIFAL-MG, para apoio à Agência I9 e à NidusTec.">
 <link rel="icon" href="data:,">
 <link rel="stylesheet" href="style.css">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 </head>
 <body>
 
 <header class="topbar">
   <div class="topbar-inner">
     <div class="brand">
-      <span class="brand-mark" aria-hidden="true"></span>
+      <div class="brand-icon" aria-hidden="true">📡</div>
       <div>
-        <p class="brand-title">Radar PI · UNIFAL-MG</p>
+        <h1 class="brand-title">Radar PI · UNIFAL-MG</h1>
         <p class="brand-sub">Agência I9 &middot; NidusTec — Mapeamento de docentes e propriedade intelectual</p>
       </div>
     </div>
-    <nav class="topnav">
-      <a href="https://www.unifal-mg.edu.br/portal/" target="_blank" rel="noopener">Portal UNIFAL</a>
-      <a href="https://www.unifal-mg.edu.br/i9unifal/" target="_blank" rel="noopener">Agência I9</a>
-      <a href="https://www.unifal-mg.edu.br/graduacao/cursos/" target="_blank" rel="noopener">Cursos</a>
-    </nav>
+    <div class="topbar-actions">
+      <nav class="topnav">
+        <a href="https://www.unifal-mg.edu.br/portal/" target="_blank" rel="noopener">Portal UNIFAL</a>
+        <a href="https://www.unifal-mg.edu.br/i9unifal/" target="_blank" rel="noopener">Agência I9</a>
+        <a href="https://www.unifal-mg.edu.br/graduacao/cursos/" target="_blank" rel="noopener">Cursos</a>
+      </nav>
+      <button class="theme-toggle" id="themeToggle" title="Alternar tema claro/escuro" aria-label="Alternar modo escuro">🌙</button>
+    </div>
   </div>
 </header>
+
+<section class="kpi-banner">
+  <div class="kpi-inner">
+    <div class="kpi-header">
+      <h1>Mapeamento de Inovação & Propriedade Intelectual</h1>
+      <p>Plataforma de prospecção tecnológica, cruzando o corpo docente com patentes, marcas, programas de computador e laboratórios da UNIFAL-MG.</p>
+    </div>
+    <div class="kpi-cards">
+      <div class="kpi-card">
+        <div class="kpi-icon">👨‍🏫</div>
+        <div>
+          <div class="kpi-value" id="kpi-docentes">534</div>
+          <div class="kpi-label">Docentes Mapeados</div>
+        </div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-icon">💡</div>
+        <div>
+          <div class="kpi-value" id="kpi-patentes">54</div>
+          <div class="kpi-label">Patentes Registradas</div>
+        </div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-icon">💻</div>
+        <div>
+          <div class="kpi-value" id="kpi-softwares">20</div>
+          <div class="kpi-label">Softwares Registrados</div>
+        </div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-icon">🏷️</div>
+        <div>
+          <div class="kpi-value" id="kpi-marcas">14</div>
+          <div class="kpi-label">Marcas INPI</div>
+        </div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-icon">🔬</div>
+        <div>
+          <div class="kpi-value" id="kpi-labs">12</div>
+          <div class="kpi-label">Laboratórios</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
 
 <main>
 
   <div class="tabs" role="tablist">
-    <button class="tab active" data-tab="docentes" role="tab" aria-selected="true">Docentes</button>
-    <button class="tab" data-tab="portfolio" role="tab" aria-selected="false">Portfólio de PI</button>
-    <button class="tab" data-tab="sobre" role="tab" aria-selected="false">Sobre os dados</button>
+    <button class="tab active" data-tab="docentes" role="tab" aria-selected="true">🔍 Docentes</button>
+    <button class="tab" data-tab="portfolio" role="tab" aria-selected="false">📁 Portfólio de PI</button>
+    <button class="tab" data-tab="analytics" role="tab" aria-selected="false">📊 Analytics & Gráficos</button>
+    <button class="tab" data-tab="sobre" role="tab" aria-selected="false">ℹ️ Sobre os dados</button>
   </div>
 
   <!-- ==================== DOCENTES ==================== -->
   <section id="panel-docentes" class="panel active">
 
     <div class="searchbar">
-      <input id="q" type="text" placeholder="Buscar por nome, curso, disciplina, unidade ou campus…" autocomplete="off">
+      <div class="search-input-wrap">
+        <span class="search-icon-inside" aria-hidden="true">🔍</span>
+        <input id="q" type="text" placeholder="Buscar por nome, curso, disciplina, unidade ou campus…" autocomplete="off">
+        <span class="kbd-shortcut">Ctrl+K</span>
+      </div>
       <button id="semantic-toggle" class="btn-outline" type="button" aria-pressed="false">
-        Busca semântica: desligada
+        ⚡ Busca semântica: desligada
       </button>
     </div>
     <p id="semantic-status" class="hint" hidden></p>
@@ -52,12 +108,20 @@
       <select id="f-titulacao"><option value="">Titulação — todas</option></select>
       <label class="checkbox">
         <input type="checkbox" id="f-patente">
-        Somente com patente/PI sinalizada
+        Somente com PI sinalizada
       </label>
-      <button id="clear-filters" class="btn-link" type="button">Limpar filtros</button>
+      <div class="actions-bar">
+        <button id="export-csv" class="btn-outline" type="button" title="Exportar visão atual para CSV">📥 CSV</button>
+        <button id="export-json" class="btn-outline" type="button" title="Exportar visão atual para JSON">📄 JSON</button>
+        <button id="clear-filters" class="btn-outline" type="button">✕ Limpar</button>
+      </div>
     </div>
 
-    <p id="result-count" class="result-count"></p>
+    <div id="active-pills" class="active-pills"></div>
+
+    <div class="result-bar">
+      <span id="result-count">Carregando docentes…</span>
+    </div>
 
     <ul id="lista" class="lista"></ul>
     <p id="empty" class="empty" hidden>Nenhum docente encontrado com esses critérios.</p>
@@ -67,45 +131,111 @@
   <section id="panel-portfolio" class="panel">
 
     <div class="block">
-      <h2>Marcos institucionais</h2>
+      <h2>🏛️ Marcos institucionais</h2>
       <div id="marcos" class="marcos"></div>
     </div>
 
     <div class="block">
-      <h2>Laboratórios</h2>
+      <h2>🔬 Laboratórios</h2>
       <div id="laboratorios" class="cards"></div>
     </div>
 
     <div class="block">
-      <h2>Patentes em destaque</h2>
+      <h2>⭐ Patentes em destaque</h2>
       <div id="patentes-destaque" class="cards"></div>
     </div>
 
     <div class="block">
-      <h2>Portfólio completo de patentes <span class="count-badge" id="count-patentes"></span></h2>
-      <input id="q-patentes" class="subsearch" type="text" placeholder="Filtrar patentes por título, campo ou número…">
-      <table class="datatable" id="tabela-patentes">
-        <thead><tr><th>Número INPI</th><th>Título</th><th>TRL</th><th>Parceria</th><th>Campo de aplicação</th></tr></thead>
-        <tbody></tbody>
-      </table>
+      <h2>💡 Portfólio completo de patentes <span class="count-badge" id="count-patentes"></span></h2>
+      <div class="table-header-tools">
+        <input id="q-patentes" class="subsearch" type="text" placeholder="Filtrar patentes por título, campo, TRL ou INPI…">
+        <button id="export-patentes-csv" class="btn-outline" type="button">📥 Exportar Patentes CSV</button>
+      </div>
+      <div class="datatable-wrap">
+        <table class="datatable" id="tabela-patentes">
+          <thead>
+            <tr>
+              <th data-sort="numero">Número INPI <span class="sort-icon">↕</span></th>
+              <th data-sort="titulo">Título <span class="sort-icon">↕</span></th>
+              <th data-sort="trl">TRL <span class="sort-icon">↕</span></th>
+              <th data-sort="parceria">Parceria <span class="sort-icon">↕</span></th>
+              <th data-sort="campo">Campo de aplicação <span class="sort-icon">↕</span></th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
     </div>
 
     <div class="block">
-      <h2>Programas de computador registrados <span class="count-badge" id="count-softwares"></span></h2>
-      <table class="datatable" id="tabela-softwares">
-        <thead><tr><th>Registro</th><th>Nome</th><th>Área</th><th>Diferencial</th><th>Maturidade</th></tr></thead>
-        <tbody></tbody>
-      </table>
+      <h2>💻 Programas de computador registrados <span class="count-badge" id="count-softwares"></span></h2>
+      <div class="datatable-wrap">
+        <table class="datatable" id="tabela-softwares">
+          <thead>
+            <tr>
+              <th data-sort="numero">Registro <span class="sort-icon">↕</span></th>
+              <th data-sort="nome">Nome <span class="sort-icon">↕</span></th>
+              <th data-sort="area">Área <span class="sort-icon">↕</span></th>
+              <th data-sort="diferencial">Diferencial <span class="sort-icon">↕</span></th>
+              <th data-sort="maturidade">Maturidade <span class="sort-icon">↕</span></th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
     </div>
 
     <div class="block">
-      <h2>Marcas registradas <span class="count-badge" id="count-marcas"></span></h2>
-      <table class="datatable" id="tabela-marcas">
-        <thead><tr><th>Registro INPI</th><th>Marca</th><th>Apresentação</th><th>Depósito</th><th>Concessão</th></tr></thead>
-        <tbody></tbody>
-      </table>
+      <h2>🏷️ Marcas registradas <span class="count-badge" id="count-marcas"></span></h2>
+      <div class="datatable-wrap">
+        <table class="datatable" id="tabela-marcas">
+          <thead>
+            <tr>
+              <th data-sort="registro">Registro INPI <span class="sort-icon">↕</span></th>
+              <th data-sort="nome">Marca <span class="sort-icon">↕</span></th>
+              <th data-sort="apresentacao">Apresentação <span class="sort-icon">↕</span></th>
+              <th data-sort="deposito">Depósito <span class="sort-icon">↕</span></th>
+              <th data-sort="concessao">Concessão <span class="sort-icon">↕</span></th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
     </div>
 
+  </section>
+
+  <!-- ==================== ANALYTICS ==================== -->
+  <section id="panel-analytics" class="panel">
+    <div class="block">
+      <h2>📊 Visualização Analítica & Métricas de PI</h2>
+      <div class="analytics-grid">
+        <div class="chart-card">
+          <h3>🔬 Distribuição de TRL das Patentes</h3>
+          <div class="chart-container">
+            <canvas id="chartTRL"></canvas>
+          </div>
+        </div>
+        <div class="chart-card">
+          <h3>💻 Maturidade dos Softwares Registrados</h3>
+          <div class="chart-container">
+            <canvas id="chartSoftwares"></canvas>
+          </div>
+        </div>
+        <div class="chart-card">
+          <h3>🏫 Corpo Docente por Campus</h3>
+          <div class="chart-container">
+            <canvas id="chartCampus"></canvas>
+          </div>
+        </div>
+        <div class="chart-card">
+          <h3>📦 Distribuição do Portfólio de PI</h3>
+          <div class="chart-container">
+            <canvas id="chartPIPortfolio"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
   </section>
 
   <!-- ==================== SOBRE ==================== -->
@@ -146,6 +276,14 @@
   </section>
 
 </main>
+
+<!-- Modal para Detalhes do Docente -->
+<div id="modal-docente" class="modal-backdrop" aria-hidden="true">
+  <div class="modal">
+    <button id="modal-close" class="modal-close" aria-label="Fechar modal">✕</button>
+    <div id="modal-body"></div>
+  </div>
+</div>
 
 <footer class="footer">
   <p>Radar PI · UNIFAL-MG — ferramenta de apoio interno à prospecção tecnológica e mapeamento de propriedade intelectual.</p>
