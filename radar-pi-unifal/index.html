@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="pt-BR" data-theme="light">
+<html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -14,17 +14,16 @@
 <header class="topbar">
   <div class="topbar-inner">
     <div class="brand">
-      <div class="brand-icon" aria-hidden="true">🎓</div>
+      <div class="brand-icon" aria-hidden="true">R</div>
       <div>
         <h1 class="brand-title">Radar UNIFAL-MG</h1>
-        <p class="brand-sub">Mapeamento do Corpo Docente e Unidades Acadêmicas · UNIFAL-MG</p>
+        <p class="brand-sub">Mapeamento do Corpo Docente e Unidades Academicas</p>
       </div>
     </div>
     <div class="topbar-actions">
       <nav class="topnav">
-        <a href="https://www.unifal-mg.edu.br/i9unifal/vitrine-tecnologica/" target="_blank" rel="noopener">Vitrine Tecnológica</a>
+        <a href="https://www.unifal-mg.edu.br/i9unifal/vitrine-tecnologica/" target="_blank" rel="noopener">Vitrine Tecnologica</a>
       </nav>
-      <button class="theme-toggle" id="themeToggle" title="Alternar tema claro/escuro" aria-label="Alternar modo escuro">🌙</button>
     </div>
   </div>
 </header>
@@ -32,29 +31,26 @@
 <section class="kpi-banner">
   <div class="kpi-inner">
     <div class="kpi-header">
-      <h1>Mapeamento do Corpo Docente & Pesquisa</h1>
-      <p>Diretório de consulta pública sobre os docentes, campi, unidades acadêmicas e disciplinas da Universidade Federal de Alfenas (UNIFAL-MG).</p>
+      <h1>Mapeamento do Corpo Docente &amp; Pesquisa</h1>
+      <p>Diretorio de consulta publica sobre os docentes, campi, unidades academicas e disciplinas da Universidade Federal de Alfenas (UNIFAL-MG).</p>
     </div>
     <div class="kpi-cards">
       <div class="kpi-card">
-        <div class="kpi-icon">👨‍🏫</div>
         <div>
           <div class="kpi-value" id="kpi-docentes">534</div>
           <div class="kpi-label">Docentes Mapeados</div>
         </div>
       </div>
       <div class="kpi-card">
-        <div class="kpi-icon">📍</div>
         <div>
           <div class="kpi-value" id="kpi-campi">3</div>
-          <div class="kpi-label">Campi Universitários</div>
+          <div class="kpi-label">Campi Universitarios</div>
         </div>
       </div>
       <div class="kpi-card">
-        <div class="kpi-icon">🏛️</div>
         <div>
           <div class="kpi-value" id="kpi-unidades">14</div>
-          <div class="kpi-label">Unidades Acadêmicas</div>
+          <div class="kpi-label">Unidades Academicas</div>
         </div>
       </div>
     </div>
@@ -63,13 +59,12 @@
 
 <main>
 
-  <!-- ==================== DOCENTES ==================== -->
   <section id="panel-docentes" class="panel active">
 
     <div class="searchbar">
       <div class="search-input-wrap">
-        <span class="search-icon-inside" aria-hidden="true">🔍</span>
-        <input id="q" type="text" placeholder="Buscar por nome, curso, disciplina, unidade ou campus…" autocomplete="off">
+        <span class="search-icon-inside" aria-hidden="true">&#9906;</span>
+        <input id="q" type="text" placeholder="Buscar por nome, curso, disciplina, unidade ou campus..." autocomplete="off">
         <span class="kbd-shortcut">Ctrl+K</span>
       </div>
     </div>
@@ -77,40 +72,39 @@
     <div class="filters">
       <select id="f-campus"><option value="">Campus — todos</option></select>
       <select id="f-unidade"><option value="">Unidade / Departamento — todas</option></select>
-      <select id="f-titulacao"><option value="">Titulação — todas</option></select>
+      <select id="f-titulacao"><option value="">Titulacao — todas</option></select>
       <label class="checkbox">
         <input type="checkbox" id="f-pi">
-        Somente com PI registrada
+        Com PI / Programa registrado
       </label>
       <div class="actions-bar">
-        <button id="export-csv" class="btn-outline" type="button" title="Exportar visão atual para CSV">📥 CSV</button>
-        <button id="export-json" class="btn-outline" type="button" title="Exportar visão atual para JSON">📄 JSON</button>
-        <button id="clear-filters" class="btn-outline" type="button">✕ Limpar</button>
+        <button id="export-csv" class="btn-outline" type="button" title="Exportar visao atual para CSV">CSV</button>
+        <button id="export-json" class="btn-outline" type="button" title="Exportar visao atual para JSON">JSON</button>
+        <button id="clear-filters" class="btn-outline" type="button">Limpar</button>
       </div>
     </div>
 
     <div id="active-pills" class="active-pills"></div>
 
     <div class="result-bar">
-      <span id="result-count">Carregando docentes…</span>
+      <span id="result-count">Carregando docentes...</span>
     </div>
 
     <ul id="lista" class="lista"></ul>
-    <p id="empty" class="empty" hidden>Nenhum docente encontrado com esses critérios.</p>
+    <p id="empty" class="empty" hidden>Nenhum docente encontrado com esses criterios.</p>
   </section>
 
 </main>
 
-<!-- Modal para Detalhes do Docente -->
 <div id="modal-docente" class="modal-backdrop" aria-hidden="true">
   <div class="modal">
-    <button id="modal-close" class="modal-close" aria-label="Fechar modal">✕</button>
+    <button id="modal-close" class="modal-close" aria-label="Fechar modal">&times;</button>
     <div id="modal-body"></div>
   </div>
 </div>
 
 <footer class="footer">
-  <p>Radar UNIFAL-MG — Diretório de consulta do corpo docente e unidades acadêmicas da UNIFAL-MG.</p>
+  <p>Radar UNIFAL-MG — Diretorio de consulta do corpo docente e unidades academicas da UNIFAL-MG.</p>
 </footer>
 
 <script src="app.js"></script>

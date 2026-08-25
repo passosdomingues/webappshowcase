@@ -6,7 +6,7 @@
   --primary-light: #eff6ff;
   --accent: #1f3a8f;
   --accent-soft: #eef1fb;
-  
+
   --bg: #f8fafc;
   --panel: #ffffff;
   --panel-hover: #f1f5f9;
@@ -14,37 +14,17 @@
   --ink: #0f172a;
   --ink-soft: #475569;
   --ink-muted: #94a3b8;
-  
+
   --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
   --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
   --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-  
+
   --radius-sm: 6px;
   --radius: 10px;
   --radius-lg: 16px;
   --max: 1120px;
   --font: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   --transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-[data-theme="dark"] {
-  --primary: #3b82f6;
-  --primary-dark: #60a5fa;
-  --primary-light: #1e293b;
-  --accent: #60a5fa;
-  --accent-soft: #172554;
-  
-  --bg: #0b0f19;
-  --panel: #151d2a;
-  --panel-hover: #1e293b;
-  --border: #263346;
-  --ink: #f1f5f9;
-  --ink-soft: #94a3b8;
-  --ink-muted: #64748b;
-  
-  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.5);
-  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.5);
-  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.6);
 }
 
 * { box-sizing: border-box; }
@@ -57,24 +37,28 @@ html, body {
   font-family: var(--font);
   font-size: 14.5px;
   line-height: 1.5;
-  transition: background var(--transition), color var(--transition);
 }
 
 a { color: var(--primary); text-decoration: none; transition: var(--transition); }
 a:hover { color: var(--primary-dark); }
 
+/* ---------- BM25 Highlight ---------- */
+.bm25-hl {
+  background: #fef08a;
+  color: #713f12;
+  padding: 0 2px;
+  border-radius: 3px;
+  font-weight: 600;
+}
+
 /* ---------- Topbar ---------- */
 .topbar {
   border-bottom: 1px solid var(--border);
-  background: rgba(255, 255, 255, 0.85);
+  background: rgba(255, 255, 255, 0.92);
   backdrop-filter: blur(12px);
   position: sticky;
   top: 0;
   z-index: 100;
-  transition: background var(--transition), border-color var(--transition);
-}
-[data-theme="dark"] .topbar {
-  background: rgba(21, 29, 42, 0.85);
 }
 
 .topbar-inner {
@@ -98,8 +82,10 @@ a:hover { color: var(--primary-dark); }
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.2rem;
+  font-size: 0.95rem;
+  font-weight: 800;
   box-shadow: var(--shadow-sm);
+  letter-spacing: -0.02em;
 }
 
 .brand-title { margin: 0; font-weight: 800; font-size: 16px; letter-spacing: -0.02em; }
@@ -109,22 +95,6 @@ a:hover { color: var(--primary-dark); }
 .topnav { display: flex; gap: 14px; }
 .topnav a { font-size: 13px; font-weight: 500; color: var(--ink-soft); }
 .topnav a:hover { color: var(--primary); }
-
-.theme-toggle {
-  background: var(--panel-hover);
-  border: 1px solid var(--border);
-  color: var(--ink);
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1rem;
-  transition: var(--transition);
-}
-.theme-toggle:hover { background: var(--border); transform: rotate(15deg); }
 
 /* ---------- KPI Banner ---------- */
 .kpi-banner {
@@ -170,7 +140,6 @@ a:hover { color: var(--primary-dark); }
   background: rgba(255, 255, 255, 0.2);
   transform: translateY(-2px);
 }
-.kpi-icon { font-size: 1.8rem; line-height: 1; }
 .kpi-value { font-size: 1.6rem; font-weight: 800; line-height: 1; margin-bottom: 2px; }
 .kpi-label { font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.04em; color: rgba(255, 255, 255, 0.8); }
 
@@ -180,33 +149,6 @@ main {
   margin: 0 auto;
   padding: 24px 20px 80px;
 }
-
-/* Tabs */
-.tabs {
-  display: flex;
-  gap: 6px;
-  border-bottom: 2px solid var(--border);
-  margin-bottom: 24px;
-}
-.tab {
-  appearance: none;
-  border: none;
-  background: none;
-  padding: 12px 18px;
-  font-size: 14px;
-  font-weight: 600;
-  font-family: var(--font);
-  color: var(--ink-soft);
-  cursor: pointer;
-  border-bottom: 3px solid transparent;
-  margin-bottom: -2px;
-  transition: var(--transition);
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-.tab:hover { color: var(--primary); }
-.tab.active { color: var(--primary); border-bottom-color: var(--primary); }
 
 .panel { display: none; animation: fadeIn 0.25s ease; }
 .panel.active { display: block; }
@@ -234,11 +176,11 @@ main {
   transform: translateY(-50%);
   color: var(--ink-muted);
   pointer-events: none;
-  font-size: 0.95rem;
+  font-size: 0.85rem;
 }
 #q {
   width: 100%;
-  padding: 11px 40px 11px 40px;
+  padding: 11px 40px 11px 38px;
   border: 1.5px solid var(--border);
   border-radius: var(--radius);
   font-size: 14.5px;
@@ -312,7 +254,6 @@ select {
   cursor: pointer;
 }
 
-/* Checkbox filter */
 .checkbox {
   display: inline-flex;
   align-items: center;
@@ -409,7 +350,6 @@ select {
   box-shadow: 0 4px 16px rgba(16, 185, 129, 0.15);
 }
 
-/* Badge PI registrada */
 .badge-pi {
   display: inline-flex;
   align-items: center;
@@ -417,6 +357,7 @@ select {
   font-size: 10.5px;
   font-weight: 700;
   letter-spacing: 0.03em;
+  text-transform: uppercase;
   color: #065f46;
   background: #d1fae5;
   border: 1px solid #6ee7b7;
@@ -424,11 +365,6 @@ select {
   border-radius: 50px;
   white-space: nowrap;
   flex-shrink: 0;
-}
-[data-theme="dark"] .badge-pi {
-  color: #6ee7b7;
-  background: rgba(16, 185, 129, 0.15);
-  border-color: rgba(110, 231, 183, 0.3);
 }
 
 .card-head {
@@ -512,6 +448,26 @@ select {
   border-radius: var(--radius);
 }
 
+/* BM25 score indicator */
+.bm25-score {
+  font-size: 10.5px;
+  font-weight: 600;
+  color: var(--ink-muted);
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+.bm25-bar {
+  display: inline-block;
+  height: 4px;
+  border-radius: 2px;
+  background: var(--primary);
+  opacity: 0.5;
+  min-width: 8px;
+  max-width: 60px;
+}
+
 /* ---------- Modal ---------- */
 .modal-backdrop {
   position: fixed;
@@ -581,7 +537,6 @@ select {
   margin: 0 0 6px;
   color: #065f46;
 }
-[data-theme="dark"] .modal-pi-title { color: #6ee7b7; }
 .modal-pi-note {
   font-size: 12px;
   color: var(--ink-soft);
@@ -604,16 +559,6 @@ select {
   font-size: 12.5px;
   font-family: monospace;
 }
-[data-theme="dark"] .modal-pi-list code {
-  background: rgba(16, 185, 129, 0.18);
-  color: #6ee7b7;
-}
-
-/* ---------- Prose (Sobre) ---------- */
-.prose h2 { font-size: 18px; font-weight: 700; margin-bottom: 12px; }
-.prose h3 { font-size: 15px; font-weight: 700; margin-top: 24px; margin-bottom: 8px; }
-.prose p, .prose li { color: var(--ink-soft); font-size: 14px; line-height: 1.6; }
-.prose ul { padding-left: 20px; margin-bottom: 16px; }
 
 /* ---------- Footer ---------- */
 .footer {
