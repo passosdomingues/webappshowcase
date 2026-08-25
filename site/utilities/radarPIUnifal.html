@@ -1,23 +1,67 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-BR" data-theme="light">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Radar PI — Mapeamento de Docentes e Propriedade Intelectual · UNIFAL-MG</title>
 <meta name="category" content="Propriedade Intelectual">
-  <meta name="description" content="Ferramenta de busca e prospecção tecnológica sobre docentes, laboratórios, patentes, softwares e marcas da UNIFAL-MG, para apoio à Agência I9 e à NidusTec.">
+<meta name="description" content="Ferramenta de busca e prospecção tecnológica sobre docentes, laboratórios, patentes, softwares e marcas da UNIFAL-MG, para apoio à Agência I9 e à NidusTec.">
 <link rel="icon" href="data:,">
 <style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
 :root {
-  --ink: #16181d;
-  --ink-soft: #52565f;
-  --line: #e2e4e9;
-  --bg: #fafafa;
-  --panel: #ffffff;
+  --primary: #2563eb;
+  --primary-dark: #1d4ed8;
+  --primary-light: #eff6ff;
   --accent: #1f3a8f;
   --accent-soft: #eef1fb;
-  --radius: 8px;
-  --max: 980px;
+  --success: #10b981;
+  --warning: #f59e0b;
+  --warning-soft: #fef3c7;
+  --danger: #ef4444;
+  
+  --bg: #f8fafc;
+  --panel: #ffffff;
+  --panel-hover: #f1f5f9;
+  --border: #e2e8f0;
+  --ink: #0f172a;
+  --ink-soft: #475569;
+  --ink-muted: #94a3b8;
+  
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  
+  --radius-sm: 6px;
+  --radius: 10px;
+  --radius-lg: 16px;
+  --max: 1120px;
+  --font: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+[data-theme="dark"] {
+  --primary: #3b82f6;
+  --primary-dark: #60a5fa;
+  --primary-light: #1e293b;
+  --accent: #60a5fa;
+  --accent-soft: #172554;
+  --success: #34d399;
+  --warning: #fbbf24;
+  --warning-soft: #451a03;
+  
+  --bg: #0b0f19;
+  --panel: #151d2a;
+  --panel-hover: #1e293b;
+  --border: #263346;
+  --ink: #f1f5f9;
+  --ink-soft: #94a3b8;
+  --ink-muted: #64748b;
+  
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.5);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.5);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.6);
 }
 
 * { box-sizing: border-box; }
@@ -27,114 +71,275 @@ html, body {
   padding: 0;
   background: var(--bg);
   color: var(--ink);
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-  font-size: 15px;
+  font-family: var(--font);
+  font-size: 14.5px;
   line-height: 1.5;
+  transition: background var(--transition), color var(--transition);
 }
 
-a { color: var(--accent); }
+a { color: var(--primary); text-decoration: none; transition: var(--transition); }
+a:hover { color: var(--primary-dark); }
 
-/* ---------- topbar ---------- */
+/* ---------- Topbar ---------- */
 .topbar {
-  border-bottom: 1px solid var(--line);
-  background: var(--panel);
+  border-bottom: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(12px);
   position: sticky;
   top: 0;
-  z-index: 10;
+  z-index: 100;
+  transition: background var(--transition), border-color var(--transition);
 }
+[data-theme="dark"] .topbar {
+  background: rgba(21, 29, 42, 0.85);
+}
+
 .topbar-inner {
   max-width: var(--max);
   margin: 0 auto;
-  padding: 14px 20px;
+  padding: 12px 20px;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 16px;
   flex-wrap: wrap;
 }
-.brand { display: flex; align-items: center; gap: 10px; }
-.brand-mark {
-  width: 10px;
-  height: 10px;
-  border-radius: 2px;
-  background: var(--accent);
-  flex: none;
-}
-.brand-title { margin: 0; font-weight: 700; font-size: 15px; }
-.brand-sub { margin: 0; font-size: 12px; color: var(--ink-soft); }
-.topnav { display: flex; gap: 18px; }
-.topnav a { font-size: 13px; text-decoration: none; color: var(--ink-soft); }
-.topnav a:hover { color: var(--accent); }
 
-/* ---------- layout ---------- */
+.brand { display: flex; align-items: center; gap: 12px; }
+.brand-icon {
+  width: 38px;
+  height: 38px;
+  border-radius: var(--radius);
+  background: linear-gradient(135deg, #1f3a8f, #2563eb);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  box-shadow: var(--shadow-sm);
+}
+
+.brand-title { margin: 0; font-weight: 800; font-size: 16px; letter-spacing: -0.02em; }
+.brand-sub { margin: 0; font-size: 12px; color: var(--ink-soft); }
+
+.topbar-actions { display: flex; align-items: center; gap: 12px; }
+.topnav { display: flex; gap: 14px; }
+.topnav a { font-size: 13px; font-weight: 500; color: var(--ink-soft); }
+.topnav a:hover { color: var(--primary); }
+
+.theme-toggle {
+  background: var(--panel-hover);
+  border: 1px solid var(--border);
+  color: var(--ink);
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  transition: var(--transition);
+}
+.theme-toggle:hover { background: var(--border); transform: rotate(15deg); }
+
+/* ---------- KPI Banner ---------- */
+.kpi-banner {
+  background: linear-gradient(135deg, #1e3a8a, #2563eb);
+  color: #fff;
+  padding: 24px 20px 28px;
+  position: relative;
+}
+.kpi-inner {
+  max-width: var(--max);
+  margin: 0 auto;
+}
+.kpi-header h1 {
+  font-size: clamp(1.4rem, 3.5vw, 2.2rem);
+  font-weight: 800;
+  margin: 0 0 6px;
+  letter-spacing: -0.02em;
+}
+.kpi-header p {
+  margin: 0 0 20px;
+  font-size: 0.95rem;
+  color: rgba(255, 255, 255, 0.85);
+  max-width: 760px;
+}
+
+.kpi-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+  gap: 12px;
+}
+.kpi-card {
+  background: rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: var(--radius);
+  padding: 14px 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  transition: var(--transition);
+}
+.kpi-card:hover {
+  background: rgba(255, 255, 255, 0.2);
+  transform: translateY(-2px);
+}
+.kpi-icon { font-size: 1.8rem; line-height: 1; }
+.kpi-value { font-size: 1.6rem; font-weight: 800; line-height: 1; margin-bottom: 2px; }
+.kpi-label { font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.04em; color: rgba(255, 255, 255, 0.8); }
+
+/* ---------- Main Layout ---------- */
 main {
   max-width: var(--max);
   margin: 0 auto;
   padding: 24px 20px 80px;
 }
 
+/* Tabs */
 .tabs {
   display: flex;
-  gap: 4px;
-  border-bottom: 1px solid var(--line);
-  margin-bottom: 20px;
+  gap: 6px;
+  border-bottom: 2px solid var(--border);
+  margin-bottom: 24px;
+  overflow-x: auto;
+  scroll-behavior: smooth;
 }
 .tab {
   appearance: none;
   border: none;
   background: none;
-  padding: 10px 14px;
+  padding: 12px 18px;
   font-size: 14px;
   font-weight: 600;
+  font-family: var(--font);
   color: var(--ink-soft);
   cursor: pointer;
-  border-bottom: 2px solid transparent;
+  border-bottom: 3px solid transparent;
+  margin-bottom: -2px;
+  transition: var(--transition);
+  white-space: nowrap;
+  display: flex;
+  align-items: center;
+  gap: 6px;
 }
-.tab.active { color: var(--ink); border-bottom-color: var(--accent); }
+.tab:hover { color: var(--primary); }
+.tab.active { color: var(--primary); border-bottom-color: var(--primary); }
 
-.panel { display: none; }
+.panel { display: none; animation: fadeIn 0.25s ease; }
 .panel.active { display: block; }
 
-/* ---------- search & filters ---------- */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ---------- Controls & Search ---------- */
 .searchbar {
   display: flex;
-  gap: 8px;
-  margin-bottom: 10px;
+  gap: 10px;
+  margin-bottom: 12px;
+  position: relative;
+}
+.search-input-wrap {
+  position: relative;
+  flex: 1;
+}
+.search-icon-inside {
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--ink-muted);
+  pointer-events: none;
+  font-size: 0.95rem;
 }
 #q, .subsearch {
-  flex: 1;
-  padding: 11px 14px;
-  border: 1px solid var(--line);
+  width: 100%;
+  padding: 11px 40px 11px 40px;
+  border: 1.5px solid var(--border);
   border-radius: var(--radius);
-  font-size: 15px;
+  font-size: 14.5px;
+  font-family: var(--font);
   background: var(--panel);
   color: var(--ink);
+  transition: var(--transition);
 }
 #q:focus, .subsearch:focus, select:focus {
   outline: none;
-  border-color: var(--accent);
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px var(--primary-light);
+}
+
+.kbd-shortcut {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: var(--panel-hover);
+  border: 1px solid var(--border);
+  color: var(--ink-muted);
+  font-size: 0.72rem;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-family: monospace;
+  pointer-events: none;
 }
 
 .btn-outline {
-  border: 1px solid var(--line);
+  border: 1.5px solid var(--border);
   background: var(--panel);
   color: var(--ink-soft);
-  padding: 0 14px;
+  padding: 0 16px;
   border-radius: var(--radius);
   font-size: 13px;
+  font-weight: 600;
+  font-family: var(--font);
   cursor: pointer;
   white-space: nowrap;
+  transition: var(--transition);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.btn-outline:hover {
+  border-color: var(--primary);
+  color: var(--primary);
+  background: var(--primary-light);
 }
 .btn-outline[aria-pressed="true"] {
-  border-color: var(--accent);
-  color: var(--accent);
-  background: var(--accent-soft);
+  border-color: var(--primary);
+  color: var(--primary);
+  background: var(--primary-light);
 }
+
+.btn-primary {
+  background: var(--primary);
+  color: #fff;
+  border: none;
+  padding: 8px 14px;
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+  font-weight: 600;
+  font-family: var(--font);
+  cursor: pointer;
+  transition: var(--transition);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.btn-primary:hover { background: var(--primary-dark); }
 
 .hint {
   font-size: 12px;
   color: var(--ink-soft);
   margin: 0 0 12px;
+  padding: 8px 12px;
+  background: var(--primary-light);
+  border-radius: var(--radius-sm);
+  border-left: 3px solid var(--primary);
 }
 
 .filters {
@@ -142,15 +347,21 @@ main {
   flex-wrap: wrap;
   align-items: center;
   gap: 10px;
-  margin-bottom: 14px;
+  margin-bottom: 16px;
+  padding: 12px 14px;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
 }
 select {
-  padding: 8px 10px;
-  border: 1px solid var(--line);
-  border-radius: var(--radius);
+  padding: 8px 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
   background: var(--panel);
   color: var(--ink);
   font-size: 13px;
+  font-family: var(--font);
+  cursor: pointer;
 }
 .checkbox {
   display: flex;
@@ -158,204 +369,469 @@ select {
   gap: 6px;
   font-size: 13px;
   color: var(--ink-soft);
-}
-.btn-link {
-  border: none;
-  background: none;
-  color: var(--accent);
-  font-size: 13px;
   cursor: pointer;
-  padding: 0;
+  user-select: none;
+}
+.checkbox input { accent-color: var(--primary); }
+
+.actions-bar {
+  display: flex;
+  gap: 8px;
   margin-left: auto;
 }
 
-.result-count {
-  font-size: 12px;
-  color: var(--ink-soft);
-  margin: 0 0 10px;
+/* Active Pills */
+.active-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 14px;
+}
+.pill-tag {
+  background: var(--primary-light);
+  color: var(--primary);
+  border: 1px solid rgba(37, 99, 235, 0.2);
+  padding: 3px 10px;
+  border-radius: 50px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.pill-tag button {
+  background: none;
+  border: none;
+  color: var(--primary);
+  cursor: pointer;
+  font-size: 0.85rem;
+  padding: 0;
+  line-height: 1;
 }
 
-/* ---------- lista de docentes ---------- */
-.lista { list-style: none; margin: 0; padding: 0; }
+.result-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 13px;
+  color: var(--ink-soft);
+  margin-bottom: 14px;
+}
+
+/* ---------- Lista de Docentes Grid ---------- */
+.lista {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(330px, 1fr));
+  gap: 14px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
 
 .card {
-  border: 1px solid var(--line);
+  border: 1px solid var(--border);
   border-radius: var(--radius);
   background: var(--panel);
-  padding: 16px 18px;
-  margin-bottom: 10px;
+  padding: 18px 20px;
+  transition: var(--transition);
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+.card:hover {
+  border-color: var(--primary);
+  box-shadow: var(--shadow-md);
+  transform: translateY(-2px);
 }
 
 .card-head {
   display: flex;
   justify-content: space-between;
-  align-items: baseline;
+  align-items: flex-start;
   gap: 10px;
-  flex-wrap: wrap;
+  margin-bottom: 6px;
 }
-.card-name { font-size: 16px; font-weight: 700; margin: 0; }
-.card-score { font-size: 11px; color: var(--accent); font-variant-numeric: tabular-nums; }
+.card-name {
+  font-size: 15.5px;
+  font-weight: 700;
+  margin: 0;
+  color: var(--ink);
+  line-height: 1.35;
+}
+.card-score {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--primary);
+  background: var(--primary-light);
+  padding: 2px 8px;
+  border-radius: 50px;
+  white-space: nowrap;
+}
 
 .card-meta {
-  font-size: 13px;
+  font-size: 12.5px;
   color: var(--ink-soft);
   margin: 4px 0 10px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
 }
-.card-meta span + span::before { content: " · "; }
+.card-meta span {
+  background: var(--panel-hover);
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-weight: 500;
+}
 
-.badges { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 8px; }
+.badges { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
 .badge {
   font-size: 11px;
   font-weight: 600;
   padding: 3px 8px;
-  border-radius: 999px;
-  background: var(--accent-soft);
-  color: var(--accent);
+  border-radius: 50px;
+  background: var(--primary-light);
+  color: var(--primary);
 }
 .badge.warn {
-  background: #fdf1e3;
-  color: #92500b;
+  background: var(--warning-soft);
+  color: var(--warning);
 }
 
-.vinculos { margin: 8px 0 0; padding-left: 0; list-style: none; }
+.vinculos {
+  margin: 0 0 14px;
+  padding: 0;
+  list-style: none;
+  flex: 1;
+}
 .vinculos li {
-  font-size: 13px;
+  font-size: 12.5px;
   padding: 6px 0;
-  border-top: 1px solid var(--line);
+  border-top: 1px dashed var(--border);
 }
 .vinculos li:first-child { border-top: none; }
-.vinculo-curso { font-weight: 600; }
-.vinculo-disc { color: var(--ink-soft); }
+.vinculo-curso { font-weight: 600; color: var(--ink); }
+.vinculo-disc { color: var(--ink-soft); font-size: 12px; margin-top: 2px; }
 
-.card-links { margin-top: 10px; display: flex; gap: 10px; flex-wrap: wrap; }
-.card-links a {
-  font-size: 12px;
-  text-decoration: none;
-  border: 1px solid var(--line);
-  border-radius: var(--radius);
-  padding: 5px 10px;
-  color: var(--ink);
+.card-foot {
+  margin-top: auto;
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
 }
-.card-links a:hover { border-color: var(--accent); color: var(--accent); }
-.card-links a.patente { border-color: #cf9a3a; color: #8a5c0c; }
+
+.card-links { display: flex; gap: 8px; flex-wrap: wrap; }
+.btn-sm {
+  font-size: 12px;
+  font-weight: 500;
+  padding: 4px 10px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  color: var(--ink-soft);
+  background: var(--panel);
+  cursor: pointer;
+  transition: var(--transition);
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+.btn-sm:hover { border-color: var(--primary); color: var(--primary); background: var(--primary-light); }
+.btn-sm.patente { border-color: var(--warning); color: var(--warning); background: var(--warning-soft); }
 
 .empty {
   text-align: center;
   color: var(--ink-soft);
-  padding: 40px 0;
+  padding: 48px 20px;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
 }
 
-/* ---------- portfólio ---------- */
-.block { margin-bottom: 34px; }
-.block h2 { font-size: 17px; margin: 0 0 12px; }
-.count-badge { font-size: 12px; font-weight: 400; color: var(--ink-soft); }
+/* ---------- Analytics Tab ---------- */
+.analytics-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(460px, 1fr));
+  gap: 20px;
+  margin-bottom: 24px;
+}
+@media (max-width: 520px) {
+  .analytics-grid { grid-template-columns: 1fr; }
+}
+
+.chart-card {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px;
+  box-shadow: var(--shadow-sm);
+}
+.chart-card h3 {
+  margin: 0 0 16px;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--ink);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.chart-container {
+  position: relative;
+  height: 260px;
+  width: 100%;
+}
+
+/* ---------- Portfólio Tab ---------- */
+.block { margin-bottom: 36px; }
+.block h2 {
+  font-size: 18px;
+  font-weight: 700;
+  margin: 0 0 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--ink);
+}
+.count-badge { font-size: 13px; font-weight: 500; color: var(--ink-soft); }
 
 .marcos {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 10px;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 12px;
 }
 .marco {
-  border: 1px solid var(--line);
+  border: 1px solid var(--border);
   border-radius: var(--radius);
-  padding: 12px 14px;
+  padding: 16px;
   background: var(--panel);
+  transition: var(--transition);
 }
-.marco strong { display: block; font-size: 13px; margin-bottom: 2px; }
-.marco .periodo { font-size: 12px; color: var(--accent); font-weight: 600; }
-.marco p { font-size: 12px; color: var(--ink-soft); margin: 6px 0 0; }
+.marco:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); border-color: var(--primary); }
+.marco strong { display: block; font-size: 14px; margin-bottom: 4px; color: var(--ink); }
+.marco .periodo { font-size: 12px; color: var(--primary); font-weight: 700; }
+.marco p { font-size: 12.5px; color: var(--ink-soft); margin: 6px 0 0; }
 
 .cards {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-  gap: 10px;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 12px;
 }
 .cards .card { margin-bottom: 0; }
-.cards h3 { font-size: 14px; margin: 0 0 6px; }
-.cards p { font-size: 12.5px; color: var(--ink-soft); margin: 4px 0; }
+.cards h3 { font-size: 14.5px; margin: 0 0 8px; color: var(--ink); }
+.cards p { font-size: 13px; color: var(--ink-soft); margin: 4px 0; }
 
-.subsearch { margin-bottom: 10px; width: 100%; }
+.table-header-tools {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+}
 
+.datatable-wrap {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow-x: auto;
+  background: var(--panel);
+}
 .datatable {
   width: 100%;
   border-collapse: collapse;
   font-size: 13px;
-  background: var(--panel);
-  border: 1px solid var(--line);
-  border-radius: var(--radius);
-  overflow: hidden;
+  text-align: left;
 }
 .datatable th, .datatable td {
-  text-align: left;
-  padding: 9px 12px;
-  border-bottom: 1px solid var(--line);
+  padding: 11px 14px;
+  border-bottom: 1px solid var(--border);
   vertical-align: top;
 }
 .datatable th {
-  background: #f4f5f7;
-  font-size: 11px;
+  background: var(--panel-hover);
+  font-size: 11.5px;
+  font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.03em;
+  letter-spacing: 0.04em;
   color: var(--ink-soft);
+  cursor: pointer;
+  user-select: none;
+  transition: var(--transition);
 }
+.datatable th:hover { color: var(--primary); background: var(--border); }
+.datatable th .sort-icon { margin-left: 4px; opacity: 0.5; }
+.datatable th.sorted .sort-icon { opacity: 1; color: var(--primary); }
 .datatable tr:last-child td { border-bottom: none; }
+.datatable tr:hover td { background: var(--panel-hover); }
 
-/* ---------- sobre ---------- */
-.prose h2 { font-size: 18px; }
-.prose h3 { font-size: 15px; margin-top: 22px; }
-.prose p, .prose li { color: var(--ink-soft); font-size: 14px; }
-.prose ul { padding-left: 20px; }
+/* ---------- Modal ---------- */
+.modal-backdrop {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(15, 23, 42, 0.6);
+  backdrop-filter: blur(4px);
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  opacity: 0;
+  visibility: hidden;
+  transition: var(--transition);
+}
+.modal-backdrop.active { opacity: 1; visibility: visible; }
 
-/* ---------- footer ---------- */
+.modal {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  max-width: 620px;
+  width: 100%;
+  max-height: 85vh;
+  overflow-y: auto;
+  padding: 24px 28px;
+  box-shadow: var(--shadow-lg);
+  position: relative;
+  transform: translateY(12px);
+  transition: var(--transition);
+}
+.modal-backdrop.active .modal { transform: translateY(0); }
+
+.modal-close {
+  position: absolute;
+  top: 18px;
+  right: 18px;
+  background: var(--panel-hover);
+  border: none;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 1rem;
+  color: var(--ink-soft);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: var(--transition);
+}
+.modal-close:hover { background: var(--border); color: var(--ink); }
+
+.modal-title { font-size: 18px; font-weight: 800; margin: 0 0 6px; color: var(--ink); }
+.modal-subtitle { font-size: 13px; color: var(--ink-soft); margin-bottom: 16px; }
+
+/* ---------- Prose (Sobre) ---------- */
+.prose h2 { font-size: 18px; font-weight: 700; margin-bottom: 12px; }
+.prose h3 { font-size: 15px; font-weight: 700; margin-top: 24px; margin-bottom: 8px; }
+.prose p, .prose li { color: var(--ink-soft); font-size: 14px; line-height: 1.6; }
+.prose ul { padding-left: 20px; margin-bottom: 16px; }
+
+/* ---------- Footer ---------- */
 .footer {
-  border-top: 1px solid var(--line);
-  padding: 16px 20px;
+  border-top: 1px solid var(--border);
+  padding: 20px;
   text-align: center;
-  font-size: 12px;
+  font-size: 12.5px;
   color: var(--ink-soft);
 }
 
-@media (max-width: 560px) {
+@media (max-width: 640px) {
   .searchbar { flex-direction: column; }
-  .filters .btn-link { margin-left: 0; }
+  .filters { flex-direction: column; align-items: stretch; }
+  .actions-bar { margin-left: 0; justify-content: flex-end; }
+  .kpi-cards { grid-template-columns: 1fr 1fr; }
 }
 
 </style>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 </head>
 <body>
 
 <header class="topbar">
   <div class="topbar-inner">
     <div class="brand">
-      <span class="brand-mark" aria-hidden="true"></span>
+      <div class="brand-icon" aria-hidden="true">📡</div>
       <div>
-        <p class="brand-title">Radar PI · UNIFAL-MG</p>
+        <h1 class="brand-title">Radar PI · UNIFAL-MG</h1>
         <p class="brand-sub">Agência I9 &middot; NidusTec — Mapeamento de docentes e propriedade intelectual</p>
       </div>
     </div>
-    <nav class="topnav">
-      <a href="https://www.unifal-mg.edu.br/portal/" target="_blank" rel="noopener">Portal UNIFAL</a>
-      <a href="https://www.unifal-mg.edu.br/i9unifal/" target="_blank" rel="noopener">Agência I9</a>
-      <a href="https://www.unifal-mg.edu.br/graduacao/cursos/" target="_blank" rel="noopener">Cursos</a>
-    </nav>
+    <div class="topbar-actions">
+      <nav class="topnav">
+        <a href="https://www.unifal-mg.edu.br/portal/" target="_blank" rel="noopener">Portal UNIFAL</a>
+        <a href="https://www.unifal-mg.edu.br/i9unifal/" target="_blank" rel="noopener">Agência I9</a>
+        <a href="https://www.unifal-mg.edu.br/graduacao/cursos/" target="_blank" rel="noopener">Cursos</a>
+      </nav>
+      <button class="theme-toggle" id="themeToggle" title="Alternar tema claro/escuro" aria-label="Alternar modo escuro">🌙</button>
+    </div>
   </div>
 </header>
+
+<section class="kpi-banner">
+  <div class="kpi-inner">
+    <div class="kpi-header">
+      <h1>Mapeamento de Inovação & Propriedade Intelectual</h1>
+      <p>Plataforma de prospecção tecnológica, cruzando o corpo docente com patentes, marcas, programas de computador e laboratórios da UNIFAL-MG.</p>
+    </div>
+    <div class="kpi-cards">
+      <div class="kpi-card">
+        <div class="kpi-icon">👨‍🏫</div>
+        <div>
+          <div class="kpi-value" id="kpi-docentes">534</div>
+          <div class="kpi-label">Docentes Mapeados</div>
+        </div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-icon">💡</div>
+        <div>
+          <div class="kpi-value" id="kpi-patentes">54</div>
+          <div class="kpi-label">Patentes Registradas</div>
+        </div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-icon">💻</div>
+        <div>
+          <div class="kpi-value" id="kpi-softwares">20</div>
+          <div class="kpi-label">Softwares Registrados</div>
+        </div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-icon">🏷️</div>
+        <div>
+          <div class="kpi-value" id="kpi-marcas">14</div>
+          <div class="kpi-label">Marcas INPI</div>
+        </div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-icon">🔬</div>
+        <div>
+          <div class="kpi-value" id="kpi-labs">12</div>
+          <div class="kpi-label">Laboratórios</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
 
 <main>
 
   <div class="tabs" role="tablist">
-    <button class="tab active" data-tab="docentes" role="tab" aria-selected="true">Docentes</button>
-    <button class="tab" data-tab="portfolio" role="tab" aria-selected="false">Portfólio de PI</button>
-    <button class="tab" data-tab="sobre" role="tab" aria-selected="false">Sobre os dados</button>
+    <button class="tab active" data-tab="docentes" role="tab" aria-selected="true">🔍 Docentes</button>
+    <button class="tab" data-tab="portfolio" role="tab" aria-selected="false">📁 Portfólio de PI</button>
+    <button class="tab" data-tab="analytics" role="tab" aria-selected="false">📊 Analytics & Gráficos</button>
+    <button class="tab" data-tab="sobre" role="tab" aria-selected="false">ℹ️ Sobre os dados</button>
   </div>
 
   <!-- ==================== DOCENTES ==================== -->
   <section id="panel-docentes" class="panel active">
 
     <div class="searchbar">
-      <input id="q" type="text" placeholder="Buscar por nome, curso, disciplina, unidade ou campus…" autocomplete="off">
+      <div class="search-input-wrap">
+        <span class="search-icon-inside" aria-hidden="true">🔍</span>
+        <input id="q" type="text" placeholder="Buscar por nome, curso, disciplina, unidade ou campus…" autocomplete="off">
+        <span class="kbd-shortcut">Ctrl+K</span>
+      </div>
       <button id="semantic-toggle" class="btn-outline" type="button" aria-pressed="false">
-        Busca semântica: desligada
+        ⚡ Busca semântica: desligada
       </button>
     </div>
     <p id="semantic-status" class="hint" hidden></p>
@@ -366,12 +842,20 @@ select {
       <select id="f-titulacao"><option value="">Titulação — todas</option></select>
       <label class="checkbox">
         <input type="checkbox" id="f-patente">
-        Somente com patente/PI sinalizada
+        Somente com PI sinalizada
       </label>
-      <button id="clear-filters" class="btn-link" type="button">Limpar filtros</button>
+      <div class="actions-bar">
+        <button id="export-csv" class="btn-outline" type="button" title="Exportar visão atual para CSV">📥 CSV</button>
+        <button id="export-json" class="btn-outline" type="button" title="Exportar visão atual para JSON">📄 JSON</button>
+        <button id="clear-filters" class="btn-outline" type="button">✕ Limpar</button>
+      </div>
     </div>
 
-    <p id="result-count" class="result-count"></p>
+    <div id="active-pills" class="active-pills"></div>
+
+    <div class="result-bar">
+      <span id="result-count">Carregando docentes…</span>
+    </div>
 
     <ul id="lista" class="lista"></ul>
     <p id="empty" class="empty" hidden>Nenhum docente encontrado com esses critérios.</p>
@@ -381,45 +865,111 @@ select {
   <section id="panel-portfolio" class="panel">
 
     <div class="block">
-      <h2>Marcos institucionais</h2>
+      <h2>🏛️ Marcos institucionais</h2>
       <div id="marcos" class="marcos"></div>
     </div>
 
     <div class="block">
-      <h2>Laboratórios</h2>
+      <h2>🔬 Laboratórios</h2>
       <div id="laboratorios" class="cards"></div>
     </div>
 
     <div class="block">
-      <h2>Patentes em destaque</h2>
+      <h2>⭐ Patentes em destaque</h2>
       <div id="patentes-destaque" class="cards"></div>
     </div>
 
     <div class="block">
-      <h2>Portfólio completo de patentes <span class="count-badge" id="count-patentes"></span></h2>
-      <input id="q-patentes" class="subsearch" type="text" placeholder="Filtrar patentes por título, campo ou número…">
-      <table class="datatable" id="tabela-patentes">
-        <thead><tr><th>Número INPI</th><th>Título</th><th>TRL</th><th>Parceria</th><th>Campo de aplicação</th></tr></thead>
-        <tbody></tbody>
-      </table>
+      <h2>💡 Portfólio completo de patentes <span class="count-badge" id="count-patentes"></span></h2>
+      <div class="table-header-tools">
+        <input id="q-patentes" class="subsearch" type="text" placeholder="Filtrar patentes por título, campo, TRL ou INPI…">
+        <button id="export-patentes-csv" class="btn-outline" type="button">📥 Exportar Patentes CSV</button>
+      </div>
+      <div class="datatable-wrap">
+        <table class="datatable" id="tabela-patentes">
+          <thead>
+            <tr>
+              <th data-sort="numero">Número INPI <span class="sort-icon">↕</span></th>
+              <th data-sort="titulo">Título <span class="sort-icon">↕</span></th>
+              <th data-sort="trl">TRL <span class="sort-icon">↕</span></th>
+              <th data-sort="parceria">Parceria <span class="sort-icon">↕</span></th>
+              <th data-sort="campo">Campo de aplicação <span class="sort-icon">↕</span></th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
     </div>
 
     <div class="block">
-      <h2>Programas de computador registrados <span class="count-badge" id="count-softwares"></span></h2>
-      <table class="datatable" id="tabela-softwares">
-        <thead><tr><th>Registro</th><th>Nome</th><th>Área</th><th>Diferencial</th><th>Maturidade</th></tr></thead>
-        <tbody></tbody>
-      </table>
+      <h2>💻 Programas de computador registrados <span class="count-badge" id="count-softwares"></span></h2>
+      <div class="datatable-wrap">
+        <table class="datatable" id="tabela-softwares">
+          <thead>
+            <tr>
+              <th data-sort="numero">Registro <span class="sort-icon">↕</span></th>
+              <th data-sort="nome">Nome <span class="sort-icon">↕</span></th>
+              <th data-sort="area">Área <span class="sort-icon">↕</span></th>
+              <th data-sort="diferencial">Diferencial <span class="sort-icon">↕</span></th>
+              <th data-sort="maturidade">Maturidade <span class="sort-icon">↕</span></th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
     </div>
 
     <div class="block">
-      <h2>Marcas registradas <span class="count-badge" id="count-marcas"></span></h2>
-      <table class="datatable" id="tabela-marcas">
-        <thead><tr><th>Registro INPI</th><th>Marca</th><th>Apresentação</th><th>Depósito</th><th>Concessão</th></tr></thead>
-        <tbody></tbody>
-      </table>
+      <h2>🏷️ Marcas registradas <span class="count-badge" id="count-marcas"></span></h2>
+      <div class="datatable-wrap">
+        <table class="datatable" id="tabela-marcas">
+          <thead>
+            <tr>
+              <th data-sort="registro">Registro INPI <span class="sort-icon">↕</span></th>
+              <th data-sort="nome">Marca <span class="sort-icon">↕</span></th>
+              <th data-sort="apresentacao">Apresentação <span class="sort-icon">↕</span></th>
+              <th data-sort="deposito">Depósito <span class="sort-icon">↕</span></th>
+              <th data-sort="concessao">Concessão <span class="sort-icon">↕</span></th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
     </div>
 
+  </section>
+
+  <!-- ==================== ANALYTICS ==================== -->
+  <section id="panel-analytics" class="panel">
+    <div class="block">
+      <h2>📊 Visualização Analítica & Métricas de PI</h2>
+      <div class="analytics-grid">
+        <div class="chart-card">
+          <h3>🔬 Distribuição de TRL das Patentes</h3>
+          <div class="chart-container">
+            <canvas id="chartTRL"></canvas>
+          </div>
+        </div>
+        <div class="chart-card">
+          <h3>💻 Maturidade dos Softwares Registrados</h3>
+          <div class="chart-container">
+            <canvas id="chartSoftwares"></canvas>
+          </div>
+        </div>
+        <div class="chart-card">
+          <h3>🏫 Corpo Docente por Campus</h3>
+          <div class="chart-container">
+            <canvas id="chartCampus"></canvas>
+          </div>
+        </div>
+        <div class="chart-card">
+          <h3>📦 Distribuição do Portfólio de PI</h3>
+          <div class="chart-container">
+            <canvas id="chartPIPortfolio"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
   </section>
 
   <!-- ==================== SOBRE ==================== -->
@@ -460,6 +1010,14 @@ select {
   </section>
 
 </main>
+
+<!-- Modal para Detalhes do Docente -->
+<div id="modal-docente" class="modal-backdrop" aria-hidden="true">
+  <div class="modal">
+    <button id="modal-close" class="modal-close" aria-label="Fechar modal">✕</button>
+    <div id="modal-body"></div>
+  </div>
+</div>
 
 <footer class="footer">
   <p>Radar PI · UNIFAL-MG — ferramenta de apoio interno à prospecção tecnológica e mapeamento de propriedade intelectual.</p>
@@ -12470,6 +13028,12 @@ const state = {
   filters: { campus: "", unidade: "", titulacao: "", somentePatente: false },
   query: "",
   semantic: { on: false, ready: false, loading: false, embeddings: null, extractor: null },
+  sort: {
+    patentes: { key: "", asc: true },
+    softwares: { key: "", asc: true },
+    marcas: { key: "", asc: true }
+  },
+  charts: {}
 };
 
 async function loadData() {
@@ -12487,7 +13051,30 @@ async function loadData() {
 }
 
 /* =========================================================================
-   Normalização e texto de busca
+   Tema (Light / Dark)
+   ========================================================================= */
+
+function initTheme() {
+  const toggleBtn = document.getElementById("themeToggle");
+  const storedTheme = localStorage.getItem("radar_theme");
+  const systemDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+  const currentTheme = storedTheme || (systemDark ? "dark" : "light");
+
+  document.documentElement.setAttribute("data-theme", currentTheme);
+  toggleBtn.textContent = currentTheme === "dark" ? "☀️" : "🌙";
+
+  toggleBtn.addEventListener("click", () => {
+    const isDark = document.documentElement.getAttribute("data-theme") === "dark";
+    const newTheme = isDark ? "light" : "dark";
+    document.documentElement.setAttribute("data-theme", newTheme);
+    localStorage.setItem("radar_theme", newTheme);
+    toggleBtn.textContent = newTheme === "dark" ? "☀️" : "🌙";
+    if (Object.keys(state.charts).length) renderAnalyticsCharts();
+  });
+}
+
+/* =========================================================================
+   Normalização e Texto de Busca
    ========================================================================= */
 
 function normalize(str) {
@@ -12505,7 +13092,7 @@ function corpusText(p) {
 }
 
 /* =========================================================================
-   Filtros e busca por palavra-chave
+   Filtros e Busca por Palavra-chave
    ========================================================================= */
 
 function populateFilterOptions() {
@@ -12557,7 +13144,51 @@ function keywordSearch(list, query) {
 }
 
 /* =========================================================================
-   Busca semântica (client-side, via transformers.js / WebAssembly)
+   Active Filter Pills
+   ========================================================================= */
+
+function updateActivePills() {
+  const container = document.getElementById("active-pills");
+  const pills = [];
+
+  if (state.filters.campus) {
+    pills.push({ label: `Campus: ${state.filters.campus}`, type: "campus" });
+  }
+  if (state.filters.unidade) {
+    pills.push({ label: `Unidade: ${state.filters.unidade}`, type: "unidade" });
+  }
+  if (state.filters.titulacao) {
+    pills.push({ label: `Titulação: ${state.filters.titulacao}`, type: "titulacao" });
+  }
+  if (state.filters.somentePatente) {
+    pills.push({ label: `Somente PI Sinalizada`, type: "somentePatente" });
+  }
+  if (state.query.trim()) {
+    pills.push({ label: `Busca: "${state.query.trim()}"`, type: "query" });
+  }
+
+  container.innerHTML = pills.map((p) => `
+    <span class="pill-tag">
+      ${escapeHtml(p.label)}
+      <button data-clear="${p.type}" title="Remover filtro">✕</button>
+    </span>
+  `).join("");
+
+  container.querySelectorAll("button[data-clear]").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const type = btn.dataset.clear;
+      if (type === "campus") { state.filters.campus = ""; document.getElementById("f-campus").value = ""; }
+      else if (type === "unidade") { state.filters.unidade = ""; document.getElementById("f-unidade").value = ""; }
+      else if (type === "titulacao") { state.filters.titulacao = ""; document.getElementById("f-titulacao").value = ""; }
+      else if (type === "somentePatente") { state.filters.somentePatente = false; document.getElementById("f-patente").checked = false; }
+      else if (type === "query") { state.query = ""; document.getElementById("q").value = ""; }
+      runSearchAndRender();
+    });
+  });
+}
+
+/* =========================================================================
+   Busca Semântica
    ========================================================================= */
 
 const SEMANTIC_MODEL = "Xenova/paraphrase-multilingual-MiniLM-L12-v2";
@@ -12604,7 +13235,7 @@ async function ensureSemanticReady() {
     setSemanticStatus("Não foi possível carregar a busca semântica agora (verifique a conexão). A busca por palavra-chave continua funcionando normalmente.");
     state.semantic.on = false;
     document.getElementById("semantic-toggle").setAttribute("aria-pressed", "false");
-    document.getElementById("semantic-toggle").textContent = "Busca semântica: desligada";
+    document.getElementById("semantic-toggle").textContent = "⚡ Busca semântica: desligada";
   } finally {
     state.semantic.loading = false;
   }
@@ -12615,23 +13246,19 @@ function loadEmbeddingCache() {
     const raw = localStorage.getItem(CACHE_KEY);
     if (!raw) return null;
     return JSON.parse(raw);
-  } catch (e) {
-    return null;
-  }
+  } catch (e) { return null; }
 }
 
 function saveEmbeddingCache(embeddings) {
   try {
     localStorage.setItem(CACHE_KEY, JSON.stringify(embeddings));
-  } catch (e) {
-    /* localStorage cheio ou indisponível — segue sem cache */
-  }
+  } catch (e) {}
 }
 
 function cosineSim(a, b) {
   let dot = 0;
   for (let i = 0; i < a.length; i++) dot += a[i] * b[i];
-  return dot; // vetores já normalizados
+  return dot;
 }
 
 async function semanticSearch(list, query) {
@@ -12650,7 +13277,7 @@ async function semanticSearch(list, query) {
 }
 
 /* =========================================================================
-   Renderização — Docentes
+   Renderização — Docentes & Modal
    ========================================================================= */
 
 function escapeHtml(s) {
@@ -12661,6 +13288,7 @@ function escapeHtml(s) {
 function escapeAttr(s) { return escapeHtml(s); }
 
 function renderDocentes(scored) {
+  state.filtered = scored.map((s) => s.item);
   const ul = document.getElementById("lista");
   const empty = document.getElementById("empty");
   const count = document.getElementById("result-count");
@@ -12674,49 +13302,112 @@ function renderDocentes(scored) {
   }
   empty.hidden = true;
 
-  ul.innerHTML = scored.map(({ item: p, score }) => {
+  ul.innerHTML = scored.map(({ item: p, score }, idx) => {
     const badges = [];
     if ((p.patentes && p.patentes.length) || (p.patentes_pi && p.patentes_pi.length)) {
-      badges.push(`<span class="badge warn">PI sinalizada</span>`);
+      badges.push(`<span class="badge warn">PI Sinalizada</span>`);
     }
     if (p.laboratorios && p.laboratorios.length) {
       for (const sigla of p.laboratorios) badges.push(`<span class="badge">${escapeHtml(sigla)}</span>`);
     }
 
-    const vinculos = (p.vinculos || []).map((v) => `
+    const vinculos = (p.vinculos || []).slice(0, 2).map((v) => `
       <li>
         <div class="vinculo-curso">${escapeHtml(v.curso)}</div>
         ${v.disciplinas ? `<div class="vinculo-disc">${escapeHtml(v.disciplinas)}</div>` : ""}
       </li>`).join("");
 
-    const links = [];
-    if (p.email) links.push(`<a href="mailto:${escapeAttr(p.email)}">${escapeHtml(p.email)}</a>`);
-    if (p.lattes) links.push(`<a href="${escapeAttr(p.lattes)}" target="_blank" rel="noopener">Currículo Lattes</a>`);
-    (p.patentes || []).forEach((url, i) => {
-      links.push(`<a class="patente" href="${escapeAttr(url)}" target="_blank" rel="noopener">Documento de PI ${p.patentes.length > 1 ? i + 1 : ""}</a>`);
-    });
-
+    const hasMoreVinculos = (p.vinculos || []).length > 2;
     const scoreTag = score != null ? `<span class="card-score">similaridade ${(score * 100).toFixed(0)}%</span>` : "";
 
     return `
       <li class="card">
         <div class="card-head">
-          <p class="card-name">${escapeHtml(p.nome)}</p>
+          <h3 class="card-name">${escapeHtml(p.nome)}</h3>
           ${scoreTag}
         </div>
-        <p class="card-meta">
-          <span>${escapeHtml(p.unidade || "Unidade não informada")}</span>
-          <span>${escapeHtml(p.campus || "Campus não informado")}</span>
-          <span>${escapeHtml(p.titulacao || "Titulação não informada")}</span>
-        </p>
+        <div class="card-meta">
+          <span>📍 ${escapeHtml(p.campus || "Campus N/A")}</span>
+          <span>🏛️ ${escapeHtml(p.unidade || "Unidade N/A")}</span>
+          <span>🎓 ${escapeHtml(p.titulacao || "Titulação N/A")}</span>
+        </div>
         ${badges.length ? `<div class="badges">${badges.join("")}</div>` : ""}
-        <ul class="vinculos">${vinculos}</ul>
-        ${links.length ? `<div class="card-links">${links.join("")}</div>` : ""}
+        <ul class="vinculos">
+          ${vinculos}
+          ${hasMoreVinculos ? `<li><em style="font-size:11.5px;color:var(--ink-soft)">+ ${(p.vinculos.length - 2)} outros cursos/disciplinas...</em></li>` : ""}
+        </ul>
+        <div class="card-foot">
+          <button class="btn-sm btn-docente-detail" data-idx="${p.__idx}" type="button">📋 Ver Detalhes</button>
+          <div class="card-links">
+            ${p.email ? `<a class="btn-sm" href="mailto:${escapeAttr(p.email)}" title="Enviar e-mail">✉️ E-mail</a>` : ""}
+            ${p.lattes ? `<a class="btn-sm" href="${escapeAttr(p.lattes)}" target="_blank" rel="noopener">📄 Lattes</a>` : ""}
+          </div>
+        </div>
       </li>`;
   }).join("");
+
+  // Attach modal listeners
+  ul.querySelectorAll(".btn-docente-detail").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const idx = parseInt(btn.dataset.idx, 10);
+      openDocenteModal(state.docentes[idx]);
+    });
+  });
+}
+
+function openDocenteModal(p) {
+  const modalBackdrop = document.getElementById("modal-docente");
+  const modalBody = document.getElementById("modal-body");
+
+  const vinculosHtml = (p.vinculos || []).map((v) => `
+    <div style="margin-bottom:12px;padding:10px;background:var(--panel-hover);border-radius:8px">
+      <div style="font-weight:700;color:var(--primary)">${escapeHtml(v.curso)}</div>
+      ${v.disciplinas ? `<div style="font-size:12.5px;color:var(--ink-soft);margin-top:4px">${escapeHtml(v.disciplinas)}</div>` : ""}
+    </div>
+  `).join("");
+
+  const patentesHtml = (p.patentes || []).map((url, i) => `
+    <a class="btn-sm patente" href="${escapeAttr(url)}" target="_blank" rel="noopener" style="margin-right:6px">🔗 Documento de PI ${p.patentes.length > 1 ? i + 1 : ""}</a>
+  `).join("");
+
+  modalBody.innerHTML = `
+    <h2 class="modal-title">${escapeHtml(p.nome)}</h2>
+    <div class="modal-subtitle">
+      🎓 ${escapeHtml(p.titulacao || "N/A")} &bull; 🏛️ ${escapeHtml(p.unidade || "N/A")} &bull; 📍 ${escapeHtml(p.campus || "N/A")}
+    </div>
+    ${p.email ? `
+      <div style="margin-bottom:16px;display:flex;align-items:center;gap:10px">
+        <strong>E-mail:</strong> <code style="background:var(--panel-hover);padding:3px 8px;border-radius:4px">${escapeHtml(p.email)}</code>
+        <button id="copy-email-btn" class="btn-sm" type="button">📋 Copiar</button>
+      </div>` : ""}
+    ${p.lattes ? `<p><strong>Currículo Lattes:</strong> <a href="${escapeAttr(p.lattes)}" target="_blank" rel="noopener">${escapeHtml(p.lattes)}</a></p>` : ""}
+    ${patentesHtml ? `<div style="margin-bottom:16px"><strong>Documentos de PI:</strong><br>${patentesHtml}</div>` : ""}
+    <h3 style="font-size:15px;font-weight:700;margin:16px 0 10px">Vínculos de Ensino e Disciplinas (${(p.vinculos||[]).length})</h3>
+    <div>${vinculosHtml}</div>
+  `;
+
+  modalBackdrop.classList.add("active");
+  modalBackdrop.setAttribute("aria-hidden", "false");
+
+  const copyBtn = document.getElementById("copy-email-btn");
+  if (copyBtn) {
+    copyBtn.addEventListener("click", () => {
+      navigator.clipboard.writeText(p.email).then(() => {
+        copyBtn.textContent = "✔ Copiado!";
+        setTimeout(() => { copyBtn.textContent = "📋 Copiar"; }, 1500);
+      });
+    });
+  }
+}
+
+function closeModal() {
+  const modalBackdrop = document.getElementById("modal-docente");
+  modalBackdrop.classList.remove("active");
+  modalBackdrop.setAttribute("aria-hidden", "true");
 }
 
 async function runSearchAndRender() {
+  updateActivePills();
   const base = applyFilters(state.docentes.map((p, i) => Object.assign({ __idx: i }, p)));
   let scored;
   if (state.semantic.on && state.semantic.ready && state.query.trim()) {
@@ -12728,7 +13419,7 @@ async function runSearchAndRender() {
 }
 
 /* =========================================================================
-   Renderização — Portfólio institucional
+   Renderização — Portfólio Institucional
    ========================================================================= */
 
 function renderPortfolio() {
@@ -12762,39 +13453,241 @@ function renderPortfolio() {
   document.getElementById("count-patentes").textContent = `(${pf.patentes.length})`;
 
   document.getElementById("count-softwares").textContent = `(${pf.softwares.length})`;
-  document.getElementById("tabela-softwares").querySelector("tbody").innerHTML = pf.softwares.map((s) => `
-    <tr>
-      <td>${escapeHtml(s.numero)}</td>
-      <td>${escapeHtml(s.nome)}</td>
-      <td>${escapeHtml(s.area)}</td>
-      <td>${escapeHtml(s.diferencial)}</td>
-      <td>${escapeHtml(s.maturidade)}</td>
-    </tr>`).join("");
+  renderSoftwaresTable(pf.softwares);
 
   document.getElementById("count-marcas").textContent = `(${pf.marcas.length})`;
-  document.getElementById("tabela-marcas").querySelector("tbody").innerHTML = pf.marcas.map((m) => `
+  renderMarcasTable(pf.marcas);
+}
+
+function renderPatentesTable(patentes) {
+  document.getElementById("tabela-patentes").querySelector("tbody").innerHTML = patentes.map((p) => `
     <tr>
-      <td>${escapeHtml(m.registro)}</td>
-      <td>${escapeHtml(m.nome)}</td>
+      <td><code>${escapeHtml(p.numero)}</code></td>
+      <td><strong>${escapeHtml(p.titulo)}</strong></td>
+      <td><span class="badge warn">${escapeHtml(p.trl)}</span></td>
+      <td>${escapeHtml(p.parceria)}</td>
+      <td>${escapeHtml(p.campo)}</td>
+    </tr>`).join("");
+}
+
+function renderSoftwaresTable(softwares) {
+  document.getElementById("tabela-softwares").querySelector("tbody").innerHTML = softwares.map((s) => `
+    <tr>
+      <td><code>${escapeHtml(s.numero)}</code></td>
+      <td><strong>${escapeHtml(s.nome)}</strong></td>
+      <td>${escapeHtml(s.area)}</td>
+      <td>${escapeHtml(s.diferencial)}</td>
+      <td><span class="badge">${escapeHtml(s.maturidade)}</span></td>
+    </tr>`).join("");
+}
+
+function renderMarcasTable(marcas) {
+  document.getElementById("tabela-marcas").querySelector("tbody").innerHTML = marcas.map((m) => `
+    <tr>
+      <td><code>${escapeHtml(m.registro)}</code></td>
+      <td><strong>${escapeHtml(m.nome)}</strong></td>
       <td>${escapeHtml(m.apresentacao)}</td>
       <td>${escapeHtml(m.deposito)}</td>
       <td>${escapeHtml(m.concessao)}</td>
     </tr>`).join("");
 }
 
-function renderPatentesTable(patentes) {
-  document.getElementById("tabela-patentes").querySelector("tbody").innerHTML = patentes.map((p) => `
-    <tr>
-      <td>${escapeHtml(p.numero)}</td>
-      <td>${escapeHtml(p.titulo)}</td>
-      <td>${escapeHtml(p.trl)}</td>
-      <td>${escapeHtml(p.parceria)}</td>
-      <td>${escapeHtml(p.campo)}</td>
-    </tr>`).join("");
+/* =========================================================================
+   Analytics & Charts (Chart.js)
+   ========================================================================= */
+
+function renderAnalyticsCharts() {
+  if (typeof Chart === "undefined" || !state.portfolio) return;
+
+  const isDark = document.documentElement.getAttribute("data-theme") === "dark";
+  const textColor = isDark ? "#94a3b8" : "#475569";
+  const gridColor = isDark ? "#263346" : "#e2e8f0";
+
+  // Destruir gráficos anteriores
+  Object.values(state.charts).forEach((c) => c.destroy());
+  state.charts = {};
+
+  // 1. TRL Patentes
+  const trlCounts = {};
+  state.portfolio.patentes.forEach((p) => {
+    const trl = p.trl || "Outro";
+    trlCounts[trl] = (trlCounts[trl] || 0) + 1;
+  });
+
+  const ctxTRL = document.getElementById("chartTRL");
+  if (ctxTRL) {
+    state.charts.trl = new Chart(ctxTRL, {
+      type: "doughnut",
+      data: {
+        labels: Object.keys(trlCounts),
+        datasets: [{
+          data: Object.values(trlCounts),
+          backgroundColor: ["#2563eb", "#10b981", "#f59e0b", "#8b5cf6", "#ec4899"],
+          borderWidth: 2,
+          borderColor: isDark ? "#151d2a" : "#ffffff"
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { position: "bottom", labels: { color: textColor } }
+        }
+      }
+    });
+  }
+
+  // 2. Softwares por Maturidade
+  const softCounts = {};
+  state.portfolio.softwares.forEach((s) => {
+    const mat = s.maturidade || "Não inf.";
+    softCounts[mat] = (softCounts[mat] || 0) + 1;
+  });
+
+  const ctxSoft = document.getElementById("chartSoftwares");
+  if (ctxSoft) {
+    state.charts.soft = new Chart(ctxSoft, {
+      type: "bar",
+      data: {
+        labels: Object.keys(softCounts),
+        datasets: [{
+          label: "Quantidade de Softwares",
+          data: Object.values(softCounts),
+          backgroundColor: "#3b82f6",
+          borderRadius: 6
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+          x: { ticks: { color: textColor }, grid: { color: gridColor } },
+          y: { ticks: { color: textColor, stepSize: 1 }, grid: { color: gridColor } }
+        },
+        plugins: { legend: { display: false } }
+      }
+    });
+  }
+
+  // 3. Docentes por Campus
+  const campusCounts = {};
+  state.docentes.forEach((d) => {
+    const c = d.campus || "Não informado";
+    campusCounts[c] = (campusCounts[c] || 0) + 1;
+  });
+
+  const ctxCampus = document.getElementById("chartCampus");
+  if (ctxCampus) {
+    state.charts.campus = new Chart(ctxCampus, {
+      type: "pie",
+      data: {
+        labels: Object.keys(campusCounts),
+        datasets: [{
+          data: Object.values(campusCounts),
+          backgroundColor: ["#10b981", "#3b82f6", "#f59e0b", "#6366f1"],
+          borderWidth: 2,
+          borderColor: isDark ? "#151d2a" : "#ffffff"
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { position: "bottom", labels: { color: textColor } } }
+      }
+    });
+  }
+
+  // 4. Tipos de PI (Patentes vs Softwares vs Marcas)
+  const ctxPI = document.getElementById("chartPIPortfolio");
+  if (ctxPI) {
+    state.charts.pi = new Chart(ctxPI, {
+      type: "bar",
+      data: {
+        labels: ["Patentes INPI", "Softwares", "Marcas Registradas", "Laboratórios"],
+        datasets: [{
+          label: "Itens Registrados",
+          data: [
+            state.portfolio.patentes.length,
+            state.portfolio.softwares.length,
+            state.portfolio.marcas.length,
+            state.portfolio.laboratorios.length
+          ],
+          backgroundColor: ["#f59e0b", "#3b82f6", "#10b981", "#8b5cf6"],
+          borderRadius: 6
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+          x: { ticks: { color: textColor }, grid: { color: gridColor } },
+          y: { ticks: { color: textColor }, grid: { color: gridColor } }
+        },
+        plugins: { legend: { display: false } }
+      }
+    });
+  }
 }
 
 /* =========================================================================
-   Eventos
+   Exportação de Dados (CSV / JSON)
+   ========================================================================= */
+
+function downloadFile(content, fileName, mimeType) {
+  const blob = new Blob([content], { type: mimeType });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = fileName;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+function exportDocentesCSV() {
+  const rows = [["Nome", "Campus", "Unidade", "Titulação", "E-mail", "Lattes", "Possui PI"]];
+  state.filtered.forEach((d) => {
+    const temPI = ((d.patentes && d.patentes.length) || (d.patentes_pi && d.patentes_pi.length)) ? "Sim" : "Não";
+    rows.push([
+      `"${(d.nome||"").replace(/"/g, '""')}"`,
+      `"${(d.campus||"").replace(/"/g, '""')}"`,
+      `"${(d.unidade||"").replace(/"/g, '""')}"`,
+      `"${(d.titulacao||"").replace(/"/g, '""')}"`,
+      `"${(d.email||"").replace(/"/g, '""')}"`,
+      `"${(d.lattes||"").replace(/"/g, '""')}"`,
+      `"${temPI}"`
+    ]);
+  });
+
+  const csvContent = "\uFEFF" + rows.map((r) => r.join(",")).join("\n");
+  downloadFile(csvContent, `docentes_unifal_${new Date().toISOString().slice(0,10)}.csv`, "text/csv;charset=utf-8;");
+}
+
+function exportDocentesJSON() {
+  const jsonContent = JSON.stringify(state.filtered, null, 2);
+  downloadFile(jsonContent, `docentes_unifal_${new Date().toISOString().slice(0,10)}.json`, "application/json");
+}
+
+function exportPatentesCSV() {
+  if (!state.portfolio) return;
+  const rows = [["Numero INPI", "Titulo", "TRL", "Parceria", "Campo"]];
+  state.portfolio.patentes.forEach((p) => {
+    rows.push([
+      `"${(p.numero||"").replace(/"/g, '""')}"`,
+      `"${(p.titulo||"").replace(/"/g, '""')}"`,
+      `"${(p.trl||"").replace(/"/g, '""')}"`,
+      `"${(p.parceria||"").replace(/"/g, '""')}"`,
+      `"${(p.campo||"").replace(/"/g, '""')}"`
+    ]);
+  });
+
+  const csvContent = "\uFEFF" + rows.map((r) => r.join(",")).join("\n");
+  downloadFile(csvContent, `patentes_unifal_${new Date().toISOString().slice(0,10)}.csv`, "text/csv;charset=utf-8;");
+}
+
+/* =========================================================================
+   Eventos & Atalhos de Teclado
    ========================================================================= */
 
 function wireTabs() {
@@ -12805,7 +13698,13 @@ function wireTabs() {
       tab.classList.add("active");
       tab.setAttribute("aria-selected", "true");
       document.querySelectorAll(".panel").forEach((p) => p.classList.remove("active"));
-      document.getElementById(`panel-${tab.dataset.tab}`).classList.add("active");
+      
+      const targetPanel = document.getElementById(`panel-${tab.dataset.tab}`);
+      if (targetPanel) targetPanel.classList.add("active");
+
+      if (tab.dataset.tab === "analytics") {
+        setTimeout(renderAnalyticsCharts, 50);
+      }
     });
   });
 }
@@ -12835,11 +13734,15 @@ function wireDocentesControls() {
     runSearchAndRender();
   });
 
+  document.getElementById("export-csv").addEventListener("click", exportDocentesCSV);
+  document.getElementById("export-json").addEventListener("click", exportDocentesJSON);
+  document.getElementById("export-patentes-csv").addEventListener("click", exportPatentesCSV);
+
   const toggle = document.getElementById("semantic-toggle");
   toggle.addEventListener("click", async () => {
     state.semantic.on = !state.semantic.on;
     toggle.setAttribute("aria-pressed", String(state.semantic.on));
-    toggle.textContent = `Busca semântica: ${state.semantic.on ? "ligada" : "desligada"}`;
+    toggle.textContent = `⚡ Busca semântica: ${state.semantic.on ? "ligada" : "desligada"}`;
     if (state.semantic.on) {
       await ensureSemanticReady();
     } else {
@@ -12854,10 +13757,71 @@ function wirePortfolioSearch() {
   input.addEventListener("input", () => {
     const term = normalize(input.value);
     const filtered = state.portfolio.patentes.filter((p) =>
-      normalize(`${p.numero} ${p.titulo} ${p.campo} ${p.parceria}`).includes(term)
+      normalize(`${p.numero} ${p.titulo} ${p.campo} ${p.parceria} ${p.trl}`).includes(term)
     );
     renderPatentesTable(filtered);
     document.getElementById("count-patentes").textContent = `(${filtered.length})`;
+  });
+}
+
+function wireModalEvents() {
+  const backdrop = document.getElementById("modal-docente");
+  const closeBtn = document.getElementById("modal-close");
+
+  closeBtn.addEventListener("click", closeModal);
+  backdrop.addEventListener("click", (e) => {
+    if (e.target === backdrop) closeModal();
+  });
+}
+
+function wireShortcuts() {
+  window.addEventListener("keydown", (e) => {
+    if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "k") {
+      e.preventDefault();
+      document.getElementById("q").focus();
+    } else if (e.key === "Escape") {
+      closeModal();
+    }
+  });
+}
+
+function wireTableSorting() {
+  document.querySelectorAll(".datatable th[data-sort]").forEach((th) => {
+    th.addEventListener("click", () => {
+      const tableId = th.closest("table").id;
+      const key = th.dataset.sort;
+      let targetList = [];
+      let renderFn = null;
+      let tableKey = "";
+
+      if (tableId === "tabela-patentes") {
+        targetList = state.portfolio.patentes;
+        renderFn = renderPatentesTable;
+        tableKey = "patentes";
+      } else if (tableId === "tabela-softwares") {
+        targetList = state.portfolio.softwares;
+        renderFn = renderSoftwaresTable;
+        tableKey = "softwares";
+      } else if (tableId === "tabela-marcas") {
+        targetList = state.portfolio.marcas;
+        renderFn = renderMarcasTable;
+        tableKey = "marcas";
+      }
+
+      if (!targetList.length) return;
+
+      const currentSort = state.sort[tableKey];
+      const asc = currentSort.key === key ? !currentSort.asc : true;
+      state.sort[tableKey] = { key, asc };
+
+      targetList.sort((a, b) => {
+        const valA = (a[key] || "").toString();
+        const valB = (b[key] || "").toString();
+        return asc ? valA.localeCompare(valB, "pt-BR") : valB.localeCompare(valA, "pt-BR");
+      });
+
+      renderFn(targetList);
+    });
   });
 }
 
@@ -12866,11 +13830,15 @@ function wirePortfolioSearch() {
    ========================================================================= */
 
 async function init() {
+  initTheme();
   await loadData();
   populateFilterOptions();
   wireTabs();
   wireDocentesControls();
   wirePortfolioSearch();
+  wireModalEvents();
+  wireShortcuts();
+  wireTableSorting();
   renderPortfolio();
   await runSearchAndRender();
 }
