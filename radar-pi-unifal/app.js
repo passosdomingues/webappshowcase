@@ -304,21 +304,6 @@ function exportDocentesJSON() {
    Eventos & Atalhos
    ========================================================================= */
 
-function wireTabs() {
-  const tabs = document.querySelectorAll(".tab");
-  tabs.forEach((tab) => {
-    tab.addEventListener("click", () => {
-      tabs.forEach((t) => { t.classList.remove("active"); t.setAttribute("aria-selected", "false"); });
-      tab.classList.add("active");
-      tab.setAttribute("aria-selected", "true");
-      document.querySelectorAll(".panel").forEach((p) => p.classList.remove("active"));
-      
-      const targetPanel = document.getElementById(`panel-${tab.dataset.tab}`);
-      if (targetPanel) targetPanel.classList.add("active");
-    });
-  });
-}
-
 function wireControls() {
   const q = document.getElementById("q");
   let debounce;
@@ -375,7 +360,6 @@ async function init() {
   initTheme();
   await loadData();
   populateFilterOptions();
-  wireTabs();
   wireControls();
   wireModalEvents();
   wireShortcuts();
