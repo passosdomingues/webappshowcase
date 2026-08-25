@@ -473,6 +473,17 @@
     "size": "46KB"
   },
   {
+    "id": "radarPIUnifal",
+    "title": "Radar PI — Mapeamento de Docentes e Propriedade Intelectual · UNIFAL-MG",
+    "description": "Ferramenta de busca e prospecção tecnológica sobre docentes, laboratórios, patentes, softwares e marcas da UNIFAL-MG, para apoio à Agência I9 e à NidusTec.",
+    "category": "Propriedade Intelectual",
+    "path": "https://passosdomingues.github.io/webappshowcase/site/utilities/radarPIUnifal.html",
+    "bodyText": "Radar PI — Mapeamento de Docentes e Propriedade Intelectual · UNIFAL-MG Radar PI · UNIFAL-MG Agência I9 &middot; NidusTec — Mapeamento de docentes e propriedade intelectual Portal UNIFAL Agência I9 Cursos Docentes Portfólio de PI Sobre os dados Busca semântica: desligada Campus — todos Unidade — todas Titulação — todas Somente com patente/PI sinalizada Limpar filtros Nenhum docente encontrado com esses critérios. Marcos institucionais Laboratórios Patentes em destaque Portfólio completo de patentes Número INPITítuloTRLParceriaCampo de aplicação Programas de computador registrados RegistroNomeÁreaDiferencialMaturidade Marcas registradas Registro INPIMarcaApresentaçãoDepósitoConcessão Sobre esta ferramenta Este sistema reorganiza e corrige os dados públicos originalmente publicados em Busca de Docentes Unifal, cruzando-os com o mapeamento institucional de propriedade intelectual da Agência I9/NidusTec (patentes, softwares, marcas e laboratórios). O objetivo é apoiar a prospecção tecnológica e o mapeamento de PI conduzidos pela equipe do Núcleo de Inovação Tecnológica. O que foi corrigido em relação à base original Consolidação de 982 registros de vínculo (docente × disciplina) em 534 perfis únicos de docente. Correção de nomes deslocados por erro de formatação na fonte original (ex.: um título de disciplina que havia substituído o nome de um docente). Correção de e-mails trocados entre dois registros adjacentes por erro de cópia na fonte original. Padronização de rótulos inconsistentes (variações como \"Discipinas\" e \"Email\" sem hífen). Remoção de elementos decorativos (ícones e emojis) e simplificação visual. Busca semântica Ao ativar a busca semântica, um modelo compacto de embeddings multilíngue é carregado diretamente no navegador (via WebAssembly, sem servidor e sem chave de API) e usado para calcular similaridade de significado entre a consulta e os campos de cada docente (curso, disciplinas, unidade). É útil para perguntas como \"quem trabalha com sensores\" ou \"p",
+    "sha512": "afc66a45a9421983f673d6afdd94be3736832b7975306922d496faade09856ceef7f7416987986827d891fa868694c1524d0cfc85ccae157e7dbac390b911269",
+    "sha512Short": "afc66a45a9421983",
+    "size": "417KB"
+  },
+  {
     "id": "radaresFixosAlfenasMG",
     "title": "Radares Fixos · Alfenas-MG",
     "description": "Clique para visualizar este projeto.",

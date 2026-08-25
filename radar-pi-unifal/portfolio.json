@@ -1,0 +1,147 @@
+{
+  "fonte": "Mapeamento Integrado de Propriedade Intelectual e Prospecção Tecnológica na UNIFAL-MG",
+  "marcos_institucionais": [
+    { "indicador": "Certificação CERNE 1", "periodo": "2022", "descricao": "Padronização dos processos de incubação da NidusTec e consolidação dos espaços Maker em Alfenas e Poços de Caldas." },
+    { "indicador": "Evolução no Ranking RUE", "periodo": "2023", "descricao": "Salto da 87ª para a 21ª posição no Ranking Universitário de Empreendedorismo." },
+    { "indicador": "Troféu Adelino Medeiros", "periodo": "2024", "descricao": "Concessão da Medalha de Bronze pelo desempenho na gestão de inovação." },
+    { "indicador": "Edital Acelera NIT Brasil", "periodo": "2025", "descricao": "Conquista do 1º lugar nacional, ratificando a excelência na gestão de PI e transferência tecnológica." }
+  ],
+  "laboratorios": [
+    {
+      "sigla": "LQFar",
+      "nome": "Laboratório de Pesquisa em Química Farmacêutica",
+      "vinculacao": "FCF / Campus Sede",
+      "pesquisadores": ["Diogo Teixeira Carvalho", "Marcia Paranho Veloso", "Lucas Lopardi Franco"],
+      "linhas": "Modelagem in silico, síntese de bioativos e agroquímicos"
+    },
+    {
+      "sigla": "LPMF",
+      "nome": "Laboratório de Plantas Medicinais e Fitoterápicos",
+      "vinculacao": "FCF / Campus Sede",
+      "pesquisadores": ["Geraldo Alves da Silva", "Marcelo Aparecido da Silva", "Tati Ishikawa", "Marcelo José Dias Silva"],
+      "linhas": "Padronização de fitoterápicos, fitoquímica e secagem por atomização (spray drying)"
+    },
+    {
+      "sigla": "PeQuiM",
+      "nome": "Laboratório de Pesquisa em Química Medicinal",
+      "vinculacao": "Instituto de Química",
+      "pesquisadores": ["Cláudio Viegas Júnior"],
+      "linhas": "Química medicinal, antivirais (SARS-CoV-2) e Doença de Alzheimer"
+    },
+    {
+      "sigla": "LFQM",
+      "nome": "Laboratório de Fitoquímica e Química Medicinal",
+      "vinculacao": "Instituto de Química",
+      "pesquisadores": ["Marisi Gomes Soares", "Daniela Aparecida Chagas de Paula"],
+      "linhas": "Bioprospecção de produtos naturais e metabólitos secundários"
+    },
+    {
+      "sigla": "LME",
+      "nome": "Laboratório de Mídias Educacionais",
+      "vinculacao": "Instituto de Ciências Exatas / PPGE",
+      "pesquisadores": ["Gabriel Gerber Hornink"],
+      "linhas": "Mídias educacionais e simuladores 3D pedagógicos"
+    }
+  ],
+  "patentes_destaque": [
+    {
+      "numero": "BR 10 2020 016262-4",
+      "titulo": "Sistemas micelares para remoção de maquiagem, limpeza e hidratação cutânea",
+      "orientador": "Mateus Freire Leite",
+      "equipe": ["Alessandra Ferreira dos Santos", "Ananda Pulini Matarazzo", "Daniela Mayra de Oliveira Figueiredo", "Isabelly Fernanda Ferraz de Souza", "Lilian Pereira Franco", "Rayssa Araujo dos Santos"],
+      "situacao": "Concedida — em fase de licenciamento comercial",
+      "campo": "Cosmética multifuncional nanométrica"
+    },
+    {
+      "numero": "—",
+      "titulo": "Sistemas dispersos e nanodispersos ozonizados para aplicação tópica na pele e mucosas",
+      "orientador": "Mateus Freire Leite",
+      "equipe": ["Andressa Reis Passos", "Luiz Carlos do Nascimento", "Patrícia Lunardelli Negreiros de Carvalho"],
+      "situacao": "Concedida",
+      "campo": "Antisséptico tópico à base de óleo vegetal ozonizado"
+    },
+    {
+      "numero": "BR 10 2020 024630-5",
+      "titulo": "Composições farmacêuticas fitoterápicas sólidas contendo extrato seco de Lippia alba",
+      "orientador": "Mateus Freire Leite",
+      "equipe": ["Maiara Prates de Almeida", "Juliano Geraldo Amaral", "Angélica Ferraz Gomes", "Geraldo Alves da Silva", "Marcelo Aparecido da Silva"],
+      "situacao": "Concedida — cooperação com UFBA",
+      "campo": "Medicamentos fitoterápicos ansiolíticos"
+    },
+    {
+      "numero": "BR 10 2023 009027-3",
+      "titulo": "1,2,3-triazóis derivados do 2-metoxi-4-propilfenol",
+      "orientador": "—",
+      "equipe": [],
+      "situacao": "Cooperação com UFOP",
+      "campo": "Fármacos antiparasitários sintéticos (atividade antichagásica)"
+    }
+  ],
+  "patentes": [
+    { "numero": "PI 0704074-1", "titulo": "Candidatos a Protótipos de Fármacos Anti-Inflamatórios e Analgésicos", "trl": "Laboratório", "parceria": "UNESP / UFAL", "campo": "Fármacos de semi-síntese de Cassia spectabilis" },
+    { "numero": "PI 0703658-2", "titulo": "Protótipo de Fármaco útil ao Tratamento da Doença de Alzheimer", "trl": "Laboratório", "parceria": "UNESP / UFRJ / FAPEMIG", "campo": "Inibidores da acetilcolinesterase" },
+    { "numero": "PI 1001286-9", "titulo": "Material Didático para Ensino de Biologia a Alunos Videntes ou Deficientes", "trl": "Protótipo", "parceria": "UNIFAL-MG", "campo": "Tecnologia assistiva e inclusão pedagógica" },
+    { "numero": "BR 10 2012 015339-4", "titulo": "Polímero de Impressão Molecular Recoberto com Albumina (RAM-MIP-BSA)", "trl": "Protótipo", "parceria": "UNIFAL-MG", "campo": "Preparação de amostras e separações analíticas" },
+    { "numero": "BR 10 2014 001074-2", "titulo": "Nanotubos de Carbono Recobertos com Albumina (RACNTBSA)", "trl": "Laboratório", "parceria": "FAPEMIG", "campo": "Extração em fase sólida em fluidos biológicos" },
+    { "numero": "BR 10 2015 002132-1", "titulo": "Composto, Processo Sintético e Método de Inibição da Acetilcolinesterase", "trl": "Laboratório", "parceria": "UNIFAL-MG", "campo": "Tratamento de doenças neurodegenerativas" },
+    { "numero": "BR 10 2015 011732-9", "titulo": "Carboapatita Nanométrica com Especificidade para Regeneração Óssea", "trl": "Laboratório", "parceria": "UNIFAL-MG", "campo": "Biomateriais e engenharia tecidual" },
+    { "numero": "BR 10 2017 007496-0", "titulo": "Processo de Extração e Purificação de Corantes de Urucum (Bixa orellana)", "trl": "Laboratório", "parceria": "UNIFAL-MG", "campo": "Corantes naturais para agroindústria" },
+    { "numero": "BR 10 2019 003646-0", "titulo": "Tempo de Residência em Sistema de Flocos de PET Sólidos", "trl": "Scale-Up", "parceria": "UNIFAL-MG", "campo": "Monitoramento de reciclagem polimérica" },
+    { "numero": "BR 10 2020 016262-4", "titulo": "Sistemas Micelares para Remoção de Maquiagem e Hidratação Cutânea", "trl": "Protótipo", "parceria": "UNIFAL-MG", "campo": "Cosmética multifuncional nanométrica" },
+    { "numero": "BR 10 2020 019364-3", "titulo": "Híbrido de Nanotubos de Carbono e TEOS com Restrição a Macromoléculas", "trl": "Laboratório", "parceria": "UNIFAL-MG", "campo": "Matrizes híbridas de separação cromatográfica" },
+    { "numero": "BR 10 2020 020165-4", "titulo": "Imobilização de Enzima em Suporte Nanoparticulado Magnético", "trl": "Laboratório", "parceria": "UNIFAL-MG", "campo": "Biocatalisadores e suportes magnéticos" },
+    { "numero": "BR 10 2020 020653-2", "titulo": "Detecção de Ricina e Atividade Enzimática por Eletroquímica em Tempo Real", "trl": "Laboratório", "parceria": "UNIFAL-MG", "campo": "Biossensores para diagnóstico e segurança" },
+    { "numero": "BR 10 2020 024630-5", "titulo": "Composições Fitoterápicas Sólidas com Extrato Seco de Lippia alba", "trl": "Laboratório", "parceria": "UFBA", "campo": "Medicamentos fitoterápicos ansiolíticos" },
+    { "numero": "BR 10 2020 024707-7", "titulo": "Sistemas Nanodispersos de Uso Odontológico para Clareamento Dental", "trl": "Laboratório", "parceria": "UNIFAL-MG", "campo": "Formulações odontológicas estéticas" },
+    { "numero": "BR 10 2021 016644-4", "titulo": "Formulações Nanotecnológicas com Modificadores Reológicos Bucais", "trl": "Laboratório", "parceria": "UNIFAL-MG", "campo": "Liberação de ativos na cavidade bucal" },
+    { "numero": "BR 10 2021 017843-4", "titulo": "Síntese e Uso de Chalconas Derivadas do Eugenol para Tratamento do Câncer", "trl": "Laboratório", "parceria": "UNIFAL-MG", "campo": "Agentes antineoplásicos de base natural" },
+    { "numero": "BR 10 2021 018436-1", "titulo": "Processos de Análise de Metais em Espectrometria", "trl": "Laboratório", "parceria": "UNIFAL-MG", "campo": "Metodologias espectrométricas de traços" },
+    { "numero": "BR 10 2022 001442-6", "titulo": "Biotransformação do Óleo de Licuri para Ésteres de Biodetergentes", "trl": "Laboratório", "parceria": "UNIFAL-MG", "campo": "Tensoativos sustentáveis e bioprocessos" },
+    { "numero": "BR 10 2022 024073-6", "titulo": "Composições Microencapsuladas de Baccharis dracunculifolia", "trl": "Laboratório", "parceria": "UNIFAL-MG", "campo": "Microencapsulamento de extratos vegetais" },
+    { "numero": "BR 10 2022 024088-4", "titulo": "Antissépticos Bucais Sólidos Mastigáveis com Própolis e Baccharis", "trl": "Protótipo", "parceria": "UNIFAL-MG", "campo": "Higiene bucal e fitoterápicos sólidos" },
+    { "numero": "BR 10 2023 002896-9", "titulo": "Cosméticos Nanodispersos de Bellis perennis para Controle do Melasma", "trl": "Protótipo", "parceria": "UNIFAL-MG", "campo": "Dermocosméticos despigmentantes" },
+    { "numero": "BR 10 2023 003289-3", "titulo": "Dessorção e Ionização por Spray Sônico em Espectrometria de Massas", "trl": "Laboratório", "parceria": "UNIFAL-MG", "campo": "Instrumentação analítica e fontes de íons" },
+    { "numero": "BR 10 2023 009027-3", "titulo": "1,2,3-triazóis Derivados do Propilfenol contra a Doença de Chagas", "trl": "Protótipo", "parceria": "UFOP", "campo": "Fármacos antiparasitários sintéticos" }
+  ],
+  "softwares": [
+    { "numero": "08869-3", "nome": "SISMA", "area": "Educação em Física / Astronomia", "diferencial": "Simulação 3D de estrelas binárias e curvas de luz via Unity 3D", "maturidade": "Protótipo" },
+    { "numero": "BR 51 2014 000137-7", "nome": "PHYSIOPLAY", "area": "Reabilitação Fisioterapêutica", "diferencial": "Biofeedback visual com captura de movimento via Kinect", "maturidade": "Protótipo" },
+    { "numero": "BR 51 2014 001380-4", "nome": "Decisões Mais Simples", "area": "Gestão e Processo AHP", "diferencial": "Seleção de média aritmética/geométrica em nuvem escalável", "maturidade": "Protótipo" },
+    { "numero": "BR 51 2018 000305-2", "nome": "ForPDI", "area": "Planejamento Estratégico", "diferencial": "Gestão pública corporativa do Plano de Desenvolvimento", "maturidade": "Protótipo" },
+    { "numero": "BR 51 2018 000358-3", "nome": "AedesMap", "area": "Saúde Pública e Geoprocessamento", "diferencial": "SIG colaborativo para geração de mapas térmicos de arboviroses", "maturidade": "Protótipo" },
+    { "numero": "BR 51 2019 000001-3", "nome": "EMPA", "area": "Ensino de Enfermagem / Medicina", "diferencial": "Objeto virtual para aprendizagem de aferição de pressão arterial", "maturidade": "Protótipo" },
+    { "numero": "BR 51 2019 002983-6", "nome": "NaranjoApp", "area": "Farmacovigilância Clínica", "diferencial": "Algoritmo de Naranjo otimizado para uso extra-hospitalar", "maturidade": "Protótipo" },
+    { "numero": "BR 51 2020 002834-9", "nome": "ForRisco", "area": "Gestão de Riscos Institucionais", "diferencial": "Mapeamento e mitigação de riscos em organizações públicas", "maturidade": "Protótipo" },
+    { "numero": "BR 51 2021 000984-3", "nome": "LAPEE SFV API", "area": "Monitoramento Fotovoltaico", "diferencial": "Diagnóstico de falhas e rendimento em circuitos CC e CA", "maturidade": "Protótipo" },
+    { "numero": "BR 51 2021 000985-1", "nome": "LAPEE SFV WEB", "area": "Monitoramento Fotovoltaico", "diferencial": "Interface web para eficiência, rendimento e fator de capacidade", "maturidade": "Protótipo" },
+    { "numero": "BR 51 2021 001103-1", "nome": "LAPEE SFV DATA LOGGER", "area": "Monitoramento Fotovoltaico", "diferencial": "Registro de dados de usinas solares via rotas HTTP", "maturidade": "Protótipo" },
+    { "numero": "BR 51 2014 000136-9", "nome": "Sistema Acadêmico", "area": "Gestão de Dados Acadêmicos", "diferencial": "Plataforma integrada de ciclo acadêmico sem custo de licença", "maturidade": "Mercado" }
+  ],
+  "marcas": [
+    { "registro": "822924846", "nome": "UNIFAL", "apresentacao": "Nominativa", "deposito": "26/06/2000", "concessao": "12/06/2007" },
+    { "registro": "822944596", "nome": "UNIFAL-MG", "apresentacao": "Nominativa", "deposito": "06/07/2000", "concessao": "31/07/2007" },
+    { "registro": "900438215", "nome": "UNIFAL-MG", "apresentacao": "Mista", "deposito": "08/08/2007", "concessao": "03/11/2009" },
+    { "registro": "901833177", "nome": "UNIFAL-MG (Branco/Preto)", "apresentacao": "Mista", "deposito": "31/07/2009", "concessao": "02/05/2012" },
+    { "registro": "901832294", "nome": "LFQM", "apresentacao": "Mista", "deposito": "31/07/2009", "concessao": "02/05/2012" },
+    { "registro": "904740749", "nome": "Pró-Reitoria de Extensão", "apresentacao": "Mista", "deposito": "24/04/2012", "concessao": "24/03/2015" },
+    { "registro": "905564219", "nome": "Escola de Enfermagem da UNIFAL-MG", "apresentacao": "Mista", "deposito": "21/11/2012", "concessao": "06/10/2015" },
+    { "registro": "905584490", "nome": "Museu da Memória e Patrimônio da UNIFAL-MG", "apresentacao": "Mista", "deposito": "26/11/2012", "concessao": "06/10/2015" },
+    { "registro": "906248981", "nome": "PRACE", "apresentacao": "Mista", "deposito": "16/05/2013", "concessao": "06/02/2016" },
+    { "registro": "906257824", "nome": "LEQuim — Laboratório de Ensino de Química", "apresentacao": "Mista", "deposito": "20/05/2013", "concessao": "16/02/2016" },
+    { "registro": "906589576", "nome": "LACEN — Laboratório Central de Análises Clínicas", "apresentacao": "Mista", "deposito": "05/08/2013", "concessao": "26/04/2016" },
+    { "registro": "906590680", "nome": "FarUni — Farmácia Universitária da FCF", "apresentacao": "Mista", "deposito": "05/08/2013", "concessao": "26/04/2016" },
+    { "registro": "906590469", "nome": "NCQ — Núcleo Controle de Qualidade da FCF", "apresentacao": "Mista", "deposito": "05/08/2013", "concessao": "26/04/2016" },
+    { "registro": "906590086", "nome": "FCF — Faculdade de Ciências Farmacêuticas", "apresentacao": "Mista", "deposito": "05/08/2013", "concessao": "07/06/2016" },
+    { "registro": "907750915", "nome": "Instituto de Química UNIFAL-MG", "apresentacao": "Mista", "deposito": "27/05/2014", "concessao": "20/12/2016" },
+    { "registro": "907755283", "nome": "LQFar — Laboratório de Pesquisa em Química Farmacêutica", "apresentacao": "Mista", "deposito": "28/05/2014", "concessao": "20/12/2016" },
+    { "registro": "908284454", "nome": "Engenharia Química Campus Poços de Caldas", "apresentacao": "Mista", "deposito": "15/09/2014", "concessao": "07/03/2017" },
+    { "registro": "909356530", "nome": "NidusTec", "apresentacao": "Mista", "deposito": "11/05/2015", "concessao": "03/10/2017" },
+    { "registro": "909786887", "nome": "CPPCRA", "apresentacao": "Mista", "deposito": "05/08/2015", "concessao": "24/10/2017" },
+    { "registro": "910973644", "nome": "PeQuiM", "apresentacao": "Mista", "deposito": "02/05/2016", "concessao": "27/03/2018" },
+    { "registro": "912023929", "nome": "Programa de Pós-Graduação em Ciências Biológicas", "apresentacao": "Mista", "deposito": "08/12/2016", "concessao": "07/08/2018" },
+    { "registro": "912157003", "nome": "PPGPS — Gestão Pública e Sociedade", "apresentacao": "Mista", "deposito": "12/01/2017", "concessao": "21/08/2018" },
+    { "registro": "913019810", "nome": "Edital Obras de Arte — Arte e Cultura", "apresentacao": "Mista", "deposito": "12/07/2017", "concessao": "27/11/2018" },
+    { "registro": "913425575", "nome": "LSLF — Sistemas de Liberação de Fármacos", "apresentacao": "Mista", "deposito": "21/09/2017", "concessao": "08/01/2019" },
+    { "registro": "919923844", "nome": "Futuro sem Fatura", "apresentacao": "Mista", "deposito": "17/06/2020", "concessao": "23/02/2021" }
+  ]
+}

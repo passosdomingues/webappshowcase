@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Radar PI — Mapeamento de Docentes e Propriedade Intelectual · UNIFAL-MG</title>
+<meta name="description" content="Ferramenta de busca e prospecção tecnológica sobre docentes, laboratórios, patentes, softwares e marcas da UNIFAL-MG, para apoio à Agência I9 e à NidusTec.">
+<link rel="icon" href="data:,">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header class="topbar">
+  <div class="topbar-inner">
+    <div class="brand">
+      <span class="brand-mark" aria-hidden="true"></span>
+      <div>
+        <p class="brand-title">Radar PI · UNIFAL-MG</p>
+        <p class="brand-sub">Agência I9 &middot; NidusTec — Mapeamento de docentes e propriedade intelectual</p>
+      </div>
+    </div>
+    <nav class="topnav">
+      <a href="https://www.unifal-mg.edu.br/portal/" target="_blank" rel="noopener">Portal UNIFAL</a>
+      <a href="https://www.unifal-mg.edu.br/i9unifal/" target="_blank" rel="noopener">Agência I9</a>
+      <a href="https://www.unifal-mg.edu.br/graduacao/cursos/" target="_blank" rel="noopener">Cursos</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+
+  <div class="tabs" role="tablist">
+    <button class="tab active" data-tab="docentes" role="tab" aria-selected="true">Docentes</button>
+    <button class="tab" data-tab="portfolio" role="tab" aria-selected="false">Portfólio de PI</button>
+    <button class="tab" data-tab="sobre" role="tab" aria-selected="false">Sobre os dados</button>
+  </div>
+
+  <!-- ==================== DOCENTES ==================== -->
+  <section id="panel-docentes" class="panel active">
+
+    <div class="searchbar">
+      <input id="q" type="text" placeholder="Buscar por nome, curso, disciplina, unidade ou campus…" autocomplete="off">
+      <button id="semantic-toggle" class="btn-outline" type="button" aria-pressed="false">
+        Busca semântica: desligada
+      </button>
+    </div>
+    <p id="semantic-status" class="hint" hidden></p>
+
+    <div class="filters">
+      <select id="f-campus"><option value="">Campus — todos</option></select>
+      <select id="f-unidade"><option value="">Unidade — todas</option></select>
+      <select id="f-titulacao"><option value="">Titulação — todas</option></select>
+      <label class="checkbox">
+        <input type="checkbox" id="f-patente">
+        Somente com patente/PI sinalizada
+      </label>
+      <button id="clear-filters" class="btn-link" type="button">Limpar filtros</button>
+    </div>
+
+    <p id="result-count" class="result-count"></p>
+
+    <ul id="lista" class="lista"></ul>
+    <p id="empty" class="empty" hidden>Nenhum docente encontrado com esses critérios.</p>
+  </section>
+
+  <!-- ==================== PORTFÓLIO ==================== -->
+  <section id="panel-portfolio" class="panel">
+
+    <div class="block">
+      <h2>Marcos institucionais</h2>
+      <div id="marcos" class="marcos"></div>
+    </div>
+
+    <div class="block">
+      <h2>Laboratórios</h2>
+      <div id="laboratorios" class="cards"></div>
+    </div>
+
+    <div class="block">
+      <h2>Patentes em destaque</h2>
+      <div id="patentes-destaque" class="cards"></div>
+    </div>
+
+    <div class="block">
+      <h2>Portfólio completo de patentes <span class="count-badge" id="count-patentes"></span></h2>
+      <input id="q-patentes" class="subsearch" type="text" placeholder="Filtrar patentes por título, campo ou número…">
+      <table class="datatable" id="tabela-patentes">
+        <thead><tr><th>Número INPI</th><th>Título</th><th>TRL</th><th>Parceria</th><th>Campo de aplicação</th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+
+    <div class="block">
+      <h2>Programas de computador registrados <span class="count-badge" id="count-softwares"></span></h2>
+      <table class="datatable" id="tabela-softwares">
+        <thead><tr><th>Registro</th><th>Nome</th><th>Área</th><th>Diferencial</th><th>Maturidade</th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+
+    <div class="block">
+      <h2>Marcas registradas <span class="count-badge" id="count-marcas"></span></h2>
+      <table class="datatable" id="tabela-marcas">
+        <thead><tr><th>Registro INPI</th><th>Marca</th><th>Apresentação</th><th>Depósito</th><th>Concessão</th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+
+  </section>
+
+  <!-- ==================== SOBRE ==================== -->
+  <section id="panel-sobre" class="panel">
+    <div class="block prose">
+      <h2>Sobre esta ferramenta</h2>
+      <p>Este sistema reorganiza e corrige os dados públicos originalmente publicados em
+      <em>Busca de Docentes Unifal</em>, cruzando-os com o mapeamento institucional de propriedade
+      intelectual da Agência I9/NidusTec (patentes, softwares, marcas e laboratórios). O objetivo é
+      apoiar a prospecção tecnológica e o mapeamento de PI conduzidos pela equipe do Núcleo de
+      Inovação Tecnológica.</p>
+
+      <h3>O que foi corrigido em relação à base original</h3>
+      <ul>
+        <li>Consolidação de 982 registros de vínculo (docente × disciplina) em 534 perfis únicos de docente.</li>
+        <li>Correção de nomes deslocados por erro de formatação na fonte original (ex.: um título de disciplina que havia substituído o nome de um docente).</li>
+        <li>Correção de e-mails trocados entre dois registros adjacentes por erro de cópia na fonte original.</li>
+        <li>Padronização de rótulos inconsistentes (variações como "Discipinas" e "Email" sem hífen).</li>
+        <li>Remoção de elementos decorativos (ícones e emojis) e simplificação visual.</li>
+      </ul>
+
+      <h3>Busca semântica</h3>
+      <p>Ao ativar a busca semântica, um modelo compacto de embeddings multilíngue é carregado
+      diretamente no navegador (via WebAssembly, sem servidor e sem chave de API) e usado para
+      calcular similaridade de significado entre a consulta e os campos de cada docente
+      (curso, disciplinas, unidade). É útil para perguntas como "quem trabalha com sensores" ou
+      "pesquisa em nanotecnologia", que não dependem de correspondência exata de palavras.
+      O carregamento do modelo ocorre apenas quando a opção é ativada e pode levar alguns segundos
+      na primeira vez.</p>
+
+      <h3>Limitações conhecidas</h3>
+      <ul>
+        <li>A base cobre os docentes vinculados aos cursos listados na fonte original — não é um diretório completo de todo o corpo docente da UNIFAL-MG.</li>
+        <li>Oito docentes não possuíam e-mail informado na fonte original; o campo foi deixado em branco em vez de inferido, para evitar dados incorretos.</li>
+        <li>O portfólio de PI (patentes, softwares, marcas) reflete o mapeamento documental fornecido, não uma consulta em tempo real ao INPI ou à Vitrine Tecnológica.</li>
+      </ul>
+    </div>
+  </section>
+
+</main>
+
+<footer class="footer">
+  <p>Radar PI · UNIFAL-MG — ferramenta de apoio interno à prospecção tecnológica e mapeamento de propriedade intelectual.</p>
+</footer>
+
+<script src="app.js"></script>
+</body>
+</html>
