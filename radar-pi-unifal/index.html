@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Radar UNIFAL-MG — Mapeamento de Docentes</title>
 <meta name="category" content="Docentes">
-<meta name="description" content="Ferramenta de consulta e mapeamento do corpo docente, unidades, campus e linhas de pesquisa da UNIFAL-MG.">
+<meta name="description" content="Ferramenta de consulta e mapeamento do corpo docente, unidades, campus e cursos da UNIFAL-MG.">
 <link rel="icon" href="data:,">
 <link rel="stylesheet" href="style.css">
 </head>
@@ -64,11 +64,6 @@
 
 <main>
 
-  <div class="tabs" role="tablist">
-    <button class="tab active" data-tab="docentes" role="tab" aria-selected="true">🔍 Docentes</button>
-    <button class="tab" data-tab="sobre" role="tab" aria-selected="false">ℹ️ Sobre</button>
-  </div>
-
   <!-- ==================== DOCENTES ==================== -->
   <section id="panel-docentes" class="panel active">
 
@@ -99,22 +94,6 @@
 
     <ul id="lista" class="lista"></ul>
     <p id="empty" class="empty" hidden>Nenhum docente encontrado com esses critérios.</p>
-  </section>
-
-  <!-- ==================== SOBRE ==================== -->
-  <section id="panel-sobre" class="panel">
-    <div class="block prose">
-      <h2>Sobre o Diretório</h2>
-      <p>Esta ferramenta oferece uma interface de consulta rápida e unificada sobre os docentes vinculados aos cursos e unidades da Universidade Federal de Alfenas (UNIFAL-MG).</p>
-      
-      <h3>Funcionalidades</h3>
-      <ul>
-        <li>Busca instantânea por nome do docente, campus, unidade/departamento, cursos e disciplinas ministradas.</li>
-        <li>Filtros combinados por Campus, Unidade Acadêmica e Titulação.</li>
-        <li>Exportação direta dos relatórios filtrados nos formatos CSV e JSON.</li>
-        <li>Acesso direto ao e-mail institucional e ao Currículo Lattes.</li>
-      </ul>
-    </div>
   </section>
 
 </main>
