@@ -312,6 +312,24 @@ select {
   cursor: pointer;
 }
 
+/* Checkbox filter */
+.checkbox {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--ink-soft);
+  cursor: pointer;
+  user-select: none;
+}
+.checkbox input[type="checkbox"] {
+  width: 15px;
+  height: 15px;
+  accent-color: var(--primary);
+  cursor: pointer;
+}
+
 .actions-bar {
   display: flex;
   gap: 8px;
@@ -380,6 +398,37 @@ select {
   border-color: var(--primary);
   box-shadow: var(--shadow-md);
   transform: translateY(-2px);
+}
+
+.card-has-pi {
+  border-color: rgba(16, 185, 129, 0.35);
+  background: linear-gradient(160deg, var(--panel), rgba(16, 185, 129, 0.03));
+}
+.card-has-pi:hover {
+  border-color: #10b981;
+  box-shadow: 0 4px 16px rgba(16, 185, 129, 0.15);
+}
+
+/* Badge PI registrada */
+.badge-pi {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  color: #065f46;
+  background: #d1fae5;
+  border: 1px solid #6ee7b7;
+  padding: 2px 8px;
+  border-radius: 50px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+[data-theme="dark"] .badge-pi {
+  color: #6ee7b7;
+  background: rgba(16, 185, 129, 0.15);
+  border-color: rgba(110, 231, 183, 0.3);
 }
 
 .card-head {
@@ -517,6 +566,48 @@ select {
 
 .modal-title { font-size: 18px; font-weight: 800; margin: 0 0 6px; color: var(--ink); }
 .modal-subtitle { font-size: 13px; color: var(--ink-soft); margin-bottom: 16px; }
+
+/* Modal PI Section */
+.modal-pi-section {
+  margin: 4px 0 20px;
+  padding: 14px 16px;
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.08), rgba(16, 185, 129, 0.04));
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  border-radius: var(--radius);
+}
+.modal-pi-title {
+  font-size: 14px;
+  font-weight: 700;
+  margin: 0 0 6px;
+  color: #065f46;
+}
+[data-theme="dark"] .modal-pi-title { color: #6ee7b7; }
+.modal-pi-note {
+  font-size: 12px;
+  color: var(--ink-soft);
+  margin: 0 0 10px;
+}
+.modal-pi-list {
+  margin: 0;
+  padding: 0 0 0 18px;
+}
+.modal-pi-list li {
+  font-size: 13px;
+  color: var(--ink);
+  margin-bottom: 4px;
+}
+.modal-pi-list code {
+  background: rgba(16, 185, 129, 0.12);
+  color: #065f46;
+  padding: 2px 7px;
+  border-radius: 4px;
+  font-size: 12.5px;
+  font-family: monospace;
+}
+[data-theme="dark"] .modal-pi-list code {
+  background: rgba(16, 185, 129, 0.18);
+  color: #6ee7b7;
+}
 
 /* ---------- Prose (Sobre) ---------- */
 .prose h2 { font-size: 18px; font-weight: 700; margin-bottom: 12px; }
