@@ -14,17 +14,20 @@
 <header class="topbar">
   <div class="topbar-inner">
     <div class="brand">
-      <div class="brand-icon" aria-hidden="true">R</div>
+      <div class="brand-icon" aria-hidden="true">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.35-4.35"/><path d="M11 8v6M8 11h6"/></svg>
+      </div>
       <div>
         <h1 class="brand-title">Radar UNIFAL-MG</h1>
         <p class="brand-sub">Mapeamento do Corpo Docente e Unidades Academicas</p>
       </div>
     </div>
-    <div class="topbar-actions">
-      <nav class="topnav">
-        <a href="https://www.unifal-mg.edu.br/i9unifal/vitrine-tecnologica/" target="_blank" rel="noopener">Vitrine Tecnologica</a>
-      </nav>
-    </div>
+    <nav class="topnav">
+      <a href="https://www.unifal-mg.edu.br/i9unifal/vitrine-tecnologica/" target="_blank" rel="noopener">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+        Vitrine Tecnologica
+      </a>
+    </nav>
   </div>
 </header>
 
@@ -32,25 +35,43 @@
   <div class="kpi-inner">
     <div class="kpi-header">
       <h1>Mapeamento do Corpo Docente &amp; Pesquisa</h1>
-      <p>Diretorio de consulta publica sobre os docentes, campi, unidades academicas e disciplinas da Universidade Federal de Alfenas (UNIFAL-MG).</p>
+      <p>Diretorio de consulta publica sobre os docentes, campi, unidades academicas e disciplinas da Universidade Federal de Alfenas.</p>
     </div>
     <div class="kpi-cards">
       <div class="kpi-card">
+        <div class="kpi-icon-wrap">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4-4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
+        </div>
         <div>
-          <div class="kpi-value" id="kpi-docentes">534</div>
-          <div class="kpi-label">Docentes Mapeados</div>
+          <div class="kpi-value" id="kpi-docentes">--</div>
+          <div class="kpi-label">Docentes</div>
         </div>
       </div>
       <div class="kpi-card">
+        <div class="kpi-icon-wrap">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+        </div>
         <div>
-          <div class="kpi-value" id="kpi-campi">3</div>
-          <div class="kpi-label">Campi Universitarios</div>
+          <div class="kpi-value" id="kpi-campi">--</div>
+          <div class="kpi-label">Campi</div>
         </div>
       </div>
       <div class="kpi-card">
+        <div class="kpi-icon-wrap">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+        </div>
         <div>
-          <div class="kpi-value" id="kpi-unidades">14</div>
-          <div class="kpi-label">Unidades Academicas</div>
+          <div class="kpi-value" id="kpi-unidades">--</div>
+          <div class="kpi-label">Unidades</div>
+        </div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-icon-wrap">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+        </div>
+        <div>
+          <div class="kpi-value" id="kpi-pi">--</div>
+          <div class="kpi-label">Com PI/Programa</div>
         </div>
       </div>
     </div>
@@ -58,12 +79,11 @@
 </section>
 
 <main>
-
   <section id="panel-docentes" class="panel active">
 
     <div class="searchbar">
       <div class="search-input-wrap">
-        <span class="search-icon-inside" aria-hidden="true">&#9906;</span>
+        <svg class="search-icon-svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
         <input id="q" type="text" placeholder="Buscar por nome, curso, disciplina, unidade ou campus..." autocomplete="off">
         <span class="kbd-shortcut">Ctrl+K</span>
       </div>
@@ -71,29 +91,56 @@
 
     <div class="filters">
       <select id="f-campus"><option value="">Campus — todos</option></select>
-      <select id="f-unidade"><option value="">Unidade / Departamento — todas</option></select>
+      <select id="f-unidade"><option value="">Unidade — todas</option></select>
       <select id="f-titulacao"><option value="">Titulacao — todas</option></select>
       <label class="checkbox">
         <input type="checkbox" id="f-pi">
-        Com PI / Programa registrado
+        PI / Programa
       </label>
       <div class="actions-bar">
-        <button id="export-csv" class="btn-outline" type="button" title="Exportar visao atual para CSV">CSV</button>
-        <button id="export-json" class="btn-outline" type="button" title="Exportar visao atual para JSON">JSON</button>
-        <button id="clear-filters" class="btn-outline" type="button">Limpar</button>
+        <button id="export-csv" class="btn-outline" type="button" title="Exportar CSV">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          CSV
+        </button>
+        <button id="export-json" class="btn-outline" type="button" title="Exportar JSON">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          JSON
+        </button>
+        <button id="clear-filters" class="btn-outline" type="button">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          Limpar
+        </button>
       </div>
     </div>
 
     <div id="active-pills" class="active-pills"></div>
 
     <div class="result-bar">
-      <span id="result-count">Carregando docentes...</span>
+      <span id="result-count">Carregando...</span>
+      <div class="page-size-wrap">
+        <label for="page-size">Por pagina:</label>
+        <select id="page-size">
+          <option value="24" selected>24</option>
+          <option value="48">48</option>
+          <option value="96">96</option>
+          <option value="0">Todos</option>
+        </select>
+      </div>
     </div>
 
     <ul id="lista" class="lista"></ul>
     <p id="empty" class="empty" hidden>Nenhum docente encontrado com esses criterios.</p>
-  </section>
 
+    <nav id="pagination" class="pagination" hidden>
+      <button id="page-prev" class="page-btn" type="button" disabled>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+      </button>
+      <div id="page-numbers" class="page-numbers"></div>
+      <button id="page-next" class="page-btn" type="button" disabled>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+      </button>
+    </nav>
+  </section>
 </main>
 
 <div id="modal-docente" class="modal-backdrop" aria-hidden="true">
@@ -104,7 +151,7 @@
 </div>
 
 <footer class="footer">
-  <p>Radar UNIFAL-MG — Diretorio de consulta do corpo docente e unidades academicas da UNIFAL-MG.</p>
+  <p>Radar UNIFAL-MG &mdash; Diretorio de consulta do corpo docente e unidades academicas da UNIFAL-MG.</p>
 </footer>
 
 <script src="app.js"></script>
