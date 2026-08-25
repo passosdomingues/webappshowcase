@@ -7,7 +7,7 @@
 const state = {
   docentes: [],
   filtered: [],
-  filters: { campus: "", unidade: "", titulacao: "" },
+  filters: { campus: "", unidade: "", titulacao: "", piOnly: false },
   query: ""
 };
 
@@ -90,11 +90,12 @@ function fillSelect(id, values, placeholder) {
 }
 
 function applyFilters(list) {
-  const { campus, unidade, titulacao } = state.filters;
+  const { campus, unidade, titulacao, piOnly } = state.filters;
   return list.filter((p) => {
     if (campus && p.campus !== campus) return false;
     if (unidade && p.unidade !== unidade) return false;
     if (titulacao && p.titulacao !== titulacao) return false;
+    if (piOnly && !(p.pi_registrada && p.pi_registrada.length > 0)) return false;
     return true;
   });
 }
@@ -120,6 +121,7 @@ function updateActivePills() {
   if (state.filters.campus) pills.push({ label: `Campus: ${state.filters.campus}`, type: "campus" });
   if (state.filters.unidade) pills.push({ label: `Unidade: ${state.filters.unidade}`, type: "unidade" });
   if (state.filters.titulacao) pills.push({ label: `Titulação: ${state.filters.titulacao}`, type: "titulacao" });
+  if (state.filters.piOnly) pills.push({ label: "Com PI registrada", type: "piOnly" });
   if (state.query.trim()) pills.push({ label: `Busca: "${state.query.trim()}"`, type: "query" });
 
   container.innerHTML = pills.map((p) => `
@@ -135,6 +137,7 @@ function updateActivePills() {
       if (type === "campus") { state.filters.campus = ""; document.getElementById("f-campus").value = ""; }
       else if (type === "unidade") { state.filters.unidade = ""; document.getElementById("f-unidade").value = ""; }
       else if (type === "titulacao") { state.filters.titulacao = ""; document.getElementById("f-titulacao").value = ""; }
+      else if (type === "piOnly") { state.filters.piOnly = false; document.getElementById("f-pi").checked = false; }
       else if (type === "query") { state.query = ""; document.getElementById("q").value = ""; }
       runSearchAndRender();
     });
@@ -175,11 +178,16 @@ function renderDocentes(filteredList) {
       </li>`).join("");
 
     const hasMoreVinculos = (p.vinculos || []).length > 2;
+    const hasPi = p.pi_registrada && p.pi_registrada.length > 0;
+    const piBadge = hasPi
+      ? `<span class="badge-pi" title="Possui propriedade intelectual registrada no INPI">🔬 PI registrada</span>`
+      : "";
 
     return `
-      <li class="card">
+      <li class="card${hasPi ? ' card-has-pi' : ''}">
         <div class="card-head">
           <h3 class="card-name">${escapeHtml(p.nome)}</h3>
+          ${piBadge}
         </div>
         <div class="card-meta">
           <span>📍 ${escapeHtml(p.campus || "Campus N/A")}</span>
@@ -219,17 +227,28 @@ function openDocenteModal(p) {
     </div>
   `).join("");
 
+  const piHtml = (p.pi_registrada && p.pi_registrada.length > 0)
+    ? `<div class="modal-pi-section">
+        <h3 class="modal-pi-title">🔬 Propriedade Intelectual Registrada</h3>
+        <p class="modal-pi-note">Esta informação está disponível publicamente na <a href="https://www.unifal-mg.edu.br/i9unifal/vitrine-tecnologica/" target="_blank" rel="noopener">Vitrine Tecnológica</a> da UNIFAL-MG.</p>
+        <ul class="modal-pi-list">
+          ${p.pi_registrada.map(n => `<li><code>${escapeHtml(n)}</code></li>`).join("")}
+        </ul>
+      </div>`
+    : "";
+
   modalBody.innerHTML = `
     <h2 class="modal-title">${escapeHtml(p.nome)}</h2>
     <div class="modal-subtitle">
       🎓 ${escapeHtml(p.titulacao || "N/A")} &bull; 🏛️ ${escapeHtml(p.unidade || "N/A")} &bull; 📍 ${escapeHtml(p.campus || "N/A")}
     </div>
     ${p.email ? `
-      <div style="margin-bottom:16px;display:flex;align-items:center;gap:10px">
+      <div style="margin-bottom:16px;display:flex;align-items:center;gap:10px;flex-wrap:wrap">
         <strong>E-mail:</strong> <code style="background:var(--panel-hover);padding:3px 8px;border-radius:4px">${escapeHtml(p.email)}</code>
         <button id="copy-email-btn" class="btn-sm" type="button">📋 Copiar</button>
       </div>` : ""}
     ${p.lattes ? `<p style="margin-bottom:16px"><strong>Currículo Lattes:</strong> <a href="${escapeAttr(p.lattes)}" target="_blank" rel="noopener">${escapeHtml(p.lattes)}</a></p>` : ""}
+    ${piHtml}
     <h3 style="font-size:15px;font-weight:700;margin:16px 0 10px">Vínculos de Ensino e Disciplinas (${(p.vinculos||[]).length})</h3>
     <div>${vinculosHtml}</div>
   `;
@@ -316,14 +335,16 @@ function wireControls() {
   document.getElementById("f-campus").addEventListener("change", (e) => { state.filters.campus = e.target.value; runSearchAndRender(); });
   document.getElementById("f-unidade").addEventListener("change", (e) => { state.filters.unidade = e.target.value; runSearchAndRender(); });
   document.getElementById("f-titulacao").addEventListener("change", (e) => { state.filters.titulacao = e.target.value; runSearchAndRender(); });
+  document.getElementById("f-pi").addEventListener("change", (e) => { state.filters.piOnly = e.target.checked; runSearchAndRender(); });
 
   document.getElementById("clear-filters").addEventListener("click", () => {
-    state.filters = { campus: "", unidade: "", titulacao: "" };
+    state.filters = { campus: "", unidade: "", titulacao: "", piOnly: false };
     state.query = "";
     document.getElementById("q").value = "";
     document.getElementById("f-campus").value = "";
     document.getElementById("f-unidade").value = "";
     document.getElementById("f-titulacao").value = "";
+    document.getElementById("f-pi").checked = false;
     runSearchAndRender();
   });
 
