@@ -9,7 +9,9 @@ const state = {
   filtered: [],
   filters: { campus: "", unidade: "", titulacao: "", piOnly: false },
   query: "",
-  bm25Index: null
+  bm25Index: null,
+  page: 1,
+  pageSize: 24
 };
 
 async function loadData() {
@@ -22,7 +24,7 @@ async function loadData() {
 }
 
 /* =========================================================================
-   Normalizacao e Texto de Busca
+   Normalizacao e Corpus
    ========================================================================= */
 
 function normalize(str) {
@@ -40,96 +42,97 @@ function corpusText(p) {
 }
 
 /* =========================================================================
-   Okapi BM25 Ranking Engine
+   Okapi BM25 Ranking Engine (Optimized)
    ========================================================================= */
 
 const BM25 = {
-  k1: 1.5,
+  k1: 1.2,
   b: 0.75,
 
-  /** Build the inverted index over the corpus */
+  /** Build pre-tokenized inverted index */
   buildIndex(docs) {
-    const index = {
-      N: docs.length,
-      avgDl: 0,
-      docLengths: [],
-      df: {},         // term -> number of docs containing it
-      tf: [],         // docIndex -> { term -> count }
-      corpus: []      // raw normalized tokens per doc
-    };
-
+    const N = docs.length;
+    const docLengths = new Array(N);
+    const tf = new Array(N);
+    const df = {};
+    const normalizedTexts = new Array(N);
     let totalLen = 0;
 
-    for (let i = 0; i < docs.length; i++) {
-      const tokens = normalize(corpusText(docs[i]))
-        .split(/\s+/)
-        .filter(Boolean);
-      index.docLengths[i] = tokens.length;
+    for (let i = 0; i < N; i++) {
+      const normText = normalize(corpusText(docs[i]));
+      normalizedTexts[i] = normText;
+
+      const tokens = normText.split(/\s+/).filter(Boolean);
+      docLengths[i] = tokens.length;
       totalLen += tokens.length;
-      index.corpus[i] = tokens;
 
       const tfMap = {};
-      const seen = new Set();
-      for (const tok of tokens) {
+      const seenInDoc = new Set();
+      for (let j = 0; j < tokens.length; j++) {
+        const tok = tokens[j];
         tfMap[tok] = (tfMap[tok] || 0) + 1;
-        if (!seen.has(tok)) {
-          seen.add(tok);
-          index.df[tok] = (index.df[tok] || 0) + 1;
+        if (!seenInDoc.has(tok)) {
+          seenInDoc.add(tok);
+          df[tok] = (df[tok] || 0) + 1;
         }
       }
-      index.tf[i] = tfMap;
+      tf[i] = tfMap;
     }
 
-    index.avgDl = totalLen / (docs.length || 1);
-    return index;
+    const avgDl = totalLen / (N || 1);
+    const uniqueTerms = Object.keys(df);
+
+    return { N, avgDl, docLengths, tf, df, normalizedTexts, uniqueTerms };
   },
 
-  /** Score a single document against query terms */
+  /** Score doc index against query terms */
   scoreDoc(index, docIdx, queryTerms) {
     let score = 0;
     const dl = index.docLengths[docIdx];
     const tfMap = index.tf[docIdx];
 
-    for (const term of queryTerms) {
-      // Prefix-match: find all indexed tokens that start with this term
+    for (let i = 0; i < queryTerms.length; i++) {
+      const qTerm = queryTerms[i];
       let termFreq = 0;
       let docFreq = 0;
 
-      for (const indexedTerm of Object.keys(tfMap)) {
-        if (indexedTerm.startsWith(term) || indexedTerm.includes(term)) {
-          termFreq += tfMap[indexedTerm];
-        }
+      // Check exact match first
+      if (tfMap[qTerm]) {
+        termFreq += tfMap[qTerm];
+        docFreq += index.df[qTerm] || 1;
       }
-      // Estimate DF from prefix matches across corpus
-      for (const t of Object.keys(index.df)) {
-        if (t.startsWith(term) || t.includes(term)) {
-          docFreq = Math.max(docFreq, index.df[t]);
+
+      // Check prefix / substring matches among unique indexed terms
+      for (let t = 0; t < index.uniqueTerms.length; t++) {
+        const tok = index.uniqueTerms[t];
+        if (tok !== qTerm && tok.includes(qTerm)) {
+          if (tfMap[tok]) {
+            termFreq += tfMap[tok] * 0.75; // weight partial matches slightly less
+          }
+          docFreq += index.df[tok] || 1;
         }
       }
 
       if (termFreq === 0) continue;
 
-      const idf = Math.log(
-        (index.N - docFreq + 0.5) / (docFreq + 0.5) + 1
-      );
-      const tfNorm =
-        (termFreq * (this.k1 + 1)) /
-        (termFreq + this.k1 * (1 - this.b + this.b * (dl / index.avgDl)));
-      score += idf * tfNorm;
+      const idf = Math.log((index.N - docFreq + 0.5) / (docFreq + 0.5) + 1);
+      const num = termFreq * (this.k1 + 1);
+      const den = termFreq + this.k1 * (1 - this.b + this.b * (dl / index.avgDl));
+      score += Math.max(0, idf) * (num / den);
     }
     return score;
   },
 
-  /** Rank a pre-filtered list of docs, returning those with score > 0 sorted desc */
+  /** Rank items fast */
   rank(index, docs, query) {
     const q = normalize(query).trim();
     if (!q) return docs;
     const terms = q.split(/\s+/).filter(Boolean);
 
     const scored = [];
-    for (const doc of docs) {
-      const idx = doc.__idx;
-      const score = this.scoreDoc(index, idx, terms);
+    for (let i = 0; i < docs.length; i++) {
+      const doc = docs[i];
+      const score = this.scoreDoc(index, doc.__idx, terms);
       if (score > 0) {
         scored.push({ doc, score });
       }
@@ -150,14 +153,14 @@ function highlightTerms(text, query) {
   if (!terms.length) return escapeHtml(text);
 
   const escaped = escapeHtml(text);
-  const normalizedEscaped = normalize(escaped);
+  const normEscaped = normalize(escaped);
 
-  // Build ranges to highlight
   const ranges = [];
-  for (const term of terms) {
+  for (let i = 0; i < terms.length; i++) {
+    const term = terms[i];
     let pos = 0;
-    while (pos < normalizedEscaped.length) {
-      const idx = normalizedEscaped.indexOf(term, pos);
+    while (pos < normEscaped.length) {
+      const idx = normEscaped.indexOf(term, pos);
       if (idx === -1) break;
       ranges.push([idx, idx + term.length]);
       pos = idx + 1;
@@ -166,7 +169,6 @@ function highlightTerms(text, query) {
 
   if (!ranges.length) return escaped;
 
-  // Merge overlapping ranges
   ranges.sort((a, b) => a[0] - b[0]);
   const merged = [ranges[0]];
   for (let i = 1; i < ranges.length; i++) {
@@ -178,7 +180,6 @@ function highlightTerms(text, query) {
     }
   }
 
-  // Apply highlights from right to left to preserve indices
   let result = escaped;
   for (let i = merged.length - 1; i >= 0; i--) {
     const [start, end] = merged[i];
@@ -193,25 +194,31 @@ function highlightTerms(text, query) {
 }
 
 /* =========================================================================
-   Filtros
+   Filtros & KPI Options
    ========================================================================= */
 
 function populateFilterOptions() {
   const campi = new Set();
   const unidades = new Set();
   const titulacoes = new Set();
-  for (const p of state.docentes) {
+  let countPi = 0;
+
+  for (let i = 0; i < state.docentes.length; i++) {
+    const p = state.docentes[i];
     if (p.campus) campi.add(p.campus);
     if (p.unidade) unidades.add(p.unidade);
     if (p.titulacao) titulacoes.add(p.titulacao);
+    if (p.pi_registrada && p.pi_registrada.length > 0) countPi++;
   }
+
   fillSelect("f-campus", campi, "Campus — todos");
-  fillSelect("f-unidade", unidades, "Unidade / Departamento — todas");
+  fillSelect("f-unidade", unidades, "Unidade — todas");
   fillSelect("f-titulacao", titulacoes, "Titulacao — todas");
 
   document.getElementById("kpi-docentes").textContent = state.docentes.length;
   document.getElementById("kpi-campi").textContent = campi.size;
   document.getElementById("kpi-unidades").textContent = unidades.size;
+  document.getElementById("kpi-pi").textContent = countPi;
 }
 
 function fillSelect(id, values, placeholder) {
@@ -261,13 +268,14 @@ function updateActivePills() {
       else if (type === "titulacao") { state.filters.titulacao = ""; document.getElementById("f-titulacao").value = ""; }
       else if (type === "piOnly") { state.filters.piOnly = false; document.getElementById("f-pi").checked = false; }
       else if (type === "query") { state.query = ""; document.getElementById("q").value = ""; }
+      state.page = 1;
       runSearchAndRender();
     });
   });
 }
 
 /* =========================================================================
-   Renderizacao — Docentes & Modal
+   Renderizacao & Paginacao
    ========================================================================= */
 
 function escapeHtml(s) {
@@ -284,22 +292,45 @@ function renderDocentes(results) {
   const maxScore = scores ? Math.max(...scores) : 0;
 
   state.filtered = filteredList;
+  const total = filteredList.length;
   const ul = document.getElementById("lista");
   const empty = document.getElementById("empty");
   const count = document.getElementById("result-count");
   const q = state.query.trim();
 
   const method = q ? " (Okapi BM25)" : "";
-  count.textContent = `${filteredList.length} docente${filteredList.length === 1 ? "" : "s"} encontrado${filteredList.length === 1 ? "" : "s"}${method}`;
+  count.textContent = `${total} docente${total === 1 ? "" : "s"} encontrado${total === 1 ? "" : "s"}${method}`;
 
-  if (filteredList.length === 0) {
+  if (total === 0) {
     ul.innerHTML = "";
     empty.hidden = false;
+    renderPagination(0);
     return;
   }
   empty.hidden = true;
 
-  ul.innerHTML = filteredList.map((p, listIdx) => {
+  // Pagination slicing
+  const pageSize = state.pageSize;
+  let pageItems = filteredList;
+  let pageScores = scores;
+  let startIndex = 0;
+
+  if (pageSize > 0) {
+    const totalPages = Math.ceil(total / pageSize);
+    if (state.page > totalPages) state.page = totalPages;
+    if (state.page < 1) state.page = 1;
+
+    startIndex = (state.page - 1) * pageSize;
+    const endIndex = startIndex + pageSize;
+    pageItems = filteredList.slice(startIndex, endIndex);
+    if (scores) pageScores = scores.slice(startIndex, endIndex);
+
+    renderPagination(totalPages);
+  } else {
+    renderPagination(0);
+  }
+
+  ul.innerHTML = pageItems.map((p, listIdx) => {
     const hl = (text) => q ? highlightTerms(text, q) : escapeHtml(text);
 
     const vinculos = (p.vinculos || []).slice(0, 2).map((v) => `
@@ -314,10 +345,10 @@ function renderDocentes(results) {
       ? `<span class="badge-pi" title="Possui patente ou programa de computador registrado no INPI">PI/Programa</span>`
       : "";
 
-    const scoreBar = scores
-      ? `<span class="bm25-score" title="BM25 score: ${scores[listIdx].toFixed(2)}">
-           <span class="bm25-bar" style="width:${Math.max(8, (scores[listIdx] / maxScore) * 60)}px"></span>
-           ${scores[listIdx].toFixed(1)}
+    const scoreBar = pageScores
+      ? `<span class="bm25-score" title="BM25 score: ${pageScores[listIdx].toFixed(2)}">
+           <span class="bm25-bar" style="width:${Math.max(8, (pageScores[listIdx] / maxScore) * 50)}px"></span>
+           ${pageScores[listIdx].toFixed(1)}
          </span>`
       : "";
 
@@ -338,10 +369,19 @@ function renderDocentes(results) {
           ${hasMoreVinculos ? `<li><em style="font-size:11.5px;color:var(--ink-soft)">+ ${(p.vinculos.length - 2)} outros cursos/disciplinas...</em></li>` : ""}
         </ul>
         <div class="card-foot">
-          <button class="btn-sm btn-docente-detail" data-idx="${p.__idx}" type="button">Ver Detalhes</button>
+          <button class="btn-sm btn-docente-detail" data-idx="${p.__idx}" type="button">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+            Detalhes
+          </button>
           <div class="card-links">
-            ${p.email ? `<a class="btn-sm" href="mailto:${escapeAttr(p.email)}" title="Enviar e-mail">E-mail</a>` : ""}
-            ${p.lattes ? `<a class="btn-sm" href="${escapeAttr(p.lattes)}" target="_blank" rel="noopener">Lattes</a>` : ""}
+            ${p.email ? `<a class="btn-sm" href="mailto:${escapeAttr(p.email)}" title="Enviar e-mail">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+              E-mail
+            </a>` : ""}
+            ${p.lattes ? `<a class="btn-sm" href="${escapeAttr(p.lattes)}" target="_blank" rel="noopener">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+              Lattes
+            </a>` : ""}
           </div>
         </div>
       </li>`;
@@ -353,6 +393,57 @@ function renderDocentes(results) {
       openDocenteModal(state.docentes[idx]);
     });
   });
+}
+
+function renderPagination(totalPages) {
+  const container = document.getElementById("pagination");
+  if (!container) return;
+
+  if (totalPages <= 1) {
+    container.hidden = true;
+    return;
+  }
+  container.hidden = false;
+
+  const prevBtn = document.getElementById("page-prev");
+  const nextBtn = document.getElementById("page-next");
+  const numbersWrap = document.getElementById("page-numbers");
+
+  prevBtn.disabled = state.page <= 1;
+  nextBtn.disabled = state.page >= totalPages;
+
+  // Build page number items with ellipsis
+  const pages = [];
+  const cur = state.page;
+
+  for (let i = 1; i <= totalPages; i++) {
+    if (i === 1 || i === totalPages || (i >= cur - 1 && i <= cur + 1)) {
+      pages.push(i);
+    } else if (pages[pages.length - 1] !== "...") {
+      pages.push("...");
+    }
+  }
+
+  numbersWrap.innerHTML = pages.map((p) => {
+    if (p === "...") return `<span class="page-dots">&hellip;</span>`;
+    return `<button class="page-num${p === cur ? ' active' : ''}" data-page="${p}" type="button">${p}</button>`;
+  }).join("");
+
+  numbersWrap.querySelectorAll(".page-num").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      state.page = parseInt(btn.dataset.page, 10);
+      runSearchAndRender();
+      scrollToResults();
+    });
+  });
+}
+
+function scrollToResults() {
+  const el = document.getElementById("panel-docentes");
+  if (el) {
+    const top = el.getBoundingClientRect().top + window.scrollY - 80;
+    window.scrollTo({ top, behavior: "smooth" });
+  }
 }
 
 function openDocenteModal(p) {
@@ -379,7 +470,9 @@ function openDocenteModal(p) {
   modalBody.innerHTML = `
     <h2 class="modal-title">${escapeHtml(p.nome)}</h2>
     <div class="modal-subtitle">
-      ${escapeHtml(p.titulacao || "N/A")} &bull; ${escapeHtml(p.unidade || "N/A")} &bull; ${escapeHtml(p.campus || "N/A")}
+      <span>${escapeHtml(p.titulacao || "N/A")}</span> &bull; 
+      <span>${escapeHtml(p.unidade || "N/A")}</span> &bull; 
+      <span>${escapeHtml(p.campus || "N/A")}</span>
     </div>
     ${p.email ? `
       <div style="margin-bottom:16px;display:flex;align-items:center;gap:10px;flex-wrap:wrap">
@@ -443,15 +536,17 @@ function downloadFile(content, fileName, mimeType) {
 }
 
 function exportDocentesCSV() {
-  const rows = [["Nome", "Campus", "Unidade", "Titulacao", "E-mail", "Lattes"]];
+  const rows = [["Nome", "Campus", "Unidade", "Titulacao", "E-mail", "Lattes", "PI_Registrada"]];
   state.filtered.forEach((d) => {
+    const pis = (d.pi_registrada || []).join("; ");
     rows.push([
       `"${(d.nome||"").replace(/"/g, '""')}"`,
       `"${(d.campus||"").replace(/"/g, '""')}"`,
       `"${(d.unidade||"").replace(/"/g, '""')}"`,
       `"${(d.titulacao||"").replace(/"/g, '""')}"`,
       `"${(d.email||"").replace(/"/g, '""')}"`,
-      `"${(d.lattes||"").replace(/"/g, '""')}"`
+      `"${(d.lattes||"").replace(/"/g, '""')}"`,
+      `"${pis.replace(/"/g, '""')}"`
     ]);
   });
 
@@ -465,7 +560,7 @@ function exportDocentesJSON() {
 }
 
 /* =========================================================================
-   Eventos & Atalhos
+   Eventos & Controlos
    ========================================================================= */
 
 function wireControls() {
@@ -473,18 +568,40 @@ function wireControls() {
   let debounce;
   q.addEventListener("input", () => {
     state.query = q.value;
+    state.page = 1;
     clearTimeout(debounce);
-    debounce = setTimeout(runSearchAndRender, 120);
+    debounce = setTimeout(runSearchAndRender, 100);
   });
 
-  document.getElementById("f-campus").addEventListener("change", (e) => { state.filters.campus = e.target.value; runSearchAndRender(); });
-  document.getElementById("f-unidade").addEventListener("change", (e) => { state.filters.unidade = e.target.value; runSearchAndRender(); });
-  document.getElementById("f-titulacao").addEventListener("change", (e) => { state.filters.titulacao = e.target.value; runSearchAndRender(); });
-  document.getElementById("f-pi").addEventListener("change", (e) => { state.filters.piOnly = e.target.checked; runSearchAndRender(); });
+  document.getElementById("f-campus").addEventListener("change", (e) => { state.filters.campus = e.target.value; state.page = 1; runSearchAndRender(); });
+  document.getElementById("f-unidade").addEventListener("change", (e) => { state.filters.unidade = e.target.value; state.page = 1; runSearchAndRender(); });
+  document.getElementById("f-titulacao").addEventListener("change", (e) => { state.filters.titulacao = e.target.value; state.page = 1; runSearchAndRender(); });
+  document.getElementById("f-pi").addEventListener("change", (e) => { state.filters.piOnly = e.target.checked; state.page = 1; runSearchAndRender(); });
+
+  document.getElementById("page-size").addEventListener("change", (e) => {
+    state.pageSize = parseInt(e.target.value, 10);
+    state.page = 1;
+    runSearchAndRender();
+  });
+
+  document.getElementById("page-prev").addEventListener("click", () => {
+    if (state.page > 1) {
+      state.page--;
+      runSearchAndRender();
+      scrollToResults();
+    }
+  });
+
+  document.getElementById("page-next").addEventListener("click", () => {
+    state.page++;
+    runSearchAndRender();
+    scrollToResults();
+  });
 
   document.getElementById("clear-filters").addEventListener("click", () => {
     state.filters = { campus: "", unidade: "", titulacao: "", piOnly: false };
     state.query = "";
+    state.page = 1;
     document.getElementById("q").value = "";
     document.getElementById("f-campus").value = "";
     document.getElementById("f-unidade").value = "";
