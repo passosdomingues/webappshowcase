@@ -909,12 +909,34 @@ def executar_deploy(repo_path):
     status_output = run_git(["git", "status", "--porcelain"], cwd=repo_path, capture=True).strip()
     has_changes = len(status_output) > 0
     
-    stashed = False
+    stashed = None
     try:
         if has_changes:
             log("WARN", "Alterações não commitadas detectadas — fazendo stash automático...")
-            run_git(["git", "stash", "push", "-m", "auto-stash antes do deploy do site"], cwd=repo_path)
-            stashed = True
+            stash_before = run_git(
+                ["git", "stash", "list", "--format=%H"], cwd=repo_path, capture=True
+            ).splitlines()
+            stash_message = (
+                "auto-stash antes do deploy do site "
+                f"{datetime.now().isoformat(timespec='microseconds')}"
+            )
+            run_git(
+                ["git", "stash", "push", "--include-untracked", "-m", stash_message],
+                cwd=repo_path,
+            )
+            stash_after = run_git(
+                ["git", "stash", "list", "--format=%H"], cwd=repo_path, capture=True
+            ).splitlines()
+            if stash_after and (not stash_before or stash_after[0] != stash_before[0]):
+                stashed = stash_after[0]
+
+            remaining_changes = run_git(
+                ["git", "status", "--porcelain"], cwd=repo_path, capture=True
+            ).strip()
+            if remaining_changes:
+                raise RuntimeError(
+                    "Não foi possível guardar todas as alterações locais antes do deploy."
+                )
 
         log("INFO", "Buscando atualizações do remoto (fetch)...")
         run_git(["git", "fetch", "origin"], cwd=repo_path)
@@ -985,7 +1007,13 @@ def executar_deploy(repo_path):
         if stashed:
             log("INFO", "Restaurando alterações locais do stash...")
             try:
-                run_git(["git", "stash", "pop"], cwd=repo_path)
+                stash_entries = run_git(
+                    ["git", "stash", "list", "--format=%H"], cwd=repo_path, capture=True
+                ).splitlines()
+                stash_index = stash_entries.index(stashed)
+                run_git(
+                    ["git", "stash", "pop", f"stash@{{{stash_index}}}"], cwd=repo_path
+                )
             except Exception as e:
                 log("WARN", f"Não foi possível fazer stash pop automaticamente (pode haver conflitos): {e}")
 
