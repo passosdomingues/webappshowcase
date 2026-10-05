@@ -1,0 +1,126 @@
+<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>CERNE: A Última Semente</title>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+<style>
+:root,:root[data-theme=dark]{--bg:#0b0a1a;--fg:#f2e9c9;--ac:#fbbf24;--pn:#1a1533;--bd:#8b7cf6}
+*{box-sizing:border-box}html,body{height:100%;margin:0;background:var(--bg);color:var(--fg);font:13px/1.5 ui-monospace,Menlo,monospace}
+#w{height:100%;display:flex;flex-direction:column;max-width:900px;margin:auto;padding:env(safe-area-inset-top,0px) 0 env(safe-area-inset-bottom,0px)}
+.p{font-family:'Press Start 2P',monospace;font-size:9px}
+#hud{display:flex;justify-content:space-between;align-items:center;padding:10px;gap:8px}
+#c{flex:1;min-height:0;width:100%;object-fit:contain;image-rendering:pixelated;touch-action:manipulation}
+#msg{padding:8px 12px;min-height:58px;border-top:3px solid var(--bd);background:var(--pn)}
+#ov{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:#000a;padding:16px;z-index:5}
+#bx{max-width:460px;width:100%;background:var(--pn);border:3px solid var(--bd);box-shadow:4px 4px 0 #000;padding:14px}
+button{font:inherit;color:var(--fg);background:#2a2250;border:2px solid var(--bd);padding:10px;margin-top:8px;width:100%;text-align:left;cursor:pointer}
+button:hover,button:focus{background:#3b2f78;outline:0}
+h2{margin:0 0 10px;font-size:10px;line-height:1.7;color:var(--ac)}
+.sh{animation:sh .3s}@keyframes sh{25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+</style></head><body><div id=w><div id=hud class=p><span>🌳 CERNE</span><span id=sl></span><span id=pg></span><span id=sn style="cursor:pointer">♪</span></div><canvas id=c width=288 height=256></canvas><div id=msg></div></div><div id=ov><div id=bx></div></div>
+<script>
+const $=i=>document.getElementById(i),W=288,H=256,cv=$('c'),g=cv.getContext('2d'),ov=$('ov'),bx=$('bx');
+// [nome, ação correta, errada, errada] — edite aqui para usar a lista oficial
+const P=[
+["Sensibilização","Divulgar a cultura empreendedora à comunidade","Cobrar taxa de todo candidato","Esperar ideias surgirem sozinhas"],
+["Prospecção","Buscar ativamente ideias e equipes promissoras","Aceitar só amigos da equipe","Fechar o edital a novos nomes"],
+["Qualificação de Potenciais","Preparar candidatos antes da seleção","Contratar sem conversar","Pular direto para a graduação"],
+["Recepção de Propostas","Receber propostas por processo aberto e padronizado","Aceitar propostas por recado verbal","Receber só indicações políticas"],
+["Avaliação","Julgar propostas com critérios claros e comitê","Decidir pelo humor do dia","Aprovar quem chegou primeiro"],
+["Contratação","Formalizar a entrada com contrato de incubação","Combinar tudo no aperto de mão","Dispensar regras de uso do espaço"],
+["Plano de Desenvolvimento","Definir metas e etapas junto ao empreendedor","Impor um plano único a todos","Evitar metas para não frustrar"],
+["Desenvolvimento","Oferecer capacitação e assessoria em produto, mercado e gestão","Deixar cada empresa por conta própria","Oferecer só mesas e internet"],
+["Monitoramento","Acompanhar indicadores e evolução periodicamente","Olhar resultados só no fim do ano","Medir só a simpatia da equipe"],
+["Graduação","Formalizar a saída e manter relacionamento com graduadas","Esquecer a empresa ao sair","Impedir a saída por contrato"],
+["Planejamento Estratégico","Definir missão, metas e plano da incubadora","Improvisar a cada trimestre","Copiar o plano de outra cidade"],
+["Gestão Financeira","Planejar receitas e despesas para a sustentabilidade","Gastar até o caixa acabar","Depender de uma única fonte"],
+["Gestão de Pessoas","Capacitar e engajar a equipe da incubadora","Trocar a equipe a cada edital","Centralizar tudo numa pessoa"],
+["Infraestrutura e Serviços","Manter espaços e serviços adequados às startups","Cobrar por serviços inexistentes","Deixar laboratórios sem manutenção"],
+["Comunicação e Marca","Comunicar resultados e fortalecer a imagem","Manter a incubadora invisível","Prometer o que não entrega"],
+["Gestão de Processos","Documentar e padronizar os processos-chave","Depender da memória de um veterano","Mudar processos sem avisar"],
+["Gestão da Qualidade","Medir satisfação e corrigir falhas continuamente","Ignorar reclamações","Medir só a quantidade de eventos"],
+["Gestão de Riscos","Mapear riscos e planejar respostas","Torcer para nada dar errado","Esconder problemas do conselho"],
+["Mapeamento de Parceiros","Identificar atores úteis do ecossistema local","Ignorar a universidade vizinha","Contatar só concorrentes"],
+["Parcerias Estratégicas","Formalizar alianças com universidades, governo e empresas","Fazer acordos sem objetivo","Competir com todo parceiro"],
+["Acesso a Capital","Conectar startups a fomento e investidores","Prometer investimento garantido","Impedir contato com investidores"],
+["Acesso a Mercado","Abrir portas a clientes e canais de venda","Limitar vendas ao espaço da incubadora","Evitar rodadas de negócio"],
+["Internacionalização","Apoiar a conexão com ecossistemas de outros países","Proibir contatos externos","Traduzir só o site"],
+["Rede de Mentores","Reunir mentores experientes para as startups","Mentoria só entre novatos","Mentores sem critério algum"],
+["Benchmarking","Comparar-se com as melhores incubadoras do mundo","Evitar comparação para não desanimar","Copiar sem adaptar"],
+["Inovação do Modelo","Experimentar novas formas de apoiar startups","Congelar o modelo por décadas","Mudar por moda, sem testar"],
+["Aprendizado Coletivo","Compartilhar lições com a rede de incubadoras","Guardar resultados a sete chaves","Registrar só os sucessos"],
+["Medição de Impacto","Medir impacto econômico e social no território","Contar só o número de salas","Divulgar impacto sem dados"],
+["Cultura de Melhoria Contínua","Revisar e evoluir práticas em ciclos constantes","Considerar o trabalho concluído","Revisar só quando há crise"]];
+const TC=[10,8,6,5],TN=['Raiz','Tronco','Copa','Cerne'],TG=[{rx:124,rr:108,c:'#4ade80'},{rx:92,rr:78,c:'#f59e0b'},{rx:62,rr:48,c:'#38bdf8'},{rx:34,rr:22,c:'#e879f9'}];
+TG.forEach((q,k)=>{q.cx=144;q.cy=176-12*k;q.ry=q.rx>>1});
+const pl=[],ord=[[],[],[],[]];let n=0;
+TC.forEach((cnt,k)=>{for(let j=0;j<cnt;j++){const a=2.36+j*6.2832/cnt,q=TG[k];pl.push({k,x:144+Math.round(q.rr*Math.cos(a)),y:q.cy+Math.round(q.rr/2*Math.sin(a)),v:n%4});ord[k].push(n);n++}});
+let S;try{S=JSON.parse(localStorage.getItem('cerne1'))}catch(e){}
+if(!S||!S.d||S.d.length!=29)S={d:Array(29).fill(0),e:0};
+const sv=()=>{try{localStorage.setItem('cerne1',JSON.stringify(S))}catch(e){}},cnt=()=>S.d.reduce((a,b)=>a+b,0),prog=()=>cnt()/29;
+const tierDone=k=>pl.every((p,i)=>p.k!=k||S.d[i]),unl=k=>k==0||tierDone(k-1);
+const setMsg=t=>$('msg').textContent=t,show=h=>{bx.innerHTML=h;ov.style.display='flex'},hide=()=>ov.style.display='none';
+function ui(){$('sl').innerHTML=TG.map((q,k)=>`<span style="color:${tierDone(k)?q.c:'#4b4468'}">◆</span>`).join(' ');$('pg').textContent=cnt()+'/29'}
+// ---------- render ----------
+const R=(x,y,w,h,c)=>{g.fillStyle=c;g.fillRect(x|0,y|0,w,h)};
+const sh=(h,f)=>{const v=parseInt(h.slice(1),16);return `rgb(${(v>>16&255)*f|0},${(v>>8&255)*f|0},${(v&255)*f|0})`};
+function ell(cx,cy,rx,ry,c){cx|=0;cy|=0;rx|=0;ry|=0;g.fillStyle=c;for(let y=-ry;y<=ry;y++){const w=Math.sqrt(1-y*y/(ry*ry||1))*rx|0;g.fillRect(cx-w,cy+y,2*w,1)}}
+function dia(x,y,hw,c){x|=0;y|=0;g.fillStyle=c;for(let r=-(hw>>1);r<=hw>>1;r++){const w=hw-2*Math.abs(r);g.fillRect(x-w,y+r,2*w+1,1)}}
+function cube(x,y,hw,h,t,l,r){x|=0;y|=0;const y0=y-h;g.fillStyle=l;for(let c=0;c<hw;c++)g.fillRect(x-hw+c,y0+(c>>1),1,h);g.fillStyle=r;for(let c=0;c<=hw;c++)g.fillRect(x+c,y0+(hw>>1)-(c>>1),1,h);dia(x,y0,hw,t)}
+const lr=(a,b,t)=>a+(b-a)*t,rgb=(a,b,t)=>`rgb(${a.map((v,i)=>lr(v,b[i],t)|0)})`;
+let T=0,cur=Math.max(0,S.d.indexOf(0));const pl2={x:144,y:230,tx:0,ty:0,k:0,go:0};
+function sky(p){const N=[[11,10,42],[58,42,106]],D=[[58,40,110],[245,158,11]];
+for(let y=0;y<170;y+=10){const f=y/170;R(0,y,W,10,rgb(N[0].map((v,i)=>lr(v,N[1][i],f)),D[0].map((v,i)=>lr(v,D[1][i],f)),p))}
+for(let i=0;i<40;i++)if(Math.sin(T*2+i)>-.5&&p<.85){g.globalAlpha=1-p;R((i*73)%W,(i*41)%110,1,1,'#fff');g.globalAlpha=1}
+ell(232,36,11,11,rgb([242,233,201],[253,224,138],p));R(0,170,W,86,'#0b0a1a');
+for(let x=0;x<W;x+=8){const h=10+(x*13)%9;R(x,170-h,6,h,'#120f26');R(x+2,167-h,2,3,'#120f26')}}
+function plat(k){const q=TG[k],ok=tierDone(k),u=unl(k),b=u?'#5b4636':'#3a3550';
+for(let t=8;t>0;t--)ell(q.cx,q.cy+t,q.rx,q.ry,t>5?'#2a1d18':'#3a2a22');
+ell(q.cx,q.cy,q.rx,q.ry,b);const rc=ok?q.c:u?'#46372b':'#2c2840';
+[q.rr+8,q.rr-8].forEach(r=>{g.globalAlpha=ok?.55+.3*Math.sin(T*3):1;ell(q.cx,q.cy,r,r>>1,rc);g.globalAlpha=1;ell(q.cx,q.cy,r-3,(r-3)>>1,b)})}
+function dp(i){const p=pl[i],q=TG[p.k],d=S.d[i],u=unl(p.k),hw=[6,6,5,4][p.k],h=[10,16,12,18][p.v]*(hw>4?1:.8)|0;let t,l,r;
+if(d){t=sh(q.c,1.2);l=sh(q.c,.85);r=sh(q.c,.55);g.globalAlpha=.22+.06*Math.sin(T*3+i);ell(p.x,p.y,hw+7,(hw+7)>>1,q.c);g.globalAlpha=1}
+else if(u){t='#9a90b0';l='#6b6180';r='#4a4260';g.globalAlpha=.3+.3*Math.sin(T*4);dia(p.x,p.y,hw+4,q.c);g.globalAlpha=1}
+else{t='#2e2a48';l='#221f38';r='#171530'}
+cube(p.x,p.y,hw,h,t,l,r);
+if(d){if(p.v%2){const b=Math.round(Math.sin(T*2+i)*2);dia(p.x,p.y-h-6+b,4,'#fff');dia(p.x,p.y-h-6+b,2,q.c)}
+for(let f=0;f<2;f++)if(Math.sin(T*3+i*5+f*2)>-.3)R(p.x+Math.sin(T*1.3+i+f*3)*11,p.y-h-4+Math.cos(T*1.1+i*2+f)*7,1,1,'#fde68a')}
+if(i==cur&&ov.style.display!='flex'){const b=Math.round(Math.abs(Math.sin(T*5))*3),y=p.y-h-14-b;for(let k=0;k<4;k++)R(p.x-3+k,y+k,7-2*k,1,'#fff')}}
+function seed(){const ok=tierDone(3),y=112+Math.round(Math.sin(T*2)*2);
+g.globalAlpha=ok?.25+.1*Math.sin(T*4):.12;ell(144,y,16,12,ok?'#fbbf24':'#8b7cf6');g.globalAlpha=ok?.4:.15;ell(144,y,10,8,'#fbbf24');g.globalAlpha=1;ell(144,y,5,5,ok?'#fff6c8':unl(3)?'#8f86b5':'#3a3560')}
+function man(){const x=pl2.x|0,y=pl2.y|0,b=pl2.go?Math.round(Math.abs(Math.sin(T*14))*2):0;
+ell(x,y,4,2,'#0007');R(x-2,y-2,2,2,'#222');R(x+1,y-2,2,2,'#222');R(x-2,y-8-b,5,6,'#2f855a');R(x-2,y-12-b,5,4,'#276749');R(x-1,y-11-b,3,2,'#f6d6b0');R(x+3,y-7-b,2,3,'#fbbf24');
+g.globalAlpha=.2;ell(x+4,y-6-b,10,6,'#fbbf24');g.globalAlpha=1}
+function fog(k){const q=TG[k],f=tierDone(k)?0:unl(k)?.12:.55;if(!f)return;g.globalAlpha=f;for(let j=0;j<7;j++)ell(q.cx+Math.sin(T*.25+j*1.9)*q.rx*.7,q.cy+Math.cos(T*.2+j*2.7)*q.ry*.55,16+j*2,4+(j&1)*2,'#cfd3f0');g.globalAlpha=1}
+function draw(){sky(prog());for(let k=0;k<4;k++){plat(k);const it=ord[k].map(i=>({y:pl[i].y,f:()=>dp(i)}));if(k==3)it.push({y:140,f:seed});if(pl2.k==k)it.push({y:pl2.y,f:man});it.sort((a,b)=>a.y-b.y).forEach(o=>o.f());fog(k)}}
+function update(dt){if(!pl2.go)return;const dx=pl2.tx-pl2.x,dy=pl2.ty-pl2.y,d=Math.hypot(dx,dy),s=110*dt;if(d<=s){pl2.x=pl2.tx;pl2.y=pl2.ty;pl2.go=0;pl2.cb&&pl2.cb()}else{pl2.x+=dx/d*s;pl2.y+=dy/d*s}}
+let last=performance.now(),t0=last;function loop(t){const dt=Math.min(.05,(t-last)/1e3);last=t;T=(t-t0)/1e3;update(dt);draw();requestAnimationFrame(loop)}
+// ---------- áudio procedural ----------
+let A,M,V,on=1,ch=0;const mf=n=>440*2**((n-69)/12);
+function tone(f,d,ty,v,at,a){if(!A)return;const o=A.createOscillator(),e=A.createGain(),s=A.currentTime+(at||0);o.type=ty;o.frequency.value=f;e.gain.setValueAtTime(0,s);e.gain.linearRampToValueAtTime(v,s+(a||.02));e.gain.exponentialRampToValueAtTime(.0001,s+d);o.connect(e);e.connect(M);e.connect(V);o.start(s);o.stop(s+d+.1)}
+function chord(){if(!on||!A)return;const C=[[45,52,57,60,64],[41,48,53,57,60],[48,55,60,64,67],[43,50,55,59,62]][ch++%4];C.forEach((n,i)=>{tone(mf(n),9,'triangle',.05,i*.15,3);tone(mf(n)*1.004,9,'sine',.04,i*.15,3.5)});if(prog()>.4)tone(mf(C[4]+12),9,'sine',.03,.5,3)}
+function bell(){if(on&&A){const s=[57,60,62,64,67,69,72],n=s[Math.random()*7|0]+(prog()>.5?12:0);tone(mf(n+12),3,'sine',.06,0,.005);tone(mf(n+12)*2.01,1.5,'sine',.02,0,.005)}setTimeout(bell,1800+Math.random()*3500)}
+function aud(){if(A)return;A=new(window.AudioContext||window.webkitAudioContext)();M=A.createGain();M.gain.value=on?.55:0;M.connect(A.destination);V=A.createConvolver();const L=A.sampleRate*3,b=A.createBuffer(2,L,A.sampleRate);for(let k=0;k<2;k++){const d=b.getChannelData(k);for(let i=0;i<L;i++)d[i]=(Math.random()*2-1)*(1-i/L)**3}V.buffer=b;const w=A.createGain();w.gain.value=.7;V.connect(w);w.connect(M);
+const nb=A.createBuffer(1,A.sampleRate*2,A.sampleRate),nd=nb.getChannelData(0);for(let i=0;i<nd.length;i++)nd[i]=Math.random()*2-1;const ns=A.createBufferSource();ns.buffer=nb;ns.loop=true;const bp=A.createBiquadFilter();bp.type='bandpass';bp.frequency.value=500;bp.Q.value=.6;const ng=A.createGain();ng.gain.value=.04;const lf=A.createOscillator(),lg=A.createGain();lf.frequency.value=.12;lg.gain.value=.03;lf.connect(lg);lg.connect(ng.gain);ns.connect(bp);bp.connect(ng);ng.connect(M);ng.connect(V);ns.start();lf.start();chord();setInterval(chord,7000)}
+const okS=k=>[0,4,7,12].forEach((s,i)=>tone(mf(64+k*2+s),1,'triangle',.12,i*.09,.01)),badS=()=>tone(110,.4,'sawtooth',.08),sealS=()=>[0,4,7,12,16,19].forEach((s,i)=>tone(mf(57+s),4,'sine',.1,i*.18,.05));
+$('sn').onclick=()=>{on=!on;if(M)M.gain.value=on?.55:0;$('sn').textContent=on?'♪':'×'};
+// ---------- narrativa e jogo ----------
+const INTRO=["Há muito tempo, a Floresta de Nidus crescia em volta de um Ipê ancestral. No coração do tronco, o Cerne guardava a seiva de cada ideia que virou empresa.","Então veio a Névoa do Esquecimento. Processos se perderam, parcerias se romperam e 29 práticas-chave se apagaram dos anéis da árvore.","Você é o(a) Guardião(ã) da incubadora. Restaure as práticas anel por anel: Raiz, Tronco, Copa e Cerne. Só quem sela um anel alcança o próximo."];
+const END=['Selo CERNE 1! A Raiz bebe seiva outra vez: a incubadora já sabe prospectar, selecionar e formar empreendimentos. O Tronco desperta.','Selo CERNE 2! O Tronco se ergue firme: agora a incubadora é uma organização que planeja, mede e cuida de si. A Copa desperta.','Selo CERNE 3! A Copa se abre ao vento: parceiros, capital e mercado chegam pela rede. O Cerne desperta.'];
+const FIN=["A Semente do Cerne acende. Raiz, Tronco, Copa e Cerne pulsam como um só coração.","A Névoa recua. Onde havia esquecimento, agora há método, rede e aprendizado contínuo.","Você conquistou o CERNE 4. A floresta já não precisa de guardião: agora ela ensina a outras florestas."];
+function story(s,cb,i){i=i||0;show('<div id=tx style="min-height:120px"></div><button id=nx>▶ continuar</button>');const tx=$('tx');let n=0;const iv=setInterval(()=>{tx.textContent=s[i].slice(0,++n);if(n>=s[i].length)clearInterval(iv)},22);
+$('nx').onclick=()=>{if(n<s[i].length){clearInterval(iv);n=s[i].length;tx.textContent=s[i];return}clearInterval(iv);if(i+1<s.length)story(s,cb,i+1);else{hide();cb&&cb()}}}
+function chal(i){const d=P[i],o=[[d[1],1],[d[2],0],[d[3],0]].sort(()=>Math.random()-.5);
+show(`<h2 class=p>◆ ${i+1}/29 · ${d[0].toUpperCase()}</h2><div>A névoa cobre este artefato. Qual ação restaura a prática?</div>`+o.map((x,j)=>`<button data-j=${j}>${x[0]}</button>`).join('')+'<button id=cx style="opacity:.6;text-align:center">voltar</button>');
+bx.querySelectorAll('button[data-j]').forEach(b=>b.onclick=()=>{if(o[b.dataset.j][1]){hide();win(i)}else{S.e++;sv();b.disabled=1;b.style.opacity=.3;bx.classList.remove('sh');void bx.offsetWidth;bx.classList.add('sh');badS();setMsg('A névoa se adensa… tente outra ação.')}});$('cx').onclick=hide}
+function win(i){const d=P[i],k=pl[i].k;S.d[i]=1;sv();ui();okS(k);setMsg('✔ '+d[0]+': '+d[1]);const nx=S.d.indexOf(0);if(nx>=0)cur=nx;
+if(tierDone(k))setTimeout(()=>{sealS();k<3?story([END[k]],()=>setMsg('O anel '+TN[k+1]+' despertou. Continue a restauração.')):story(FIN,fim)},900)}
+function fim(){const e=S.e,r=e<=3?'Guardião do Ipê Dourado':e<=10?'Jardineiro da Seiva':'Aprendiz Persistente';show(`<h2 class=p>CERNE 4 CONQUISTADO</h2><p>29/29 práticas restauradas.<br>Tropeços: ${e}<br>Título: <b>${r}</b></p><button id=rs>↺ Jogar de novo</button><button id=ct>Contemplar a floresta</button>`);$('rs').onclick=()=>{S={d:Array(29).fill(0),e:0};sv();ui();cur=0;pl2.x=144;pl2.y=230;pl2.k=0;hide()};$('ct').onclick=hide}
+function act(i){if(pl2.go||ov.style.display=='flex')return;const p=pl[i];cur=i;
+if(!unl(p.k))return setMsg('A névoa cobre o anel '+TN[p.k]+'. Sele o anel '+TN[p.k-1]+' primeiro.');
+if(S.d[i])return setMsg('✔ '+P[i][0]+': '+P[i][1]);
+pl2.tx=p.x;pl2.ty=p.y+7;pl2.k=p.k;pl2.go=1;pl2.cb=()=>chal(i)}
+cv.onclick=e=>{const r=cv.getBoundingClientRect(),s=Math.min(r.width/W,r.height/H),x=(e.clientX-r.left-(r.width-W*s)/2)/s,y=(e.clientY-r.top-(r.height-H*s)/2)/s;let b=-1,bd=18;pl.forEach((p,i)=>{const d=Math.hypot(x-p.x,y-p.y+8);if(d<bd){bd=d;b=i}});if(b>=0)act(b)};
+onkeydown=e=>{if(ov.style.display=='flex')return;if(e.key=='ArrowRight')cur=(cur+1)%29;else if(e.key=='ArrowLeft')cur=(cur+28)%29;else if(e.key=='Enter'||e.key==' ')act(cur)};
+function menu(){const has=cnt()>0;show(`<h2 class=p style="font-size:12px">CERNE<br>A ÚLTIMA SEMENTE</h2><p>Restaure as 29 práticas-chave e conquiste o CERNE 4. Cada anel só desperta depois do anterior.</p><button id=b1>▶ ${has?'Continuar':'Entrar na Floresta'}</button>${has?'<button id=b2>↺ Recomeçar</button>':''}<p style="opacity:.6;font-size:11px">♪ Com som. Toque nos artefatos apagados (ou use ← → Enter).</p>`);
+$('b1').onclick=()=>{aud();bell();has?hide():story(INTRO,()=>setMsg('Toque num artefato apagado do anel Raiz para restaurá-lo.'))};
+if(has)$('b2').onclick=()=>{S={d:Array(29).fill(0),e:0};sv();ui();cur=0;aud();bell();story(INTRO)}}
+ui();setMsg('Toque num artefato apagado para restaurá-lo.');menu();requestAnimationFrame(loop);
+</script></body></html>
