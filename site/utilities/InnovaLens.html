@@ -964,6 +964,17 @@
 
                 <div class="sidebar-card">
                     <div class="card-header">
+                        <h3><i class="fas fa-history"></i> Histórico de Patentes</h3>
+                    </div>
+                    <div class="card-body" style="padding: 1rem;">
+                        <div id="listaHistoricoPatentes" style="display: flex; flex-direction: column; gap: 0.5rem; max-height: 180px; overflow-y: auto;">
+                            <p style="font-size: 0.85rem; font-style: italic; margin: 0; color: var(--text-secondary);">Nenhuma patente analisada ainda.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="sidebar-card">
+                    <div class="card-header">
                         <h3><i class="fas fa-compass"></i> Área Tecnológica Sugerida</h3>
                     </div>
                     <div class="card-body">
@@ -980,11 +991,16 @@
                 </div>
 
                 <div class="sidebar-card">
-                    <div class="card-header">
-                        <h3><i class="fas fa-project-diagram"></i> Diagrama de Conceitos (Dinâmico)</h3>
+                    <div class="card-header" style="display: flex; justify-content: space-between; align-items: center; gap: 1rem; width: 100%;">
+                        <h3 style="flex-shrink: 0;"><i class="fas fa-project-diagram"></i> Diagrama</h3>
+                        <div style="display: flex; gap: 0.25rem;">
+                            <button onclick="window.analisador.zoomDiagrama(1.15)" title="Aumentar Zoom" style="background: var(--bg-input); border: 1px solid var(--border-color); color: var(--text-primary); cursor: pointer; padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.75rem;"><i class="fas fa-plus"></i></button>
+                            <button onclick="window.analisador.zoomDiagrama(0.85)" title="Diminuir Zoom" style="background: var(--bg-input); border: 1px solid var(--border-color); color: var(--text-primary); cursor: pointer; padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.75rem;"><i class="fas fa-minus"></i></button>
+                            <button onclick="window.analisador.zoomDiagrama(0)" title="Resetar Zoom" style="background: var(--bg-input); border: 1px solid var(--border-color); color: var(--text-primary); cursor: pointer; padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.75rem;"><i class="fas fa-arrows-alt"></i></button>
+                        </div>
                     </div>
-                    <div class="card-body">
-                        <div class="mermaid-container" id="mermaidContainer">
+                    <div class="card-body" style="overflow: hidden; padding: 0.5rem;">
+                        <div class="mermaid-container" id="mermaidContainer" style="overflow: auto; max-height: 400px; display: block; text-align: center;">
                         </div>
                     </div>
                 </div>
@@ -1047,6 +1063,8 @@
         class AnalisadorSemantico {
             
             constructor() {
+                window.analisador = this;
+                this.diagramZoom = 1.0;
                 this.areaTexto = document.getElementById('textoConteudo');
                 this.btnAnalisar = document.getElementById('btnAnalisar');
                 this.btnResetar = document.getElementById('btnResetar');
@@ -1071,6 +1089,7 @@
                 this.renderizarDicionarios();
                 this.carregarUltimoTexto();
                 this.resetarResultados();
+                this.atualizarListaHistorico();
                 mermaid.initialize({ startOnLoad: false, theme: this.getMermaidTheme() });
             }
             
@@ -1165,6 +1184,8 @@
                     this.renderizarDiagramaDinamico(resultados);
                     
                     this.extrairTermosAutomaticamente(conteudo, resultados);
+                    
+                    this.salvarNoHistorico(conteudo);
                     
                     this.mostrarToast('Análise concluída com sucesso!');
 
@@ -1704,6 +1725,116 @@
             
             escapeMermaid(string) {
                 return string.replace(/"/g, '#quot;').replace(/'/g, '#39;').replace(/</g, '#lt;').replace(/>/g, '#gt;');
+            }
+
+            zoomDiagrama(factor) {
+                const svgEl = this.mermaidContainer.querySelector('svg');
+                if (!svgEl) return;
+                
+                if (factor === 0) {
+                    this.diagramZoom = 1.0;
+                } else {
+                    this.diagramZoom *= factor;
+                }
+                
+                svgEl.style.transform = `scale(${this.diagramZoom})`;
+                svgEl.style.transformOrigin = 'center top';
+                svgEl.style.transition = 'transform 0.2s ease';
+            }
+
+            salvarNoHistorico(texto) {
+                if (!texto || !texto.trim()) return;
+                
+                let historico = [];
+                try {
+                    const salvos = localStorage.getItem('innovaLensHistorico');
+                    if (salvos) historico = JSON.parse(salvos);
+                } catch (e) {
+                    console.error(e);
+                }
+                
+                const titulo = texto.trim().substring(0, 45) + (texto.trim().length > 45 ? '...' : '');
+                const timestamp = Date.now();
+                const dataStr = new Date().toLocaleDateString('pt-BR') + ' ' + new Date().toLocaleTimeString('pt-BR', {hour: '2-digit', minute:'2-digit'});
+                
+                // Evita duplicados idênticos de texto recente
+                historico = historico.filter(item => item.texto.trim() !== texto.trim());
+                
+                historico.unshift({ timestamp, titulo, dataStr, texto });
+                
+                if (historico.length > 10) {
+                    historico.pop();
+                }
+                
+                localStorage.setItem('innovaLensHistorico', JSON.stringify(historico));
+                this.atualizarListaHistorico();
+            }
+
+            atualizarListaHistorico() {
+                const lista = document.getElementById('listaHistoricoPatentes');
+                if (!lista) return;
+                
+                let historico = [];
+                try {
+                    const salvos = localStorage.getItem('innovaLensHistorico');
+                    if (salvos) historico = JSON.parse(salvos);
+                } catch (e) {}
+                
+                if (historico.length === 0) {
+                    lista.innerHTML = '<p style="font-size: 0.85rem; font-style: italic; margin: 0; color: var(--text-secondary);">Nenhuma patente analisada ainda.</p>';
+                    return;
+                }
+                
+                lista.innerHTML = '';
+                historico.forEach(item => {
+                    const itemEl = document.createElement('div');
+                    itemEl.style.display = 'flex';
+                    itemEl.style.justifyContent = 'space-between';
+                    itemEl.style.alignItems = 'center';
+                    itemEl.style.padding = '0.5rem';
+                    itemEl.style.background = 'var(--bg-main)';
+                    itemEl.style.border = '1px solid var(--border-color)';
+                    itemEl.style.borderRadius = 'var(--radius-sm)';
+                    itemEl.style.fontSize = '0.85rem';
+                    itemEl.style.gap = '0.5rem';
+                    
+                    itemEl.innerHTML = `
+                        <div style="flex-grow: 1; display: flex; flex-direction: column; gap: 0.15rem; min-width: 0;">
+                            <span style="font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--text-primary); cursor: pointer;" onclick="window.analisador.carregarPatenteHistorico(${item.timestamp})">${item.titulo}</span>
+                            <span style="font-size: 0.75rem; color: var(--text-secondary);">${item.dataStr}</span>
+                        </div>
+                        <button onclick="window.analisador.excluirPatenteHistorico(${item.timestamp}, event)" style="background: none; border: none; color: var(--error); cursor: pointer; padding: 0.25rem;"><i class="fas fa-trash-alt"></i></button>
+                    `;
+                    lista.appendChild(itemEl);
+                });
+            }
+
+            carregarPatenteHistorico(timestamp) {
+                let historico = [];
+                try {
+                    const salvos = localStorage.getItem('innovaLensHistorico');
+                    if (salvos) historico = JSON.parse(salvos);
+                } catch (e) {}
+                
+                const item = historico.find(item => item.timestamp === timestamp);
+                if (item) {
+                    this.areaTexto.value = item.texto;
+                    this.salvarUltimoTexto();
+                    this.analisarConteudo();
+                }
+            }
+
+            excluirPatenteHistorico(timestamp, event) {
+                event.stopPropagation();
+                let historico = [];
+                try {
+                    const salvos = localStorage.getItem('innovaLensHistorico');
+                    if (salvos) historico = JSON.parse(salvos);
+                } catch (e) {}
+                
+                historico = historico.filter(item => item.timestamp !== timestamp);
+                localStorage.setItem('innovaLensHistorico', JSON.stringify(historico));
+                this.atualizarListaHistorico();
             }
 
             deepCopy(obj) {

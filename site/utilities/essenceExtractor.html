@@ -1246,6 +1246,10 @@
             const main = layoutPreview.querySelector('.preview-main');
             const footer = layoutPreview.querySelector('.preview-footer');
 
+            if (layoutPreview) {
+                layoutPreview.style.backgroundColor = backgroundColor;
+                layoutPreview.style.borderColor = primaryColor;
+            }
             if (header) {
                 header.style.backgroundColor = primaryColor;
                 header.style.color = getContrastingColor(primaryColor);
@@ -1266,10 +1270,10 @@
             }
             if (sidebar) {
                 sidebar.style.backgroundColor = secondaryColor;
-                sidebar.style.opacity = '0.6';
                 sidebar.style.color = getContrastingColor(secondaryColor);
             }
             if (main) {
+                main.style.backgroundColor = backgroundColor;
                 main.style.color = textColor;
             }
             if (footer) {
@@ -2125,18 +2129,21 @@
         form.addEventListener('input', (e) => {
             if (e.target.type === 'range') updateSliderLabels();
             if (e.target.type === 'color') {
-                // Atualizar o campo de texto correspondente
                 const textInput = document.getElementById(`${e.target.id}Text`);
                 if (textInput) {
                     textInput.value = e.target.value;
                 }
                 updatePreview();
             }
-            if (e.target.type === 'text' && e.target.id.includes('ColorText')) {
-                // Atualizar o campo de cor correspondente
-                const colorInput = document.getElementById(e.target.id.replace('Text', ''));
-                if (colorInput && /^#[0-9A-F]{6}$/i.test(e.target.value)) {
-                    colorInput.value = e.target.value;
+            if (e.target.type === 'text' && e.target.id.endsWith('Text')) {
+                const colorInputId = e.target.id.slice(0, -4);
+                const colorInput = document.getElementById(colorInputId);
+                let val = e.target.value.trim();
+                if (val && !val.startsWith('#')) {
+                    val = '#' + val;
+                }
+                if (colorInput && /^#[0-9A-F]{6}$/i.test(val)) {
+                    colorInput.value = val;
                     updatePreview();
                 }
             }

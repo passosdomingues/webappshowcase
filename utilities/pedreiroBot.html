@@ -297,6 +297,75 @@
             display: none !important;
         }
 
+        /* Histórico de Orçamentos */
+        .history-item {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 0.75rem 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.2s;
+        }
+        
+        .history-item:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow);
+            border-color: var(--primary);
+        }
+
+        .history-item-info {
+            display: flex;
+            flex-direction: column;
+            gap: 0.15rem;
+        }
+
+        .history-item-name {
+            font-weight: 700;
+            color: var(--text);
+        }
+
+        .history-item-meta {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        .history-item-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .history-btn-load {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 0.4rem 0.8rem;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 0.85rem;
+        }
+
+        .history-btn-load:hover {
+            background: var(--primary-hover);
+        }
+
+        .history-btn-delete {
+            background: #ef4444;
+            color: white;
+            border: none;
+            padding: 0.4rem 0.8rem;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 0.85rem;
+        }
+
+        .history-btn-delete:hover {
+            background: #dc2626;
+        }
+
         @keyframes fadeIn {
             from {
                 opacity: 0;
@@ -343,6 +412,14 @@
             <div class="botoes-fluxo">
                 <button class="btn-avancar" onclick="avancarParaPedreiro()">👉 Próximo (Pedreiro)</button>
             </div>
+
+            <!-- Seção de Histórico de Orçamentos Salvos -->
+            <div id="historicoOrcamentosSection" class="hidden" style="margin-top: 2rem; border-top: 1px dashed var(--border); padding-top: 1.5rem;">
+                <h4 style="margin-top: 0; margin-bottom: 1rem; color: var(--primary); display: flex; align-items: center; gap: 0.5rem;">
+                    <span>📜 Histórico de Orçamentos Salvos</span>
+                </h4>
+                <div id="historicoLista" style="display: flex; flex-direction: column; gap: 0.75rem;"></div>
+            </div>
         </div>
 
         <div class="etapa hidden" id="etapaPedreiro">
@@ -374,11 +451,18 @@
 
         <div class="resultado-secao hidden" id="resultadoFinal">
             <h3 id="tituloResultado"></h3>
-            <div id="conteudoResultado">
-                </div>
+            <div id="conteudoResultado"></div>
+            
+            <!-- Gráfico de Custos Dinâmico -->
+            <div id="graficoCustosContainer" style="margin: 2rem 0; text-align: center; background: rgba(128,128,128,0.05); padding: 1.5rem; border-radius: var(--radius); border: 1px solid var(--border);">
+                <h4 style="margin-top: 0; margin-bottom: 1rem; color: var(--primary);">📊 Distribuição dos Custos</h4>
+                <div id="graficoCustosSVG"></div>
+            </div>
+
             <div class="botoes-fluxo botoes-acoes hidden" id="botoesAcoes">
                 <button class="btn-whatsapp" onclick="abrirWhatsApp()">📱 Enviar por WhatsApp</button>
                 <button class="btn-exportar" onclick="exportarPNG()">🖼️ Exportar como PNG</button>
+                <button class="btn-voltar" onclick="mostrarEtapa('etapaCliente')" style="background-color: #6c757d;">🏠 Início</button>
             </div>
         </div>
     </main>
@@ -932,49 +1016,171 @@ function avancarParaVendedor() {
 }
 
 /*
-  voltarParaPedreiro()
-  --------------------
-  Retorna da Etapa 3 (Vendedor) para a Etapa 2 (Pedreiro), sem alterar orcamentoAtual.
+  voltarParaPedreiro()
+  --------------------
+  Retorna da Etapa 3 (Vendedor) para a Etapa 2 (Pedreiro), sem alterar orcamentoAtual.
 */
 function voltarParaPedreiro() {
-    mostrarEteta('etapaPedreiro'); // Small typo fixed here
+    mostrarEtapa('etapaPedreiro');
 }
 
 /*
-  finalizarOrcamento()
-  --------------------
-  Transição da Etapa 3 (Vendedor) para a geração do resultado final.
-  1) Lê todos os preços informados para cada material e calcula custoTotalVendedor.
-  2) Recalcula lucro do pedreiro com preços do vendedor (se houver margem).
-  3) Calcula totalGeral = subtotal (materiaisVendedor + M.O.) + valorLucro.
-  4) Monta o HTML completo de resultado (serviços, materiais, M.O., lucro e total).
-  5) Exibe a seção de Resultado Final e habilita botões de ação (WhatsApp e salvar PNG).
+  desenharGraficoCustos()
+  -----------------------
+  Desenha um gráfico SVG dinâmico comparando Materiais, Mão de Obra e Lucro.
 */
-function finalizarOrcamento() {
-    // 1) Coleta preços do vendedor para cada material
-    orcamentoAtual.custoTotalMateriaisVendedor = 0;
-    document.querySelectorAll('#listaMateriaisVendedor input[type="number"]').forEach(input => {
-        const id = input.dataset.id;
-        const precoVend = parseFloat(input.value) || orcamentoAtual.listaMateriais[id].precoMedio;
-        orcamentoAtual.listaMateriais[id].precoVendedor = precoVend;
-        orcamentoAtual.listaMateriais[id].custoTotalVendedor =
-            orcamentoAtual.listaMateriais[id].qtd * precoVend;
-        orcamentoAtual.custoTotalMateriaisVendedor +=
-            orcamentoAtual.listaMateriais[id].custoTotalVendedor;
-    });
+function desenharGraficoCustos(materiais, mo, lucro) {
+    const total = materiais + mo + lucro;
+    if (total === 0) return;
+    
+    const pctMat = (materiais / total) * 100;
+    const pctMO = (mo / total) * 100;
+    const pctLucro = (lucro / total) * 100;
+    
+    const svgHTML = `
+    <div style="width: 100%; max-width: 500px; margin: 0 auto;">
+        <svg width="100%" height="24" viewBox="0 0 100 24" preserveAspectRatio="none" style="border-radius: 6px; background: rgba(128,128,128,0.1); width: 100%; display: block;">
+            <!-- Materiais -->
+            <rect x="0" y="0" width="${pctMat}" height="24" fill="#4a90e2" />
+            <!-- Mão de Obra -->
+            <rect x="${pctMat}" y="0" width="${pctMO}" height="24" fill="#5cb85c" />
+            <!-- Lucro -->
+            <rect x="${pctMat + pctMO}" y="0" width="${pctLucro}" height="24" fill="#f0ad4e" />
+        </svg>
+        <div style="display: flex; justify-content: center; gap: 1rem; margin-top: 1rem; flex-wrap: wrap; font-size: 0.85rem; font-weight: 600;">
+            <span style="display: flex; align-items: center; gap: 0.25rem;"><span style="display:inline-block; width:12px; height:12px; background:#4a90e2; border-radius:3px;"></span> Materiais: R$ ${materiais.toFixed(2)} (${pctMat.toFixed(1)}%)</span>
+            <span style="display: flex; align-items: center; gap: 0.25rem;"><span style="display:inline-block; width:12px; height:12px; background:#5cb85c; border-radius:3px;"></span> Mão de Obra: R$ ${mo.toFixed(2)} (${pctMO.toFixed(1)}%)</span>
+            ${lucro > 0 ? `<span style="display: flex; align-items: center; gap: 0.25rem;"><span style="display:inline-block; width:12px; height:12px; background:#f0ad4e; border-radius:3px;"></span> Lucro/Adm: R$ ${lucro.toFixed(2)} (${pctLucro.toFixed(1)}%)</span>` : ''}
+        </div>
+    </div>
+    `;
+    
+    document.getElementById('graficoCustosSVG').innerHTML = svgHTML;
+}
 
-    // 2) Recalcula valor de lucro do pedreiro
-    const subtotalSemLucro =
-        orcamentoAtual.custoTotalMateriaisVendedor +
-        orcamentoAtual.custosPedreiro.custoMOReal;
-    orcamentoAtual.custosPedreiro.valorLucro =
-        (subtotalSemLucro * orcamentoAtual.custosPedreiro.lucroPercentual) / 100;
+/*
+  salvarNoHistorico()
+  -------------------
+  Salva o orçamento atual no localStorage.
+*/
+function salvarNoHistorico() {
+    if (!orcamentoAtual || !orcamentoAtual.totalGeral) return;
+    
+    let historico = [];
+    try {
+        const salvos = localStorage.getItem('pedreiroHistorico');
+        if (salvos) {
+            historico = JSON.parse(salvos);
+        }
+    } catch (e) {
+        console.error("Erro ao carregar histórico", e);
+    }
+    
+    // Adiciona timestamp e ID único
+    orcamentoAtual.id = 'orc_' + Date.now();
+    orcamentoAtual.dataStr = new Date().toLocaleDateString('pt-BR') + ' ' + new Date().toLocaleTimeString('pt-BR', {hour: '2-digit', minute:'2-digit'});
+    
+    // Evita duplicados (por nome e valor recente)
+    historico = historico.filter(item => item.dadosProjeto.nome !== orcamentoAtual.dadosProjeto.nome || Math.abs(item.totalGeral - orcamentoAtual.totalGeral) > 0.01);
+    
+    historico.unshift(orcamentoAtual); // Insere no início
+    
+    // Mantém no máximo 10 orçamentos
+    if (historico.length > 10) {
+        historico.pop();
+    }
+    
+    localStorage.setItem('pedreiroHistorico', JSON.stringify(historico));
+    atualizarListaHistorico();
+}
 
-    // 3) Calcula total geral
-    orcamentoAtual.totalGeral =
-        subtotalSemLucro + orcamentoAtual.custosPedreiro.valorLucro;
+/*
+  atualizarListaHistorico()
+  -------------------------
+  Atualiza a lista visual do histórico na Etapa 1.
+*/
+function atualizarListaHistorico() {
+    const section = document.getElementById('historicoOrcamentosSection');
+    const lista = document.getElementById('historicoLista');
+    
+    let historico = [];
+    try {
+        const salvos = localStorage.getItem('pedreiroHistorico');
+        if (salvos) {
+            historico = JSON.parse(salvos);
+        }
+    } catch (e) {}
+    
+    if (historico.length === 0) {
+        if (section) section.classList.add('hidden');
+        return;
+    }
+    
+    if (section) section.classList.remove('hidden');
+    if (lista) {
+        lista.innerHTML = '';
+        historico.forEach(item => {
+            const div = document.createElement('div');
+            div.className = 'history-item';
+            div.innerHTML = `
+                <div class="history-item-info">
+                    <span class="history-item-name">${item.dadosProjeto.nome}</span>
+                    <span class="history-item-meta">${item.dataStr} | R$ ${item.totalGeral.toFixed(2)} | ${item.dadosProjeto.area} m²</span>
+                </div>
+                <div class="history-item-actions">
+                    <button class="history-btn-load" onclick="carregarOrcamento('${item.id}')">Abrir</button>
+                    <button class="history-btn-delete" onclick="excluirOrcamento('${item.id}', event)">Excluir</button>
+                </div>
+            `;
+            lista.appendChild(div);
+        });
+    }
+}
 
-    // 4) Monta HTML para exibir no resultado
+/*
+  carregarOrcamento(id)
+  ---------------------
+  Carrega um orçamento salvo no histórico diretamente na tela de resultado.
+*/
+function carregarOrcamento(id) {
+    let historico = [];
+    try {
+        const salvos = localStorage.getItem('pedreiroHistorico');
+        if (salvos) historico = JSON.parse(salvos);
+    } catch (e) {}
+    
+    const encontrado = historico.find(item => item.id === id);
+    if (!encontrado) return;
+    
+    orcamentoAtual = encontrado;
+    exibirOrcamentoResultado();
+}
+
+/*
+  excluirOrcamento(id, event)
+  ---------------------------
+  Remove um orçamento do histórico.
+*/
+function excluirOrcamento(id, event) {
+    event.stopPropagation();
+    let historico = [];
+    try {
+        const salvos = localStorage.getItem('pedreiroHistorico');
+        if (salvos) historico = JSON.parse(salvos);
+    } catch (e) {}
+    
+    historico = historico.filter(item => item.id !== id);
+    localStorage.setItem('pedreiroHistorico', JSON.stringify(historico));
+    atualizarListaHistorico();
+}
+
+/*
+  exibirOrcamentoResultado()
+  --------------------------
+  Monta o HTML e exibe o resultado do orçamento carregado/finalizado.
+*/
+function exibirOrcamentoResultado() {
+    // Monta HTML para exibir no resultado
     let html = `<h3>Orçamento: ${orcamentoAtual.dadosProjeto.nome}</h3>`;
     html += `<p>Área: ${orcamentoAtual.dadosProjeto.area} m² | Cômodos: ${orcamentoAtual.dadosProjeto.comodos}</p><hr>`;
 
@@ -1006,17 +1212,26 @@ function finalizarOrcamento() {
     html += `<p><b>Subtotal Mão de Obra: R$ ${orcamentoAtual.custosPedreiro.custoMOReal.toFixed(2)}</b></p><hr>`;
 
     if (orcamentoAtual.custosPedreiro.lucroPercentual > 0) {
+        const subtotalSemLucro = orcamentoAtual.custoTotalMateriaisVendedor + orcamentoAtual.custosPedreiro.custoMOReal;
         html += `<p>Subtotal (Materiais + M.O.): R$ ${subtotalSemLucro.toFixed(2)}</p>`;
         html += `<p>Taxa Adm/Lucro (${orcamentoAtual.custosPedreiro.lucroPercentual}%): 
                      R$ ${orcamentoAtual.custosPedreiro.valorLucro.toFixed(2)}</p><hr>`;
     }
 
+    html += `<div id="graficoCustosSVG"></div>`;
     html += `<h3><span style="color:#34c759;">💰 Total Geral: R$ ${orcamentoAtual.totalGeral.toFixed(2)}</span></h3>`;
 
     document.getElementById('conteudoResultado').innerHTML = html;
     document.getElementById('tituloResultado').textContent = "🔔 Orçamento Detalhado";
 
-    // 5) Exibe apenas agora os botões de ação
+    // Desenha o gráfico SVG
+    desenharGraficoCustos(
+        orcamentoAtual.custoTotalMateriaisVendedor, 
+        orcamentoAtual.custosPedreiro.custoMOReal, 
+        orcamentoAtual.custosPedreiro.valorLucro || 0
+    );
+
+    // Exibe a seção de Resultado Final e habilita botões de ação
     document.getElementById('resultadoFinal').classList.remove('hidden');
     document.getElementById('botoesAcoes').classList.remove('hidden');
 
@@ -1024,16 +1239,47 @@ function finalizarOrcamento() {
 }
 
 /*
-  gerarTextoWhatsApp()
-  -------------------
-  Constrói a mensagem formatada para envio ao WhatsApp, contendo:
-    - Nome do projeto
-    - Lista de serviços selecionados
-    - Lista de materiais com quantidade e custo
-    - Custo de M.O. do pedreiro
-    - Valor de lucro (se aplicável)
-    - Total geral
-  Retorna a string codificada em URI (encodeURIComponent) para uso em wa.me URL.
+  finalizarOrcamento()
+  --------------------
+  Transição da Etapa 3 (Vendedor) para a geração do resultado final.
+  Calcula e persiste o resultado.
+*/
+function finalizarOrcamento() {
+    // 1) Coleta preços do vendedor para cada material
+    orcamentoAtual.custoTotalMateriaisVendedor = 0;
+    document.querySelectorAll('#listaMateriaisVendedor input[type="number"]').forEach(input => {
+        const id = input.dataset.id;
+        const precoVend = parseFloat(input.value) || orcamentoAtual.listaMateriais[id].precoMedio;
+        orcamentoAtual.listaMateriais[id].precoVendedor = precoVend;
+        orcamentoAtual.listaMateriais[id].custoTotalVendedor =
+            orcamentoAtual.listaMateriais[id].qtd * precoVend;
+        orcamentoAtual.custoTotalMateriaisVendedor +=
+            orcamentoAtual.listaMateriais[id].custoTotalVendedor;
+    });
+
+    // 2) Recalcula valor de lucro do pedreiro
+    const subtotalSemLucro =
+        orcamentoAtual.custoTotalMateriaisVendedor +
+        orcamentoAtual.custosPedreiro.custoMOReal;
+    orcamentoAtual.custosPedreiro.valorLucro =
+        (subtotalSemLucro * orcamentoAtual.custosPedreiro.lucroPercentual) / 100;
+
+    // 3) Calcula total geral
+    orcamentoAtual.totalGeral =
+        subtotalSemLucro + orcamentoAtual.custosPedreiro.valorLucro;
+
+    // Exibe o resultado e gera gráfico
+    exibirOrcamentoResultado();
+    
+    // Salva no histórico do localStorage
+    salvarNoHistorico();
+}
+
+/*
+  gerarTextoWhatsApp()
+  -------------------
+  Constrói a mensagem formatada para envio ao WhatsApp, contendo:
+  ...
 */
 function gerarTextoWhatsApp() {
     if (!orcamentoAtual.totalGeral) return "";
@@ -1065,10 +1311,9 @@ function gerarTextoWhatsApp() {
 }
 
 /*
-  abrirWhatsApp()
-  ---------------
-  Abre o link do WhatsApp Web (ou App) com a mensagem gerada por gerarTextoWhatsApp().
-  Se não houver orçamento finalizado, exibe um alerta.
+  abrirWhatsApp()
+  ---------------
+  Abre o link do WhatsApp Web (ou App) com a mensagem gerada por gerarTextoWhatsApp().
 */
 function abrirWhatsApp() {
     const msg = gerarTextoWhatsApp();
@@ -1080,15 +1325,12 @@ function abrirWhatsApp() {
 }
 
 /*
-  exportarPNG()
-  -------------
-  Captura todo o conteúdo de #resultadoFinal e o exporta como uma imagem PNG.
-  A função clona o elemento, posiciona-o de forma a garantir que todo o conteúdo
-  seja visível para o html2canvas (mesmo que haja rolagem), força um fundo
-  branco e, em seguida, dispara o download da imagem.
+  exportarPNG()
+  -------------
+  Captura todo o conteúdo de #resultadoFinal e o exporta como uma imagem PNG.
 */
 function exportarPNG() {
-    if (!orcamentoAtual.totalGeral) {
+    if (!orcamentoAtual || !orcamentoAtual.totalGeral) {
         alert("Finalize o orçamento antes de salvar.");
         return;
     }
@@ -1181,6 +1423,7 @@ function exportarPNG() {
 window.onload = () => {
     popularCheckboxesServicos();
     mostrarEtapa('etapaCliente');
+    atualizarListaHistorico();
 };
 </script>
 
