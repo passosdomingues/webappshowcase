@@ -110,6 +110,17 @@
     "size": "86KB"
   },
   {
+    "id": "cerne-game",
+    "title": "CERNE: A Última Semente",
+    "description": "29/29 práticas restauradas.Tropeços: ${e}Título: ${r}",
+    "category": "Outros",
+    "path": "https://passosdomingues.github.io/webappshowcase/site/utilities/cerne-game.html",
+    "bodyText": "CERNE: A Última Semente 🌳 CERNE♪ &#8592; Índice",
+    "sha512": "3e7d15df2008818abf914e135246f981b14619d68119fc7b63353bed703489dfc0e5252b0d4440bf1fd8131175b494cc4f6f68a85b4f508bf1171196e5f6de8e",
+    "sha512Short": "3e7d15df2008818a",
+    "size": "18KB"
+  },
+  {
     "id": "comandaDigital",
     "title": "ComandAI",
     "description": "Clique para visualizar este projeto.",
