@@ -13,12 +13,12 @@
   {
     "id": "CERNE_ A Última Semente",
     "title": "CERNE: A Última Semente",
-    "description": "${q[0]}",
+    "description": "Jogo interativo para restaurar as 29 práticas de incubação e conquistar o CERNE 4.",
     "category": "Outros",
     "path": "https://passosdomingues.github.io/webappshowcase/site/utilities/CERNE_ A Última Semente.html",
     "bodyText": "CERNE: A Última Semente 🌳 CERNE♪ &#8592; Índice",
-    "sha512": "a155ec12ad188f41fc6b3570e686d138337bee46c4d6a188f2b35cef49a5bea2a5dd1833a6ad46c54bd73ca8f61afc6dd136d438e11830a18189ed12466df3a7",
-    "sha512Short": "a155ec12ad188f41",
+    "sha512": "fad90cef0d20d0b2a9d19a96d7412337f75488a869d5a6f937e566d2ebc3cd33482233d8f6920893dfe24b7b620ba7c60192bfbd20e56ca8d62731985ac74265",
+    "sha512Short": "fad90cef0d20d0b2",
     "size": "33KB"
   },
   {
