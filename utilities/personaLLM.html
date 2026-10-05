@@ -5,12 +5,45 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Construtor de Persona LLM</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class'
+        }
+    </script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
+        :root {
+            --bg-start: #f1f5f9;
+            --bg-end: #cbd5e1;
+            --text-color: #0f172a;
+            --card-bg: rgba(255, 255, 255, 0.9);
+            --card-border: rgba(0, 0, 0, 0.08);
+            --btn-bg: #e2e8f0;
+            --btn-border: #cbd5e1;
+            --btn-text: #334155;
+            --btn-hover: #cbd5e1;
+            --modal-bg: #ffffff;
+            --modal-text: #1e293b;
+        }
+        .dark {
+            --bg-start: #0f172a;
+            --bg-end: #1e293b;
+            --text-color: #f8fafc;
+            --card-bg: rgba(30, 41, 59, 0.85);
+            --card-border: rgba(255, 255, 255, 0.1);
+            --btn-bg: #334155;
+            --btn-border: #475569;
+            --btn-text: #e2e8f0;
+            --btn-hover: #475569;
+            --modal-bg: #1e293b;
+            --modal-text: #f8fafc;
+        }
         body {
             font-family: 'Inter', sans-serif;
-            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            background: linear-gradient(135deg, var(--bg-start) 0%, var(--bg-end) 100%);
+            color: var(--text-color);
+            transition: background 0.3s, color 0.3s;
         }
         .main-container {
             min-height: 100vh;
@@ -18,31 +51,32 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            padding: 1rem;
+            padding: 1.5rem 1rem;
         }
         .card {
-            background-color: rgba(30, 41, 59, 0.8);
+            background-color: var(--card-bg);
             backdrop-filter: blur(10px);
             border-radius: 1.5rem;
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3), 0 10px 10px -5px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.15), 0 10px 10px -5px rgba(0, 0, 0, 0.08);
             max-width: 95%;
             width: 800px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            border: 1px solid var(--card-border);
+            transition: background-color 0.3s, border-color 0.3s;
         }
         .btn-option {
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             transform-origin: center;
-            color: #e2e8f0;
-            background-color: #334155;
-            border: 1px solid #475569;
+            color: var(--btn-text);
+            background-color: var(--btn-bg);
+            border: 1px solid var(--btn-border);
             border-radius: 0.75rem;
             position: relative;
             overflow: hidden;
         }
         .btn-option:hover {
             transform: translateY(-2px);
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.2);
-            background-color: #475569;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            background-color: var(--btn-hover);
         }
         .btn-option.selected {
             border: 2px solid #10b981;
@@ -89,9 +123,10 @@
         }
         .progress-bar {
             height: 10px;
-            background-color: #334155;
+            background-color: var(--btn-bg);
             border-radius: 5px;
             overflow: hidden;
+            transition: background-color 0.3s;
         }
         .progress-fill {
             height: 100%;
@@ -105,7 +140,7 @@
             left: 0;
             right: 0;
             bottom: 0;
-            background-color: rgba(0, 0, 0, 0.8);
+            background-color: rgba(0, 0, 0, 0.85);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -113,7 +148,8 @@
             padding: 1rem;
         }
         .modal-content {
-            background-color: #1e293b;
+            background-color: var(--modal-bg);
+            color: var(--text-color);
             border-radius: 1.5rem;
             padding: 2rem;
             max-width: 600px;
@@ -121,7 +157,8 @@
             max-height: 90vh;
             overflow-y: auto;
             box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            border: 1px solid var(--card-border);
+            transition: background-color 0.3s, color 0.3s;
         }
         .reward-notification {
             position: fixed;
@@ -152,7 +189,7 @@
             width: 12px;
             height: 12px;
             border-radius: 50%;
-            background-color: #475569;
+            background-color: var(--btn-border);
             transition: all 0.3s;
         }
         .section-dot.active {
@@ -160,7 +197,7 @@
             transform: scale(1.2);
         }
         .question-counter {
-            background: rgba(255, 255, 255, 0.1);
+            background: rgba(128, 128, 128, 0.15);
             padding: 0.5rem 1rem;
             border-radius: 2rem;
             font-size: 0.875rem;
@@ -196,7 +233,7 @@
         }
     </style>
 </head>
-<body class="text-gray-100">
+<body>
     <!-- Modal de Termos -->
     <div id="terms-modal" class="modal-overlay">
         <div class="modal-content">
@@ -207,16 +244,16 @@
                 <h2 class="text-2xl font-bold">Termos de Uso e Privacidade</h2>
             </div>
             
-            <div class="mb-6 space-y-4 text-gray-300">
+            <div class="mb-6 space-y-4 text-slate-700 dark:text-gray-300">
                 <p>Antes de utilizar o Construtor de Persona LLM, leia atentamente os seguintes termos:</p>
                 
-                <div class="bg-slate-800 p-4 rounded-lg">
-                    <h3 class="font-semibold text-emerald-400 mb-2">Privacidade e LGPD</h3>
+                <div class="bg-slate-100 dark:bg-slate-800 p-4 rounded-lg border border-slate-200 dark:border-slate-700">
+                    <h3 class="font-semibold text-emerald-600 dark:text-emerald-400 mb-2">Privacidade e LGPD</h3>
                     <p>Este aplicativo funciona inteiramente no seu navegador. Nenhum dado pessoal é coletado, armazenado ou enviado para servidores externos. Todas as suas respostas permanecem no seu dispositivo.</p>
                 </div>
                 
-                <div class="bg-slate-800 p-4 rounded-lg">
-                    <h3 class="font-semibold text-emerald-400 mb-2">Uso de LLMs Externos</h3>
+                <div class="bg-slate-100 dark:bg-slate-800 p-4 rounded-lg border border-slate-200 dark:border-slate-700">
+                    <h3 class="font-semibold text-emerald-600 dark:text-emerald-400 mb-2">Uso de LLMs Externos</h3>
                     <p>Ao exportar os JSONs gerados e utilizá-los em LLMs (Large Language Models), você assume total responsabilidade:</p>
                     <ul class="list-disc pl-5 mt-2 space-y-1">
                         <li>Procure LLMs que permitam desativar o uso de dados para treinamento</li>
@@ -226,19 +263,19 @@
                     </ul>
                 </div>
                 
-                <div class="bg-slate-800 p-4 rounded-lg">
-                    <h3 class="font-semibold text-emerald-400 mb-2">Limitações e Cautela</h3>
+                <div class="bg-slate-100 dark:bg-slate-800 p-4 rounded-lg border border-slate-200 dark:border-slate-700">
+                    <h3 class="font-semibold text-emerald-600 dark:text-emerald-400 mb-2">Limitações e Cautela</h3>
                     <p>LLMs podem gerar informações incorretas ("alucinações"). Sempre verifique fatos importantes com fontes confiáveis. Este construtor apenas ajusta o tom e estilo das respostas conforme sua personalidade e método de aprendizado.</p>
                 </div>
             </div>
             
             <div class="flex items-center mb-6">
                 <input type="checkbox" id="agree-terms" class="w-5 h-5 rounded border-gray-300 text-emerald-600 focus:ring-emerald-500">
-                <label for="agree-terms" class="ml-2 text-gray-300">Concordo com os termos e compreendo as limitações e responsabilidades</label>
+                <label for="agree-terms" class="ml-2 text-slate-700 dark:text-gray-300">Concordo com os termos e compreendo as limitações e responsabilidades</label>
             </div>
             
             <div class="flex justify-end">
-                <button id="accept-terms" class="px-6 py-3 bg-emerald-600 hover:bg-emerald-500 rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed" disabled>
+                <button id="accept-terms" class="px-6 py-3 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed" disabled>
                     Aceitar e Continuar
                 </button>
             </div>
@@ -255,14 +292,17 @@
     </div>
 
     <div class="main-container">
-        <div class="card p-8 mb-6">
-            <div class="flex items-center justify-center mb-2">
+        <div class="card p-8 mb-6 relative">
+            <!-- Botão de Alternância de Tema -->
+            <button id="themeToggle" class="absolute top-6 right-6 bg-slate-200 dark:bg-slate-700 text-slate-800 dark:text-slate-100 border-none rounded-full w-10 h-10 flex items-center justify-center cursor-pointer shadow-md transition-colors" onclick="toggleTheme()" aria-label="Alternar tema">🌙</button>
+
+            <div class="flex items-center justify-center mb-2 mr-10">
                 <div class="bg-gradient-to-r from-emerald-500 to-cyan-500 p-3 rounded-xl mr-3">
                     <i class="fas fa-robot text-white text-xl"></i>
                 </div>
                 <h1 class="text-3xl font-bold text-center bg-gradient-to-r from-emerald-400 to-cyan-400 bg-clip-text text-transparent">Construtor de Persona LLM</h1>
             </div>
-            <p class="text-center text-gray-400 mb-8">Responda 40 perguntas para criar sua persona personalizada e otimizar suas interações com LLMs</p>
+            <p class="text-center text-slate-600 dark:text-gray-400 mb-8">Responda 40 perguntas para criar sua persona personalizada e otimizar suas interações com LLMs</p>
             
             <!-- Indicador de Seção -->
             <div class="section-indicator">
@@ -272,7 +312,7 @@
             
             <!-- Barra de Progresso -->
             <div class="mb-8">
-                <div class="flex justify-between text-sm text-gray-400 mb-2">
+                <div class="flex justify-between text-sm text-slate-600 dark:text-gray-400 mb-2">
                     <span><i class="fas fa-list-ol mr-1"></i> Progresso: <span id="current-progress">0</span>/40</span>
                     <span id="progress-percent">0%</span>
                 </div>
@@ -292,15 +332,21 @@
             
             <!-- Navegação -->
             <div class="flex justify-between mt-8">
-                <button id="prev-btn" class="px-6 py-3 bg-slate-700 hover:bg-slate-600 rounded-lg font-medium transition-colors flex items-center" disabled>
+                <button id="prev-btn" class="px-6 py-3 bg-slate-700 hover:bg-slate-600 text-white rounded-lg font-medium transition-colors flex items-center" disabled>
                     <i class="fas fa-arrow-left mr-2"></i> Anterior
                 </button>
-                <button id="next-btn" class="px-6 py-3 bg-gradient-to-r from-emerald-600 to-cyan-600 hover:from-emerald-500 hover:to-cyan-500 rounded-lg font-medium transition-colors flex items-center">
+                <button id="next-btn" class="px-6 py-3 bg-gradient-to-r from-emerald-600 to-cyan-600 hover:from-emerald-500 hover:to-cyan-500 text-white rounded-lg font-medium transition-colors flex items-center">
                     Próxima <i class="fas fa-arrow-right ml-2"></i>
                 </button>
-                <button id="finish-btn" class="px-6 py-3 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 rounded-lg font-medium transition-colors flex items-center hidden">
+                <button id="finish-btn" class="px-6 py-3 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white rounded-lg font-medium transition-colors flex items-center hidden">
                     Finalizar <i class="fas fa-check ml-2"></i>
                 </button>
+            </div>
+
+            <!-- Painel de Prévia em Tempo Real -->
+            <div class="mt-8 border-t border-dashed border-slate-300 dark:border-slate-700 pt-6">
+                <h3 class="text-lg font-bold mb-2 flex items-center"><i class="fas fa-eye mr-2 text-emerald-500"></i> Prévia da Persona em Tempo Real</h3>
+                <pre id="liveJsonPreview" class="text-xs bg-slate-900 text-green-400 p-4 rounded-lg overflow-x-auto max-h-40 border border-slate-800"></pre>
             </div>
         </div>
         
@@ -363,6 +409,21 @@
     </div>
 
     <script>
+        // Theme switcher logic
+        function applyTheme() {
+            const dark = localStorage.getItem("personaDark") === "1" || 
+                         (!localStorage.getItem("personaDark") && window.matchMedia("(prefers-color-scheme: dark)").matches);
+            document.documentElement.classList.toggle("dark", dark);
+            const toggleBtn = document.getElementById("themeToggle");
+            if (toggleBtn) toggleBtn.textContent = dark ? "☀️" : "🌙";
+        }
+        function toggleTheme() {
+            const isDark = document.documentElement.classList.contains("dark");
+            localStorage.setItem("personaDark", isDark ? "0" : "1");
+            applyTheme();
+        }
+        applyTheme();
+
         // Modelo de Dados
         const Model = {
             state: {
@@ -570,12 +631,43 @@ ${listLearning}
         // Controlador
         const Controller = {
             init() {
+                // Carregar tema salvo
+                applyTheme();
+
+                // Carregar respostas e progresso do localStorage
+                const savedAnswers = localStorage.getItem('personaAnswers');
+                if (savedAnswers) {
+                    try {
+                        const parsed = JSON.parse(savedAnswers);
+                        if (Array.isArray(parsed) && parsed.length === Model.state.totalQuestions) {
+                            Model.selectedAnswers = parsed;
+                        }
+                    } catch (e) {
+                        console.error('Erro ao ler respostas salvas', e);
+                    }
+                }
+
+                const savedStep = localStorage.getItem('personaCurrentStep');
+                if (savedStep !== null) {
+                    const step = parseInt(savedStep, 10);
+                    if (step >= 0 && step < Model.state.totalQuestions) {
+                        Model.state.currentStep = step;
+                    }
+                }
+
                 this.bindEvents();
-                this.showTermsModal();
+
+                // Verificar aceitação dos termos
+                const termsAccepted = localStorage.getItem('personaTermsAccepted') === '1';
+                if (termsAccepted) {
+                    document.getElementById('terms-modal').classList.add('hidden');
+                    this.renderQuestion();
+                } else {
+                    this.showTermsModal();
+                }
             },
             
             showTermsModal() {
-                // Mostrar modal de termos ao carregar a página
                 document.getElementById('terms-modal').classList.remove('hidden');
             },
             
@@ -585,6 +677,7 @@ ${listLearning}
                 });
                 
                 document.getElementById('accept-terms').addEventListener('click', () => {
+                    localStorage.setItem('personaTermsAccepted', '1');
                     document.getElementById('terms-modal').classList.add('hidden');
                     this.renderQuestion();
                 });
@@ -633,11 +726,17 @@ ${listLearning}
                         // Selecionar este botão
                         button.classList.add('selected');
                         
-                        // Salvar resposta
+                        // Salvar resposta no Modelo
                         Model.selectedAnswers[Model.state.currentStep] = option.value;
+                        
+                        // Persistir respostas no localStorage
+                        localStorage.setItem('personaAnswers', JSON.stringify(Model.selectedAnswers));
                         
                         // Atualizar navegação
                         this.updateNavigation();
+                        
+                        // Atualizar prévia em tempo real
+                        this.updateLivePreview();
                         
                         // Mostrar notificação de progresso em marcos específicos
                         this.showProgressReward();
@@ -649,6 +748,10 @@ ${listLearning}
                 this.updateNavigation();
                 this.updateProgress();
                 this.updateSectionIndicator();
+                this.updateLivePreview();
+                
+                // Salvar o passo atual no localStorage
+                localStorage.setItem('personaCurrentStep', Model.state.currentStep);
             },
             
             updateNavigation() {
@@ -734,6 +837,17 @@ ${listLearning}
                 }
             },
             
+            updateLivePreview() {
+                const previewEl = document.getElementById('liveJsonPreview');
+                if (previewEl) {
+                    try {
+                        previewEl.textContent = Model.generateFinalJSON();
+                    } catch (err) {
+                        console.error('Erro na prévia em tempo real:', err);
+                    }
+                }
+            },
+            
             finishQuiz() {
                 // Gerar resultados
                 const finalJSON = Model.generateFinalJSON();
@@ -765,6 +879,10 @@ ${listLearning}
                 // Resetar estado
                 Model.state.currentStep = 0;
                 Model.selectedAnswers.fill(null);
+                
+                // Limpar do localStorage
+                localStorage.removeItem('personaAnswers');
+                localStorage.removeItem('personaCurrentStep');
                 
                 // Mostrar questionário e ocultar resultados
                 document.getElementById('question-container').classList.remove('hidden');

@@ -493,6 +493,9 @@
             <button class="tab-btn" onclick="openTab('arvore')">
                 <i class="fas fa-tree"></i> Fruto da Árvore Envenenada
             </button>
+            <button class="tab-btn" onclick="openTab('peticao')">
+                <i class="fas fa-file-signature"></i> Gerador de Petições
+            </button>
             <button class="tab-btn" onclick="openTab('historico')">
                 <i class="fas fa-history"></i> Histórico de Casos
             </button>
@@ -774,6 +777,91 @@
                 
                 <div id="diagrama-provas" style="text-align: center; margin: 20px 0; min-height: 300px; display: flex; justify-content: center; align-items: center; background-color: #f8f9fa; border-radius: 8px; padding: 20px;">
                     <p style="color: var(--gray);">Nenhuma prova ilícita identificada ainda. Preencha os dados acima para gerar o diagrama.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Gerador de Petições (Wizard + Editor Markdown) -->
+        <div class="tab-content" id="peticao">
+            <div class="card" id="wizard-peticao">
+                <h2 class="card-title"><i class="fas fa-file-signature"></i> Assistente de Elaboração de Petição</h2>
+                
+                <!-- Progresso do Wizard -->
+                <div style="display: flex; justify-content: space-between; margin-bottom: 1.5rem; border-bottom: 1px dashed #ddd; padding-bottom: 1rem; flex-wrap: wrap; gap: 0.5rem;">
+                    <span id="step-label-1" style="font-weight: 700; color: var(--secondary);">1. Tipo de Peça</span>
+                    <span id="step-label-2" style="font-weight: 600; color: var(--gray);">2. Identificação</span>
+                    <span id="step-label-3" style="font-weight: 600; color: var(--gray);">3. Teses Jurídicas</span>
+                </div>
+
+                <!-- Passo 1: Tipo de Peça -->
+                <div class="wizard-step" id="wizard-step-1">
+                    <div class="form-group">
+                        <label for="peca-tipo">Escolha a Peça Jurídica:</label>
+                        <select id="peca-tipo" class="select-control" onchange="atualizarTesesWizard()">
+                            <option value="">Selecione...</option>
+                            <option value="relaxamento">Relaxamento de Prisão em Flagrante</option>
+                            <option value="liberdade">Pedido de Liberdade Provisória</option>
+                            <option value="resposta">Resposta à Acusação</option>
+                            <option value="memoriais">Alegações Finais por Memoriais</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Passo 2: Qualificação -->
+                <div class="wizard-step hidden" id="wizard-step-2">
+                    <div class="form-group">
+                        <label for="p-juiz">Endereçamento (Ex: EXCELENTÍSSIMO SENHOR DOUTOR JUIZ DE DIREITO DA ... VARA CRIMINAL DA COMARCA DE ...):</label>
+                        <input type="text" id="p-juiz" class="form-control" placeholder="Juízo competente">
+                    </div>
+                    <div class="form-group">
+                        <label for="p-processo">Número do Processo:</label>
+                        <input type="text" id="p-processo" class="form-control" placeholder="Processo nº">
+                    </div>
+                    <div class="form-group">
+                        <label for="p-nome">Nome do Réu / Requerente:</label>
+                        <input type="text" id="p-nome" class="form-control" placeholder="Nome completo">
+                    </div>
+                    <div class="form-group">
+                        <label for="p-crime">Crime Imputado:</label>
+                        <input type="text" id="p-crime" class="form-control" placeholder="Ex: Roubo Qualificado (Art. 157, §2º, I do CP)">
+                    </div>
+                </div>
+
+                <!-- Passo 3: Teses Defensivas -->
+                <div class="wizard-step hidden" id="wizard-step-3">
+                    <h4 style="margin-bottom: 1rem; color: var(--primary);">Selecione as teses defensivas aplicáveis:</h4>
+                    <div id="teses-checklist" style="display: flex; flex-direction: column; gap: 0.75rem; margin-bottom: 1rem;">
+                        <!-- Gerado dinamicamente -->
+                    </div>
+                </div>
+
+                <!-- Navegação do Wizard -->
+                <div style="display: flex; justify-content: space-between; margin-top: 1.5rem;">
+                    <button class="btn btn-secondary" id="wizard-prev-btn" onclick="wizardVoltar()" disabled>Voltar</button>
+                    <button class="btn btn-primary" id="wizard-next-btn" onclick="wizardAvancar()">Avançar</button>
+                </div>
+            </div>
+
+            <!-- Editor Markdown + Visualização Lado a Lado (Passo 4 / Tela de Edição) -->
+            <div class="card hidden" id="editor-peticao">
+                <h2 class="card-title"><i class="fas fa-edit"></i> Editor de Petição</h2>
+                <div style="display: grid; grid-template-columns: 1fr; gap: 1.5rem;" id="editorGrid">
+                    <!-- Lado Esquerdo: Editor Markdown -->
+                    <div>
+                        <h4 style="margin-bottom: 0.5rem; color: var(--primary);">Texto em Markdown (Editável)</h4>
+                        <textarea id="markdown-input" style="font-family: monospace; min-height: 400px; width: 100%;" oninput="renderizarMarkdown()"></textarea>
+                    </div>
+                    <!-- Lado Direito: Preview Formatado -->
+                    <div>
+                        <h4 style="margin-bottom: 0.5rem; color: var(--primary);">Visualização da Petição (Papel Timbrado)</h4>
+                        <div id="markdown-preview" style="border: 1px solid var(--border-color); border-radius: 8px; padding: 2.5rem; min-height: 400px; background: white; color: black; font-family: 'Times New Roman', Times, serif; font-size: 1.1rem; overflow-y: auto; box-shadow: inset 0 2px 4px rgba(0,0,0,0.05); line-height: 1.6;"></div>
+                    </div>
+                </div>
+                <div class="action-buttons" style="margin-top: 1.5rem;">
+                    <button class="btn btn-success" onclick="exportarImprimirPDF()"><i class="fas fa-file-pdf"></i> Imprimir / Gerar PDF</button>
+                    <button class="btn btn-primary" onclick="copiarTextoMarkdown()"><i class="fas fa-copy"></i> Copiar Código</button>
+                    <button class="btn btn-secondary" onclick="baixarArquivoMarkdown()"><i class="fas fa-download"></i> Baixar Markdown (.md)</button>
+                    <button class="btn btn-secondary" onclick="voltarParaWizard()" style="background-color: #6c757d; color: white;">Refazer Wizard</button>
                 </div>
             </div>
         </div>
@@ -1491,6 +1579,294 @@
                     document.getElementById('diagrama-provas').innerHTML = '<p style="color: var(--gray);">Nenhuma prova ilícita identificada ainda. Preencha os dados acima para gerar o diagrama.</p>';
                 }
             }
+        }
+        
+        }
+        
+        // --- SISTEMA GERADOR DE PETIÇÕES (WIZARD + EDITOR MD) ---
+        let wizardPeca = '';
+        let wizardStep = 1;
+        const tesesPorPeca = {
+            relaxamento: [
+                { id: 'relax-custodia', label: 'Ausência de Audiência de Custódia no prazo de 24h', desc: 'A não realização de audiência de custódia acarreta a nulidade da prisão.' },
+                { id: 'relax-domicilio', label: 'Violação de Domicílio sem Mandado ou Fundada Suspeita', desc: 'Ingresso ilícito na residência viola o Art. 5º, XI da CF.' },
+                { id: 'relax-flagrante', label: 'Ausência de Situação de Flagrância (Art. 302 do CPP)', desc: 'Prisão efetuada fora dos requisitos temporais ou circunstanciais.' },
+                { id: 'relax-integridade', label: 'Violação à Integridade Física ou Maus-tratos', desc: 'Indícios de violência policial violam a dignidade humana.' }
+            ],
+            liberdade: [
+                { id: 'lib-ausencia', label: 'Ausência de Requisitos da Prisão Preventiva (Art. 312 CPP)', desc: 'Inexistência de perigo para a ordem pública, instrução criminal ou aplicação da lei.' },
+                { id: 'lib-condicoes', label: 'Presença de Condições Pessoais Favoráveis', desc: 'Réu primário, bons antecedentes, residência fixa e ocupação lícita.' },
+                { id: 'lib-medidas', label: 'Suficiência de Medidas Cautelares Alternativas (Art. 319 CPP)', desc: 'Tornozeleira, comparecimento em juízo ou fiança suprem a necessidade.' }
+            ],
+            resposta: [
+                { id: 'resp-atipicidade', label: 'Atipicidade da Conduta (Ausência de crime)', desc: 'Fato narrado na denúncia não constitui infração penal.' },
+                { id: 'resp-exclusao', label: 'Presença de Causa de Exclusão da Ilicitude/Culpabilidade', desc: 'Legítima defesa, estado de necessidade ou inexigibilidade de conduta diversa.' },
+                { id: 'resp-nulinidade', label: 'Nulidade Processual ou Inépcia da Inicial', desc: 'Ausência de justa causa ou descrição inadequada dos fatos.' }
+            ],
+            memoriais: [
+                { id: 'memo-insuficiencia', label: 'Insuficiência Probatória (In dubio pro reo)', desc: 'Provas frágeis e insuficientes para sustentar decreto condenatório.' },
+                { id: 'memo-desclassificacao', label: 'Desclassificação para Crime Menos Grave', desc: 'Falta de elementos caracterizadores (ex: roubo para furto).' },
+                { id: 'memo-pena', label: 'Aplicação da Pena Mínima e Reconhecimento de Atenuantes', desc: 'Menoridade, confissão espontânea ou reparação do dano.' }
+            ]
+        };
+
+        function atualizarTesesWizard() {
+            const peca = document.getElementById('peca-tipo').value;
+            const container = document.getElementById('teses-checklist');
+            
+            if (!peca) {
+                container.innerHTML = '<p style="font-size:0.9rem; color:var(--gray);">Selecione uma peça jurídica para ver as teses defensivas.</p>';
+                return;
+            }
+            
+            wizardPeca = peca;
+            container.innerHTML = '';
+            
+            const teses = tesesPorPeca[peca] || [];
+            teses.forEach(tese => {
+                const item = document.createElement('div');
+                item.style.display = 'flex';
+                item.style.alignItems = 'flex-start';
+                item.style.gap = '0.5rem';
+                item.style.padding = '0.5rem';
+                item.style.background = '#f8f9fa';
+                item.style.borderRadius = '5px';
+                
+                item.innerHTML = `
+                    <input type="checkbox" id="${tese.id}" class="tese-checkbox" value="${tese.id}" style="margin-top: 0.25rem;">
+                    <div>
+                        <label for="${tese.id}" style="font-weight:600; cursor:pointer; color:var(--primary); margin:0;">${tese.label}</label>
+                        <p style="font-size:0.8rem; color:var(--gray); margin:0;">${tese.desc}</p>
+                    </div>
+                `;
+                container.appendChild(item);
+            });
+        }
+
+        function wizardAvancar() {
+            const pecaSelect = document.getElementById('peca-tipo');
+            if (wizardStep === 1 && !pecaSelect.value) {
+                alert('Selecione um tipo de peça jurídica.');
+                return;
+            }
+
+            document.getElementById(`wizard-step-${wizardStep}`).classList.add('hidden');
+            document.getElementById(`step-label-${wizardStep}`).style.color = 'var(--gray)';
+            document.getElementById(`step-label-${wizardStep}`).style.fontWeight = '600';
+            
+            wizardStep++;
+            
+            document.getElementById(`wizard-step-${wizardStep}`).classList.remove('hidden');
+            document.getElementById(`step-label-${wizardStep}`).style.color = 'var(--secondary)';
+            document.getElementById(`step-label-${wizardStep}`).style.fontWeight = '700';
+
+            document.getElementById('wizard-prev-btn').disabled = false;
+            
+            if (wizardStep === 3) {
+                document.getElementById('wizard-next-btn').textContent = 'Gerar Petição';
+            } else if (wizardStep > 3) {
+                document.getElementById('wizard-peticao').classList.add('hidden');
+                document.getElementById('editor-peticao').classList.remove('hidden');
+                gerarPeticaoInicial();
+            }
+        }
+
+        function wizardVoltar() {
+            if (wizardStep === 1) return;
+            
+            document.getElementById(`wizard-step-${wizardStep}`).classList.add('hidden');
+            document.getElementById(`step-label-${wizardStep}`).style.color = 'var(--gray)';
+            document.getElementById(`step-label-${wizardStep}`).style.fontWeight = '600';
+            
+            wizardStep--;
+            
+            document.getElementById(`wizard-step-${wizardStep}`).classList.remove('hidden');
+            document.getElementById(`step-label-${wizardStep}`).style.color = 'var(--secondary)';
+            document.getElementById(`step-label-${wizardStep}`).style.fontWeight = '700';
+            
+            document.getElementById('wizard-next-btn').textContent = 'Avançar';
+            if (wizardStep === 1) {
+                document.getElementById('wizard-prev-btn').disabled = true;
+            }
+        }
+
+        function voltarParaWizard() {
+            document.getElementById('editor-peticao').classList.add('hidden');
+            document.getElementById('wizard-peticao').classList.remove('hidden');
+            
+            document.getElementById(`wizard-step-${wizardStep}`).classList.add('hidden');
+            document.getElementById(`step-label-${wizardStep}`).style.color = 'var(--gray)';
+            document.getElementById(`step-label-${wizardStep}`).style.fontWeight = '600';
+            
+            wizardStep = 1;
+            
+            document.getElementById('wizard-step-1').classList.remove('hidden');
+            document.getElementById('step-label-1').style.color = 'var(--secondary)';
+            document.getElementById('step-label-1').style.fontWeight = '700';
+            
+            document.getElementById('wizard-prev-btn').disabled = true;
+            document.getElementById('wizard-next-btn').textContent = 'Avançar';
+        }
+
+        function gerarPeticaoInicial() {
+            const juiz = document.getElementById('p-juiz').value || 'EXCELENTÍSSIMO SENHOR DOUTOR JUIZ DE DIREITO DA ... VARA CRIMINAL DA COMARCA DE ...';
+            const processo = document.getElementById('p-processo').value || 'Processo nº ...';
+            const nome = document.getElementById('p-nome').value || '[Nome Completo do Réu]';
+            const crime = document.getElementById('p-crime').value || '[Crime imputado na denúncia]';
+            
+            let tesesMarcadas = Array.from(document.querySelectorAll('.tese-checkbox:checked')).map(cb => {
+                const list = tesesPorPeca[wizardPeca] || [];
+                return list.find(t => t.id === cb.value);
+            });
+            
+            let fatosTesesText = '';
+            if (tesesMarcadas.length > 0) {
+                fatosTesesText = `## II. DO DIREITO\n\n`;
+                tesesMarcadas.forEach((tese, idx) => {
+                    fatosTesesText += `### 2.${idx + 1}. Do ${tese.label}\n\n`;
+                    fatosTesesText += `Delineia-se no presente caso a hipótese de ${tese.desc.toLowerCase()}.\n\n`;
+                    fatosTesesText += `Consoante a melhor doutrina e jurisprudência pátria, resta evidenciada a flagrante violação legal perpetrada, devendo este juízo intervir de modo a fazer cessar o constrangimento ilegal.\n\n`;
+                });
+            } else {
+                fatosTesesText = `## II. DO DIREITO\n\nAdicione suas teses de defesa e fundamentação jurídica aqui.\n\n`;
+            }
+            
+            let pedidosText = `## III. DOS PEDIDOS\n\nDiante do exposto, requer a Vossa Excelência:\n\n`;
+            if (wizardPeca === 'relaxamento') {
+                pedidosText += `a) O imediato **RELAXAMENTO DA PRISÃO EM FLAGRANTE**, com a consequente expedição do alvará de soltura em favor do Requerente;\n\nb) A manifestação do ilustre representante do Ministério Público.`;
+            } else if (wizardPeca === 'liberdade') {
+                pedidosText += `a) A concessão da **LIBERDADE PROVISÓRIA**, com ou sem a imposição de medidas cautelares alternativas previstas no Art. 319 do CPP, com expedição do competente alvará de soltura;\n\nb) A fixação de fiança, se for o caso.`;
+            } else if (wizardPeca === 'resposta') {
+                pedidosText += `a) A **ABSOLVIÇÃO SUMÁRIA** do acusado, com fulcro no Art. 397 do Código de Processo Penal;\n\nb) Subsidiariamente, a oitiva das testemunhas a serem arroladas.`;
+            } else {
+                pedidosText += `a) A **ABSOLVIÇÃO** do acusado pela manifesta insuficiência de provas para a condenação (Art. 386, VII, CPP);\n\nb) Subsidiariamente, o reconhecimento das atenuantes legais aplicáveis.`;
+            }
+            
+            let pecaNomeStr = document.getElementById('peca-tipo').options[document.getElementById('peca-tipo').selectedIndex].text;
+            
+            let mdText = `# ${juiz.toUpperCase()}\n\n`;
+            mdText += `**Processo nº:** ${processo}\n\n`;
+            mdText += `**${nome.toUpperCase()}**, já devidamente qualificado nos autos do processo em epígrafe, vem, mui respeitosamente, por seu procurador signatário, à presença de Vossa Excelência, propor a presente:\n\n`;
+            mdText += `# ${pecaNomeStr.toUpperCase()}\n\n`;
+            mdText += `com fulcro nos dispositivos legais aplicáveis, expondo e requerendo o que segue.\n\n`;
+            mdText += `## I. DOS FATOS\n\nO acusado foi imputado pela suposta prática do crime capitulado como ${crime}.\n\n(Insira aqui os fatos do caso detalhadamente, demonstrando as circunstâncias e pormenores da abordagem ou da denúncia).\n\n`;
+            mdText += fatosTesesText;
+            mdText += pedidosText;
+            mdText += `\n\nNestes termos,\n\nPede deferimento.\n\n[Local e Data]\n\n[Advogado - OAB]`;
+            
+            document.getElementById('markdown-input').value = mdText;
+            renderizarMarkdown();
+        }
+
+        function parseMarkdown(md) {
+            let html = md
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/^### (.*$)/gim, '<h3 style="font-size:1.15rem; font-weight:700; margin-top:1.5rem; margin-bottom:0.75rem; color:#2c3e50;">$1</h3>')
+                .replace(/^## (.*$)/gim, '<h2 style="font-size:1.25rem; font-weight:700; margin-top:2rem; margin-bottom:1rem; border-bottom:1px solid #ddd; padding-bottom:0.3rem; color:#2c3e50;">$1</h2>')
+                .replace(/^# (.*$)/gim, '<h1 style="text-align: center; margin-bottom: 2rem; font-size: 1.4rem; font-weight:800; color:#2c3e50; line-height: 1.3;">$1</h1>')
+                .replace(/\*\*(.*?)\*\*/gim, '<strong style="font-weight:700;">$1</strong>')
+                .replace(/\*(.*?)\*/gim, '<em>$1</em>')
+                .replace(/\n/gim, '<br>')
+                .replace(/(<br>){2,}/gim, '</p><p style="margin-bottom: 1.25rem; text-indent: 2.5cm; text-align: justify;">');
+            
+            return `<p style="text-indent: 2.5cm; text-align: justify; margin-bottom: 1.25rem; font-size:1.1rem; font-family:\'Times New Roman\', Times, serif;">` + html + `</p>`;
+        }
+
+        function renderizarMarkdown() {
+            const input = document.getElementById('markdown-input').value;
+            const preview = document.getElementById('markdown-preview');
+            preview.innerHTML = parseMarkdown(input);
+        }
+
+        function copiarTextoMarkdown() {
+            const md = document.getElementById('markdown-input').value;
+            navigator.clipboard.writeText(md).then(() => {
+                alert('Código Markdown copiado com sucesso para a área de transferência!');
+            }).catch(err => {
+                alert('Erro ao copiar texto: ' + err);
+            });
+        }
+
+        function baixarArquivoMarkdown() {
+            const md = document.getElementById('markdown-input').value;
+            const blob = new Blob([md], { type: 'text/markdown;charset=utf-8' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            
+            const pecaNome = (document.getElementById('peca-tipo').value || 'peticao') + '_caso';
+            link.download = `${pecaNome}.md`;
+            link.click();
+        }
+
+        function exportarImprimirPDF() {
+            const previewContent = document.getElementById('markdown-preview').innerHTML;
+            
+            const printWindow = window.open('', '_blank');
+            printWindow.document.write(`
+                <html>
+                <head>
+                    <title>Peticao_Gerada</title>
+                    <style>
+                        @page {
+                            size: A4;
+                            margin: 2.5cm 2.5cm 2.5cm 3.0cm;
+                        }
+                        body {
+                            font-family: 'Times New Roman', Times, serif;
+                            font-size: 12pt;
+                            line-height: 1.5;
+                            color: black;
+                            padding: 0;
+                            margin: 0;
+                        }
+                        p {
+                            text-align: justify;
+                            text-indent: 2.5cm;
+                            margin-top: 0;
+                            margin-bottom: 12pt;
+                        }
+                        h1 {
+                            text-align: center;
+                            font-size: 14pt;
+                            font-weight: bold;
+                            margin-bottom: 24pt;
+                            line-height: 1.3;
+                        }
+                        h2 {
+                            font-size: 12pt;
+                            font-weight: bold;
+                            margin-top: 24pt;
+                            margin-bottom: 12pt;
+                            text-transform: uppercase;
+                        }
+                        h3 {
+                            font-size: 12pt;
+                            font-weight: bold;
+                            margin-top: 18pt;
+                            margin-bottom: 12pt;
+                        }
+                        strong {
+                            font-weight: bold;
+                        }
+                        em {
+                            font-style: italic;
+                        }
+                    </style>
+                </head>
+                <body>
+                    \$\{previewContent\}
+                    <script>
+                        window.onload = function() {
+                            window.print();
+                            window.close();
+                        };
+                    <\/script>
+                </body>
+                </html>
+            `.replace('\\$', '$'));
+            printWindow.document.close();
         }
         
         // Inicialização

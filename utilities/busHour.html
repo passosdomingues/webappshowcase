@@ -1,9 +1,9 @@
 <!--
  * --------------------------------------------------------------
- * BusAI — Transporte Coletivo Alfenas/MG
+ * TransitAI — Transporte Coletivo Alfenas/MG
  * Author: Rafael Passos Domingues
- * Inspired by: Alfetur Transportes (alfetur.com.br/mapa)
- * Last Update: 2026 Jun 18
+ * Last Update: 2026 Jun 19
+ * Theme: Teal + Gray + Pastel (light-only, no dark mode)
  * --------------------------------------------------------------
 -->
 <!DOCTYPE html>
@@ -11,10 +11,10 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
-<meta name="description" content="BusAI — Horários e próximos ônibus do transporte coletivo de Alfenas-MG (Alfetur). Veja em tempo real quando passa o próximo ônibus na sua parada." />
+<meta name="description" content="TransitAI — Horários e próximos ônibus do transporte coletivo de Alfenas-MG. Veja em tempo real quando passa o próximo ônibus na sua parada." />
 <meta name="author" content="Rafael Passos Domingues" />
-<meta name="theme-color" content="#00512a" />
-<title>BusAI — Ônibus Alfenas/MG</title>
+<meta name="theme-color" content="#0d7490" />
+<title>TransitAI — Ônibus Alfenas/MG</title>
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Sora:wght@600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet" />
@@ -23,58 +23,62 @@
 
 <style>
 /* ═══════════════════════════════════════════════════════════════
-   DESIGN TOKENS
+   DESIGN TOKENS — Teal / Gray / Pastel theme
 ═══════════════════════════════════════════════════════════════ */
 :root {
-  --green-900: #00512a;
-  --green-800: #006635;
-  --green-700: #007a40;
-  --green-600: #009241;
-  --green-500: #00a84c;
-  --green-400: #33c06e;
-  --green-100: #d4f5e2;
-  --green-50:  #edfaf4;
+  /* Teal brand palette */
+  --teal-900: #0c4a6e;
+  --teal-800: #0d6a8a;
+  --teal-700: #0d7490;
+  --teal-600: #0891b2;
+  --teal-500: #06b6d4;
+  --teal-400: #22d3ee;
+  --teal-200: #a5f3fc;
+  --teal-100: #cffafe;
+  --teal-50:  #ecfeff;
 
-  --blue-600: #1565c0;
-  --blue-500: #1e88e5;
-  --blue-100: #e3f2fd;
+  /* Gray palette */
+  --gray-900: #111827;
+  --gray-700: #374151;
+  --gray-500: #6b7280;
+  --gray-400: #9ca3af;
+  --gray-200: #e5e7eb;
+  --gray-100: #f3f4f6;
+  --gray-50:  #f9fafb;
 
+  /* Pastel accents */
+  --pastel-sky:    #bae6fd;
+  --pastel-mint:   #bbf7d0;
+  --pastel-rose:   #fecdd3;
+  --pastel-amber:  #fde68a;
+  --pastel-violet: #ddd6fe;
+
+  /* Semantic */
   --amber-500: #f59e0b;
   --red-500:   #ef4444;
   --red-600:   #dc2626;
+  --emerald:   #10b981;
 
-  --surface:     #ffffff;
-  --surface-2:   #f4f7f5;
-  --surface-3:   #e8f2ec;
-  --border:      #d1e8da;
-  --text:        #1a2e22;
-  --text-2:      #4a6455;
-  --text-3:      #7a9a88;
+  /* Surfaces */
+  --surface:   #ffffff;
+  --surface-2: #f0f9ff;
+  --surface-3: #e0f2fe;
+  --border:    #bae6fd;
+  --text:      #0c2d3f;
+  --text-2:    #4a7a8a;
+  --text-3:    #94a3b8;
 
-  --shadow-sm:  0 1px 3px rgba(0,82,42,.08);
-  --shadow:     0 4px 12px rgba(0,82,42,.12);
-  --shadow-lg:  0 8px 28px rgba(0,82,42,.16);
-  --radius:     12px;
-  --radius-sm:  8px;
+  /* Shadows */
+  --shadow-sm:  0 1px 3px rgba(13,116,144,.08);
+  --shadow:     0 4px 12px rgba(13,116,144,.12);
+  --shadow-lg:  0 8px 28px rgba(13,116,144,.18);
+  --radius:     14px;
+  --radius-sm:  9px;
   --transition: .18s cubic-bezier(.4,0,.2,1);
 
   --font: 'Inter', system-ui, sans-serif;
   --font-display: 'Sora', system-ui, sans-serif;
   --font-mono: 'JetBrains Mono', monospace;
-}
-
-[data-theme="dark"] {
-  --surface:   #0d1f15;
-  --surface-2: #152b1e;
-  --surface-3: #1e3828;
-  --border:    #2a4a36;
-  --text:      #e0f0e8;
-  --text-2:    #94c4aa;
-  --text-3:    #5a8a70;
-  --green-50:  #0a1a10;
-  --green-100: #1a3a24;
-  --shadow:    0 4px 12px rgba(0,0,0,.4);
-  --shadow-lg: 0 8px 28px rgba(0,0,0,.5);
 }
 
 /* ═══════════════════════════════════════════════════════════════
@@ -97,10 +101,10 @@ body {
    HEADER
 ═══════════════════════════════════════════════════════════════ */
 header {
-  background: linear-gradient(135deg, var(--green-900) 0%, var(--green-700) 60%, var(--green-600) 100%);
+  background: linear-gradient(135deg, var(--teal-900) 0%, var(--teal-700) 55%, var(--teal-600) 100%);
   color: white;
   padding: 1rem 1.25rem 0;
-  box-shadow: 0 4px 20px rgba(0,82,42,.35);
+  box-shadow: 0 4px 20px rgba(13,116,144,.30);
   position: relative;
   z-index: 50;
 }
@@ -249,14 +253,14 @@ header {
 }
 
 .sd-item:last-child { border-bottom: none; }
-.sd-item:hover, .sd-item.active { background: var(--green-50); color: var(--green-700); }
+.sd-item:hover, .sd-item.active { background: var(--teal-50); color: var(--teal-700); }
 
 .sd-badge {
   padding: .15rem .5rem;
   border-radius: 20px;
   font-size: .72rem;
   font-weight: 700;
-  background: var(--green-600);
+  background: var(--teal-600);
   color: white;
   flex-shrink: 0;
 }
@@ -308,7 +312,7 @@ header {
 }
 
 .line-pill:hover { background: rgba(255,255,255,.22); border-color: rgba(255,255,255,.45); }
-.line-pill.active { background: white; color: var(--green-800); border-color: white; }
+.line-pill.active { background: white; color: var(--teal-800); border-color: white; }
 
 .pill-loc-btn {
   display: inline-flex;
@@ -390,7 +394,7 @@ main {
   font-size: 1rem;
 }
 
-.map-fab:hover { background: var(--green-50); box-shadow: var(--shadow-lg); transform: scale(1.06); }
+.map-fab:hover { background: var(--teal-50); box-shadow: var(--shadow-lg); transform: scale(1.06); }
 
 /* ═══════════════════════════════════════════════════════════════
    INFO PANEL
@@ -406,11 +410,11 @@ main {
 }
 
 #panel::-webkit-scrollbar { width: 4px; }
-#panel::-webkit-scrollbar-thumb { background: var(--green-400); border-radius: 10px; }
+#panel::-webkit-scrollbar-thumb { background: var(--teal-400); border-radius: 10px; }
 
 /* ─── Hero countdown card ─── */
 .hero-card {
-  background: linear-gradient(135deg, var(--green-800) 0%, var(--green-600) 100%);
+  background: linear-gradient(135deg, var(--teal-800) 0%, var(--teal-600) 100%);
   border-radius: var(--radius);
   padding: 1.2rem 1.25rem;
   color: white;
@@ -481,7 +485,7 @@ main {
   text-shadow: 0 2px 12px rgba(0,0,0,.3);
 }
 
-.hero-countdown.urgent { animation: countdownPulse 1s ease-in-out infinite; color: #ffda6a; }
+.hero-countdown.urgent { animation: countdownPulse 1s ease-in-out infinite; color: #fde68a; }
 
 @keyframes countdownPulse {
   0%,100% { transform: scale(1); }
@@ -548,7 +552,7 @@ main {
   background: var(--surface-2);
 }
 
-.panel-card-header i { color: var(--green-600); font-size: .95rem; }
+.panel-card-header i { color: var(--teal-600); font-size: .95rem; }
 
 /* ─── Multi-line upcoming ─── */
 .upcoming-list {
@@ -566,8 +570,8 @@ main {
 }
 
 .upcoming-item:last-child { border-bottom: none; }
-.upcoming-item:hover { background: var(--green-50); }
-.upcoming-item.active-line { background: var(--green-50); }
+.upcoming-item:hover { background: var(--teal-50); }
+.upcoming-item.active-line { background: var(--teal-50); }
 
 .upcoming-line-dot {
   width: 10px; height: 10px;
@@ -597,7 +601,7 @@ main {
   font-family: var(--font-mono);
   font-size: .95rem;
   font-weight: 700;
-  color: var(--green-700);
+  color: var(--teal-700);
   display: block;
 }
 
@@ -615,11 +619,11 @@ main {
   max-height: 260px;
   overflow-y: auto;
   scrollbar-width: thin;
-  scrollbar-color: var(--green-400) transparent;
+  scrollbar-color: var(--teal-400) transparent;
 }
 
 .schedule-timeline::-webkit-scrollbar { width: 3px; }
-.schedule-timeline::-webkit-scrollbar-thumb { background: var(--green-400); border-radius: 10px; }
+.schedule-timeline::-webkit-scrollbar-thumb { background: var(--teal-400); border-radius: 10px; }
 
 .tl-item {
   display: flex;
@@ -633,19 +637,19 @@ main {
 .tl-item:hover { background: var(--surface-2); }
 .tl-item.past { opacity: .38; }
 .tl-item.next {
-  background: var(--green-50);
-  border-left: 3px solid var(--green-500);
+  background: var(--teal-50);
+  border-left: 3px solid var(--teal-500);
 }
 
 .tl-dot {
   width: 8px; height: 8px;
   border-radius: 50%;
-  background: var(--green-400);
+  background: var(--teal-400);
   flex-shrink: 0;
 }
 
 .tl-item.past .tl-dot { background: var(--text-3); }
-.tl-item.next .tl-dot { background: var(--green-600); box-shadow: 0 0 0 3px rgba(0,146,65,.2); }
+.tl-item.next .tl-dot { background: var(--teal-600); box-shadow: 0 0 0 3px rgba(8,145,178,.2); }
 
 .tl-time {
   font-family: var(--font-mono);
@@ -657,10 +661,10 @@ main {
 
 .tl-remaining {
   font-size: .78rem;
-  color: var(--green-600);
+  color: var(--teal-700);
   font-weight: 600;
   margin-left: auto;
-  background: var(--green-100);
+  background: var(--teal-100);
   padding: .1rem .45rem;
   border-radius: 50px;
 }
@@ -680,7 +684,7 @@ main {
 }
 
 .addr-row i {
-  color: var(--green-600);
+  color: var(--teal-600);
   width: 16px;
   text-align: center;
   flex-shrink: 0;
@@ -711,12 +715,12 @@ main {
   transition: var(--transition);
 }
 
-.btn-green { background: var(--green-600); color: white; }
-.btn-green:hover { background: var(--green-700); }
+.btn-green { background: var(--teal-600); color: white; }
+.btn-green:hover { background: var(--teal-700); }
 .btn-green:disabled { opacity: .45; cursor: not-allowed; }
 
-.btn-outline { background: transparent; color: var(--green-700); border: 1.5px solid var(--green-600); }
-.btn-outline:hover { background: var(--green-50); }
+.btn-outline { background: transparent; color: var(--teal-700); border: 1.5px solid var(--teal-600); }
+.btn-outline:hover { background: var(--teal-50); }
 .btn-outline:disabled { opacity: .45; cursor: not-allowed; }
 
 /* ─── Location status ─── */
@@ -733,7 +737,7 @@ main {
   border: 1px solid var(--border);
 }
 
-#locationStatus i { color: var(--green-600); flex-shrink: 0; }
+#locationStatus i { color: var(--teal-600); flex-shrink: 0; }
 
 /* Search-by-address in panel */
 .addr-search-wrap {
@@ -756,13 +760,13 @@ main {
 
 .addr-search-wrap input:focus {
   outline: none;
-  border-color: var(--green-500);
-  box-shadow: 0 0 0 3px rgba(0,168,76,.15);
+  border-color: var(--teal-500);
+  box-shadow: 0 0 0 3px rgba(6,182,212,.15);
 }
 
 .addr-search-wrap button {
   padding: .6rem .9rem;
-  background: var(--green-600);
+  background: var(--teal-600);
   color: white;
   border: none;
   border-radius: var(--radius-sm);
@@ -773,7 +777,7 @@ main {
   white-space: nowrap;
 }
 
-.addr-search-wrap button:hover { background: var(--green-700); }
+.addr-search-wrap button:hover { background: var(--teal-700); }
 
 /* ═══════════════════════════════════════════════════════════════
    TOAST NOTIFICATION
@@ -783,7 +787,7 @@ main {
   bottom: 1.5rem;
   left: 50%;
   transform: translateX(-50%) translateY(80px);
-  background: var(--green-900);
+  background: var(--teal-900);
   color: white;
   padding: .75rem 1.4rem;
   border-radius: 50px;
@@ -864,15 +868,14 @@ main {
 <header>
   <div class="header-top">
     <div class="brand">
-      <div class="brand-icon">🚌</div>
+      <div class="brand-icon">🚏</div>
       <div>
-        <h1>BusAI</h1>
+        <h1>TransitAI</h1>
         <small>Transporte Coletivo — Alfenas/MG</small>
       </div>
     </div>
     <div class="header-right">
       <span id="liveClock">--:--:--</span>
-      <button class="icon-btn" id="darkToggle" title="Alternar tema" aria-label="Alternar modo escuro">🌙</button>
     </div>
   </div>
 
@@ -1793,14 +1796,7 @@ function tickClock() {
     now.toLocaleTimeString('pt-BR', {hour:'2-digit', minute:'2-digit', second:'2-digit'});
 }
 
-/* ═══════════════════════════════════════════════════════════════
-   DARK MODE
-═══════════════════════════════════════════════════════════════ */
-function applyTheme() {
-  const dark = localStorage.getItem('busaiDark') === '1';
-  document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light');
-  document.getElementById('darkToggle').textContent = dark ? '☀️' : '🌙';
-}
+/* (dark mode removed — light-only theme) */
 
 /* ═══════════════════════════════════════════════════════════════
    TOAST
@@ -1823,15 +1819,8 @@ document.addEventListener('DOMContentLoaded', () => {
   initMap();
   buildLinesNav();
 
-  // Theme
-  if (!localStorage.getItem('busaiDark')) {
-    localStorage.setItem('busaiDark', window.matchMedia('(prefers-color-scheme:dark)').matches ? '1' : '0');
-  }
-  applyTheme();
-  document.getElementById('darkToggle').addEventListener('click', () => {
-    localStorage.setItem('busaiDark', document.documentElement.getAttribute('data-theme') === 'dark' ? '0' : '1');
-    applyTheme();
-  });
+  // Theme: always light
+  document.documentElement.removeAttribute('data-theme');
 
   // Clock
   tickClock();
@@ -1858,7 +1847,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!e.target.closest('.search-wrap')) document.getElementById('searchDropdown').classList.remove('open');
   });
 
-  toast('Bem-vindo ao BusAI — selecione uma linha ou ative sua localização!', 'fas fa-bus');
+  toast('Bem-vindo ao TransitAI — selecione uma linha ou ative sua localização!', 'fas fa-bus');
 });
 </script>
 </body>
